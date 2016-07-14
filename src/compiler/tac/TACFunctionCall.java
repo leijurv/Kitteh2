@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -12,12 +14,14 @@ package compiler.tac;
 public class TACFunctionCall extends TACStatement {
     String result;
     String funcName;
-    public TACFunctionCall(String result, String funcName) {
+    ArrayList<String> argNames;
+    public TACFunctionCall(String result, String funcName, ArrayList<String> argNames) {
         this.result = result;
         this.funcName = funcName;
+        this.argNames = argNames;
     }
     @Override
     public String toString() {
-        return result + " = " + funcName + "()";
+        return result + " = " + funcName + argNames.stream().collect(Collectors.joining(",", "(", ")"));
     }
 }

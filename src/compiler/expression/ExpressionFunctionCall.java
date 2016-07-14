@@ -8,8 +8,8 @@ import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TempVarUsage;
-import compiler.type.TypeVoid;
 import compiler.type.Type;
+import compiler.type.TypeVoid;
 import java.util.ArrayList;
 
 /**
@@ -32,10 +32,20 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        emit.emit(new TACFunctionCall(resultLocation, funcName));
+        ArrayList<String> argNames = new ArrayList<>(args.size());
+        for (Expression exp : args) {
+            String tempName = tempVars.getTempVar();
+            exp.calcNaiveTAC(context, emit, tempVars, tempName);
+            argNames.add(tempName);
+        }
+        emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
     }
     @Override
     public int calcTACLength() {
-        return 1;
+        int sum = 0;
+        for (Expression exp : args) {
+            sum += exp.calcTACLength();
+        }
+        return sum + 1;
     }
 }

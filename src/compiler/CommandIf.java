@@ -14,9 +14,14 @@ public class CommandIf extends Command implements KeywordCommand {
     ArrayList<Command> contents;
     Expression condition;
     public CommandIf(Expression condition, ArrayList<Command> contents) {
+        this.contents = contents;
+        this.condition = condition;
     }
     @Override
     public Keyword getKeyword() {
         return Keyword.IF;
+    }
+    public String toString() {
+        return "if(" + condition + "){" + contents + "}";
     }
 }

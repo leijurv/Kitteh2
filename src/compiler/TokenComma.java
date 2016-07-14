@@ -9,18 +9,9 @@ package compiler;
  *
  * @author leijurv
  */
-public class ExpressionConstNum extends Expression {
-    Number val;
-    Type type;
-    public ExpressionConstNum(Number val, Type type) {
-        this.val = val;
-        this.type = type;
-    }
+public class TokenComma extends Token {
     @Override
-    public Type getType() {
-        return type;
-    }
     public String toString() {
-        return val.toString();
+        return ",";
     }
 }

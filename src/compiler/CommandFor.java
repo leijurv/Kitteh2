@@ -32,4 +32,7 @@ public class CommandFor extends Command implements KeywordCommand {
     public Keyword getKeyword() {
         return Keyword.FOR;
     }
+    public String toString() {
+        return "for(" + initialization + ";" + condition + ";" + afterthought + "){" + contents + "}";
+    }
 }

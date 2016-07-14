@@ -78,12 +78,15 @@ public class Parser {
                         break;
                     case IF://TODO else
                         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
+                        System.out.println("Parsed " + params + " to " + condition);
                         ArrayList<Command> blockCommands = Processor.parse(rawBlock, context.subContext());
                         result.add(new CommandIf(condition, blockCommands));
                         break;
                     default:
                         throw new IllegalStateException("Leif hasn't written parsing for block type \"" + beginningKeyword + '"');
                 }
+            } else {
+                result.add(parseLine(l.getTokens(), context));
             }
         }
         return result;
@@ -112,7 +115,10 @@ public class Parser {
             throw new IllegalStateException("what");
         }
         if (tokens.get(0) instanceof TokenKeyword) {
-            throw new IllegalStateException("we don't have this yet");
+            TokenKeyword lol = (TokenKeyword) tokens.get(0);
+            if (lol.getKeyword().canBeginBlock) {
+                throw new IllegalStateException();
+            }
         }
         if (tokens.stream().anyMatch(token -> token instanceof TokenSemicolon)) {
             throw new IllegalStateException("I don't like semicolons");
@@ -148,9 +154,9 @@ public class Parser {
             }
             TokenVariable toSet = (TokenVariable) tokens.get(0);
             Type type = context.getType(toSet.val);
-            boolean inferType = true;//TODO get this from the internal state of tokens.get(eqLoc)
-            if (inferType ^ type == null) {//look at that arousing use of xor
-                throw new IllegalStateException("ur using it wrong");
+            boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
+            if (inferType ^ (type == null)) {//look at that arousing use of xor
+                throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
             }
             Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
             if (type != null && ex.getType() != type) {//if type was already set, we passed it to the expressionparser, so the result should be the same type

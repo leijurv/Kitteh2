@@ -23,6 +23,10 @@ public class ExpressionOperator extends Expression {
         //TODO
         //this'll be hard =/
         //phrasing
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return a.getType();
+    }
+    public String toString() {
+        return "(" + a + ")" + op + "(" + b + ")";
     }
 }

@@ -52,8 +52,11 @@ public class Lexer extends AbstractLexer {
                 case ')':
                     emit(new TokenEndParen());
                     break;
+                case ',':
+                    emit(new TokenComma());
+                    break;
                 case ':':
-                    if (peek() == '-') {
+                    if (peek() == '=') {
                         pop();
                         emit(new TokenSetEqual(true));
                         break;

@@ -23,4 +23,7 @@ public class ExpressionVariable extends Expression {
     public Type getType() {
         return type;
     }
+    public String toString() {
+        return name;
+    }
 }

@@ -15,4 +15,7 @@ public class CommandExp extends Command {
     public CommandExp(Expression ex) {
         this.ex = ex;
     }
+    public String toString() {
+        return ex.toString();
+    }
 }

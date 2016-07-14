@@ -107,7 +107,7 @@ public class Lexer extends AbstractLexer {
                 case '=':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.EQUALS));
+                        emit(new TokenOperator(Operator.EQUAL));
                         break;
                     }
                     emit(new TokenSetEqual(false));
@@ -131,7 +131,7 @@ public class Lexer extends AbstractLexer {
                 case '!':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.NOT_EQUALS));
+                        emit(new TokenOperator(Operator.NOT_EQUAL));
                         break;
                     }
                     emit(new TokenNot());

@@ -13,7 +13,7 @@ import java.util.Comparator;
  * @author leijurv
  */
 public enum Operator {//extends Token maybe? might make things easier... idk
-    PLUS("+", 50), MINUS("-", 50), MULTIPLY("*", 100), DIVIDE("/", 100), MOD("%", 1000), EQUALS("==", 10), GREATER(">", 10), LESS("<", 10), GREATER_OR_EQUAL(">=", 10), LESS_OR_EQUAL("<=", 10), OR("||", 5), AND("&&", 5), NOT_EQUALS("!=", 10);
+    PLUS("+", 50), MINUS("-", 50), MULTIPLY("*", 100), DIVIDE("/", 100), MOD("%", 1000), EQUAL("==", 10), NOT_EQUAL("!=", 10), GREATER(">", 10), LESS("<", 10), GREATER_OR_EQUAL(">=", 10), LESS_OR_EQUAL("<=", 10), OR("||", 5), AND("&&", 5);
     public static final ArrayList<Operator> ORDER = orderOfOperations();//sorry this can't be the first line
     String str;
     int precedence;
@@ -44,12 +44,12 @@ public enum Operator {//extends Token maybe? might make things easier... idk
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return a;
-            case EQUALS:
+            case EQUAL:
             case GREATER:
             case LESS:
             case GREATER_OR_EQUAL:
             case LESS_OR_EQUAL:
-            case NOT_EQUALS:
+            case NOT_EQUAL:
                 if (!(a instanceof TypeNumerical) || !(b instanceof TypeNumerical)) {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
@@ -60,7 +60,8 @@ public enum Operator {//extends Token maybe? might make things easier... idk
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return new TypeBoolean();
+            //dont add a default
         }
-        throw new IllegalStateException(this + "");
+        throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
 }

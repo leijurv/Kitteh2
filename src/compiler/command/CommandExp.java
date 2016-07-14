@@ -5,9 +5,9 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
-import compiler.expression.Expression;
 
 /**
  * evaluate expression
@@ -28,6 +28,6 @@ public class CommandExp extends Command {
     }
     @Override
     protected int calculateTACLength() {
-        return ex.calculateTACLength();
+        return ex.getTACLength();
     }
 }

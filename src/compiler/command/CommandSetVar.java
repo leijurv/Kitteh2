@@ -5,9 +5,9 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
-import compiler.expression.Expression;
 
 /**
  *
@@ -26,6 +26,6 @@ public class CommandSetVar extends Command {
     }
     @Override
     protected int calculateTACLength() {
-        return val.calculateTACLength();
+        return val.getTACLength();
     }
 }

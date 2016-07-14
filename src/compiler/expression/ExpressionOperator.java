@@ -5,8 +5,8 @@
  */
 package compiler.expression;
 import compiler.Context;
-import compiler.tac.IREmitter;
 import compiler.Operator;
+import compiler.tac.IREmitter;
 import compiler.tac.TACJump;
 import compiler.tac.TACStandard;
 import compiler.tac.TempVarUsage;
@@ -48,7 +48,7 @@ public class ExpressionOperator extends Expression {
     }
     @Override
     public int calculateTACLength() {
-        return a.calculateTACLength() + b.calculateTACLength() + 1;
+        return a.getTACLength() + b.getTACLength() + 1;
     }
     public int condLength() {
         if (op == Operator.AND || op == Operator.OR) {

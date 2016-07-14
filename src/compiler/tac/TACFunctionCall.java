@@ -22,6 +22,6 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString() {
-        return result + " = " + funcName + argNames.stream().collect(Collectors.joining(",", "(", ")"));
+        return (result == null ? "" : result + " = ") + "CALLFUNC " + funcName + argNames.stream().collect(Collectors.joining(",", "(", ")"));
     }
 }

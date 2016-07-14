@@ -44,7 +44,7 @@ public class ExpressionFunctionCall extends Expression {
     public int calculateTACLength() {
         int sum = 0;
         for (Expression exp : args) {
-            sum += exp.calculateTACLength();
+            sum += exp.getTACLength();
         }
         return sum + 1;
     }

@@ -149,7 +149,7 @@ public class Parser {
             TokenVariable toSet = (TokenVariable) tokens.get(0);
             Type type = context.getType(toSet.val);
             boolean inferType = true;//TODO get this from the internal state of tokens.get(eqLoc)
-            if (!inferType && type == null) {
+            if (inferType ^ type == null) {//look at that arousing use of xor
                 throw new IllegalStateException("ur using it wrong");
             }
             Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer

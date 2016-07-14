@@ -10,4 +10,13 @@ package compiler;
  * @author leijurv
  */
 public class TypeBoolean extends Type {
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof TypeBoolean;
+    }
+    @Override
+    public int hashCode() {
+        int hash = 234545;
+        return hash;
+    }
 }

@@ -14,12 +14,12 @@ import java.util.Optional;
  */
 public class ExpressionParser {
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
-        System.out.println("EXPARSE " + o);
+        System.out.println("EXPARSE " + o + " " + desiredType);
         for (int i = 0; i < o.size(); i++) {
             Object ob = o.get(i);
             if (ob instanceof TokenNum) {
                 Number num = Double.parseDouble(((TokenNum) ob).val);//anything can be a double. even an int.
-                o.set(i, new ExpressionConstNum(num, desiredType.isPresent() ? desiredType.get() : new TypeInt32()));//TODO this is shit
+                o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is shit
             }
             if (ob instanceof TokenVariable) {
                 String name = ((TokenVariable) ob).val;
@@ -71,7 +71,7 @@ public class ExpressionParser {
                                 if (inParen.size() != 1) {
                                     throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
                                 }
-                                o.add(i, parseImpl(inParen.get(0), desiredType, context));
+                                o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
                             }
                             return parseImpl(o, desiredType, context);
                         }
@@ -106,16 +106,31 @@ public class ExpressionParser {
                     TokenOperator tokOp = (TokenOperator) o.remove(i);
                     Expression leftSide = (Expression) o.remove(i - 1);
                     o.add(i - 1, new ExpressionOperator(leftSide, tokOp.op, rightSide));
-                    return parseImpl(o, desiredType, context);
+                    return parseImpl(o, Optional.empty(), context);//not all subexpressions should be the same desired type. like you might want a boolean overall but you might have i+1==2, where you expect i to be TypeNumerical
                 }
             }
         }
         return null;
     }
+    private static Expression parse1(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+        Expression r = parseImpl(o, desiredType, context);
+        try {
+            r.getType();
+        } catch (IllegalStateException e) {
+            System.out.println("Exception while getting type of " + o);
+            throw e;
+        }
+        if (desiredType.isPresent()) {
+            if (!desiredType.get().equals(r.getType())) {
+                throw new IllegalStateException(o + " should have been type " + desiredType.get() + " but was actually type " + r.getType());
+            }
+        }
+        return r;
+    }
     public static Expression parse(List<Token> tokens, Optional<Type> desiredType, Context context) {
-        return parseImpl(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
+        return parse1(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
     }
     public static Expression parse(ArrayList<Token> tokens, Optional<Type> desiredType, Context context) {
-        return parseImpl(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
+        return parse1(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
     }
 }

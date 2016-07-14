@@ -19,7 +19,7 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public Type getType() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new TypeVoid();
     }
     public String toString() {
         return funcName + args;

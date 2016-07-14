@@ -24,9 +24,17 @@ public class ExpressionOperator extends Expression {
         //this'll be hard =/
         //phrasing
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        return a.getType();
+        Type A = a.getType();
+        Type B = b.getType();
+        Type result = op.onApplication(A, B);
+        System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
+        return result;
     }
     public String toString() {
         return "(" + a + ")" + op + "(" + b + ")";
+    }
+    public static void TAC(ExpressionOperator op) {
+        //TODO recursively generate TAC
+        //TODO if we allow ++ and -- that could mess up the DAG
     }
 }

@@ -16,7 +16,7 @@ public class ExpressionVariable extends Expression {
         this.name = name;
         this.type = context.getType(name);
         if (type == null) {
-            throw new IllegalStateException("pls");
+            throw new IllegalStateException("pls " + name);
         }
     }
     @Override

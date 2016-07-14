@@ -30,4 +30,37 @@ public enum Operator {//extends Token maybe? might make things easier... idk
         ops.sort(Comparator.comparingInt(op -> -op.precedence));//reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
         return ops;
     }
+    public Type onApplication(Type a, Type b) {
+        switch (this) {
+            case PLUS:
+            case MINUS:
+            case MULTIPLY:
+            case DIVIDE:
+            case MOD:
+                if (!a.equals(b)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                if (!(a instanceof TypeNumerical)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                return a;
+            case EQUALS:
+            case GREATER:
+            case LESS:
+            case GREATER_OR_EQUAL:
+            case LESS_OR_EQUAL:
+            case NOT_EQUALS:
+                if (!(a instanceof TypeNumerical) || !(b instanceof TypeNumerical)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                return new TypeBoolean();
+            case OR:
+            case AND:
+                if (!(a instanceof TypeBoolean) || !(b instanceof TypeBoolean)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                return new TypeBoolean();
+        }
+        throw new IllegalStateException(this + "");
+    }
 }

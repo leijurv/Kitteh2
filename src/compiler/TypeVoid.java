@@ -9,14 +9,14 @@ package compiler;
  *
  * @author leijurv
  */
-public class TypeInt32 extends TypeNumerical {
+public class TypeVoid extends Type {
     @Override
     public boolean equals(Object o) {
-        return o instanceof TypeInt32;
+        return o instanceof TypeVoid;
     }
     @Override
     public int hashCode() {
-        int hash = 983245;
+        int hash = 293857895;
         return hash;
     }
 }

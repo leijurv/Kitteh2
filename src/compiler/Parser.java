@@ -162,8 +162,9 @@ public class Parser {
             if (type != null && ex.getType() != type) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
                 throw new IllegalStateException();
             }
-            type = ex.getType();//if we are type inferring, type was null until now
-            context.setType(toSet.val, type);
+            if (type == null) {
+                context.setType(toSet.val, ex.getType());
+            }
             return new CommandSetVar(toSet.val, ex);
         }
         if (eqLoc == 2) {

@@ -66,10 +66,11 @@ public class Parser {
                                 ArrayList<Token> first = new ArrayList<>(params.subList(0, firstSemi));
                                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
-                                Command initialization = parseLine(first, context);
-                                blockCommands = Processor.parse(rawBlock, context.subContext());//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
+                                Context sub = context.subContext();
+                                Command initialization = parseLine(first, sub);
+                                blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                                 Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), context);
-                                Command afterthought = parseLine(third, context);
+                                Command afterthought = parseLine(third, sub);
                                 result.add(new CommandFor(initialization, condition, afterthought, blockCommands));
                                 break;
                             default:

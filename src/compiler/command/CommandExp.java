@@ -24,10 +24,10 @@ public class CommandExp extends Command {
     }
     @Override
     public void generateTAC(Context context, IREmitter emit) {
-        ex.calcNaiveTAC(context, emit, new TempVarUsage(), null);
+        ex.generateTAC(context, emit, new TempVarUsage(), null);
     }
     @Override
     protected int calculateTACLength() {
-        return ex.calcTACLength();
+        return ex.calculateTACLength();
     }
 }

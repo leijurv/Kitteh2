@@ -31,20 +31,20 @@ public class ExpressionFunctionCall extends Expression {
         return funcName + args;
     }
     @Override
-    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         ArrayList<String> argNames = new ArrayList<>(args.size());
         for (Expression exp : args) {
             String tempName = tempVars.getTempVar();
-            exp.calcNaiveTAC(context, emit, tempVars, tempName);
+            exp.generateTAC(context, emit, tempVars, tempName);
             argNames.add(tempName);
         }
         emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
     }
     @Override
-    public int calcTACLength() {
+    public int calculateTACLength() {
         int sum = 0;
         for (Expression exp : args) {
-            sum += exp.calcTACLength();
+            sum += exp.calculateTACLength();
         }
         return sum + 1;
     }

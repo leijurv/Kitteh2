@@ -22,10 +22,10 @@ public class CommandSetVar extends Command {
     }
     @Override
     public void generateTAC(Context context, IREmitter emit) {
-        val.calcNaiveTAC(context, emit, new TempVarUsage(), var);//this one, at least, is easy
+        val.generateTAC(context, emit, new TempVarUsage(), var);//this one, at least, is easy
     }
     @Override
     protected int calculateTACLength() {
-        return val.calcTACLength();
+        return val.calculateTACLength();
     }
 }

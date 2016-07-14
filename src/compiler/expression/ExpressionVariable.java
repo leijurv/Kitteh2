@@ -32,11 +32,11 @@ public class ExpressionVariable extends Expression {
         return name;
     }
     @Override
-    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, name));
     }
     @Override
-    public int calcTACLength() {
+    public int calculateTACLength() {
         return 1;
     }
 }

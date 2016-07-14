@@ -35,12 +35,12 @@ public class ExpressionConstNum extends Expression {
         return val.toString();
     }
     @Override
-    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, val.toString()));//this one, too, at least, is easy
         //wew that was like a lot of commas. 3 commas for 7 words. that's 3/7, which is 42.8572% (rounding)
     }
     @Override
-    public int calcTACLength() {
+    public int calculateTACLength() {
         return 1;
     }
 }

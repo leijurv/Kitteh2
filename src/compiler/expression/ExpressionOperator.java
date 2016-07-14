@@ -37,24 +37,24 @@ public class ExpressionOperator extends Expression {
     public String toString() {
         return "(" + a + ")" + op + "(" + b + ")";
     }
-    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         String aName = tempVars.getTempVar();
-        a.calcNaiveTAC(context, emit, tempVars, aName);
+        a.generateTAC(context, emit, tempVars, aName);
         String bName = tempVars.getTempVar();
-        b.calcNaiveTAC(context, emit, tempVars, bName);
+        b.generateTAC(context, emit, tempVars, bName);
         emit.emit(new TACStandard(resultLocation, aName, bName, op));
         //TODO if we allow ++ and -- that could mess up the DAG
         //TODO || and &&
     }
     @Override
-    public int calcTACLength() {
-        return a.calcTACLength() + b.calcTACLength() + 1;
+    public int calculateTACLength() {
+        return a.calculateTACLength() + b.calculateTACLength() + 1;
     }
     public int condLength() {
         if (op == Operator.AND || op == Operator.OR) {
             return ((ExpressionOperator) a).condLength() + ((ExpressionOperator) b).condLength();
         }
-        return calcTACLength();
+        return calculateTACLength();
     }
     /**
      *
@@ -106,9 +106,9 @@ public class ExpressionOperator extends Expression {
             }
         } else {
             String aName = tempVars.getTempVar();
-            a.calcNaiveTAC(context, emit, tempVars, aName);
+            a.generateTAC(context, emit, tempVars, aName);
             String bName = tempVars.getTempVar();
-            b.calcNaiveTAC(context, emit, tempVars, bName);
+            b.generateTAC(context, emit, tempVars, bName);
             emit.emit(new TACJump(aName + op + bName, jumpTo, invert));
         }
     }

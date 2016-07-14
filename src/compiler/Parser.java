@@ -69,7 +69,7 @@ public class Parser {
                                 Context sub = context.subContext();
                                 Command initialization = parseLine(first, sub);
                                 blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
-                                Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), context);
+                                Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                                 Command afterthought = parseLine(third, sub);
                                 result.add(new CommandFor(initialization, condition, afterthought, blockCommands));
                                 break;

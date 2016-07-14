@@ -25,5 +25,12 @@ public class Compiler {
         }
         ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println(commands);
+        IREmitter emit = new IREmitter();
+        for (Command com : commands) {
+            com.generateTAC(null, emit);
+        }
+        for (int i = 0; i < emit.result.size(); i++) {
+            System.out.println(i + ":     " + emit.result.get(i));
+        }
     }
 }

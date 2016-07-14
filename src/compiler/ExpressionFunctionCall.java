@@ -24,4 +24,12 @@ public class ExpressionFunctionCall extends Expression {
     public String toString() {
         return funcName + args;
     }
+    @Override
+    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+        emit.emit(new TACFunctionCall(resultLocation, funcName));
+    }
+    @Override
+    public int calcTACLength() {
+        return 1;
+    }
 }

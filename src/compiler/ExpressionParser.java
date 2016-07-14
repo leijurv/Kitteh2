@@ -54,7 +54,7 @@ public class ExpressionParser {
                                 inParen.add(temp);
                             }
                             System.out.println("Doing replace " + o + " " + inParen);
-                            if (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword) {
+                            if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
                                 ArrayList<Expression> args = new ArrayList<>(inParen.size());
                                 for (ArrayList<Object> p : inParen) {
                                     args.add(parseImpl(p, Optional.empty(), context));

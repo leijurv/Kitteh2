@@ -24,4 +24,20 @@ public class CommandIf extends Command implements KeywordCommand {
     public String toString() {
         return "if(" + condition + "){" + contents + "}";
     }
+    @Override
+    public void generateTAC(Context context, IREmitter emit) {
+        int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
+        ((ExpressionOperator) condition).generateConditionJump(context, emit, new TempVarUsage(), jumpToAfter, true);//invert is true
+        for (Command com : contents) {
+            com.generateTAC(context, emit);
+        }
+    }
+    @Override
+    protected int calculateTACLength() {
+        int sum = 0;
+        for (Command command : contents) {
+            sum += command.getTACLength();
+        }
+        return sum + ((ExpressionOperator) condition).condLength();
+    }
 }

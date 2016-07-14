@@ -10,4 +10,13 @@ package compiler;
  * @author leijurv
  */
 public abstract class Command {
+    public abstract void generateTAC(Context context, IREmitter emit);
+    protected abstract int calculateTACLength();
+    private Integer taclen = null;
+    public int getTACLength() {
+        if (taclen == null) {
+            taclen = calculateTACLength();
+        }
+        return taclen;
+    }
 }

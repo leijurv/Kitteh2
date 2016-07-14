@@ -18,4 +18,12 @@ public class CommandExp extends Command {
     public String toString() {
         return ex.toString();
     }
+    @Override
+    public void generateTAC(Context context, IREmitter emit) {
+        ex.calcNaiveTAC(context, emit, new TempVarUsage(), null);
+    }
+    @Override
+    protected int calculateTACLength() {
+        return ex.calcTACLength();
+    }
 }

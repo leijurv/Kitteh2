@@ -35,4 +35,28 @@ public class CommandFor extends Command implements KeywordCommand {
     public String toString() {
         return "for(" + initialization + ";" + condition + ";" + afterthought + "){" + contents + "}";
     }
+    @Override
+    public void generateTAC(Context context, IREmitter emit) {
+        int afterItAll = emit.lineNumberOfNextStatement() + getTACLength();
+        initialization.generateTAC(context, emit);
+        int placeToJumpTo = emit.lineNumberOfNextStatement();
+        //int conditionLen = ((ExpressionOperator) condition).condLength();
+        //int afterLen = afterthought.getTACLength();
+        //int afterItAll = placeToJumpTo + conditionLen + bodyLen + afterLen;
+        //System.out.println(placeToJumpTo + " " + conditionLen + " " + bodyLen + " " + afterLen + " " + afterItAll);
+        ((ExpressionOperator) condition).generateConditionJump(context, emit, new TempVarUsage(), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
+        for (Command com : contents) {
+            com.generateTAC(context, emit);
+        }
+        afterthought.generateTAC(context, emit);
+        emit.emit(new TACJump("true", placeToJumpTo, false));
+    }
+    @Override
+    protected int calculateTACLength() {
+        int bodyLen = 0;
+        for (Command com : contents) {
+            bodyLen += com.getTACLength();
+        }
+        return initialization.getTACLength() + ((ExpressionOperator) condition).condLength() + bodyLen + afterthought.getTACLength() + 1;//+1 for the jump from after the afterthought back to the condition
+    }
 }

@@ -14,6 +14,7 @@ import java.util.HashMap;
 public class Context {
     public class VarInfo {//this class is here because when it's actually a compiler this will store some more sketchy data like stack offset, stack size, etc
         Type type;
+        Object knownValue;//TODO use this for optimization. like you could optimize "i=5; j=i+i" to "j=10"
         public VarInfo(Type type) {
             this.type = type;
         }

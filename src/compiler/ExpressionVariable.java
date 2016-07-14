@@ -26,4 +26,12 @@ public class ExpressionVariable extends Expression {
     public String toString() {
         return name;
     }
+    @Override
+    public void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+        emit.emit(new TACConst(resultLocation, name));
+    }
+    @Override
+    public int calcTACLength() {
+        return 1;
+    }
 }

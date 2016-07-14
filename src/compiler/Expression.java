@@ -21,4 +21,6 @@ public abstract class Expression {
     }
     private Type cachedType = null;
     protected abstract Type calcType();//the return type
+    public abstract void calcNaiveTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation);
+    public abstract int calcTACLength();
 }

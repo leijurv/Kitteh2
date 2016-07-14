@@ -4,12 +4,15 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
-import compiler.type.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -17,7 +20,7 @@ import java.util.Comparator;
  */
 public enum Operator {//extends Token maybe? might make things easier... idk
     PLUS("+", 50), MINUS("-", 50), MULTIPLY("*", 100), DIVIDE("/", 100), MOD("%", 1000), EQUAL("==", 10), NOT_EQUAL("!=", 10), GREATER(">", 10), LESS("<", 10), GREATER_OR_EQUAL(">=", 10), LESS_OR_EQUAL("<=", 10), OR("||", 5), AND("&&", 5);
-    public static final ArrayList<Operator> ORDER = orderOfOperations();//sorry this can't be the first line
+    public static final ArrayList<List<Operator>> ORDER = orderOfOperations();//sorry this can't be the first line
     String str;
     int precedence;
     private Operator(String str, int precedence) {
@@ -28,10 +31,12 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     public String toString() {
         return str;
     }
-    public static ArrayList<Operator> orderOfOperations() {
-        ArrayList<Operator> ops = new ArrayList<>(Arrays.asList(values()));
-        ops.sort(Comparator.comparingInt(op -> -op.precedence));//reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
-        return ops;
+    public static ArrayList<List<Operator>> orderOfOperations() {
+        Map<Integer, List<Operator>> precToOp = Stream.of(values()).collect(Collectors.groupingBy(op -> op.precedence));
+        return Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(prec -> precToOp.get(prec)).collect(Collectors.toCollection(ArrayList::new));
+        //ArrayList<Operator> ops = new ArrayList<>(Arrays.asList(values()));
+        //reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
+        //return ops;
     }
     public Type onApplication(Type a, Type b) {
         switch (this) {

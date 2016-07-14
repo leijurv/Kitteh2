@@ -118,9 +118,9 @@ public class ExpressionParser {
         for (int i = 0; i < o.size(); i++) {
             //increment and decrement
         }
-        for (Operator op : Operator.ORDER) {//order of operations
+        for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
-                if (o.get(i) instanceof TokenOperator && ((TokenOperator) o.get(i)).op.equals(op)) {
+                if (o.get(i) instanceof TokenOperator && op.contains(((TokenOperator) o.get(i)).op)) {
                     if (i == 0 || i == o.size() - 1) {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }

@@ -17,9 +17,10 @@ public class ExpressionConstNum extends Expression {
         this.type = type;
     }
     @Override
-    public Type getType() {
+    public Type calcType() {
         return type;
     }
+    @Override
     public String toString() {
         return val.toString();
     }

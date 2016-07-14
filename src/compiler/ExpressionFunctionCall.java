@@ -18,7 +18,7 @@ public class ExpressionFunctionCall extends Expression {
         this.args = args;
     }
     @Override
-    public Type getType() {
+    public Type calcType() {
         return new TypeVoid();
     }
     public String toString() {

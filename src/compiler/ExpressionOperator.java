@@ -19,7 +19,7 @@ public class ExpressionOperator extends Expression {
         this.op = op;
     }
     @Override
-    public Type getType() {
+    public Type calcType() {
         //TODO
         //this'll be hard =/
         //phrasing
@@ -30,6 +30,7 @@ public class ExpressionOperator extends Expression {
         System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
         return result;
     }
+    @Override
     public String toString() {
         return "(" + a + ")" + op + "(" + b + ")";
     }

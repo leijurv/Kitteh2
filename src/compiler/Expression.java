@@ -10,5 +10,15 @@ package compiler;
  * @author leijurv
  */
 public abstract class Expression {
-    public abstract Type getType();//the return type
+    public final Type getType() {
+        if (cachedType == null) {
+            cachedType = getType();
+            if (cachedType == null) {
+                throw new IllegalStateException();
+            }
+        }
+        return cachedType;
+    }
+    private Type cachedType = null;
+    protected abstract Type calcType();//the return type
 }

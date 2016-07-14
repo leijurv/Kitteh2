@@ -20,7 +20,7 @@ public class ExpressionVariable extends Expression {
         }
     }
     @Override
-    public Type getType() {
+    public Type calcType() {
         return type;
     }
     public String toString() {

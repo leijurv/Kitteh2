@@ -21,7 +21,7 @@ public class ExpressionNum extends Expression {
         this(new TypeInt32(), val);
     }
     @Override
-    public Type getType() {
+    public Type calcType() {
         return type;
     }
 }

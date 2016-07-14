@@ -12,7 +12,7 @@ package compiler;
 public abstract class Expression {
     public final Type getType() {
         if (cachedType == null) {
-            cachedType = getType();
+            cachedType = calcType();
             if (cachedType == null) {
                 throw new IllegalStateException();
             }

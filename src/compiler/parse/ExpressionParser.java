@@ -8,19 +8,21 @@ import compiler.Context;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
+import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionVariable;
+import compiler.token.Token;
+import compiler.token.TokenComma;
+import compiler.token.TokenEndParen;
+import compiler.token.TokenKeyword;
+import compiler.token.TokenNum;
+import compiler.token.TokenOperator;
+import compiler.token.TokenStartParen;
+import compiler.token.TokenString;
+import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
-import compiler.token.TokenComma;
-import compiler.token.TokenVariable;
-import compiler.token.TokenOperator;
-import compiler.token.TokenKeyword;
-import compiler.token.TokenEndParen;
-import compiler.token.TokenStartParen;
-import compiler.token.Token;
-import compiler.token.TokenNum;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,9 @@ public class ExpressionParser {
             if (ob instanceof TokenNum) {
                 Number num = Double.parseDouble(((TokenNum) ob).val);//anything can be a double. even an int.
                 o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is shit
+            }
+            if (ob instanceof TokenString) {
+                o.set(i, new ExpressionConstStr(((TokenString) ob).val));
             }
             if (ob instanceof TokenVariable) {
                 String name = ((TokenVariable) ob).val;

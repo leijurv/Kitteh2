@@ -3,19 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.token;
+package compiler.type;
 
 /**
  *
  * @author leijurv
  */
-public class TokenString extends Token {
-    public final String val;
-    public TokenString(String val) {
-        this.val = val;
+public class TypeString extends Type {
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof TypeString;
     }
     @Override
-    public String toString() {
-        return '"' + val + '"';
+    public int hashCode() {
+        int hash = 3242343;
+        return hash;
     }
 }

@@ -4,6 +4,10 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.command.Command;
+import compiler.preprocess.Preprocessor;
+import compiler.parse.Processor;
+import compiler.tac.IREmitter;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -29,8 +33,8 @@ public class Compiler {
         for (Command com : commands) {
             com.generateTAC(null, emit);
         }
-        for (int i = 0; i < emit.result.size(); i++) {
-            System.out.println(i + ":     " + emit.result.get(i));
+        for (int i = 0; i < emit.getResult().size(); i++) {
+            System.out.println(i + ":     " + emit.getResult().get(i));
         }
     }
 }

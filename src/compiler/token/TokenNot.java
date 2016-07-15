@@ -9,7 +9,7 @@ package compiler.token;
  *
  * @author leijurv
  */
-public class TokenNot extends Token {
+public class TokenNot extends Token {//todo implement this in the parser
     @Override
     public String toString() {
         return "!";

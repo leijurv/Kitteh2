@@ -34,7 +34,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     LESS("<", 10),
     GREATER_OR_EQUAL(">=", 10),
     LESS_OR_EQUAL("<=", 10),
-    OR("||", 4),
+    OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     AND("&&", 5);
     public static final ArrayList<List<Operator>> ORDER = orderOfOperations();//sorry this can't be the first line
     String str;

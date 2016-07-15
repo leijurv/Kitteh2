@@ -36,7 +36,7 @@ public class Compiler {
         System.out.println(commands);
         IREmitter emit = new IREmitter();
         for (Command com : commands) {
-            com.generateTAC(null, emit);
+            com.generateTAC(emit);
         }
         for (int i = 0; i < emit.getResult().size(); i++) {
             System.out.println(i + ":     " + emit.getResult().get(i));

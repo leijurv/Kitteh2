@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.expression;
-import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TempVarUsage;
@@ -25,7 +24,7 @@ public class ExpressionConstStr extends Expression implements ExpressionConst {
         return new TypeString();
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, '"' + val + '"'));
     }
     @Override

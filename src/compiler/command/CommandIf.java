@@ -34,11 +34,11 @@ public class CommandIf extends Command implements KeywordCommand {
         return "if(" + condition + "){" + contents + "}";
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit) {
+    public void generateTAC(IREmitter emit) {
         int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
-        ((ExpressionConditionalJumpable) condition).generateConditionJump(context, emit, new TempVarUsage(), jumpToAfter, true);//invert is true
+        ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(), jumpToAfter, true);//invert is true
         for (Command com : contents) {
-            com.generateTAC(context, emit);
+            com.generateTAC(emit);
         }
     }
     @Override

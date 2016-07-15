@@ -37,11 +37,12 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     public String toString() {
         return "(" + a + ")" + op + "(" + b + ")";
     }
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    @Override
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         String aName = tempVars.getTempVar();
-        a.generateTAC(context, emit, tempVars, aName);
+        a.generateTAC(emit, tempVars, aName);
         String bName = tempVars.getTempVar();
-        b.generateTAC(context, emit, tempVars, bName);
+        b.generateTAC(emit, tempVars, bName);
         emit.emit(new TACStandard(resultLocation, aName, bName, op));
         //TODO if we allow ++ and -- that could mess up the DAG
         //TODO || and &&
@@ -67,12 +68,12 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
      * inverted, so jump if true
      */
     @Override
-    public void generateConditionJump(Context context, IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+    public void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
         if (op == Operator.AND) {
             if (invert) {
                 //inverted. skip down if known to be false
-                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert so it skips if false, and since this is AND, if one is false the result is false
-                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//if b is false either, skip to the same place
+                ((ExpressionConditionalJumpable) a).generateConditionJump(emit, tempVars, jumpTo, true);//invert so it skips if false, and since this is AND, if one is false the result is false
+                ((ExpressionConditionalJumpable) b).generateConditionJump(emit, tempVars, jumpTo, true);//if b is false either, skip to the same place
             } else {
                 //not inverted. skip down if known to be true
                 //if the first one is FALSE, we know that the result must be false
@@ -81,11 +82,11 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
                 int aLen = ((ExpressionConditionalJumpable) a).condLength();
                 int bLen = ((ExpressionConditionalJumpable) b).condLength();
                 int afterB = emit.lineNumberOfNextStatement() + aLen + bLen;
-                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, afterB, true);//if a is false, we jump to after B. invert so the jump is if A is false
+                ((ExpressionConditionalJumpable) a).generateConditionJump(emit, tempVars, afterB, true);//if a is false, we jump to after B. invert so the jump is if A is false
                 //for B, if B is true, then the result is true, so we can jump
                 //if B is false, then the result is false, so we dont jump
                 //B decides it now
-                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//dont invert
+                ((ExpressionConditionalJumpable) b).generateConditionJump(emit, tempVars, jumpTo, false);//dont invert
             }
         } else if (op == Operator.OR) {
             if (invert) {
@@ -96,21 +97,21 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
                 int aLen = ((ExpressionConditionalJumpable) a).condLength();
                 int bLen = ((ExpressionConditionalJumpable) b).condLength();
                 int afterB = emit.lineNumberOfNextStatement() + aLen + bLen;
-                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, afterB, false);//if a is true, we jump to after B
+                ((ExpressionConditionalJumpable) a).generateConditionJump(emit, tempVars, afterB, false);//if a is true, we jump to after B
                 //for B, if B is false, then the result is false, so we can jump
                 //if B is true, then the result is true, so we dont jump
                 //B decides it now
-                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert because if B is true then we don't jump
+                ((ExpressionConditionalJumpable) b).generateConditionJump(emit, tempVars, jumpTo, true);//invert because if B is true then we don't jump
             } else {
                 //not inverted. skip down if known to be true
-                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, jumpTo, false);//if a is true, then the result is known to be true, so we do the jump
-                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//if b is true, same thing
+                ((ExpressionConditionalJumpable) a).generateConditionJump(emit, tempVars, jumpTo, false);//if a is true, then the result is known to be true, so we do the jump
+                ((ExpressionConditionalJumpable) b).generateConditionJump(emit, tempVars, jumpTo, false);//if b is true, same thing
             }
         } else {
             String aName = tempVars.getTempVar();
-            a.generateTAC(context, emit, tempVars, aName);
+            a.generateTAC(emit, tempVars, aName);
             String bName = tempVars.getTempVar();
-            b.generateTAC(context, emit, tempVars, bName);
+            b.generateTAC(emit, tempVars, bName);
             emit.emit(new TACJump(aName + op + bName, jumpTo, invert));
         }
     }

@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.expression;
-import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TempVarUsage;
@@ -35,7 +34,7 @@ public class ExpressionConstNum extends Expression implements ExpressionConst {
         return val.toString();
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, val.toString()));//this one, too, at least, is easy
         //wew that was like a lot of commas. 3 commas for 7 words. that's 3/7, which is 42.8572% (rounding)
     }

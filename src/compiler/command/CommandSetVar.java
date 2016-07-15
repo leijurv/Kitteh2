@@ -23,8 +23,8 @@ public class CommandSetVar extends Command {
         this.var = var;
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit) {
-        val.generateTAC(context, emit, new TempVarUsage(), var);//this one, at least, is easy
+    public void generateTAC(IREmitter emit) {
+        val.generateTAC(emit, new TempVarUsage(), var);//this one, at least, is easy
     }
     @Override
     protected int calculateTACLength() {

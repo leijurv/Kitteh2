@@ -25,8 +25,8 @@ public class CommandExp extends Command {
         return ex.toString();
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit) {
-        ex.generateTAC(context, emit, new TempVarUsage(), null);
+    public void generateTAC(IREmitter emit) {
+        ex.generateTAC(emit, new TempVarUsage(), null);
     }
     @Override
     protected int calculateTACLength() {

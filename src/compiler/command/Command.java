@@ -16,7 +16,7 @@ public abstract class Command {
     protected Command(Context context) {
         this.context = context;
     }
-    public abstract void generateTAC(Context context, IREmitter emit);
+    public abstract void generateTAC(IREmitter emit);
     protected abstract int calculateTACLength();
     private Integer taclen = null;
     public int getTACLength() {

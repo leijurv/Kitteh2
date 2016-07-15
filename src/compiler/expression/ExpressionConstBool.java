@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.expression;
-import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TACJump;
@@ -25,7 +24,7 @@ public class ExpressionConstBool extends ExpressionConditionalJumpable implement
         return bool;
     }
     @Override
-    public void generateConditionJump(Context context, IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+    public void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
         emit.emit(new TACJump(bool + "", jumpTo, invert));//ez
     }
     @Override
@@ -37,7 +36,7 @@ public class ExpressionConstBool extends ExpressionConditionalJumpable implement
         return new TypeBoolean();
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, bool + ""));
     }
     @Override

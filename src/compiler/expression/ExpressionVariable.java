@@ -28,11 +28,12 @@ public class ExpressionVariable extends Expression {
     public Type calcType() {
         return type;
     }
+    @Override
     public String toString() {
         return name;
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, name));
     }
     @Override

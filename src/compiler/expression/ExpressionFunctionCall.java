@@ -33,11 +33,11 @@ public class ExpressionFunctionCall extends Expression {
         return funcName + args;
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         ArrayList<String> argNames = new ArrayList<>(args.size());
         for (Expression exp : args) {
             String tempName = tempVars.getTempVar();
-            exp.generateTAC(context, emit, tempVars, tempName);
+            exp.generateTAC(emit, tempVars, tempName);
             argNames.add(tempName);
         }
         emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));

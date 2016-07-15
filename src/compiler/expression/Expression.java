@@ -25,7 +25,7 @@ public abstract class Expression {
     }
     private Type cachedType = null;
     protected abstract Type calcType();//the return type
-    public abstract void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation);//TODO enforce length
+    public abstract void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation);//TODO enforce length
     protected abstract int calculateTACLength();
     private Integer taclen = null;
     public int getTACLength() {

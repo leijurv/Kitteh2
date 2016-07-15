@@ -46,7 +46,7 @@ public class CommandFor extends Command implements KeywordCommand {
         return "for(" + initialization + ";" + condition + ";" + afterthought + "){" + contents + "}";
     }
     @Override
-    public void generateTAC(Context context, IREmitter emit) {
+    public void generateTAC(Context context, IREmitter emit) {//TODO account for the fact that the init, condition, and / or afterthought might be null
         int afterItAll = emit.lineNumberOfNextStatement() + getTACLength();
         initialization.generateTAC(context, emit);
         int placeToJumpTo = emit.lineNumberOfNextStatement();

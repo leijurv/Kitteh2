@@ -10,7 +10,7 @@ package compiler;
  * @author leijurv
  */
 public enum Keyword {
-    FOR("PURR", true), PRINT("MEOW", false), PRINTLN("MEOWLN", false), IF("BLINK", true);
+    FOR("PURR", true), PRINT("MEOW", false), PRINTLN("MEOWLN", false), IF("BLINK", true), TRUE("YES", false), FALSE("NO", false);
     public static boolean CAT_MODE = false;
     public String catVersion;
     public boolean canBeginBlock;
@@ -30,9 +30,12 @@ public enum Keyword {
             if (k.toString().equals(str)) {
                 return k;
             }
+            if (k.toString().equals(str.toLowerCase())) {
+                throw new IllegalStateException("This isn't python / mathematica. Keywords in all lower case please. Keyword in question: " + str);
+            }
         }
         for (Keyword k : Keyword.values()) {//detect if they are using keywords from the other mode
-            if (k.toString(!CAT_MODE).equals(str)) {
+            if (k.toString(!CAT_MODE).equals(str.toLowerCase())) {
                 throw new IllegalStateException("You can't use " + str + " when cat_mode is " + CAT_MODE);
             }
         }

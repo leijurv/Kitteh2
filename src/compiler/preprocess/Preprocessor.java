@@ -19,6 +19,7 @@ public class Preprocessor {
             .addChar('	', StripLocation.BOTH)//you can use tabs or spaces
             .addChar('\r', StripLocation.BOTH)//idk how returns work
             .addChar((char) 11, StripLocation.BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
+            .addChar(' ', StripLocation.BOTH)//alt+space
             .build();
     static final Transform<ArrayList<String>> STRIP_COMMENTS = new StripComments();
     static final Transform<ArrayList<String>> REMOVE_BLANK = new BlankLineRemover();

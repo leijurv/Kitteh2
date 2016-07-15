@@ -4,19 +4,31 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstBool;
 
 /**
  *
  * @author leijurv
  */
 public enum Keyword {
-    FOR("PURR", true), PRINT("MEOW", false), PRINTLN("MEOWLN", false), IF("BLINK", true), TRUE("YES", false), FALSE("NO", false);
+    FOR("PURR", true, null),
+    PRINT("MEOW", false, null),
+    PRINTLN("MEOWLN", false, null),
+    IF("BLINK", true, null),
+    TRUE("YES", false, new ExpressionConstBool(true)),
+    FALSE("NO", false, new ExpressionConstBool(false));
     public static boolean CAT_MODE = false;
-    public String catVersion;
-    public boolean canBeginBlock;
-    private Keyword(String catVersion, boolean canBeginBlock) {
+    public final String catVersion;
+    public final boolean canBeginBlock;
+    private final ExpressionConst constVal;
+    private Keyword(String catVersion, boolean canBeginBlock, ExpressionConst constVal) {
         this.catVersion = catVersion;
         this.canBeginBlock = canBeginBlock;
+        this.constVal = constVal;
+    }
+    public ExpressionConst getConstVal() {
+        return constVal;
     }
     @Override
     public String toString() {

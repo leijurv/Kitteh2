@@ -23,7 +23,19 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public enum Operator {//extends Token maybe? might make things easier... idk
-    PLUS("+", 50), MINUS("-", 50), MULTIPLY("*", 100), DIVIDE("/", 100), MOD("%", 1000), EQUAL("==", 10), NOT_EQUAL("!=", 10), GREATER(">", 10), LESS("<", 10), GREATER_OR_EQUAL(">=", 10), LESS_OR_EQUAL("<=", 10), OR("||", 4), AND("&&", 5);
+    PLUS("+", 50),
+    MINUS("-", 50),
+    MULTIPLY("*", 100),
+    DIVIDE("/", 100),
+    MOD("%", 1000),
+    EQUAL("==", 10),
+    NOT_EQUAL("!=", 10),
+    GREATER(">", 10),
+    LESS("<", 10),
+    GREATER_OR_EQUAL(">=", 10),
+    LESS_OR_EQUAL("<=", 10),
+    OR("||", 4),
+    AND("&&", 5);
     public static final ArrayList<List<Operator>> ORDER = orderOfOperations();//sorry this can't be the first line
     String str;
     int precedence;

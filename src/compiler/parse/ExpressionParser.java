@@ -7,6 +7,7 @@ package compiler.parse;
 import compiler.Context;
 import compiler.Operator;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
@@ -65,6 +66,13 @@ public class ExpressionParser {
                     throw new IllegalStateException("Trying to use " + name + " before it's defined");
                 }
                 o.set(i, ex);
+            }
+            if (ob instanceof TokenKeyword) {
+                TokenKeyword tk = (TokenKeyword) ob;
+                ExpressionConst ec = tk.getKeyword().getConstVal();
+                if (ec != null) {
+                    o.set(i, (Expression) ec);
+                }
             }
         }
         if (o.size() == 1) {

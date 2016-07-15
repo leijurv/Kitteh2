@@ -21,7 +21,7 @@ public class Compiler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/fizzbuzz").toPath());
+        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/conditiontest.txt").toPath());
         ArrayList<String> k = Preprocessor.preprocess(new String(program));
         ArrayList<Object> lol = new ArrayList<>();
         for (String l : k) {

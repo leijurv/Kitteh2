@@ -26,7 +26,9 @@ public class ExpressionFunctionCall extends Expression {
     @Override
     public Type calcType() {
         return new TypeVoid();
+        //return new TypeInt32();
     }
+    @Override
     public String toString() {
         return funcName + args;
     }
@@ -47,5 +49,19 @@ public class ExpressionFunctionCall extends Expression {
             sum += exp.getTACLength();
         }
         return sum + 1;
+    }
+    @Override
+    public Expression insertKnownValues(Context context) {
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).insertKnownValues(context));
+        }
+        return this;
+    }
+    @Override
+    public Expression calculateConstants() {
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).calculateConstants());
+        }
+        return this;
     }
 }

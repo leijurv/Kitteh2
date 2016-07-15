@@ -16,7 +16,7 @@ import compiler.type.Type;
  *
  * @author leijurv
  */
-public class ExpressionOperator extends Expression {
+public class ExpressionOperator extends ExpressionConditionalJumpable {
     Operator op;
     Expression a;
     Expression b;
@@ -50,9 +50,10 @@ public class ExpressionOperator extends Expression {
     public int calculateTACLength() {
         return a.getTACLength() + b.getTACLength() + 1;
     }
+    @Override
     public int condLength() {
         if (op == Operator.AND || op == Operator.OR) {
-            return ((ExpressionOperator) a).condLength() + ((ExpressionOperator) b).condLength();
+            return ((ExpressionConditionalJumpable) a).condLength() + ((ExpressionConditionalJumpable) b).condLength();
         }
         return calculateTACLength();
     }
@@ -65,25 +66,26 @@ public class ExpressionOperator extends Expression {
      * @param invert If this is true, jump if false. Otherwise, it's not
      * inverted, so jump if true
      */
+    @Override
     public void generateConditionJump(Context context, IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
         if (op == Operator.AND) {
             if (invert) {
                 //inverted. skip down if known to be false
-                ((ExpressionOperator) a).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert so it skips if false, and since this is AND, if one is false the result is false
-                ((ExpressionOperator) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//if b is false either, skip to the same place
+                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert so it skips if false, and since this is AND, if one is false the result is false
+                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//if b is false either, skip to the same place
             } else {
                 //not inverted. skip down if known to be true
                 //if the first one is FALSE, we know that the result must be false
                 //if we know the result is false, and we want to jump if true, we can skip b and go directly to non-jump
                 //which is going to right after B
-                int aLen = ((ExpressionOperator) a).condLength();
-                int bLen = ((ExpressionOperator) b).condLength();
+                int aLen = ((ExpressionConditionalJumpable) a).condLength();
+                int bLen = ((ExpressionConditionalJumpable) b).condLength();
                 int afterB = emit.lineNumberOfNextStatement() + aLen + bLen;
-                ((ExpressionOperator) a).generateConditionJump(context, emit, tempVars, afterB, true);//if a is false, we jump to after B. invert so the jump is if A is false
+                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, afterB, true);//if a is false, we jump to after B. invert so the jump is if A is false
                 //for B, if B is true, then the result is true, so we can jump
                 //if B is false, then the result is false, so we dont jump
                 //B decides it now
-                ((ExpressionOperator) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//dont invert
+                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//dont invert
             }
         } else if (op == Operator.OR) {
             if (invert) {
@@ -91,18 +93,18 @@ public class ExpressionOperator extends Expression {
                 //if the first one is TRUE, we know the result bust be true
                 //if we know the result is true, and we want to jump if false, we can skip b and go directly to non-jump
                 //which is going to right after B
-                int aLen = ((ExpressionOperator) a).condLength();
-                int bLen = ((ExpressionOperator) b).condLength();
+                int aLen = ((ExpressionConditionalJumpable) a).condLength();
+                int bLen = ((ExpressionConditionalJumpable) b).condLength();
                 int afterB = emit.lineNumberOfNextStatement() + aLen + bLen;
-                ((ExpressionOperator) a).generateConditionJump(context, emit, tempVars, afterB, false);//if a is true, we jump to after B
+                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, afterB, false);//if a is true, we jump to after B
                 //for B, if B is false, then the result is false, so we can jump
                 //if B is true, then the result is true, so we dont jump
                 //B decides it now
-                ((ExpressionOperator) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert because if B is true then we don't jump
+                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, true);//invert because if B is true then we don't jump
             } else {
                 //not inverted. skip down if known to be true
-                ((ExpressionOperator) a).generateConditionJump(context, emit, tempVars, jumpTo, false);//if a is true, then the result is known to be true, so we do the jump
-                ((ExpressionOperator) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//if b is true, same thing
+                ((ExpressionConditionalJumpable) a).generateConditionJump(context, emit, tempVars, jumpTo, false);//if a is true, then the result is known to be true, so we do the jump
+                ((ExpressionConditionalJumpable) b).generateConditionJump(context, emit, tempVars, jumpTo, false);//if b is true, same thing
             }
         } else {
             String aName = tempVars.getTempVar();
@@ -111,5 +113,20 @@ public class ExpressionOperator extends Expression {
             b.generateTAC(context, emit, tempVars, bName);
             emit.emit(new TACJump(aName + op + bName, jumpTo, invert));
         }
+    }
+    @Override
+    public Expression insertKnownValues(Context context) {
+        a = a.insertKnownValues(context);
+        b = b.insertKnownValues(context);
+        return this;
+    }
+    @Override
+    public Expression calculateConstants() {
+        a = a.calculateConstants();
+        b = b.calculateConstants();
+        if (a instanceof ExpressionConst && b instanceof ExpressionConst) {
+            return (Expression) op.apply((ExpressionConst) a, (ExpressionConst) b);
+        }
+        return this;
     }
 }

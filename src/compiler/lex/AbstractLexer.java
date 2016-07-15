@@ -28,6 +28,12 @@ public abstract class AbstractLexer {
     protected boolean has() {
         return lineReader.has();
     }
+    protected String substring(int start) {
+        return lineReader.substring(start);
+    }
+    public int pos() {
+        return lineReader.currentPos();
+    }
     protected void emit(Token t) {
         temp.add(t);
     }

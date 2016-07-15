@@ -5,12 +5,12 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.tac.IREmitter;
 import compiler.Keyword;
 import compiler.KeywordCommand;
-import compiler.tac.TempVarUsage;
-import compiler.expression.ExpressionOperator;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConditionalJumpable;
+import compiler.tac.IREmitter;
+import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +20,8 @@ import java.util.ArrayList;
 public class CommandIf extends Command implements KeywordCommand {
     ArrayList<Command> contents;
     Expression condition;
-    public CommandIf(Expression condition, ArrayList<Command> contents) {
+    public CommandIf(Expression condition, ArrayList<Command> contents, Context context) {
+        super(context);
         this.contents = contents;
         this.condition = condition;
     }
@@ -28,13 +29,14 @@ public class CommandIf extends Command implements KeywordCommand {
     public Keyword getKeyword() {
         return Keyword.IF;
     }
+    @Override
     public String toString() {
         return "if(" + condition + "){" + contents + "}";
     }
     @Override
     public void generateTAC(Context context, IREmitter emit) {
         int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
-        ((ExpressionOperator) condition).generateConditionJump(context, emit, new TempVarUsage(), jumpToAfter, true);//invert is true
+        ((ExpressionConditionalJumpable) condition).generateConditionJump(context, emit, new TempVarUsage(), jumpToAfter, true);//invert is true
         for (Command com : contents) {
             com.generateTAC(context, emit);
         }
@@ -45,6 +47,14 @@ public class CommandIf extends Command implements KeywordCommand {
         for (Command command : contents) {
             sum += command.getTACLength();
         }
-        return sum + ((ExpressionOperator) condition).condLength();
+        return sum + ((ExpressionConditionalJumpable) condition).condLength();
+    }
+    @Override
+    public void staticValues() {
+        condition = condition.insertKnownValues(context);
+        condition = condition.calculateConstants();
+        for (Command com : contents) {
+            com.staticValues();
+        }
     }
 }

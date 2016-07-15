@@ -6,19 +6,19 @@
 package compiler.lex;
 import compiler.Keyword;
 import compiler.Operator;
-import compiler.token.TokenNot;
-import compiler.token.TokenVariable;
-import compiler.token.TokenKeyword;
-import compiler.token.TokenEndParen;
-import compiler.token.TokenDecrement;
-import compiler.token.TokenSemicolon;
-import compiler.token.TokenNum;
-import compiler.token.TokenComma;
-import compiler.token.TokenOperator;
-import compiler.token.TokenStartParen;
-import compiler.token.TokenIncrement;
 import compiler.token.Token;
+import compiler.token.TokenComma;
+import compiler.token.TokenDecrement;
+import compiler.token.TokenEndParen;
+import compiler.token.TokenIncrement;
+import compiler.token.TokenKeyword;
+import compiler.token.TokenNot;
+import compiler.token.TokenNum;
+import compiler.token.TokenOperator;
+import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
+import compiler.token.TokenStartParen;
+import compiler.token.TokenVariable;
 import java.util.ArrayList;
 
 /**
@@ -158,20 +158,19 @@ public class Lexer extends AbstractLexer {
         }
     }
     public String readAlphanumerical() {
-        StringBuilder temp = new StringBuilder();
+        int start = pos();
         while (has()) {
             char ch = peek();
             if (alphabetical(ch) || numerical(ch)) {
                 pop();
-                temp.append(ch);
             } else {
                 break;
             }
         }
-        return temp.toString();
+        return substring(start);
     }
     public String readNumerical() {
-        StringBuilder temp = new StringBuilder();
+        int start = pos();
         boolean hasHitPeriod = false;//lenny
         while (has()) {
             char ch = peek();
@@ -181,14 +180,13 @@ public class Lexer extends AbstractLexer {
                 }
                 hasHitPeriod = true;
                 pop();
-                temp.append(ch);
             } else if (alphabetical(ch)) {
-                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + temp.toString() + ch);
+                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substring(start) + ch);
             } else {
                 break;
             }
         }
-        return temp.toString();
+        return substring(start);
     }
     public static boolean allAlpha(String s) {
         for (char c : s.toCharArray()) {

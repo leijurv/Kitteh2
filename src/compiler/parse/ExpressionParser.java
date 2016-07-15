@@ -44,6 +44,12 @@ public class ExpressionParser {
                 o.set(i, new ExpressionConstStr(((TokenString) ob).val));
             }
             if (ob instanceof TokenVariable) {
+                if (i != o.size() - 1 && o.get(i + 1) instanceof TokenStartParen) {
+                    //this is a pattern like f(
+                    //indicates function call
+                    //let's just like not
+                    continue;
+                }
                 String name = ((TokenVariable) ob).val;
                 Expression ex = new ExpressionVariable(name, context);
                 Type type = ex.getType();
@@ -132,9 +138,9 @@ public class ExpressionParser {
                 }
             }
         }
-        return null;
+        throw new IllegalStateException("Unable to parse " + o);
     }
-    private static Expression parse1(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+    private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
         try {
             r.getType();
@@ -150,9 +156,9 @@ public class ExpressionParser {
         return r;
     }
     public static Expression parse(List<Token> tokens, Optional<Type> desiredType, Context context) {
-        return parse1(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
+        return purse(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
     }
     public static Expression parse(ArrayList<Token> tokens, Optional<Type> desiredType, Context context) {
-        return parse1(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
+        return purse(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
     }
 }

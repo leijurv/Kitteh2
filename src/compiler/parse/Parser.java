@@ -6,20 +6,19 @@
 package compiler.parse;
 import compiler.Context;
 import compiler.Keyword;
-import compiler.command.CommandFor;
 import compiler.command.Command;
-import compiler.command.CommandIf;
 import compiler.command.CommandExp;
+import compiler.command.CommandFor;
+import compiler.command.CommandIf;
 import compiler.command.CommandSetVar;
-import compiler.parse.ExpressionParser;
 import compiler.expression.Expression;
-import compiler.type.TypeBoolean;
-import compiler.type.Type;
-import compiler.token.TokenVariable;
+import compiler.token.Token;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenSemicolon;
-import compiler.token.Token;
 import compiler.token.TokenSetEqual;
+import compiler.token.TokenVariable;
+import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -66,13 +65,14 @@ public class Parser {
                         int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
                         switch (numSemis) {
                             case 0: // for{   OR  for i<5{
-                                ArrayList<Command> blockCommands = Processor.parse(rawBlock, context.subContext());
+                                Context sub = context.subContext();
+                                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
                                 if (params.isEmpty()) {//for{
                                     System.out.println("I'm a strong independant for loop that doesn't need no conditions");
-                                    result.add(new CommandFor(blockCommands));
+                                    result.add(new CommandFor(blockCommands, sub));
                                 } else {//for i<5
-                                    Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
-                                    result.add(new CommandFor(condition, blockCommands));
+                                    Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
+                                    result.add(new CommandFor(condition, blockCommands, sub));
                                 }
                                 break;
                             case 2://for i:=0; i<1000; i++{
@@ -82,12 +82,12 @@ public class Parser {
                                 ArrayList<Token> first = new ArrayList<>(params.subList(0, firstSemi));
                                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
-                                Context sub = context.subContext();
+                                sub = context.subContext();
                                 Command initialization = parseLine(first, sub);
                                 blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                                 Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                                 Command afterthought = parseLine(third, sub);
-                                result.add(new CommandFor(initialization, condition, afterthought, blockCommands));
+                                result.add(new CommandFor(initialization, condition, afterthought, blockCommands, sub));
                                 break;
                             default:
                                 throw new IllegalStateException("what are you even doing");
@@ -96,8 +96,9 @@ public class Parser {
                     case IF://TODO else
                         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
                         System.out.println("Parsed " + params + " to " + condition);
-                        ArrayList<Command> blockCommands = Processor.parse(rawBlock, context.subContext());
-                        result.add(new CommandIf(condition, blockCommands));
+                        Context sub = context.subContext();
+                        ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
+                        result.add(new CommandIf(condition, blockCommands, sub));
                         break;
                     default:
                         throw new IllegalStateException("Leif hasn't written parsing for block type \"" + beginningKeyword + '"');
@@ -158,7 +159,7 @@ public class Parser {
             //for example you couldn't just have "x+5" be a line on its own
             //some okay expressions to be lines on their own are: function calls, increments, and decrements
             //TODO check if ex is one of those
-            return new CommandExp(ex);
+            return new CommandExp(ex, context);
         }
         if (eqLoc == 0) {
             throw new IllegalStateException();
@@ -182,7 +183,7 @@ public class Parser {
             if (type == null) {
                 context.setType(toSet.val, ex.getType());
             }
-            return new CommandSetVar(toSet.val, ex);
+            return new CommandSetVar(toSet.val, ex, context);
         }
         if (eqLoc == 2) {
             if (!(tokens.get(1) instanceof TokenVariable)) {
@@ -196,7 +197,7 @@ public class Parser {
             Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);
             context.setType(toSet.val, rightSide.getType());
             //ok we doing something like long i=5
-            return new CommandSetVar(toSet.val, rightSide);
+            return new CommandSetVar(toSet.val, rightSide, context);
         }
         throw new IllegalStateException();
     }

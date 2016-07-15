@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.expression.ExpressionConst;
 import compiler.type.Type;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,9 +16,13 @@ import java.util.HashMap;
 public class Context {
     public class VarInfo {//this class is here because when it's actually a compiler this will store some more sketchy data like stack offset, stack size, etc
         Type type;
-        Object knownValue;//TODO use this for optimization. like you could optimize "i=5; j=i+i" to "j=10"
+        ExpressionConst knownValue;//TODO use this for optimization. like you could optimize "i=5; j=i+i" to "j=10"
         public VarInfo(Type type) {
             this.type = type;
+        }
+        @Override
+        public String toString() {
+            return ("type: " + type + " known: " + knownValue);
         }
     }
     private final HashMap<String, VarInfo>[] values;
@@ -47,6 +52,14 @@ public class Context {
     private void defineLocal(String name, VarInfo value) {
         values[values.length - 1].put(name, value);
     }
+    public ExpressionConst knownValue(String name) {
+        VarInfo info = get(name);
+        //System.out.println("Known for " + name + ": " + info);
+        if (info == null) {
+            return null;
+        }
+        return info.knownValue;
+    }
     public boolean varDefined(String name) {
         for (int i = 0; i < values.length; i++) {
             if (values[i].containsKey(name)) {
@@ -64,6 +77,12 @@ public class Context {
     public Type getType(String name) {
         VarInfo info = get(name);
         return info == null ? null : info.type;//deviously pass off the inevitable nullpointerexception
+    }
+    public void setKnownValue(String name, ExpressionConst val) {
+        get(name).knownValue = val;
+    }
+    public void clearKnownValue(String name) {
+        setKnownValue(name, null);
     }
     public VarInfo get(String name) {
         for (int i = values.length - 1; i >= 0; i--) {

@@ -39,4 +39,9 @@ public class ExpressionVariable extends Expression {
     public int calculateTACLength() {
         return 1;
     }
+    @Override
+    public Expression insertKnownValues(Context context) {
+        ExpressionConst known = context.knownValue(name);
+        return known == null ? this : (Expression) known;
+    }
 }

@@ -16,7 +16,8 @@ import compiler.tac.TempVarUsage;
  */
 public class CommandExp extends Command {
     Expression ex;
-    public CommandExp(Expression ex) {
+    public CommandExp(Expression ex, Context context) {
+        super(context);
         this.ex = ex;
     }
     public String toString() {
@@ -29,5 +30,10 @@ public class CommandExp extends Command {
     @Override
     protected int calculateTACLength() {
         return ex.getTACLength();
+    }
+    @Override
+    public void staticValues() {
+        ex = ex.insertKnownValues(context);
+        ex = ex.calculateConstants();
     }
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public class IREmitter {
+public class IREmitter {//extends ArrayList XDDD
     ArrayList<TACStatement> result;
     public IREmitter() {
         this.result = new ArrayList<>();

@@ -8,15 +8,15 @@ import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TempVarUsage;
-import compiler.type.TypeNumerical;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
+import compiler.type.TypeNumerical;
 
 /**
  *
  * @author leijurv
  */
-public class ExpressionConstNum extends Expression {
+public class ExpressionConstNum extends Expression implements ExpressionConst {
     Number val;
     Type type;
     public ExpressionConstNum(Number val, TypeNumerical type) {
@@ -38,6 +38,9 @@ public class ExpressionConstNum extends Expression {
     public void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, val.toString()));//this one, too, at least, is easy
         //wew that was like a lot of commas. 3 commas for 7 words. that's 3/7, which is 42.8572% (rounding)
+    }
+    public Number getVal() {
+        return val;
     }
     @Override
     public int calculateTACLength() {

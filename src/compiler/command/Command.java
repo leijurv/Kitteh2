@@ -12,6 +12,10 @@ import compiler.tac.IREmitter;
  * @author leijurv
  */
 public abstract class Command {
+    public Context context;
+    protected Command(Context context) {
+        this.context = context;
+    }
     public abstract void generateTAC(Context context, IREmitter emit);
     protected abstract int calculateTACLength();
     private Integer taclen = null;
@@ -21,4 +25,5 @@ public abstract class Command {
         }
         return taclen;
     }
+    public abstract void staticValues();
 }

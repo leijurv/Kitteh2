@@ -25,7 +25,7 @@ public abstract class Expression {
     }
     private Type cachedType = null;
     protected abstract Type calcType();//the return type
-    public abstract void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation);
+    public abstract void generateTAC(Context context, IREmitter emit, TempVarUsage tempVars, String resultLocation);//TODO enforce length
     protected abstract int calculateTACLength();
     private Integer taclen = null;
     public int getTACLength() {
@@ -33,5 +33,11 @@ public abstract class Expression {
             taclen = calculateTACLength();
         }
         return taclen;
+    }
+    public Expression insertKnownValues(Context context) {//insert known values. e.g. if x is known to be 5, then x+1 should become 5+1
+        return this;
+    }
+    public Expression calculateConstants() {//calculate static calculations. e.g. the expression 5+5 should return the const 10
+        return this;
     }
 }

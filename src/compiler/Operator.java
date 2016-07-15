@@ -4,6 +4,10 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.expression.Expression;
+import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstBool;
+import compiler.expression.ExpressionConstNum;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
@@ -75,5 +79,38 @@ public enum Operator {//extends Token maybe? might make things easier... idk
             //dont add a default
         }
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
+    }
+    public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
+        onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
+        switch (this) {
+            case PLUS:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() + ((ExpressionConstNum) b).getVal().intValue());
+            case MINUS:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() - ((ExpressionConstNum) b).getVal().intValue());
+            case MULTIPLY:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() * ((ExpressionConstNum) b).getVal().intValue());
+            case DIVIDE:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() / ((ExpressionConstNum) b).getVal().intValue());
+            case MOD:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() % ((ExpressionConstNum) b).getVal().intValue());
+            case EQUAL:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() == ((ExpressionConstNum) b).getVal().intValue());
+            case NOT_EQUAL:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() != ((ExpressionConstNum) b).getVal().intValue());
+            case LESS:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() < ((ExpressionConstNum) b).getVal().intValue());
+            case GREATER:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() > ((ExpressionConstNum) b).getVal().intValue());
+            case GREATER_OR_EQUAL:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() >= ((ExpressionConstNum) b).getVal().intValue());
+            case LESS_OR_EQUAL:
+                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() <= ((ExpressionConstNum) b).getVal().intValue());
+            case AND:
+                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() && ((ExpressionConstBool) b).getVal());
+            case OR:
+                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() || ((ExpressionConstBool) b).getVal());
+            default:
+                throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
+        }
     }
 }

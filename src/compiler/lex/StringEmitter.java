@@ -10,8 +10,8 @@ package compiler.lex;
  * @author leijurv
  */
 public class StringEmitter {
-    String str;
-    int pos;
+    private final String str;
+    private int pos;
     public StringEmitter(String str) {
         this.str = str;
         this.pos = 0;
@@ -29,5 +29,11 @@ public class StringEmitter {
     }
     public boolean has() {
         return pos < str.length();
+    }
+    public int currentPos() {
+        return pos;
+    }
+    public String substring(int start) {
+        return str.substring(start, has() ? pos : pos);//inclusive on right
     }
 }

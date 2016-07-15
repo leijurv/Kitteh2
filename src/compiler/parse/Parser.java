@@ -177,8 +177,8 @@ public class Parser {
                 throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
             }
             Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
-            if (type != null && ex.getType() != type) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
-                throw new IllegalStateException();
+            if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
+                throw new IllegalStateException(type + " " + ex.getType());
             }
             if (type == null) {
                 context.setType(toSet.val, ex.getType());

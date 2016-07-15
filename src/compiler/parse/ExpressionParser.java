@@ -37,7 +37,15 @@ public class ExpressionParser {
         for (int i = 0; i < o.size(); i++) {
             Object ob = o.get(i);
             if (ob instanceof TokenNum) {
-                Number num = Double.parseDouble(((TokenNum) ob).val);//anything can be a double. even an int.
+                String val = ((TokenNum) ob).val;
+                Number num;
+                if (val.contains(".")) {
+                    System.out.println("Parsing " + val + " as double");
+                    num = Double.parseDouble(val);
+                } else {
+                    System.out.println("Parsing " + val + " as int");
+                    num = Integer.parseInt(val);
+                }
                 o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is shit
             }
             if (ob instanceof TokenString) {

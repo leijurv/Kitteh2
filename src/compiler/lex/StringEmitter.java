@@ -34,6 +34,6 @@ public class StringEmitter {
         return pos;
     }
     public String substring(int start) {
-        return str.substring(start, has() ? pos : pos);//inclusive on right
+        return str.substring(start, pos);//inclusive on right
     }
 }

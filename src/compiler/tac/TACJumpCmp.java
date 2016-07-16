@@ -11,27 +11,26 @@ import compiler.Operator;
  *
  * @author leijurv
  */
-public class TACStandard extends TACStatement {
-    VarInfo result;
+public class TACJumpCmp extends TACJump {
     VarInfo first;
     VarInfo second;
-    String resultName;
     String firstName;
     String secondName;
     Operator op;
-    public TACStandard(String resultName, String firstName, String secondName, Operator op) {
-        this.resultName = resultName;
-        this.firstName = firstName;
-        this.secondName = secondName;
+    boolean neg;
+    public TACJumpCmp(String first, String second, Operator op, int jumpTo, boolean negated) {
+        super(jumpTo);
         this.op = op;
+        this.firstName = first;
+        this.secondName = second;
+        this.neg = negated;
     }
     @Override
     public String toString0() {
-        return result + " = " + first + " " + op + " " + second;
+        return "jump to " + jumpTo + " if " + (neg ? "not " : "") + first + " " + op + " " + second;
     }
     @Override
-    public void onContextKnown() {//TODO clean this up somehow, because this pattern is duplicated in all the TACs. maybe a hashmap in the superclass. idk
-        result = context.get(resultName);
+    public void onContextKnown() {
         first = context.get(firstName);
         second = context.get(secondName);
     }

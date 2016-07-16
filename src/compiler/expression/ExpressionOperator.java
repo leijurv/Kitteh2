@@ -7,7 +7,7 @@ package compiler.expression;
 import compiler.Context;
 import compiler.Operator;
 import compiler.tac.IREmitter;
-import compiler.tac.TACJump;
+import compiler.tac.TACJumpCmp;
 import compiler.tac.TACStandard;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -39,9 +39,9 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        String aName = tempVars.getTempVar();
+        String aName = tempVars.getTempVar(a.getType());
         a.generateTAC(emit, tempVars, aName);
-        String bName = tempVars.getTempVar();
+        String bName = tempVars.getTempVar(b.getType());
         b.generateTAC(emit, tempVars, bName);
         emit.emit(new TACStandard(resultLocation, aName, bName, op));
         //TODO if we allow ++ and -- that could mess up the DAG
@@ -108,11 +108,11 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
                 ((ExpressionConditionalJumpable) b).generateConditionJump(emit, tempVars, jumpTo, false);//if b is true, same thing
             }
         } else {
-            String aName = tempVars.getTempVar();
+            String aName = tempVars.getTempVar(a.getType());
             a.generateTAC(emit, tempVars, aName);
-            String bName = tempVars.getTempVar();
+            String bName = tempVars.getTempVar(b.getType());
             b.generateTAC(emit, tempVars, bName);
-            emit.emit(new TACJump(aName + op + bName, jumpTo, invert));
+            emit.emit(new TACJumpCmp(aName, bName, op, jumpTo, invert));
         }
     }
     @Override

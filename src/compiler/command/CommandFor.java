@@ -45,7 +45,7 @@ public class CommandFor extends Command implements KeywordCommand {
         return "for(" + initialization + ";" + condition + ";" + afterthought + "){" + contents + "}";
     }
     @Override
-    public void generateTAC(IREmitter emit) {//TODO account for the fact that the init, condition, and / or afterthought might be null
+    public void generateTAC0(IREmitter emit) {//TODO account for the fact that the init, condition, and / or afterthought might be null
         int afterItAll = emit.lineNumberOfNextStatement() + getTACLength();
         initialization.generateTAC(emit);
         int placeToJumpTo = emit.lineNumberOfNextStatement();
@@ -53,12 +53,15 @@ public class CommandFor extends Command implements KeywordCommand {
         //int afterLen = afterthought.getTACLength();
         //int afterItAll = placeToJumpTo + conditionLen + bodyLen + afterLen;
         //System.out.println(placeToJumpTo + " " + conditionLen + " " + bodyLen + " " + afterLen + " " + afterItAll);
-        ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
+        emit.updateContext(context);//I don't remember why this needs to be here, but if you remove it then compile something with a for loop, there will be an illegal state exception about the fitnessgram pacer test
+        ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
+        //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
         for (Command com : contents) {
             com.generateTAC(emit);
         }
         afterthought.generateTAC(emit);
-        emit.emit(new TACJump("true", placeToJumpTo, false));
+        emit.updateContext(context);//same deal here as above
+        emit.emit(new TACJump(placeToJumpTo));
     }
     @Override
     protected int calculateTACLength() {

@@ -16,7 +16,12 @@ public abstract class Command {
     protected Command(Context context) {
         this.context = context;
     }
-    public abstract void generateTAC(IREmitter emit);
+    protected abstract void generateTAC0(IREmitter emit);
+    public void generateTAC(IREmitter emit) {
+        emit.updateContext(context);
+        generateTAC0(emit);
+        emit.clearContext();//this is only here to make life difficult for everyone. don't remove it. actually, remove it. i dare you
+    }
     protected abstract int calculateTACLength();
     private Integer taclen = null;
     public int getTACLength() {

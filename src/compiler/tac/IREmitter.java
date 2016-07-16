@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.Context;
 import java.util.ArrayList;
 
 /**
@@ -11,11 +12,23 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class IREmitter {//extends ArrayList XDDD
-    ArrayList<TACStatement> result;
+    private final ArrayList<TACStatement> result;
+    private Context currentContext;
     public IREmitter() {
         this.result = new ArrayList<>();
+        this.currentContext = null;
+    }
+    public void updateContext(Context context) {
+        this.currentContext = context;
+    }
+    public void clearContext() {
+        this.currentContext = null;
     }
     public void emit(TACStatement ts) {
+        if (currentContext == null) {
+            throw new IllegalStateException("The FitnessGram pacer test is a multistage aerobic capacity test");
+        }
+        ts.setContext(currentContext);
         result.add(ts);
     }
     public int lineNumberOfNextStatement() {
@@ -25,6 +38,9 @@ public class IREmitter {//extends ArrayList XDDD
         return result.size() - 1;
     }
     public ArrayList<TACStatement> getResult() {
+        if (currentContext != null) {
+            throw new IllegalStateException("YOU CAN NEVER ESCAPE THE FITNESSGRAM");
+        }
         return result;
     }
 }

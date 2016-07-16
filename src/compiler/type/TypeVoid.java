@@ -19,4 +19,8 @@ public class TypeVoid extends Type {
         int hash = 293857895;
         return hash;
     }
+    @Override
+    public int getSizeBytes() {
+        return 0;
+    }
 }

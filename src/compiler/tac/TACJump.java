@@ -10,16 +10,15 @@ package compiler.tac;
  * @author leijurv
  */
 public class TACJump extends TACStatement {
-    String exp;
     int jumpTo;
-    boolean neg;
-    public TACJump(String exp, int jumpTo, boolean negated) {
-        this.exp = exp;
+    public TACJump(int jumpTo) {
         this.jumpTo = jumpTo;
-        this.neg = negated;
     }
     @Override
-    public String toString() {
-        return "jump to " + jumpTo + " if " + (neg ? "not " : "") + exp;
+    protected void onContextKnown() {
+    }
+    @Override
+    public String toString0() {
+        return "jmp " + jumpTo;
     }
 }

@@ -9,5 +9,6 @@ package compiler.type;
  *
  * @author leijurv
  */
-public class Type {
+public abstract class Type {
+    public abstract int getSizeBytes();
 }

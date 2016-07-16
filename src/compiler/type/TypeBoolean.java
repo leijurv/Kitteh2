@@ -19,4 +19,8 @@ public class TypeBoolean extends Type {
         int hash = 234545;
         return hash;
     }
+    @Override
+    public int getSizeBytes() {
+        return 1;
+    }
 }

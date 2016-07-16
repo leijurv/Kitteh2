@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.type;
+import java.util.Random;
 
 /**
  *
@@ -19,4 +20,9 @@ public class TypeString extends Type {
         int hash = 3242343;
         return hash;
     }
+    @Override
+    public int getSizeBytes() {
+        return 4000;//TODO idk man most strings are less than 4000 in size
+    }
+    static int STRING_SIZE_BYTES = new Random().nextInt(101) - 101 / 2 + 5021;//averages out to 5021
 }

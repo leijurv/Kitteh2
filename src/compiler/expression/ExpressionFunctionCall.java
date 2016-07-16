@@ -36,7 +36,7 @@ public class ExpressionFunctionCall extends Expression {
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         ArrayList<String> argNames = new ArrayList<>(args.size());
         for (Expression exp : args) {
-            String tempName = tempVars.getTempVar();
+            String tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             argNames.add(tempName);
         }

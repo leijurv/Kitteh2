@@ -19,4 +19,11 @@ public class TypeInt32 extends TypeNumerical {
         int hash = 983245;
         return hash;
     }
+    @Override
+    public int getSizeBytes() {
+        return 4;
+    }
+    public String toString() {
+        return "int";
+    }
 }

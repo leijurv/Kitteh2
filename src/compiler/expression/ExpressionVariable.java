@@ -7,6 +7,7 @@ package compiler.expression;
 import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
+import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 
@@ -14,7 +15,7 @@ import compiler.type.Type;
  *
  * @author leijurv
  */
-public class ExpressionVariable extends Expression {
+public class ExpressionVariable extends ExpressionConditionalJumpable {
     String name;
     Type type;
     public ExpressionVariable(String name, Context context) {
@@ -44,5 +45,13 @@ public class ExpressionVariable extends Expression {
     public Expression insertKnownValues(Context context) {
         ExpressionConst known = context.knownValue(name);
         return known == null ? this : (Expression) known;
+    }
+    @Override
+    public void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+        emit.emit(new TACJumpBoolVar(name, jumpTo, invert));
+    }
+    @Override
+    public int condLength() {
+        return 1;
     }
 }

@@ -25,7 +25,11 @@ public class ExpressionConstBool extends ExpressionConditionalJumpable implement
     }
     @Override
     public void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        emit.emit(new TACJump(bool + "", jumpTo, invert));//ez
+        if (!invert ^ bool) {//god damn I love xor
+            emit.emit(new TACJump(emit.lineNumberOfNextStatement() + 1));//I love hacks like this =D
+        } else {
+            emit.emit(new TACJump(jumpTo));//ez
+        }
     }
     @Override
     public int condLength() {

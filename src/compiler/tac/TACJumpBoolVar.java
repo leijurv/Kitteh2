@@ -27,6 +27,7 @@ public class TACJumpBoolVar extends TACJump {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }
     }
+    @Override
     public String toString0() {
         return "jump to " + jumpTo + " if " + (invert ? "not " : "") + var;
     }

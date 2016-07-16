@@ -31,7 +31,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        argInfos = new ArrayList<>(argNames.size());
+        argInfos = new ArrayList<>(argNames.size());//todo stream this
         for (int i = 0; i < argNames.size(); i++) {
             argInfos.add(context.get(argNames.get(i)));
         }

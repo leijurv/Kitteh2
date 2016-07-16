@@ -11,15 +11,6 @@ package compiler.type;
  */
 public class TypeVoid extends Type {
     @Override
-    public boolean equals(Object o) {
-        return o instanceof TypeVoid;
-    }
-    @Override
-    public int hashCode() {
-        int hash = 293857895;
-        return hash;
-    }
-    @Override
     public int getSizeBytes() {
         return 0;
     }

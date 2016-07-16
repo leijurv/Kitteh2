@@ -11,18 +11,10 @@ package compiler.type;
  */
 public class TypeInt32 extends TypeNumerical {
     @Override
-    public boolean equals(Object o) {
-        return o instanceof TypeInt32;
-    }
-    @Override
-    public int hashCode() {
-        int hash = 983245;
-        return hash;
-    }
-    @Override
     public int getSizeBytes() {
         return 4;
     }
+    @Override
     public String toString() {
         return "int";
     }

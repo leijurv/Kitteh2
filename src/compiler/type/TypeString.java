@@ -12,15 +12,6 @@ import java.util.Random;
  */
 public class TypeString extends Type {
     @Override
-    public boolean equals(Object o) {
-        return o instanceof TypeString;
-    }
-    @Override
-    public int hashCode() {
-        int hash = 3242343;
-        return hash;
-    }
-    @Override
     public int getSizeBytes() {
         return 4000;//TODO idk man most strings are less than 4000 in size
     }

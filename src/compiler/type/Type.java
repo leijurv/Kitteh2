@@ -11,4 +11,12 @@ package compiler.type;
  */
 public abstract class Type {
     public abstract int getSizeBytes();
+    @Override
+    public boolean equals(Object o) {
+        return getClass() == o.getClass();
+    }
+    @Override
+    public int hashCode() {
+        return getClass().toString().hashCode();
+    }
 }

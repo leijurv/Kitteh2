@@ -42,10 +42,7 @@ public class CommandIf extends Command implements KeywordCommand {
     }
     @Override
     protected int calculateTACLength() {
-        int sum = 0;
-        for (Command command : contents) {
-            sum += command.getTACLength();
-        }
+        int sum = contents.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         return sum + ((ExpressionConditionalJumpable) condition).condLength();
     }
     @Override

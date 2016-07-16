@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class Line {
-    private ArrayList<Object> source;
+    private final ArrayList<Object> source;
     private ArrayList<Token> tokens;
     public Line(ArrayList<Object> source) {
         this.source = source;

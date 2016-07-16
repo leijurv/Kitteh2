@@ -7,6 +7,7 @@ package compiler.lex;
 import compiler.parse.Line;
 import compiler.parse.Transform;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  *
@@ -15,25 +16,24 @@ import java.util.ArrayList;
 public class LexLuthor implements Transform<ArrayList<Object>> {
     @Override
     public void apply(ArrayList<Object> lines) {
-        for (Object o : lines) {
-            if (o instanceof Line) {
-                ((Line) o).lex();
-            }
-        }
-        //I did some premature optimization that actually turns out it made it slower (at least for my small test program)
-        //If we ever want to multithread the lexer, just uncomment this section =)
-        //(yes, it's a parallel stream of illegal state exceptions)
-        /*
-         Optional<IllegalStateException> e = lines.parallelStream().filter(line -> line instanceof Line).map(line -> (Line) line).map(line -> {
-         try {
-         line.lex();
-         } catch (IllegalStateException ex) {
-         return ex;
+        //bad non multithreaded implementation provided for reference
+        /*for (Object o : lines) {
+         if (o instanceof Line) {
+         ((Line) o).lex();
          }
-         return null;
-         }).filter(ex -> ex != null).findFirst();
-         if (e.isPresent()) {
-         throw e.get();
          }*/
+        Optional<IllegalStateException> e = lines.parallelStream().filter(line -> line instanceof Line).map(line -> (Line) line).map(line -> {
+            try {
+                line.lex();
+            } catch (IllegalStateException ex) {
+                return ex;
+            }
+            return null;
+        }).filter(ex -> ex != null).findFirst();//get the first non-null exception
+        if (e.isPresent()) {
+            throw e.get();//and throw it
+        }
+        //this makes it mimic the behavior of a non parallel lexer
+        //to guarantee that the first and only the first line with an error gets an error thrown
     }
 }

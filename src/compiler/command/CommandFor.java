@@ -56,7 +56,7 @@ public class CommandFor extends Command implements KeywordCommand {
         emit.updateContext(context);//I don't remember why this needs to be here, but if you remove it then compile something with a for loop, there will be an illegal state exception about the fitnessgram pacer test
         ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
-        for (Command com : contents) {
+        for (Command com : contents) {//TODOIFIWANTTOKILLMYSELF make this parallel
             com.generateTAC(emit);
         }
         afterthought.generateTAC(emit);
@@ -65,10 +65,7 @@ public class CommandFor extends Command implements KeywordCommand {
     }
     @Override
     protected int calculateTACLength() {
-        int bodyLen = 0;
-        for (Command com : contents) {
-            bodyLen += com.getTACLength();
-        }
+        int bodyLen = contents.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         return initialization.getTACLength() + ((ExpressionConditionalJumpable) condition).condLength() + bodyLen + afterthought.getTACLength() + 1;//+1 for the jump from after the afterthought back to the condition
     }
     @Override

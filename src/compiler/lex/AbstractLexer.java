@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public abstract class AbstractLexer {
+public abstract class AbstractLexer {//extends StringEmitter? I just provide wrappers for all its funcs anyway... lol
     private final StringEmitter lineReader;
     private final ArrayList<Token> temp;
     protected AbstractLexer(String line) {

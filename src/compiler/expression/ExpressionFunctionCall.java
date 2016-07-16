@@ -11,6 +11,8 @@ import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeVoid;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -34,34 +36,30 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        ArrayList<String> argNames = new ArrayList<>(args.size());
-        for (Expression exp : args) {
+        ArrayList<String> argNames = args.stream().map((exp) -> {
             String tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
-            argNames.add(tempName);
-        }
+            return tempName;
+        }).collect(Collectors.toCollection(ArrayList::new));
         emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
     }
     @Override
     public int calculateTACLength() {
-        int sum = 0;
-        for (Expression exp : args) {
-            sum += exp.getTACLength();
-        }
+        int sum = args.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         return sum + 1;
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        for (int i = 0; i < args.size(); i++) {
-            args.set(i, args.get(i).insertKnownValues(context));
-        }
+        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+            args.set(i, args.get(i).insertKnownValues(context));//.parallel() == sanik
+        });
         return this;
     }
     @Override
     public Expression calculateConstants() {
-        for (int i = 0; i < args.size(); i++) {
-            args.set(i, args.get(i).calculateConstants());
-        }
+        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+            args.set(i, args.get(i).calculateConstants());//.parallel() == sanik
+        });
         return this;
     }
 }

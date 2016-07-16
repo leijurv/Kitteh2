@@ -7,6 +7,7 @@ package compiler.command;
 import compiler.Keyword;
 
 /**
+ * There was a purpose for this but I can't remember it
  *
  * @author leijurv
  */

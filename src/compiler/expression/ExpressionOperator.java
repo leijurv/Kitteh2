@@ -59,8 +59,8 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         return calculateTACLength();
     }
     /**
+     * honestly i don't even know
      *
-     * @param context
      * @param emit
      * @param tempVars
      * @param jumpTo
@@ -117,7 +117,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        a = a.insertKnownValues(context);
+        a = a.insertKnownValues(context);//TODO multithread this with a and b /s
         b = b.insertKnownValues(context);
         return this;
     }

@@ -27,6 +27,7 @@ import compiler.type.TypeInt32;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -99,10 +100,9 @@ public class ExpressionParser {
                             }
                             System.out.println("Doing replace " + o + " " + inParen);
                             if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
-                                ArrayList<Expression> args = new ArrayList<>(inParen.size());
-                                for (ArrayList<Object> p : inParen) {
-                                    args.add(parseImpl(p, Optional.empty(), context));
-                                }
+                                //tfw parallel expression parsing
+                                //tfw this is a GOOD idea /s
+                                ArrayList<Expression> args = inParen.stream().parallel().map(p -> parseImpl(p, Optional.empty(), context)).collect(Collectors.toCollection(ArrayList::new));
                                 String funcName;
                                 if (o.get(i - 1) instanceof TokenVariable) {
                                     funcName = ((TokenVariable) o.get(i - 1)).val;
@@ -137,9 +137,9 @@ public class ExpressionParser {
         //only three items in o; assume the middle one must be an operator
         //function calls (a TokenVariable then an Expression / ArrayList<Expression>)
         //getting array item (like arr[ind])
-        for (int i = 0; i < o.size(); i++) {
-            //increment and decrement
-        }
+        /*for (int i = 0; i < o.size(); i++) {
+         //increment and decrement
+         }*/
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
                 if (o.get(i) instanceof TokenOperator && op.contains(((TokenOperator) o.get(i)).op)) {

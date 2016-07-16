@@ -105,8 +105,8 @@ public class Context {
         return info.knownValue;
     }
     public boolean varDefined(String name) {
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].containsKey(name)) {
+        for (HashMap<String, VarInfo> value : values) {
+            if (value.containsKey(name)) {
                 return true;
             }
         }

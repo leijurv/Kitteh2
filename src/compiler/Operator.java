@@ -37,8 +37,8 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     AND("&&", 5);
     public static final ArrayList<List<Operator>> ORDER = orderOfOperations();//sorry this can't be the first line
-    String str;
-    int precedence;
+    private final String str;
+    private final int precedence;
     private Operator(String str, int precedence) {
         this.str = str;
         this.precedence = precedence;

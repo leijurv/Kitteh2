@@ -4,10 +4,9 @@
  * and open the template in the editor.
  */
 package compiler.parse;
-import compiler.lex.LexLuthor;
 import compiler.Context;
-import compiler.parse.Parser;
 import compiler.command.Command;
+import compiler.lex.LexLuthor;
 import java.util.ArrayList;
 
 /**
@@ -25,6 +24,7 @@ public class Processor {
      * @return
      */
     public static ArrayList<Command> parse(ArrayList<Object> tempO, Context context) {
+        long a = System.currentTimeMillis();
         ArrayList<Object> o = new ArrayList<>(tempO.size());
         o.addAll(tempO);
         tempO.clear();//idk
@@ -32,10 +32,13 @@ public class Processor {
         new StringFinder().apply(o);//This makes a lot of things easier. Without this we can't do things like if(line.contains("{")) because the { might be in a string and therefore wouldn't actually begin a block
         new BlockFinder().apply(o);
         o = LineGrouper.groupAdjacentIntoLines(o);
-        System.out.println(o);
+        long b = System.currentTimeMillis();
         new LexLuthor().apply(o);
+        long c = System.currentTimeMillis();
         System.out.println("Done processing, beginning parsing " + o);
         ArrayList<Command> res = new Parser().parse(o, context);
+        long d = System.currentTimeMillis();
+        System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c));
         return res;
     }
 }

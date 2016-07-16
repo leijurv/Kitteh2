@@ -22,6 +22,11 @@ public class CharStripperFactory {
     public LineBasedTransform build() {
         return new StripChars();
     }
+    /**
+     * my favorite function
+     *
+     * @return
+     */
     private Character[] stripBegin() {
         return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripBegin()).mapToObj(i -> chars.get(i)).toArray(Character[]::new);
     }
@@ -43,8 +48,13 @@ public class CharStripperFactory {
             if (line.equals("")) {
                 return line;
             }
+            long bef = System.currentTimeMillis();
             Character[] begin = stripBegin();
             Character[] end = stripEnd();
+            long aft = System.currentTimeMillis();
+            if (aft - bef > 50) {
+                System.out.println("MOM! JAVA IS BEING WEIRD AGAIN. This took " + (aft - bef) + "ms and it should have only taken like 0");
+            }
             int stripBegin;
             for (stripBegin = 0; stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin)); stripBegin++);
             int stripEnd;

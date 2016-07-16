@@ -29,13 +29,6 @@ import java.util.Optional;
  */
 public class Parser {
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
-        for (int i = 0; i < lexed.size(); i++) {
-            Object o = lexed.get(i);
-            if (o instanceof Line) {
-                Line l = (Line) o;
-                //idk what I was planning here, but in case I remember I'm gonna leave it
-            }
-        }
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {
             Object o = lexed.get(i);

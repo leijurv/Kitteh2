@@ -19,8 +19,19 @@ public abstract class Command {
     protected abstract void generateTAC0(IREmitter emit);
     public void generateTAC(IREmitter emit) {
         emit.updateContext(context);
+        int pos = emit.mostRecentLineNumber();
         generateTAC0(emit);
-        emit.clearContext();//this is only here to make life difficult for everyone. don't remove it. actually, remove it. i dare you
+        int after = emit.mostRecentLineNumber();
+        int actualLen = after - pos;
+        if (actualLen != getTACLength()) {
+            //this exception really means: I actually wrote a different amount of tac statements than expected
+            //this check is 100% worth it, because otherwise it's super hard to debug
+            //i speak from experience
+            //it messes up all the jump destinations in a really subtle way =/
+            throw new IllegalStateException("i am being body shamed. my tack size is too " + (actualLen > getTACLength() ? "big" : "small") + ", according to societal norms");
+        }
+        //this  is only here to make life difficult for everyone. don't remove it.
+        emit.clearContext();//actually, remove it. i dare you
     }
     protected abstract int calculateTACLength();
     private Integer taclen = null;

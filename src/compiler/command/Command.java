@@ -12,7 +12,7 @@ import compiler.tac.IREmitter;
  * @author leijurv
  */
 public abstract class Command {
-    public Context context;
+    protected Context context;
     protected Command(Context context) {
         this.context = context;
     }

@@ -30,7 +30,6 @@ public class Compiler {
         ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println(commands);
         for (Command com : commands) {
-            System.out.println(com.context);
             com.staticValues();
         }
         System.out.println(commands);

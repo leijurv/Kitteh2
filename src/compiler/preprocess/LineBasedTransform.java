@@ -6,6 +6,7 @@
 package compiler.preprocess;
 import compiler.parse.Transform;
 import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -15,9 +16,9 @@ public abstract class LineBasedTransform implements Transform<ArrayList<String>>
     public abstract String transform(String line);
     @Override
     public final void apply(ArrayList<String> lines) {
-        for (int i = 0; i < lines.size(); i++) {
+        IntStream.range(0, lines.size()).parallel().forEach(i -> {
             String processed = transform(lines.get(i));
             lines.set(i, processed);
-        }
+        });
     }
 }

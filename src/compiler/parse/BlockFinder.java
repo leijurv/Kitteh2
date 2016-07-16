@@ -12,11 +12,8 @@ import java.util.ArrayList;
  */
 public class BlockFinder implements Transform<ArrayList<Object>> {
     public static void assertBlockBeginSane(String str) {
-        for (int i = 0; i < str.length() - 1; i++) {//OH CRAP WHAT IF THESE ARE IN STRINGS JESUS
-            if (str.charAt(i) == '}') {
-                throw new IllegalStateException("lol what are you trying to do here: " + str);
-            }
-            if (str.charAt(i) == '{') {
+        for (int i = 0; i < str.length() - 1; i++) {
+            if (str.charAt(i) == '}' || str.charAt(i) == '{') {
                 throw new IllegalStateException("lol what are you trying to do here: " + str);
             }
         }

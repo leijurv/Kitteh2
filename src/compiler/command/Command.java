@@ -19,10 +19,10 @@ public abstract class Command {
     protected abstract void generateTAC0(IREmitter emit);
     public void generateTAC(IREmitter emit) {
         emit.updateContext(context);
-        int pos = emit.mostRecentLineNumber();
+        int before = emit.mostRecentLineNumber();
         generateTAC0(emit);
         int after = emit.mostRecentLineNumber();
-        int actualLen = after - pos;
+        int actualLen = after - before;
         if (actualLen != getTACLength()) {
             //this exception really means: I actually wrote a different amount of tac statements than expected
             //this check is 100% worth it, because otherwise it's super hard to debug

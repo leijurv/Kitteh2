@@ -21,12 +21,14 @@ public class StripComments extends LineBasedTransform {/*   // */
         for (int i = 0; i < line.length(); i++) {
             boolean breakLoop = false;
             char ch = line.charAt(i);
-            if (ch == '"' || ch == '\'') {
-                if (prevChar != '\\') {//It's not a string thingy if the prev char was a \
-                    if (!(inString && ch != strType)) {//if a string was started with ", and we see a ', don't end the string
-                        inString = !inString;
-                        if (inString) {
-                            strType = ch;
+            if (!inComment) {
+                if (ch == '"' || ch == '\'') {
+                    if (prevChar != '\\') {//It's not a string thingy if the prev char was a \
+                        if (!(inString && ch != strType)) {//if a string was started with ", and we see a ', don't end the string
+                            inString = !inString;
+                            if (inString) {
+                                strType = ch;
+                            }
                         }
                     }
                 }

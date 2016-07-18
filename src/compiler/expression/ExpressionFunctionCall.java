@@ -7,6 +7,7 @@ package compiler.expression;
 import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACFunctionParam;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeVoid;
@@ -41,12 +42,15 @@ public class ExpressionFunctionCall extends Expression {
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toCollection(ArrayList::new));
-        emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
+        for (int i = 0; i < argNames.size(); i++) {
+            emit.emit(new TACFunctionParam(argNames.get(i), i));
+        }
+        emit.emit(new TACFunctionCall(resultLocation, funcName));
     }
     @Override
     public int calculateTACLength() {
         int sum = args.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
-        return sum + 1;
+        return sum + 1 + args.size();
     }
     @Override
     public Expression insertKnownValues(Context context) {

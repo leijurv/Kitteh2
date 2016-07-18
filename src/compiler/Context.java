@@ -31,10 +31,13 @@ public class Context {
         }
         @Override
         public String toString() {
-            return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+            return ("{type: " + type + ", location: " + stackLocation + "}");
         }
         public Type getType() {
             return type;
+        }
+        public int getStackLocation() {
+            return stackLocation;
         }
     }
     private final HashMap<String, VarInfo>[] values;

@@ -18,7 +18,7 @@ public enum Keyword {
     IF("BLINK", true, null),
     TRUE("YES", false, new ExpressionConstBool(true)),
     FALSE("NO", false, new ExpressionConstBool(false));
-    public static boolean CAT_MODE = false;
+    public static boolean CAT_MODE = true;
     public final String catVersion;
     public final boolean canBeginBlock;
     private final ExpressionConst constVal;

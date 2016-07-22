@@ -138,6 +138,13 @@ public class Context {
     public int getStackLocation(String name) {
         return get(name).stackLocation;
     }
+    public VarInfo getRequired(String name) {
+        VarInfo info = get(name);
+        if (info == null) {
+            throw new IllegalStateException("WEWLAD\nEWLADW\nWLADWE\nLADWEW\nADWEWL\nDWEWLA\n" + name);
+        }
+        return info;
+    }
     public VarInfo get(String name) {
         for (int i = values.length - 1; i >= 0; i--) {
             VarInfo possibleValue = values[i].get(name);

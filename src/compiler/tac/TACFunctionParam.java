@@ -21,7 +21,7 @@ public class TACFunctionParam extends TACStatement {//todo parameter locations
     }
     @Override
     protected void onContextKnown() {
-        param = context.get(paramName);
+        param = context.getRequired(paramName);
     }
     @Override
     public String toString0() {

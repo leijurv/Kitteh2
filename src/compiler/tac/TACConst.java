@@ -26,7 +26,7 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        var = context.get(varName);
+        var = varName.startsWith("%") ? context.get(varName) : context.getRequired(varName);
         try {//im tired ok? i know this is shit
             Double.parseDouble(val);
         } catch (NumberFormatException ex) {

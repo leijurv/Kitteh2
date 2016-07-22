@@ -25,7 +25,9 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        result = context.get(resultName);
+        if (resultName != null) {
+            result = context.getRequired(resultName);
+        }
     }
     @Override
     public void printx86(X86Emitter emit) {

@@ -32,8 +32,8 @@ public class TACJumpCmp extends TACJump {
     }
     @Override
     public void onContextKnown() {
-        first = context.get(firstName);
-        second = context.get(secondName);
+        first = context.getRequired(firstName);
+        second = context.getRequired(secondName);
     }
     @Override
     public void printx86(X86Emitter emit) {

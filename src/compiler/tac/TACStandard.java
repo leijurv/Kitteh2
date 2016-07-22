@@ -32,9 +32,9 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void onContextKnown() {//TODO clean this up somehow, because this pattern is duplicated in all the TACs. maybe a hashmap in the superclass. idk
-        result = context.get(resultName);
-        first = context.get(firstName);
-        second = context.get(secondName);
+        result = context.getRequired(resultName);
+        first = context.getRequired(firstName);
+        second = context.getRequired(secondName);
     }
     @Override
     public void printx86(X86Emitter emit) {

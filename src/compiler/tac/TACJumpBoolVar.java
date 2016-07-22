@@ -23,7 +23,7 @@ public class TACJumpBoolVar extends TACJump {
     }
     @Override
     protected void onContextKnown() {
-        var = context.get(varName);
+        var = context.getRequired(varName);
         if (!(var.getType() instanceof TypeBoolean)) {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }

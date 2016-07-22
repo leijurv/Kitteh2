@@ -38,12 +38,18 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        if (op != Operator.PLUS) {
-            throw new IllegalStateException();
-        }
-        emit.addStatement("movl " + second.x86() + ", %ecx");
+        emit.addStatement("movl " + second.x86() + ", %ebx");
         emit.addStatement("movl " + first.x86() + ", %eax");
-        emit.addStatement("addl %eax, %ecx");
-        emit.addStatement("movl %ecx, " + result.x86());
+        switch (op) {
+            case PLUS:
+                emit.addStatement("addl %eax, %ebx");
+                emit.addStatement("movl %ebx, " + result.x86());
+                break;
+            case MOD:
+                emit.addStatement("xor %edx, %edx");
+                emit.addStatement("idivl %ebx");
+                emit.addStatement("movl %edx, " + result.x86());
+                break;
+        }
     }
 }

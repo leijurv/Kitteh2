@@ -44,8 +44,12 @@ public class TACConst extends TACStatement {
         if (vall == null) {
             emit.addStatement("movl $" + val + ", " + wew);
         } else {
-            emit.addStatement("movl " + vall.x86() + ", %ebx");
-            emit.addStatement("movl %ebx, " + wew);
+            if (varName.startsWith("%")) {
+                emit.addStatement("movl " + vall.x86() + ", " + varName);
+            } else {
+                emit.addStatement("movl " + vall.x86() + ", %ebx");
+                emit.addStatement("movl %ebx, " + wew);
+            }
         }
     }
 }

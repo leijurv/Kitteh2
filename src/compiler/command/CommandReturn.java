@@ -7,6 +7,7 @@ package compiler.command;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.tac.IREmitter;
+import compiler.tac.TACConst;
 import compiler.tac.TACReturn;
 import compiler.tac.TempVarUsage;
 
@@ -22,12 +23,15 @@ public class CommandReturn extends Command {
     }
     @Override
     protected void generateTAC0(IREmitter emit) {
-        toReturn.generateTAC(emit, new TempVarUsage(context), "%eax");
+        TempVarUsage lol = new TempVarUsage(context);
+        String var = lol.getTempVar(toReturn.getType());
+        toReturn.generateTAC(emit, lol, var);
+        emit.emit(new TACConst("%eax", var));
         emit.emit(new TACReturn());
     }
     @Override
     protected int calculateTACLength() {
-        return toReturn.getTACLength() + 1;
+        return toReturn.getTACLength() + 2;
     }
     @Override
     public void staticValues() {

@@ -59,6 +59,10 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("idivl %ebx");
                 emit.addStatement("movl %eax, " + result.x86());
                 break;
+            case MULTIPLY:
+                emit.addStatement("imull %ebx, %eax");
+                emit.addStatement("movl %eax, " + result.x86());
+                break;
         }
     }
 }

@@ -63,12 +63,14 @@ public class Compiler {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
             emit.getResult().get(i).printx86(emitter);
         }
+        boolean endsWithReturn = emit.getResult().get(emit.getResult().size() - 1) instanceof TACReturn;
         emitter.addStatement(emitter.lineToLabel(emit.getResult().size()) + ":");
-        new TACReturn().printx86(emitter);
+        if (!endsWithReturn) {
+            new TACReturn().printx86(emitter);
+        }
         System.out.println("_" + funcName + ":");
         System.out.println(FUNC_HEADER);
         System.out.println(emitter.toX86());
-
         System.out.println(FUNC_FOOTER);
     }
     static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"

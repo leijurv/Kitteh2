@@ -48,7 +48,7 @@ public class ExpressionParser {
                     System.out.println("Parsing " + val + " as int");
                     num = Integer.parseInt(val);
                 }
-                o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is shit
+                o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is mal
             }
             if (ob instanceof TokenString) {
                 o.set(i, new ExpressionConstStr(((TokenString) ob).val));

@@ -10,6 +10,7 @@ import compiler.preprocess.Preprocessor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACReturn;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
@@ -53,11 +54,15 @@ public class Compiler {
         for (int i = 0; i < 10; i++) {
             System.out.println();
         }
-        System.out.println(HEADER);
-        emitFunction("main", emit);
-        System.out.println(FOOTER);
+        StringBuilder resp = new StringBuilder();
+        resp.append(HEADER);
+        resp.append('\n');
+        emitFunction("main", emit, resp);
+        resp.append(FOOTER);
+        resp.append('\n');
+        new FileOutputStream("/Users/leijurv/Documents/blar.s").write(resp.toString().getBytes());
     }
-    public static void emitFunction(String funcName, IREmitter emit) {
+    public static void emitFunction(String funcName, IREmitter emit, StringBuilder resp) {
         X86Emitter emitter = new X86Emitter(funcName);
         for (int i = 0; i < emit.getResult().size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
@@ -68,10 +73,10 @@ public class Compiler {
         if (!endsWithReturn) {
             new TACReturn().printx86(emitter);
         }
-        System.out.println("_" + funcName + ":");
-        System.out.println(FUNC_HEADER);
-        System.out.println(emitter.toX86());
-        System.out.println(FUNC_FOOTER);
+        resp.append("_").append(funcName).append(":\n");
+        resp.append(FUNC_HEADER).append('\n');
+        resp.append(emitter.toX86()).append('\n');
+        resp.append(FUNC_FOOTER).append('\n');
     }
     static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
             + "    .macosx_version_min 10, 10\n"

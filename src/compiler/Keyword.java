@@ -17,7 +17,9 @@ public enum Keyword {
     PRINTLN("MEOWLN", false, null),
     IF("BLINK", true, null),
     TRUE("YES", false, new ExpressionConstBool(true)),
-    FALSE("NO", false, new ExpressionConstBool(false));
+    FALSE("NO", false, new ExpressionConstBool(false)),
+    BREAK("TRIP", false, null),
+    CONTINUE("CATINUE", false, null);
     public static boolean CAT_MODE = true;
     public final String catVersion;
     public final boolean canBeginBlock;

@@ -7,6 +7,8 @@ package compiler.parse;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.command.Command;
+import compiler.command.CommandBreak;
+import compiler.command.CommandContinue;
 import compiler.command.CommandExp;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
@@ -129,6 +131,18 @@ public class Parser {
             TokenKeyword lol = (TokenKeyword) tokens.get(0);
             if (lol.getKeyword().canBeginBlock) {
                 throw new IllegalStateException();
+            }
+            switch (lol.getKeyword()) {
+                case BREAK:
+                    if (tokens.size() != 1) {
+                        throw new IllegalStateException("Break should be on a line on its own");
+                    }
+                    return new CommandBreak(context);
+                case CONTINUE:
+                    if (tokens.size() != 1) {
+                        throw new IllegalStateException("Continue should be on a line on its own");
+                    }
+                    return new CommandContinue(context);
             }
         }
         if (tokens.stream().anyMatch(token -> token instanceof TokenSemicolon)) {

@@ -14,9 +14,33 @@ import java.util.ArrayList;
 public class IREmitter {//extends ArrayList XDDD
     private final ArrayList<TACStatement> result;
     private Context currentContext;
+    Integer breakTo;
+    Integer continueTo;
     public IREmitter() {
         this.result = new ArrayList<>();
         this.currentContext = null;
+    }
+    public boolean canBreak() {
+        return breakTo != null;
+    }
+    public boolean canContinue() {
+        return continueTo != null;
+    }
+    public int breakTo() {
+        return breakTo;
+    }
+    public int continueTo() {
+        return continueTo;
+    }
+    public void setBreak(int i) {
+        breakTo = i;
+    }
+    public void setContinue(int i) {
+        continueTo = i;
+    }
+    public void clearBreakContinue() {
+        breakTo = null;
+        continueTo = null;
     }
     public void updateContext(Context context) {
         this.currentContext = context;

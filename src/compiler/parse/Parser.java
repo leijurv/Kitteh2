@@ -12,6 +12,7 @@ import compiler.command.CommandContinue;
 import compiler.command.CommandExp;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
+import compiler.command.CommandReturn;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.token.Token;
@@ -143,6 +144,9 @@ public class Parser {
                         throw new IllegalStateException("Continue should be on a line on its own");
                     }
                     return new CommandContinue(context);
+                case RETURN:
+                    Expression ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context);
+                    return new CommandReturn(context, ex);
             }
         }
         if (tokens.stream().anyMatch(token -> token instanceof TokenSemicolon)) {

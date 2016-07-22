@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.X86Emitter;
 
 /**
  *
@@ -35,6 +36,16 @@ public class TACConst extends TACStatement {
                     throw new IllegalStateException("I honestly can't think of a way that this could happen. but idk it might");
                 }
             }
+        }
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        String wew = varName.startsWith("%") ? varName : var.x86();
+        if (vall == null) {
+            emit.addStatement("movl $" + val + ", " + wew);
+        } else {
+            emit.addStatement("movl " + vall.x86() + ", %ebx");
+            emit.addStatement("movl %ebx, " + wew);
         }
     }
 }

@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.X86Emitter;
 
 /**
  *
@@ -25,5 +26,9 @@ public class TACFunctionCall extends TACStatement {
     @Override
     public void onContextKnown() {
         result = context.get(resultName);
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

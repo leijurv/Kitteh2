@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import compiler.X86Emitter;
 
 /**
  *
@@ -34,5 +35,15 @@ public class TACStandard extends TACStatement {
         result = context.get(resultName);
         first = context.get(firstName);
         second = context.get(secondName);
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        if (op != Operator.PLUS) {
+            throw new IllegalStateException();
+        }
+        emit.addStatement("movl " + second.x86() + ", %ecx");
+        emit.addStatement("movl " + first.x86() + ", %eax");
+        emit.addStatement("addl %eax, %ecx");
+        emit.addStatement("movl %ecx, " + result.x86());
     }
 }

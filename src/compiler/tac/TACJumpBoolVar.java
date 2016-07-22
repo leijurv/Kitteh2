@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.X86Emitter;
 import compiler.type.TypeBoolean;
 
 /**
@@ -30,5 +31,14 @@ public class TACJumpBoolVar extends TACJump {
     @Override
     public String toString0() {
         return "jump to " + jumpTo + " if " + (invert ? "not " : "") + var;
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        emit.addStatement("cmpl $0, " + var.x86());
+        if (invert) {
+            emit.addStatement("je " + emit.lineToLabel(jumpTo));
+        } else {
+            emit.addStatement("jne " + emit.lineToLabel(jumpTo));
+        }
     }
 }

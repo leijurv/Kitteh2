@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.X86Emitter;
 
 /**
  *
@@ -25,4 +26,5 @@ public abstract class TACStatement {
         return toString0();
     }
     public abstract String toString0();
+    public abstract void printx86(X86Emitter emit);
 }

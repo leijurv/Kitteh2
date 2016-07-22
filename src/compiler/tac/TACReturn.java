@@ -10,23 +10,17 @@ import compiler.X86Emitter;
  *
  * @author leijurv
  */
-public class TACJump extends TACStatement {
-    int jumpTo;
-    public TACJump(int jumpTo) {
-        this.jumpTo = jumpTo;
-    }
+public class TACReturn extends TACStatement {
     @Override
     protected void onContextKnown() {
-        if (getClass() != TACJump.class) {
-            throw new IllegalStateException("SWIPER NO SWIPING");
-        }
     }
     @Override
     public String toString0() {
-        return "jmp " + jumpTo;
+        return "return";
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("jmp " + emit.lineToLabel(jumpTo));
+        emit.addStatement("popq %rbp");
+        emit.addStatement("retq");
     }
 }

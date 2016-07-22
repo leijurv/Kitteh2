@@ -39,6 +39,9 @@ public class Context {
         public int getStackLocation() {
             return stackLocation;
         }
+        public String x86() {
+            return (-stackLocation - 4) + ("(%rbp)");
+        }
     }
     private final HashMap<String, VarInfo>[] values;
     private int stackSize;

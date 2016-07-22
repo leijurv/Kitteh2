@@ -19,8 +19,9 @@ public enum Keyword {
     TRUE("YES", false, new ExpressionConstBool(true)),
     FALSE("NO", false, new ExpressionConstBool(false)),
     BREAK("TRIP", false, null),
-    CONTINUE("CATINUE", false, null);
-    public static boolean CAT_MODE = true;
+    CONTINUE("CATINUE", false, null),
+    RETURN("POUNCE", false, null);
+    public static boolean CAT_MODE = false;
     public final String catVersion;
     public final boolean canBeginBlock;
     private final ExpressionConst constVal;

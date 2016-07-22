@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import compiler.X86Emitter;
 
 /**
  *
@@ -33,5 +34,13 @@ public class TACJumpCmp extends TACJump {
     public void onContextKnown() {
         first = context.get(firstName);
         second = context.get(secondName);
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        emit.addStatement("movl " + first.x86() + ", %ecx");
+        emit.addStatement("movl " + second.x86() + ", %eax");
+        emit.addStatement("cmpl %eax, %ecx");
+        Operator o = neg ? op.invert() : op;
+        emit.addStatement(o.tox86() + " " + emit.lineToLabel(jumpTo));
     }
 }

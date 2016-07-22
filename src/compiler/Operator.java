@@ -125,4 +125,40 @@ public enum Operator {//extends Token maybe? might make things easier... idk
                 throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
         }
     }
+    public String tox86() {
+        switch (this) {
+            case LESS:
+                return "jl";
+            case EQUAL:
+                return "je";
+            case GREATER:
+                return "jg";
+            case NOT_EQUAL:
+                return "jne";
+            case LESS_OR_EQUAL:
+                return "jle";
+            case GREATER_OR_EQUAL:
+                return "jge";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+    public Operator invert() {
+        switch (this) {
+            case LESS:
+                return GREATER_OR_EQUAL;
+            case EQUAL:
+                return NOT_EQUAL;
+            case GREATER:
+                return LESS_OR_EQUAL;
+            case NOT_EQUAL:
+                return EQUAL;
+            case LESS_OR_EQUAL:
+                return GREATER;
+            case GREATER_OR_EQUAL:
+                return LESS;
+            default:
+                throw new IllegalStateException();
+        }
+    }
 }

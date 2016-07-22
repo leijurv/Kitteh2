@@ -8,6 +8,7 @@ import compiler.command.Command;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.IREmitter;
+import compiler.tac.TACReturn;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Compiler {
     public static void main(String[] args) throws Exception {
         System.out.println("First stream: " + streamTime());
         System.out.println("Second stream: " + streamTime());
-        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/fizzbuzz").toPath());
+        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/euler.k").toPath());
         ArrayList<String> k = Preprocessor.preprocess(new String(program));
         ArrayList<Object> lol = new ArrayList<>();
         for (String l : k) {
@@ -39,7 +40,7 @@ public class Compiler {
         ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println(commands);
         for (Command com : commands) {
-            com.staticValues();
+            //com.staticValues();
         }
         System.out.println(commands);
         IREmitter emit = new IREmitter();
@@ -49,5 +50,37 @@ public class Compiler {
         for (int i = 0; i < emit.getResult().size(); i++) {
             System.out.println(i + ":     " + emit.getResult().get(i));
         }
+        for (int i = 0; i < 10; i++) {
+            System.out.println();
+        }
+        System.out.println(HEADER);
+        emitFunction("main", emit);
+        System.out.println(FOOTER);
     }
+    public static void emitFunction(String funcName, IREmitter emit) {
+        X86Emitter emitter = new X86Emitter(funcName);
+        for (int i = 0; i < emit.getResult().size(); i++) {
+            emitter.addStatement(emitter.lineToLabel(i) + ":");
+            emit.getResult().get(i).printx86(emitter);
+        }
+        emitter.addStatement(emitter.lineToLabel(emit.getResult().size()) + ":");
+        new TACReturn().printx86(emitter);
+        System.out.println("_" + funcName + ":");
+        System.out.println(FUNC_HEADER);
+        System.out.println(emitter.toX86());
+
+        System.out.println(FUNC_FOOTER);
+    }
+    static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
+            + "    .macosx_version_min 10, 10\n"
+            + "    .globl  _main\n"
+            + "    .align  4, 0x90";
+    static String FOOTER = ".subsections_via_symbols";
+    static String FUNC_HEADER = "	.cfi_startproc\n"
+            + "	pushq	%rbp\n"
+            + "	.cfi_def_cfa_offset 16\n"
+            + "	.cfi_offset %rbp, -16\n"
+            + "	movq	%rsp, %rbp\n"
+            + "	.cfi_def_cfa_register %rbp";
+    static String FUNC_FOOTER = "	.cfi_endproc";
 }

@@ -5,12 +5,13 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.X86Emitter;
 
 /**
  *
  * @author leijurv
  */
-public class TACFunctionParam extends TACStatement {
+public class TACFunctionParam extends TACStatement {//todo parameter locations
     int paramInd;
     String paramName;
     VarInfo param;
@@ -25,5 +26,9 @@ public class TACFunctionParam extends TACStatement {
     @Override
     public String toString0() {
         return "param " + paramInd + " = " + param;
+    }
+    @Override
+    public void printx86(X86Emitter emit) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

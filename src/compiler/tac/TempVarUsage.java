@@ -38,9 +38,9 @@ public class TempVarUsage {
         if (ind > 8) {
             throw new IllegalStateException("I hope you're Dora because I'm going to need a Map to get out of this one");
         }
+        sizeSoFar -= type.getSizeBytes();
         types.put(name, new VarInfo(name, type, sizeSoFar));
-        sizeSoFar += type.getSizeBytes();
-        context.updateMaxAdditionalSizeTemp(sizeSoFar);//make sure the context knows how much temp var bytes we gobblin up
+        context.updateMinAdditionalSizeTemp(sizeSoFar);//make sure the context knows how much temp var bytes we gobblin up
         return name;//yes
     }
 }

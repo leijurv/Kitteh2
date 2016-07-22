@@ -40,7 +40,7 @@ public class Context {
             return stackLocation;
         }
         public String x86() {
-            return (-stackLocation - 4) + ("(%rbp)");
+            return (stackLocation) + ("(%rbp)");
         }
     }
     private final HashMap<String, VarInfo>[] values;
@@ -71,11 +71,11 @@ public class Context {
     public int getNonTempStackSize() {
         return stackSize;
     }
-    public void updateMaxAdditionalSizeTemp(int tempSize) {
+    public void updateMinAdditionalSizeTemp(int tempSize) {
         if (additionalSizeTemp == null) {
             additionalSizeTemp = tempSize;
         } else {
-            additionalSizeTemp = Math.max(additionalSizeTemp, tempSize);
+            additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
     private Context(HashMap<String, VarInfo>[] values, int stackSize) {
@@ -122,8 +122,8 @@ public class Context {
         if (varDefined(name)) {
             throw new IllegalStateException(name + " is already defined -_-");
         }
+        stackSize -= type.getSizeBytes();
         defineLocal(name, new VarInfo(name, type, stackSize));//Otherwise define it as local
-        stackSize += type.getSizeBytes();
     }
     public Type getType(String name) {
         VarInfo info = get(name);

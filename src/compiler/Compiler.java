@@ -73,15 +73,14 @@ public class Compiler {
         if (!endsWithReturn) {
             new TACReturn().printx86(emitter);
         }
+        resp.append("	.globl	_").append(funcName).append("\n	.align	4, 0x90\n");
         resp.append("_").append(funcName).append(":\n");
         resp.append(FUNC_HEADER).append('\n');
         resp.append(emitter.toX86()).append('\n');
         resp.append(FUNC_FOOTER).append('\n');
     }
     static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
-            + "    .macosx_version_min 10, 10\n"
-            + "    .globl  _main\n"
-            + "    .align  4, 0x90";
+            + "    .macosx_version_min 10, 10";
     static String FOOTER = ".subsections_via_symbols";
     static String FUNC_HEADER = "	.cfi_startproc\n"
             + "	pushq	%rbp\n"

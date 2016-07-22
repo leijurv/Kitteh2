@@ -49,6 +49,7 @@ public class CommandFor extends Command implements KeywordCommand {
         int afterItAll = emit.lineNumberOfNextStatement() + getTACLength();
         initialization.generateTAC(emit);
         int loopBegin = emit.lineNumberOfNextStatement();
+        int continueTo = afterItAll - 1 - afterthought.getTACLength();//continue should send it to the beginning of the afterthought
         //int conditionLen = ((ExpressionOperator) condition).condLength();
         //int afterLen = afterthought.getTACLength();
         //int afterItAll = placeToJumpTo + conditionLen + bodyLen + afterLen;
@@ -57,7 +58,7 @@ public class CommandFor extends Command implements KeywordCommand {
         ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
-        emit.setContinue(loopBegin);//a continue skips the rest of the loop but goes back to the condition, so let's jump back to the condition
+        emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought
         for (Command com : contents) {//TODOIFIWANTTOKILLMYSELF make this parallel
             com.generateTAC(emit);
         }

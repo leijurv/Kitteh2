@@ -42,6 +42,12 @@ public class Compiler {
         System.out.println(commands);
         for (Command com : commands) {
             //com.staticValues();
+            //currently if you do something like
+            //sum=0
+            //for i<100
+            //   sum=sum+i
+            //then it'l optimize the sum=sum+i to sum=0+i because it doesn't deal with loops properly
+            //TODO fix this and don't just comment it out
         }
         System.out.println(commands);
         IREmitter emit = new IREmitter();

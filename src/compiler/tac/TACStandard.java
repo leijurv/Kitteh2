@@ -57,7 +57,7 @@ public class TACStandard extends TACStatement {
             case DIVIDE:
                 emit.addStatement("xor %edx, %edx");
                 emit.addStatement("idivl %ebx");
-                emit.addStatement("movl %ebx, " + result.x86());
+                emit.addStatement("movl %eax, " + result.x86());
                 break;
         }
     }

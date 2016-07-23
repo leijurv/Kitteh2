@@ -22,7 +22,7 @@ public class TACConst extends TACStatement {
     }
     @Override
     public String toString0() {
-        return var + " = " + (vall != null ? vall : "CONST " + val);
+        return (var == null ? varName : var) + " = " + (vall != null ? vall : "CONST " + val);
     }
     @Override
     public void onContextKnown() {

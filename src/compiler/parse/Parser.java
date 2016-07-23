@@ -9,6 +9,7 @@ import compiler.Keyword;
 import compiler.command.Command;
 import compiler.command.CommandBreak;
 import compiler.command.CommandContinue;
+import compiler.command.CommandDefineFunction;
 import compiler.command.CommandExp;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
@@ -16,15 +17,20 @@ import compiler.command.CommandReturn;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.token.Token;
+import compiler.token.TokenComma;
+import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
+import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 
 /**
  *
@@ -54,8 +60,59 @@ public class Parser {
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
-                ArrayList<Token> params = new ArrayList<>(lineTokens.subList(1, lineTokens.size()));//hey let's make this arraylist, for no reason
+                List<Token> params = new ArrayList<>(lineTokens.subList(1, lineTokens.size()));//hey let's make this arraylist, for no reason
                 switch (beginningKeyword) {
+                    case FUNC:
+                        //ok this is going to be fun
+                        //func main(int i) int {
+                        TokenVariable functionName = (TokenVariable) params.get(0);
+                        System.out.println("FunctionName: " + functionName);
+                        TokenStartParen beginArgumentList = (TokenStartParen) params.get(1);
+                        int endParen = -1;
+                        for (int j = 2; j < params.size(); j++) {
+                            if (params.get(j) instanceof TokenEndParen) {
+                                endParen = j;
+                                break;
+                            }
+                        }
+                        if (endParen == -1) {
+                            throw new IllegalStateException();
+                        }
+                        List<Token> returnType = params.subList(endParen + 1, params.size());
+                        System.out.println("Return type: " + returnType);
+                        if (returnType.size() != 1) {
+                            throw new IllegalStateException();
+                        }
+                        TokenKeyword rt = (TokenKeyword) (returnType.get(0));
+                        Keyword returning = rt.getKeyword();
+                        if (!returning.isType()) {
+                            throw new IllegalStateException();
+                        }
+                        Type retType = returning.type;
+                        ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
+                            if (tokenList.size() != 2) {
+                                throw new IllegalStateException();
+                            }
+                            if (!(tokenList.get(0) instanceof TokenKeyword)) {
+                                throw new IllegalStateException(tokenList.get(0) + "");
+                            }
+                            TokenKeyword tk = (TokenKeyword) (tokenList.get(0));
+                            Keyword k = tk.getKeyword();
+                            if (!k.isType()) {
+                                throw new IllegalStateException();
+                            }
+                            if (!(tokenList.get(1) instanceof TokenVariable)) {
+                                throw new IllegalStateException();
+                            }
+                            TokenVariable tv = (TokenVariable) (tokenList.get(1));
+                            return new Pair<>(tv.val, k.type);
+                        }).collect(Collectors.toCollection(ArrayList::new));
+                        //public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Command> contents) {
+                        Context subContext = context.subContext();
+                        ArrayList<Command> funcContents = Processor.parse(rawBlock, subContext);
+                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, funcContents);
+                        result.add(def);
+                        break;
                     case FOR:
                         System.out.println("Parsing for loop with params " + params);
                         int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
@@ -105,7 +162,23 @@ public class Parser {
         }
         return result;
     }
-    public static int firstSemicolon(ArrayList<Token> params) {
+    public static List<List<Token>> splitList(List<Token> list, Class splitOn) {
+        List<List<Token>> result = new ArrayList<>();
+        List<Token> temp = new ArrayList<>();
+        for (Token t : list) {
+            if (t.getClass() == splitOn) {
+                result.add(temp);
+                temp = new ArrayList<>();
+            } else {
+                temp.add(t);
+            }
+        }
+        if (!temp.isEmpty()) {
+            result.add(temp);
+        }
+        return result;
+    }
+    public static int firstSemicolon(List<Token> params) {
         for (int i = 0; i < params.size(); i++) {
             if (params.get(i) instanceof TokenSemicolon) {
                 return i;
@@ -113,7 +186,7 @@ public class Parser {
         }
         return -1;
     }
-    public static int lastSemicolon(ArrayList<Token> params) {
+    public static int lastSemicolon(List<Token> params) {
         for (int i = params.size() - 1; i >= 0; i--) {
             if (params.get(i) instanceof TokenSemicolon) {
                 return i;

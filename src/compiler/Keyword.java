@@ -6,29 +6,38 @@
 package compiler;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
+import compiler.type.Type;
+import compiler.type.TypeInt32;
 
 /**
  *
  * @author leijurv
  */
 public enum Keyword {
-    FOR("PURR", true, null),
-    PRINT("MEOW", false, null),
-    PRINTLN("MEOWLN", false, null),
-    IF("BLINK", true, null),
-    TRUE("YES", false, new ExpressionConstBool(true)),
-    FALSE("NO", false, new ExpressionConstBool(false)),
-    BREAK("TRIP", false, null),
-    CONTINUE("CATINUE", false, null),
-    RETURN("POUNCE", false, null);
+    FOR("PURR", true, null, null),
+    PRINT("MEOW", false, null, null),
+    PRINTLN("MEOWLN", false, null, null),
+    IF("BLINK", true, null, null),
+    TRUE("YES", false, new ExpressionConstBool(true), null),
+    FALSE("NO", false, new ExpressionConstBool(false), null),
+    BREAK("TRIP", false, null, null),
+    CONTINUE("CATINUE", false, null, null),
+    RETURN("POUNCE", false, null, null),
+    FUNC("CHASE", true, null, null),
+    INT("MEOWNT", false, null, new TypeInt32());
     public static boolean CAT_MODE = false;
     public final String catVersion;
     public final boolean canBeginBlock;
     private final ExpressionConst constVal;
-    private Keyword(String catVersion, boolean canBeginBlock, ExpressionConst constVal) {
+    public final Type type;
+    private Keyword(String catVersion, boolean canBeginBlock, ExpressionConst constVal, Type typeVal) {
         this.catVersion = catVersion;
         this.canBeginBlock = canBeginBlock;
         this.constVal = constVal;
+        this.type = typeVal;
+    }
+    public boolean isType() {
+        return type != null;
     }
     public ExpressionConst getConstVal() {
         return constVal;

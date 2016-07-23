@@ -77,6 +77,14 @@ public class CommandFor extends Command implements KeywordCommand {
         //do NOT run on the init. if you do that, it'll assume that i will always be 0, even though it changes
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
+        //TODO remove static values for things that are defined outside of the for loop and modified in the for loop
+        //like
+        //int sum=0
+        //for i<100{
+        //sum=sum+i
+        //}
+        //in that case, there should be no static value calculation for sum, in fact the known value for sum should be cleared
+        //so basically just clear the known value for any vars modified during this for loop, at the beginnig of the loop
         afterthought.staticValues();
         for (Command com : contents) {
             com.staticValues();

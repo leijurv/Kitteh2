@@ -16,7 +16,7 @@ public class X86Emitter {
     ArrayList<String> statements = new ArrayList<>();
     String prefix;
     public X86Emitter(String funcLabelPrefix) {
-        prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix;
+        prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
     }
     public void addStatement(String SSSSS) {
         String ssnek = SSSSS;

@@ -89,7 +89,6 @@ public class ExpressionParser {
                 ArrayList<Object> temp = new ArrayList<>();
                 int numParens = 1;
                 o.remove(i);
-                boolean w = false;
                 for (; i < o.size();) {
                     Object b = o.remove(i);
                     if (b instanceof TokenEndParen) {

@@ -60,7 +60,7 @@ public class Parser {
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
-                List<Token> params = new ArrayList<>(lineTokens.subList(1, lineTokens.size()));//hey let's make this arraylist, for no reason
+                List<Token> params = lineTokens.subList(1, lineTokens.size());
                 switch (beginningKeyword) {
                     case FUNC:
                         //ok this is going to be fun

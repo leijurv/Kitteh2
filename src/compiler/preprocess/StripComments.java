@@ -9,8 +9,7 @@ package compiler.preprocess;
  *
  * @author leijurv
  */
-public class StripComments extends LineBasedTransform {/*   // */
-
+public class StripComments extends LineBasedTransform {//TODO multi line comments
     @Override
     public String transform(String line) {
         boolean inString = false;

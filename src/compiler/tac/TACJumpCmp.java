@@ -7,6 +7,8 @@ package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.X86Emitter;
+import compiler.X86Register;
+import compiler.type.TypeNumerical;
 
 /**
  *
@@ -34,12 +36,16 @@ public class TACJumpCmp extends TACJump {
     public void onContextKnown() {
         first = context.getRequired(firstName);
         second = context.getRequired(secondName);
+        if (!first.getType().equals(second.getType())) {
+            throw new IllegalStateException("apples to oranges");
+        }
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("movl " + first.x86() + ", %ecx");
-        emit.addStatement("movl " + second.x86() + ", %eax");
-        emit.addStatement("cmpl %eax, %ecx");
+        TypeNumerical type = (TypeNumerical) first.getType();
+        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
+        emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
+        emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
         Operator o = neg ? op.invert() : op;
         emit.addStatement(o.tox86() + " " + emit.lineToLabel(jumpTo));
     }

@@ -8,6 +8,7 @@ import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.X86Emitter;
 import compiler.X86Register;
+import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 
 /**
@@ -53,13 +54,18 @@ public class TACStandard extends TACStatement {
         String mov = "mov" + type.x86typesuffix() + " ";
         emit.addStatement(mov + second.x86() + ", " + b);
         emit.addStatement(mov + first.x86() + ", " + a);
+        if (op != Operator.PLUS && op != Operator.MINUS) {
+            if (!(type instanceof TypeInt32)) {
+                throw new IllegalStateException("You can only do " + op + " on int32s and not other types of ints becasue I wrote this on a plane and I can't google the right syntax and my guesses were wrong");
+            }
+        }
         switch (op) {
             case PLUS:
-                emit.addStatement("addl " + a + ", " + b);
+                emit.addStatement("add" + type.x86typesuffix() + " " + a + ", " + b);
                 emit.addStatement(mov + b + ", " + result.x86());
                 break;
             case MINUS:
-                emit.addStatement("subl " + b + ", " + a);
+                emit.addStatement("sub" + type.x86typesuffix() + " " + b + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MOD:

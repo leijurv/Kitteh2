@@ -6,6 +6,11 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.X86Emitter;
+import compiler.X86Register;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeNumerical;
 
 /**
  *
@@ -41,15 +46,32 @@ public class TACConst extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         String wew = varName.startsWith("%") ? varName : var.x86();
+        TypeNumerical type = varName.startsWith("%") ? typeFromRegister(varName) : (TypeNumerical) var.getType();
         if (vall == null) {
-            emit.addStatement("movl $" + val + ", " + wew);
+            emit.addStatement("mov" + type.x86typesuffix() + " $" + val + ", " + wew);
         } else {
             if (varName.startsWith("%")) {
-                emit.addStatement("movl " + vall.x86() + ", " + varName);
+                emit.addStatement("mov" + typeFromRegister(varName).x86typesuffix() + " " + vall.x86() + ", " + varName);
             } else {
-                emit.addStatement("movl " + vall.x86() + ", %ebx");
-                emit.addStatement("movl %ebx, " + wew);
+                emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + X86Register.B.getRegister(type));
+                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + wew);
             }
+        }
+    }
+    public static TypeNumerical typeFromRegister(String reg) {
+        if (reg.startsWith("%")) {
+            return typeFromRegister(reg.substring(1));
+        }
+        if (reg.length() == 2) {
+            return new TypeInt16();
+        }
+        switch (reg.charAt(0)) {
+            case 'e':
+                return new TypeInt32();
+            case 'r':
+                return new TypeInt64();
+            default:
+                throw new IllegalStateException();
         }
     }
 }

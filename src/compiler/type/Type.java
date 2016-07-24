@@ -9,7 +9,7 @@ package compiler.type;
  *
  * @author leijurv
  */
-public abstract class Type {
+public abstract class Type {//TODO maybe this should be an enum
     public abstract int getSizeBytes();
     @Override
     public boolean equals(Object o) {

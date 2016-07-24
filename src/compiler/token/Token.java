@@ -12,4 +12,15 @@ package compiler.token;
 public abstract class Token {//todo maybe this should be an interface
     @Override
     public abstract String toString();
+    @Override
+    public boolean equals(Object o) {
+        if (o.getClass() != getClass()) {
+            return false;
+        }
+        return toString().equals(o + "");
+    }
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
 }

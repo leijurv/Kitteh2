@@ -63,6 +63,8 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("imull %ebx, %eax");
                 emit.addStatement("movl %eax, " + result.x86());
                 break;
+            default:
+                throw new IllegalStateException(op + "");
         }
     }
 }

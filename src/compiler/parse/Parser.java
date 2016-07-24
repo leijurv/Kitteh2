@@ -26,6 +26,7 @@ import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeVoid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -80,15 +81,21 @@ public class Parser {
                         }
                         List<Token> returnType = params.subList(endParen + 1, params.size());
                         System.out.println("Return type: " + returnType);
-                        if (returnType.size() != 1) {
-                            throw new IllegalStateException();
+                        Type retType;
+                        if (returnType.size() == 1) {
+                            TokenKeyword rt = (TokenKeyword) (returnType.get(0));
+                            Keyword returning = rt.getKeyword();
+                            if (!returning.isType()) {
+                                throw new IllegalStateException();
+                            }
+                            retType = returning.type;
+                        } else {
+                            if (returnType.isEmpty()) {
+                                retType = new TypeVoid();
+                            } else {
+                                throw new IllegalStateException("no multiple returns yet. sorry!");
+                            }
                         }
-                        TokenKeyword rt = (TokenKeyword) (returnType.get(0));
-                        Keyword returning = rt.getKeyword();
-                        if (!returning.isType()) {
-                            throw new IllegalStateException();
-                        }
-                        Type retType = returning.type;
                         ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
                             if (tokenList.size() != 2) {
                                 throw new IllegalStateException();

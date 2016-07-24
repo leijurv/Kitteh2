@@ -25,12 +25,6 @@ public class CommandDefineFunction extends Command {
         super(context);
         this.arguments = arguments;
         this.name = functionName;
-        if (context.getNonTempStackSize() != 0) {
-            //throw new IllegalStateException("" + context);
-        }
-        for (Pair<String, Type> arg : arguments) {
-            context.setType(arg.getKey(), arg.getValue());
-        }
         this.contents = contents;
     }
     @Override

@@ -120,7 +120,7 @@ public class ExpressionParser {
                             return parseImpl(o, desiredType, context);
                         }
                     }
-                    if (b instanceof TokenComma) {
+                    if (b instanceof TokenComma && numParens == 1) {
                         inParen.add(temp);
                         temp = new ArrayList<>();
                     } else {

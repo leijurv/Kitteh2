@@ -118,6 +118,15 @@ public class Context {
         }
         return false;
     }
+    public void registerArgumentInput(String name, Type type, int loc) {
+        if (loc < 16) {
+            throw new IllegalStateException();
+        }
+        if (varDefined(name)) {
+            throw new IllegalStateException(name + " is already defined -_-");
+        }
+        defineLocal(name, new VarInfo(name, type, loc));
+    }
     public void setType(String name, Type type) {
         if (varDefined(name)) {
             throw new IllegalStateException(name + " is already defined -_-");

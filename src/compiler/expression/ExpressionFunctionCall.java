@@ -7,10 +7,9 @@ package compiler.expression;
 import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
-import compiler.tac.TACFunctionParam;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
-import compiler.type.TypeVoid;
+import compiler.type.TypeInt32;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,9 +26,9 @@ public class ExpressionFunctionCall extends Expression {
         this.args = args;
     }
     @Override
-    public Type calcType() {
-        return new TypeVoid();
-        //return new TypeInt32();
+    public Type calcType() {//TODO fix this... idk how...
+        //return new TypeVoid();
+        return new TypeInt32();
     }
     @Override
     public String toString() {
@@ -42,15 +41,12 @@ public class ExpressionFunctionCall extends Expression {
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toCollection(ArrayList::new));
-        for (int i = 0; i < argNames.size(); i++) {
-            emit.emit(new TACFunctionParam(argNames.get(i), i));
-        }
-        emit.emit(new TACFunctionCall(resultLocation, funcName));
+        emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
     }
     @Override
     public int calculateTACLength() {
         int sum = args.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
-        return sum + 1 + args.size();
+        return sum + 1;
     }
     @Override
     public Expression insertKnownValues(Context context) {

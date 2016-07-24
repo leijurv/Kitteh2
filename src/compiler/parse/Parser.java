@@ -107,8 +107,16 @@ public class Parser {
                             TokenVariable tv = (TokenVariable) (tokenList.get(1));
                             return new Pair<>(tv.val, k.type);
                         }).collect(Collectors.toCollection(ArrayList::new));
-                        //public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Command> contents) {
-                        Context subContext = context.subContext();
+                        if (context.getTotalStackSize() != 0) {//make sure this is top level
+                            throw new IllegalStateException();
+                        }
+                        Context subContext = new Context();//create new context because all funcs are top level
+                        int pos = 16;//args start at *(ebp+16) in order to leave room for eip and rbp on the call stack
+                        //source: http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
+                        for (Pair<String, Type> arg : args) {
+                            subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
+                            pos += arg.getValue().getSizeBytes();
+                        }
                         ArrayList<Command> funcContents = Processor.parse(rawBlock, subContext);
                         CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, funcContents);
                         result.add(def);

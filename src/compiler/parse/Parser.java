@@ -307,7 +307,14 @@ public class Parser {
             if (context.varDefined(toSet.val)) {
                 throw new IllegalStateException("Babe, " + toSet.val + " is already there");
             }
-            Type type = null;//TODO get type from tokens.get(0
+            if (!(tokens.get(0) instanceof TokenKeyword)) {
+                throw new IllegalStateException();
+            }
+            Keyword typeKeyword = ((TokenKeyword) tokens.get(0)).getKeyword();
+            if (!typeKeyword.isType()) {
+                throw new IllegalStateException();
+            }
+            Type type = typeKeyword.type;
             Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);
             context.setType(toSet.val, rightSide.getType());
             //ok we doing something like long i=5

@@ -9,25 +9,21 @@ package compiler.type;
  *
  * @author leijurv
  */
-public class TypeInt32 extends TypeNumerical {
-    @Override
-    public int getSizeBytes() {
-        return 4;
-    }
-    @Override
-    public String toString() {
-        return "int";
-    }
+public class TypeInt8 extends TypeNumerical {
     @Override
     public char x86typesuffix() {
-        return 'l';
+        return 'b';
     }
     @Override
     public String x86registerprefix() {
-        return "e";
+        return "";
     }
     @Override
     public char x86registersuffix() {
-        return 'x';
+        return 'l';
+    }
+    @Override
+    public int getSizeBytes() {
+        return 1;
     }
 }

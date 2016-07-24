@@ -22,4 +22,8 @@ public class TypeInt64 extends TypeNumerical {
     public int getSizeBytes() {
         return 8;
     }
+    @Override
+    public char x86registersuffix() {
+        return 'x';
+    }
 }

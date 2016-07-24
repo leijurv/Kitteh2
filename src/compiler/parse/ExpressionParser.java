@@ -24,6 +24,7 @@ import compiler.token.TokenString;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
+import compiler.type.TypeNumerical;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,8 @@ public class ExpressionParser {
                     System.out.println("Parsing " + val + " as int");
                     num = Integer.parseInt(val);
                 }
-                o.set(i, new ExpressionConstNum(num, new TypeInt32()));//TODO this is mal
+                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) ? (TypeNumerical) desiredType.get() : new TypeInt32();
+                o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
             }
             if (ob instanceof TokenString) {
                 o.set(i, new ExpressionConstStr(((TokenString) ob).val));

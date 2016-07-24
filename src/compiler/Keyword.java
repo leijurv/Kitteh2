@@ -7,7 +7,10 @@ package compiler;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
 import compiler.type.Type;
+import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 
 /**
  *
@@ -24,7 +27,10 @@ public enum Keyword {
     CONTINUE("CATINUE", false, null, null),
     RETURN("POUNCE", false, null, null),
     FUNC("CHASE", true, null, null),
-    INT("MEOWNT", false, null, new TypeInt32());
+    BYTE("BITE", false, null, new TypeInt8()),
+    SHORT("SHRT", false, null, new TypeInt16()),
+    INT("MEOWNT", false, null, new TypeInt32()),
+    LONG("LAWNG", false, null, new TypeInt64());
     public static boolean CAT_MODE = false;
     public final String catVersion;
     public final boolean canBeginBlock;

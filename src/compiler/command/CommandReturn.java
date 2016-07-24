@@ -20,6 +20,9 @@ public class CommandReturn extends Command {
     public CommandReturn(Context context, Expression toReturn) {
         super(context);
         this.toReturn = toReturn;
+        if (!context.getCurrentFunctionReturnType().equals(toReturn.getType())) {
+            throw new IllegalStateException("Floating point division not yet supported");//lol
+        }
     }
     @Override
     protected void generateTAC0(IREmitter emit) {

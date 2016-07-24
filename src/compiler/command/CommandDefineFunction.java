@@ -21,11 +21,17 @@ public class CommandDefineFunction extends Command {
     Type returnType;
     String name;
     ArrayList<Command> contents;
-    public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Command> contents) {
+    public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName) {
         super(context);
         this.arguments = arguments;
         this.name = functionName;
+        this.returnType = returnType;
+    }
+    public void setContents(ArrayList<Command> contents) {
         this.contents = contents;
+    }
+    public Type getReturnType() {
+        return returnType;
     }
     @Override
     protected void generateTAC0(IREmitter emit) {

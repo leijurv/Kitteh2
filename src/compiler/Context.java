@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.command.CommandDefineFunction;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -47,9 +48,16 @@ public class Context {
     private int stackSize;
     private Integer additionalSizeTemp = null;
     private TempVarUsage currentTempVarUsage = null;
+    private CommandDefineFunction currentFunction = null;
     public Context() {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
+    }
+    public void setCurrFunc(CommandDefineFunction cdf) {
+        this.currentFunction = cdf;
+    }
+    public Type getCurrentFunctionReturnType() {
+        return currentFunction.getReturnType();
     }
     public TempVarUsage getTempVarUsage() {
         if (currentTempVarUsage == null) {
@@ -86,7 +94,9 @@ public class Context {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
-        return new Context(temp, stackSize);
+        Context subContext = new Context(temp, stackSize);
+        subContext.setCurrFunc(currentFunction);
+        return subContext;
     }
     /*public Context superContext() {
      if (values.length <= 1) {

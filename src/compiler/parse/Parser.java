@@ -124,8 +124,10 @@ public class Parser {
                             subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
                             pos += arg.getValue().getSizeBytes();
                         }
+                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val);
+                        subContext.setCurrFunc(def);
                         ArrayList<Command> funcContents = Processor.parse(rawBlock, subContext);
-                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, funcContents);
+                        def.setContents(funcContents);
                         result.add(def);
                         break;
                     case FOR:
@@ -233,7 +235,20 @@ public class Parser {
                     }
                     return new CommandContinue(context);
                 case RETURN:
-                    Expression ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context);
+                    Expression ex = null;
+                    Type retType = context.getCurrentFunctionReturnType();
+                    if (tokens.size() == 1) {
+                        //you're just doing "return" without a value, which is k
+                        if (!(retType instanceof TypeVoid)) {
+                            throw new IllegalStateException("you can't put a round peg in a square hole. or in this case, a void peg in a " + retType + " hole");
+                        }
+                    } else {
+                        if (retType instanceof TypeVoid) {
+                            ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context);//we parse it here so that we know the type for the humorous error message
+                            throw new IllegalStateException("you can't put a square peg in a round hole. or in this case, a " + ex.getType() + " peg in a void hole");
+                        }
+                        ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.of(retType), context);
+                    }
                     return new CommandReturn(context, ex);
             }
         }

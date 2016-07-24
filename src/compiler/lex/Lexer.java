@@ -178,7 +178,9 @@ public class Lexer extends AbstractLexer {
                 if (ch == '.' && hasHitPeriod) {
                     throw new IllegalStateException("Here's the thing. You said jackdaw is a crow");
                 }
-                hasHitPeriod = true;
+                if (ch == '.') {
+                    hasHitPeriod = true;
+                }
                 pop();
             } else if (alphabetical(ch)) {
                 throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substring(start) + ch);

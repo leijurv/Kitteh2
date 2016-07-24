@@ -6,7 +6,9 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.X86Emitter;
+import compiler.X86Register;
 import compiler.type.TypeInt32;
+import compiler.type.TypeNumerical;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -56,12 +58,17 @@ public class TACFunctionCall extends TACStatement {
         emit.addStatement("subq $" + toSubtract + ", %rsp");
         int stackLocation = 0;
         for (VarInfo param : params) {
-            emit.addStatement("movl " + param.x86() + ", %edx");
-            emit.addStatement("movl %edx, " + stackLocation + "(%rsp)");//move onto stack pointer in increasing order
-            stackLocation += param.getType().getSizeBytes();
+            TypeNumerical type = (TypeNumerical) param.getType();
+            String register = X86Register.D.getRegister(type);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + param.x86() + ", " + register);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + register + ", " + stackLocation + "(%rsp)");//move onto stack pointer in increasing order
+            stackLocation += type.getSizeBytes();
         }
         emit.addStatement("callq _" + funcName);
-        emit.addStatement("movl %eax, " + result.x86());
+        if (result != null) {
+            TypeNumerical ret = (TypeNumerical) result.getType();
+            emit.addStatement("mov" + ret.x86typesuffix() + " " + X86Register.A.getRegister(ret) + ", " + result.x86());
+        }
         emit.addStatement("addq $" + toSubtract + ", %rsp");
     }
 }

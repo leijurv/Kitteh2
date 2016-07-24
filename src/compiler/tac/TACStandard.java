@@ -7,6 +7,8 @@ package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.X86Emitter;
+import compiler.X86Register;
+import compiler.type.TypeNumerical;
 
 /**
  *
@@ -35,33 +37,44 @@ public class TACStandard extends TACStatement {
         result = context.getRequired(resultName);
         first = context.getRequired(firstName);
         second = context.getRequired(secondName);
+        if (!result.getType().equals(op.onApplication(first.getType(), second.getType()))) {
+            throw new IllegalStateException();
+        }
+        if (!first.getType().equals(second.getType())) {
+            throw new IllegalStateException();
+        }
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("movl " + second.x86() + ", %ebx");
-        emit.addStatement("movl " + first.x86() + ", %eax");
+        TypeNumerical type = (TypeNumerical) first.getType();
+        String a = X86Register.A.getRegister(type);
+        String b = X86Register.B.getRegister(type);
+        String d = X86Register.D.getRegister(type);
+        String mov = "mov" + type.x86typesuffix() + " ";
+        emit.addStatement(mov + second.x86() + ", " + b);
+        emit.addStatement(mov + first.x86() + ", " + a);
         switch (op) {
             case PLUS:
-                emit.addStatement("addl %eax, %ebx");
-                emit.addStatement("movl %ebx, " + result.x86());
+                emit.addStatement("addl " + a + ", " + b);
+                emit.addStatement(mov + b + ", " + result.x86());
                 break;
             case MINUS:
-                emit.addStatement("subl %ebx, %eax");
-                emit.addStatement("movl %eax, " + result.x86());
+                emit.addStatement("subl " + b + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MOD:
-                emit.addStatement("xor %edx, %edx");
-                emit.addStatement("idivl %ebx");
-                emit.addStatement("movl %edx, " + result.x86());
+                emit.addStatement("xor " + d + ", " + d);
+                emit.addStatement("idivl " + b);
+                emit.addStatement(mov + d + ", " + result.x86());
                 break;
             case DIVIDE:
-                emit.addStatement("xor %edx, %edx");
-                emit.addStatement("idivl %ebx");
-                emit.addStatement("movl %eax, " + result.x86());
+                emit.addStatement("xor " + d + ", " + d);
+                emit.addStatement("idivl " + b);
+                emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MULTIPLY:
-                emit.addStatement("imull %ebx, %eax");
-                emit.addStatement("movl %eax, " + result.x86());
+                emit.addStatement("imull " + b + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
                 break;
             default:
                 throw new IllegalStateException(op + "");

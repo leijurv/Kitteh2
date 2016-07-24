@@ -31,7 +31,7 @@ public class Compiler {
     public static void main(String[] args) throws Exception {
         System.out.println("First stream: " + streamTime());
         System.out.println("Second stream: " + streamTime());
-        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/functest.k").toPath());
+        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/prime.k").toPath());
         ArrayList<String> k = Preprocessor.preprocess(new String(program));
         ArrayList<Object> lol = new ArrayList<>();
         for (String l : k) {
@@ -62,5 +62,9 @@ public class Compiler {
     }
     static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
             + "    .macosx_version_min 10, 10";
-    static String FOOTER = ".subsections_via_symbols";
+    static String FOOTER = "\n"
+            + ".section	__TEXT,__cstring,cstring_literals\n"
+            + "L_.str:                                 ## @.str\n"
+            + "	.asciz	\"%i\\n\"\n"
+            + ".subsections_via_symbols";
 }

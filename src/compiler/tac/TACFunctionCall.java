@@ -26,7 +26,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        return result + " = CALLFUNC " + funcName + "(" + paramNames + ")";
+        return result + " = CALLFUNC " + funcName + "(" + params + ")";
     }
     @Override
     public void onContextKnown() {

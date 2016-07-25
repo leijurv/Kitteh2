@@ -31,7 +31,7 @@ public enum Keyword {
     SHORT("SHRT", false, null, new TypeInt16()),
     INT("MEOWNT", false, null, new TypeInt32()),
     LONG("LAWNG", false, null, new TypeInt64());
-    public static boolean CAT_MODE = false;
+    public static boolean CAT_MODE = true;
     public final String catVersion;
     public final boolean canBeginBlock;
     private final ExpressionConst constVal;

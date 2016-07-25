@@ -15,11 +15,10 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public class CommandIf extends Command {
-    ArrayList<Command> contents;
+public class CommandIf extends CommandBlock {
     Expression condition;
     public CommandIf(Expression condition, ArrayList<Command> contents, Context context) {
-        super(context);
+        super(context, contents);
         this.contents = contents;
         this.condition = condition;
     }

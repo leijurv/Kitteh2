@@ -77,6 +77,7 @@ public class CommandFor extends CommandBlock {
     @Override
     public void staticValues() {
         //do NOT run on the init. if you do that, it'll assume that i will always be 0, even though it changes
+        System.out.println("CLEARING " + getAllVarsModified());
         for (String s : getAllVarsModified()) {
             context.clearKnownValue(s);
         }

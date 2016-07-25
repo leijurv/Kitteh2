@@ -44,8 +44,6 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         String bName = tempVars.getTempVar(b.getType());
         b.generateTAC(emit, tempVars, bName);
         emit.emit(new TACStandard(resultLocation, aName, bName, op));
-        //TODO if we allow ++ and -- that could mess up the DAG
-        //TODO || and &&
     }
     @Override
     public int calculateTACLength() {

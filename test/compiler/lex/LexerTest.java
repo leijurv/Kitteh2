@@ -4,8 +4,11 @@
  * and open the template in the editor.
  */
 package compiler.lex;
+import compiler.Keyword;
 import compiler.token.Token;
 import compiler.token.TokenEndParen;
+import compiler.token.TokenKeyword;
+import compiler.token.TokenNum;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import java.util.ArrayList;
@@ -42,9 +45,14 @@ public class LexerTest {
     @Test
     public void testLex() {
         System.out.println("lex");
-        String line = "wew()";
-        ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(new Token[]{new TokenVariable("wew"), new TokenStartParen(), new TokenEndParen()}));
-        ArrayList<Token> result = Lexer.lex(line);
+        testLexing("wew()", new TokenVariable("wew"), new TokenStartParen(), new TokenEndParen());
+        testLexing("420", new TokenNum("420"));
+        testLexing("a420", new TokenVariable("a420"));
+        testLexing("for 4", new TokenKeyword(Keyword.FOR), new TokenNum("4"));
+    }
+    public void testLexing(String input, Token... expected) {
+        ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(expected));
+        ArrayList<Token> result = Lexer.lex(input);
         assertEquals(expResult, result);
     }
     /**
@@ -53,7 +61,7 @@ public class LexerTest {
     @Test
     public void testReadAlphanumerical() {
         System.out.println("readAlphanumerical");
-        Lexer instance = new Lexer("wew420");
+        Lexer instance = new Lexer("wew420.");
         String expResult = "wew420";
         String result = instance.readAlphanumerical();
         assertEquals(expResult, result);

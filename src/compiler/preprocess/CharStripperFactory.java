@@ -6,6 +6,7 @@
 package compiler.preprocess;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
+import javax.xml.bind.TypeConstraintException;
 
 /**
  *
@@ -15,6 +16,9 @@ public class CharStripperFactory {
     private final ArrayList<Character> chars = new ArrayList<>();
     private final ArrayList<StripLocation> locations = new ArrayList<>();
     public CharStripperFactory addChar(char c, StripLocation loc) {
+        if (chars.contains(c)) {
+            throw new TypeConstraintException("");//lol
+        }
         chars.add(c);
         locations.add(loc);
         return this;

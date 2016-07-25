@@ -7,17 +7,13 @@ package compiler.lex;
 import compiler.Keyword;
 import compiler.Operator;
 import compiler.token.Token;
-import compiler.token.TokenComma;
 import compiler.token.TokenDecrement;
-import compiler.token.TokenEndParen;
 import compiler.token.TokenIncrement;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenNot;
 import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
-import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
-import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import java.util.ArrayList;
 
@@ -57,18 +53,13 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             pop();
+            if (TokenMapping.charMapsToToken(ch)) {
+                emit(TokenMapping.getStaticToken(ch));
+                continue;
+            }
             switch (ch) {
                 case ' '://spaces don't do anything i think
                 case '{'://lol idk man
-                    break;
-                case '(':
-                    emit(new TokenStartParen());
-                    break;
-                case ')':
-                    emit(new TokenEndParen());
-                    break;
-                case ',':
-                    emit(new TokenComma());
                     break;
                 case ':':
                     if (peek() == '=') {
@@ -77,9 +68,6 @@ public class Lexer extends AbstractLexer {
                         break;
                     }
                     throw new IllegalStateException("Literally the only usage of : is if it has a = after it");
-                case ';':
-                    emit(new TokenSemicolon());
-                    break;
                 case '+'://TODO https://en.wikipedia.org/wiki/Augmented_assignment
                     if (peek() == '+') {
                         pop();
@@ -95,15 +83,6 @@ public class Lexer extends AbstractLexer {
                         break;
                     }
                     emit(new TokenOperator(Operator.MINUS));
-                    break;
-                case '*':
-                    emit(new TokenOperator(Operator.MULTIPLY));
-                    break;
-                case '/':
-                    emit(new TokenOperator(Operator.DIVIDE));
-                    break;
-                case '%':
-                    emit(new TokenOperator(Operator.MOD));
                     break;
                 case '|':
                     if (peek() == '|') {

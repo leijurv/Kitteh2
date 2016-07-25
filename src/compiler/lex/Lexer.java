@@ -15,6 +15,7 @@ import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
 import compiler.token.TokenSetEqual;
 import compiler.token.TokenVariable;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.ArrayList;
 
 /**
@@ -131,7 +132,7 @@ public class Lexer extends AbstractLexer {
                     emit(new TokenNot());
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected " + ch);
+                    throw new FileSystemAlreadyExistsException("Unexpected " + ch);
             }
             //lol don't put anything here
         }

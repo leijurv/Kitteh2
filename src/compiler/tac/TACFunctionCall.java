@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
@@ -39,7 +40,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        if (funcName.equals("KEYWORDprint")) {
+        if (funcName.equals("KEYWORD" + Keyword.PRINT)) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
             if (params.size() != 1 || !(params.get(0).getType() instanceof TypeNumerical)) {
                 throw new IllegalStateException();

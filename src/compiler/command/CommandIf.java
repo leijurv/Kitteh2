@@ -5,7 +5,6 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConditionalJumpable;
 import compiler.tac.IREmitter;
@@ -16,17 +15,13 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public class CommandIf extends Command implements KeywordCommand {
+public class CommandIf extends Command {
     ArrayList<Command> contents;
     Expression condition;
     public CommandIf(Expression condition, ArrayList<Command> contents, Context context) {
         super(context);
         this.contents = contents;
         this.condition = condition;
-    }
-    @Override
-    public Keyword getKeyword() {
-        return Keyword.IF;
     }
     @Override
     public String toString() {

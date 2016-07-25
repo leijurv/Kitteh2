@@ -5,7 +5,6 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConditionalJumpable;
 import compiler.tac.IREmitter;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public class CommandFor extends CommandBlock implements KeywordCommand {
+public class CommandFor extends CommandBlock {
     Command initialization;
     Expression condition;
     Command afterthought;
@@ -33,10 +32,6 @@ public class CommandFor extends CommandBlock implements KeywordCommand {
     public CommandFor(ArrayList<Command> contents, Context context) {
         //this.condition=new ExpressionConstant(Boolean.TRUE)
         this(null, null, null, contents, context);
-    }
-    @Override
-    public Keyword getKeyword() {
-        return Keyword.FOR;
     }
     @Override
     public String toString() {

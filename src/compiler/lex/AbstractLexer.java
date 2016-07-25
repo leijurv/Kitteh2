@@ -28,7 +28,7 @@ public abstract class AbstractLexer {//extends StringEmitter? I just provide wra
     protected boolean has() {
         return lineReader.has();
     }
-    protected String substring(int start) {
+    protected String substringSince(int start) {
         return lineReader.substring(start);
     }
     public int pos() {

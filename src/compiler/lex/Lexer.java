@@ -39,21 +39,21 @@ public class Lexer extends AbstractLexer {
             boolean alpha = alphabetical(ch);
             boolean num = numerical(ch);
             if (alpha) {
-                String word = readAlphanumerical();
-                Keyword key = Keyword.strToKeyword(word);
+                String lexeme = readAlphanumerical();
+                Keyword key = Keyword.strToKeyword(lexeme);
                 if (key != null) {
                     emit(new TokenKeyword(key));
                     continue;
                 }
-                emit(new TokenVariable(word));
+                emit(new TokenVariable(lexeme));
                 continue;
             }
             if (num) {
                 //TODO negative numbers
                 //it's nontrivial because a - and then a number can mean something else (like i-5) or really negative (like i= -5)
                 //negative numbers are in the parser not the lexer I think... =/
-                String word = readNumerical();
-                emit(new TokenNum(word));
+                String lexeme = readNumerical();
+                emit(new TokenNum(lexeme));
                 continue;
             }
             pop();
@@ -167,7 +167,7 @@ public class Lexer extends AbstractLexer {
                 break;
             }
         }
-        return substring(start);
+        return substringSince(start);
     }
     public String readNumerical() {
         int start = pos();
@@ -183,12 +183,12 @@ public class Lexer extends AbstractLexer {
                 }
                 pop();
             } else if (alphabetical(ch)) {
-                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substring(start) + ch);
+                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substringSince(start) + ch);
             } else {
                 break;
             }
         }
-        return substring(start);
+        return substringSince(start);
     }
     public static boolean allAlpha(String s) {
         for (char c : s.toCharArray()) {

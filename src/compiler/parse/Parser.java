@@ -27,6 +27,7 @@ import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeVoid;
+import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -308,11 +309,11 @@ public class Parser {
                 throw new IllegalStateException("Babe, " + toSet.val + " is already there");
             }
             if (!(tokens.get(0) instanceof TokenKeyword)) {
-                throw new IllegalStateException();
+                throw new RasterFormatException("");
             }
             Keyword typeKeyword = ((TokenKeyword) tokens.get(0)).getKeyword();
             if (!typeKeyword.isType()) {
-                throw new IllegalStateException();
+                throw new RasterFormatException("");
             }
             Type type = typeKeyword.type;
             Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);

@@ -10,7 +10,7 @@ package compiler.preprocess;
  * @author leijurv
  */
 public class StripComments {
-    public String transform(String line) {
+    public String transform(String line) {//TODO somehow preserve/store original line numbers for error messages =/
         boolean inString = false;
         char strType = 0;
         char prevChar = 0;

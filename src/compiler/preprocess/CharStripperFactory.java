@@ -47,13 +47,13 @@ public class CharStripperFactory {
     }
 
     private class StripChars extends LineBasedTransform {
+        Character[] begin = stripBegin();
+        Character[] end = stripEnd();
         @Override
         public String transform(String line) {
             if (line.equals("")) {
                 return line;
             }
-            Character[] begin = stripBegin();
-            Character[] end = stripEnd();
             int stripBegin;
             for (stripBegin = 0; stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin)); stripBegin++);
             int stripEnd;

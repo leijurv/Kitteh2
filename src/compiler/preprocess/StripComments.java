@@ -61,7 +61,7 @@ public class StripComments {
                         break;
                 }
             }
-            if (inComment && commentEndsWithNewLine && ch == '\n') {
+            if (inComment && commentEndsWithNewLine && ch == '\n') {//TODO I'm not sure how \r\n and similar work. idk if I need to deal with that
                 inComment = false;
             }
             if (!inComment) {

@@ -61,7 +61,7 @@ public class StripComments {
             }
             prevChar = ch;
         }
-        if (inComment) {
+        if (inComment && !commentEndsWithNewLine) {
             throw new IllegalStateException("Comment started with /* but not ended");
         }
         if (inString) {

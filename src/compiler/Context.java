@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class Context {
-    public static class VarInfo {//this class is here because when it's actually a compiler this will store some more sketchy data like stack offset, stack size, etc
+    public static class VarInfo {
         String name;
         Type type;
         ExpressionConst knownValue;

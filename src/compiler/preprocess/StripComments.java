@@ -19,17 +19,9 @@ public class StripComments {
         boolean commentEndsWithNewLine = false;
         for (int i = 0; i < line.length(); i++) {
             char ch = line.charAt(i);
-            if (!inComment) {
-                if (ch == '"' || ch == '\'') {
-                    if (prevChar != '\\') {//It's not a string thingy if the prev char was a \
-                        if (!(inString && ch != strType)) {//if a string was started with ", and we see a ', don't end the string
-                            inString = !inString;
-                            if (inString) {
-                                strType = ch;
-                            }
-                        }
-                    }
-                }
+            if (!inComment && (ch == '"' || ch == '\'') && prevChar != '\\' && !(inString && ch != strType)) {
+                inString = !inString;
+                strType = ch;
             }
             if (!inString) {
                 switch (ch) {

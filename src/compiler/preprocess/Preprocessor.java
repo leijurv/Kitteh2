@@ -21,14 +21,13 @@ public class Preprocessor {
             .addChar((char) 11, StripLocation.BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
             .addChar(' ', StripLocation.BOTH)//alt+space
             .build();
-    static final Transform<ArrayList<String>> STRIP_COMMENTS = new StripComments();
     static final Transform<ArrayList<String>> REMOVE_BLANK = new BlankLineRemover();
     static final Transform<ArrayList<String>>[] PREPROCESSOR_ACTIONS = new Transform[]{
-        STRIP_COMMENTS,
         CHAR_STRIPPER,
         REMOVE_BLANK
     };
     public static ArrayList<String> preprocess(String rawProgram) {
+        rawProgram = new StripComments().transform(rawProgram);
         ArrayList<String> program = new ArrayList<>(Arrays.asList(rawProgram.split("\n")));
         for (Transform<ArrayList<String>> action : PREPROCESSOR_ACTIONS) {
             System.out.println(program);

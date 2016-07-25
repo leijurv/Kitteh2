@@ -9,16 +9,15 @@ package compiler.preprocess;
  *
  * @author leijurv
  */
-public class StripComments extends LineBasedTransform {//TODO multi line comments
-    @Override
+public class StripComments {
     public String transform(String line) {
         boolean inString = false;
         char strType = 0;
         char prevChar = 0;
         String transformed = "";
         boolean inComment = false;
+        boolean commentEndsWithNewLine = false;
         for (int i = 0; i < line.length(); i++) {
-            boolean breakLoop = false;
             char ch = line.charAt(i);
             if (!inComment) {
                 if (ch == '"' || ch == '\'') {
@@ -41,6 +40,7 @@ public class StripComments extends LineBasedTransform {//TODO multi line comment
                                 transformed = transformed.substring(0, transformed.length() - 1);//since this is a /* we need to cut off the /
                             }
                             inComment = true;
+                            commentEndsWithNewLine = false;
                         }
                         break;
                     case '/':
@@ -55,13 +55,14 @@ public class StripComments extends LineBasedTransform {//TODO multi line comment
                         if (prevChar == '/' && !inComment)/*  // */ {
                             //rest of line
                             transformed = transformed.substring(0, transformed.length() - 1);
-                            breakLoop = true;
+                            inComment = true;
+                            commentEndsWithNewLine = true;
                         }
                         break;
                 }
             }
-            if (breakLoop) {
-                break;
+            if (inComment && commentEndsWithNewLine && ch == '\n') {
+                inComment = false;
             }
             if (!inComment) {
                 transformed += ch;

@@ -12,6 +12,7 @@ import compiler.tac.IREmitter;
 import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -77,17 +78,19 @@ public class CommandFor extends Command implements KeywordCommand {
         //do NOT run on the init. if you do that, it'll assume that i will always be 0, even though it changes
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
-        //TODO remove static values for things that are defined outside of the for loop and modified in the for loop
-        //like
-        //int sum=0
-        //for i<100{
-        //sum=sum+i
-        //}
-        //in that case, there should be no static value calculation for sum, in fact the known value for sum should be cleared
-        //so basically just clear the known value for any vars modified during this for loop, at the beginnig of the loop
         afterthought.staticValues();
+        for (String s : getAllVarsModified()) {
+            context.clearKnownValue(s);
+        }
         for (Command com : contents) {
             com.staticValues();
         }
+        for (String s : getAllVarsModified()) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
+            context.clearKnownValue(s);
+        }
+    }
+    @Override
+    public ArrayList<String> getAllVarsModified() {
+        return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

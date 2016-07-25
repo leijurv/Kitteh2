@@ -9,6 +9,7 @@ import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
+import java.util.ArrayList;
 
 /**
  *
@@ -35,9 +36,16 @@ public class CommandSetVar extends Command {
         val = val.insertKnownValues(context);
         val = val.calculateConstants();
         if (val instanceof ExpressionConst) {
+            System.out.println(var + " is known to be " + val);
             context.setKnownValue(var, (ExpressionConst) val);
         } else {
             context.clearKnownValue(var);//we are setting it to something dynamic, so it's changed now
         }
+    }
+    @Override
+    public ArrayList<String> getAllVarsModified() {
+        ArrayList<String> res = new ArrayList<>();
+        res.add(var);
+        return res;
     }
 }

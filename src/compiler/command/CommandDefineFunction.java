@@ -43,6 +43,9 @@ public class CommandDefineFunction extends Command {
     }
     @Override
     public void staticValues() {
+        for (Command com : contents) {
+            com.staticValues();
+        }
     }
     public void generateX86(StringBuilder resp) {
         IREmitter emit = new IREmitter();

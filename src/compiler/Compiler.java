@@ -31,7 +31,7 @@ public class Compiler {
     public static void main(String[] args) throws Exception {
         System.out.println("First stream: " + streamTime());
         System.out.println("Second stream: " + streamTime());
-        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/prime.k").toPath());
+        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/statictest.k").toPath());
         ArrayList<String> k = Preprocessor.preprocess(new String(program));
         ArrayList<Object> lol = new ArrayList<>();
         for (String l : k) {
@@ -40,7 +40,7 @@ public class Compiler {
         ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println(commands);
         for (Command com : commands) {
-            //com.staticValues();
+            com.staticValues();
             //currently if you do something like
             //sum=0
             //for i<100

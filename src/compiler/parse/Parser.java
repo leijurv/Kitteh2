@@ -29,6 +29,7 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeVoid;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -273,7 +274,9 @@ public class Parser {
             //only some expressions are okay
             //for example you couldn't just have "x+5" be a line on its own
             //some okay expressions to be lines on their own are: function calls, increments, and decrements
-            //TODO check if ex is one of those
+            if (!ex.canBeCommand()) {
+                throw new IllformedLocaleException(ex + "");
+            }
             return new CommandExp(ex, context);
         }
         if (eqLoc == 0) {

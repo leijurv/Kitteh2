@@ -40,4 +40,8 @@ public abstract class Expression {
     public Expression calculateConstants() {//calculate static calculations. e.g. the expression 5+5 should return the const 10
         return this;
     }
+    public boolean canBeCommand() {
+        //can this expression be a line on its own. e.g. expressionfunctioncall is true because you can do f();, but expressionoperator is false because you can't do 5+6; on its own
+        return false;//override where it's true, default to false
+    }
 }

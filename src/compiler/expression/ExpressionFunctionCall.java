@@ -62,4 +62,8 @@ public class ExpressionFunctionCall extends Expression {
         });
         return this;
     }
+    @Override
+    public boolean canBeCommand() {
+        return true;
+    }
 }

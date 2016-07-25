@@ -47,7 +47,7 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
         return known == null ? this : (Expression) known;
     }
     @Override
-    public void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+    public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
         emit.emit(new TACJumpBoolVar(name, jumpTo, invert));
     }
     @Override

@@ -48,7 +48,7 @@ public class CommandFor extends CommandBlock {
         //int afterItAll = placeToJumpTo + conditionLen + bodyLen + afterLen;
         //System.out.println(placeToJumpTo + " " + conditionLen + " " + bodyLen + " " + afterLen + " " + afterItAll);
         emit.updateContext(context);//I don't remember why this needs to be here, but if you remove it then compile something with a for loop, there will be an illegal state exception about the fitnessgram pacer test
-        ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
+        ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
         emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought

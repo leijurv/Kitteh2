@@ -12,6 +12,6 @@ import compiler.tac.TempVarUsage;
  * @author leijurv
  */
 public abstract class ExpressionConditionalJumpable extends Expression {
-    public abstract void generateConditionJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert);
+    public abstract void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert);
     public abstract int condLength();
 }

@@ -30,7 +30,7 @@ public class CommandIf extends Command {
     @Override
     public void generateTAC0(IREmitter emit) {
         int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
-        ((ExpressionConditionalJumpable) condition).generateConditionJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
+        ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
         for (Command com : contents) {
             com.generateTAC(emit);
         }

@@ -16,7 +16,7 @@ import javafx.util.Pair;
  *
  * @author leijurv
  */
-public class CommandDefineFunction extends Command {
+public class CommandDefineFunction extends Command {//dont extend commandblock because we only get the contents later because of header first parsing
     ArrayList<Pair<String, Type>> arguments;
     Type returnType;
     String name;

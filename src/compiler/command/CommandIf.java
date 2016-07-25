@@ -11,7 +11,6 @@ import compiler.expression.ExpressionConditionalJumpable;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -59,9 +58,5 @@ public class CommandIf extends Command implements KeywordCommand {
         for (String s : getAllVarsModified()) {
             context.clearKnownValue(s);
         }
-    }
-    @Override
-    public ArrayList<String> getAllVarsModified() {
-        return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

@@ -12,23 +12,20 @@ import compiler.tac.IREmitter;
 import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  *
  * @author leijurv
  */
-public class CommandFor extends Command implements KeywordCommand {
+public class CommandFor extends CommandBlock implements KeywordCommand {
     Command initialization;
     Expression condition;
     Command afterthought;
-    ArrayList<Command> contents;
     public CommandFor(Command initialization, Expression condition, Command afterthought, ArrayList<Command> contents, Context context) {
-        super(context);
+        super(context, contents);
         this.initialization = initialization;
         this.condition = condition;
         this.afterthought = afterthought;
-        this.contents = contents;
     }
     public CommandFor(Expression condition, ArrayList<Command> contents, Context context) {
         this(null, condition, null, contents, context);
@@ -88,9 +85,5 @@ public class CommandFor extends Command implements KeywordCommand {
         for (String s : getAllVarsModified()) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
             context.clearKnownValue(s);
         }
-    }
-    @Override
-    public ArrayList<String> getAllVarsModified() {
-        return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

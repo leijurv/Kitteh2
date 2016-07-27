@@ -31,11 +31,11 @@ public class ExpressionFunctionCall extends Expression {
     private void verifyTypes() {
         ArrayList<Type> expected = calling.inputs();
         if (expected.size() != args.size()) {
-            throw new IllegalStateException("Expected " + expected.size() + " args, actually got " + args.size());
+            throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
         }
         ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
-            throw new IllegalStateException("Expected types " + expected + ", got types " + got);
+            throw new ArithmeticException("Expected types " + expected + ", got types " + got);
         }
     }
     @Override

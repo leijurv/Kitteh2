@@ -5,11 +5,18 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.FunctionsContext;
+import compiler.Keyword;
 import compiler.X86Emitter;
+import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACReturn;
 import compiler.type.Type;
+import compiler.type.TypeInt32;
+import compiler.type.TypeVoid;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javafx.util.Pair;
 
 /**
@@ -21,17 +28,24 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     Type returnType;
     String name;
     ArrayList<Command> contents;
-    public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName) {
+    ArrayList<Object> rawContents;
+    FunctionHeader header;
+    public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.arguments = arguments;
         this.name = functionName;
         this.returnType = returnType;
+        this.rawContents = rawContents;
+        this.header = new FunctionHeader(name, returnType, arguments.stream().map(arg -> arg.getValue()).collect(Collectors.toCollection(ArrayList::new)));
     }
-    public void setContents(ArrayList<Command> contents) {
-        this.contents = contents;
+    public FunctionHeader getHeader() {
+        return header;
     }
-    public Type getReturnType() {
-        return returnType;
+    public void parse(FunctionsContext gc) {
+        context.setCurrFunc(this);
+        context.gc = gc;
+        contents = Processor.parse(rawContents, context);
+        context.gc = null;
     }
     @Override
     protected void generateTAC0(IREmitter emit) {
@@ -80,4 +94,22 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             + "	movq	%rsp, %rbp\n"
             + "	.cfi_def_cfa_register %rbp";
     static final String FUNC_FOOTER = "	.cfi_endproc";
+
+    public static class FunctionHeader {
+        private FunctionHeader(String name, Type returnType, ArrayList<Type> arguments) {
+            this.name = name;
+            this.returnType = returnType;
+            this.arguments = arguments;
+        }
+        public final String name;
+        Type returnType;
+        ArrayList<Type> arguments;
+        public Type getReturnType() {
+            return returnType;
+        }
+        public ArrayList<Type> inputs() {
+            return arguments;
+        }
+    }
+    public static FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

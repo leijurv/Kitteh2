@@ -111,7 +111,7 @@ public class ExpressionParser {
                                     funcName = ((TokenKeyword) o.get(i - 1)).toString();
                                 }
                                 o.remove(i - 1);
-                                o.add(i - 1, new ExpressionFunctionCall(funcName, args));
+                                o.add(i - 1, new ExpressionFunctionCall(context, funcName, args));
                             } else {
                                 if (inParen.size() != 1) {
                                     throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
@@ -162,8 +162,7 @@ public class ExpressionParser {
         try {
             r.getType();
         } catch (IllegalStateException e) {
-            System.out.println("Exception while getting type of " + o);
-            throw e;
+            throw new IllegalStateException("Exception while getting type of " + o, e);
         }
         if (desiredType.isPresent()) {
             if (!desiredType.get().equals(r.getType())) {

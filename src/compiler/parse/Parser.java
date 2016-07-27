@@ -126,10 +126,7 @@ public class Parser {
                             subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
                             pos += arg.getValue().getSizeBytes();
                         }
-                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val);
-                        subContext.setCurrFunc(def);
-                        ArrayList<Command> funcContents = Processor.parse(rawBlock, subContext);
-                        def.setContents(funcContents);
+                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, rawBlock);
                         result.add(def);
                         break;
                     case FOR:

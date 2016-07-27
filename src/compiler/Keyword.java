@@ -19,7 +19,7 @@ import compiler.type.TypeInt8;
 public enum Keyword {
     FOR("PURR", true, null, null),
     PRINT("MEOW", false, null, null),
-    PRINTLN("MEOWLN", false, null, null),
+    //PRINTLN("MEOWLN", false, null, null),
     IF("BLINK", true, null, null),
     TRUE("YES", false, new ExpressionConstBool(true), null),
     FALSE("NO", false, new ExpressionConstBool(false), null),

@@ -5,11 +5,11 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
-import compiler.type.TypeInt32;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -21,14 +21,26 @@ import java.util.stream.IntStream;
 public class ExpressionFunctionCall extends Expression {
     String funcName;
     ArrayList<Expression> args;
-    public ExpressionFunctionCall(String funcName, ArrayList<Expression> args) {
+    FunctionHeader calling;
+    public ExpressionFunctionCall(Context context, String funcName, ArrayList<Expression> args) {
         this.funcName = funcName;
         this.args = args;
+        this.calling = context.gc.getHeader(funcName);
+        verifyTypes();
+    }
+    private void verifyTypes() {
+        ArrayList<Type> expected = calling.inputs();
+        if (expected.size() != args.size()) {
+            throw new IllegalStateException("Expected " + expected.size() + " args, actually got " + args.size());
+        }
+        ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
+        if (!got.equals(expected)) {
+            throw new IllegalStateException("Expected types " + expected + ", got types " + got);
+        }
     }
     @Override
-    public Type calcType() {//TODO fix this... idk how...
-        //return new TypeVoid();
-        return new TypeInt32();
+    public Type calcType() {
+        return calling.getReturnType();
     }
     @Override
     public String toString() {

@@ -50,6 +50,7 @@ public class Context {
     private Integer additionalSizeTemp = null;
     private TempVarUsage currentTempVarUsage = null;
     private CommandDefineFunction currentFunction = null;
+    public FunctionsContext gc;
     public Context() {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
@@ -58,7 +59,7 @@ public class Context {
         this.currentFunction = cdf;
     }
     public Type getCurrentFunctionReturnType() {
-        return currentFunction.getReturnType();
+        return currentFunction.getHeader().getReturnType();
     }
     public TempVarUsage getTempVarUsage() {
         if (currentTempVarUsage == null) {
@@ -97,6 +98,7 @@ public class Context {
         temp[values.length] = new HashMap<>();
         Context subContext = new Context(temp, stackSize);
         subContext.setCurrFunc(currentFunction);
+        subContext.gc = gc;
         return subContext;
     }
     /*public Context superContext() {

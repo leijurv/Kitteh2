@@ -39,6 +39,9 @@ public class Compiler {
         }
         ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println(commands);
+        FunctionsContext gc = new FunctionsContext(commands);
+        gc.parseRekursively();
+        System.out.println(commands);
         for (Command com : commands) {
             com.staticValues();
         }

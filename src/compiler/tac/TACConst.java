@@ -17,10 +17,10 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class TACConst extends TACStatement {
-    String varName;
-    VarInfo var;
-    String val;
-    VarInfo vall;
+    public final String varName;
+    public VarInfo var;
+    public final String val;
+    public VarInfo vall;
     public TACConst(String var, String val) {
         this.varName = var;
         this.val = val;
@@ -45,6 +45,9 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        move(varName, var, vall, val, emit);
+    }
+    public static void move(String varName, VarInfo var, VarInfo vall, String val, X86Emitter emit) {
         String wew = varName.startsWith("%") ? varName : var.x86();
         TypeNumerical type = varName.startsWith("%") ? typeFromRegister(varName) : (TypeNumerical) var.getType();
         if (vall == null) {

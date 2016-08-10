@@ -11,6 +11,8 @@ import compiler.X86Emitter;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACReturn;
+import compiler.tac.TACStatement;
+import compiler.tac.optimize.TACOptimizer;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypeVoid;
@@ -66,18 +68,19 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
+        ArrayList<TACStatement> result = TACOptimizer.optimize(emit);
         System.out.println("TAC FOR " + name);
-        for (int i = 0; i < emit.getResult().size(); i++) {
-            System.out.println(i + ":     " + emit.getResult().get(i));
+        for (int i = 0; i < result.size(); i++) {
+            System.out.println(i + ":     " + result.get(i));
         }
         System.out.println();
         X86Emitter emitter = new X86Emitter(name);
-        for (int i = 0; i < emit.getResult().size(); i++) {
+        for (int i = 0; i < result.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
-            emit.getResult().get(i).printx86(emitter);
+            result.get(i).printx86(emitter);
         }
-        boolean endsWithReturn = emit.getResult().get(emit.getResult().size() - 1) instanceof TACReturn;
-        emitter.addStatement(emitter.lineToLabel(emit.getResult().size()) + ":");
+        boolean endsWithReturn = result.get(result.size() - 1) instanceof TACReturn;
+        emitter.addStatement(emitter.lineToLabel(result.size()) + ":");
         if (!endsWithReturn) {
             new TACReturn().printx86(emitter);
         }

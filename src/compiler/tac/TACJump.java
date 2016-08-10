@@ -29,4 +29,10 @@ public class TACJump extends TACStatement {
     public void printx86(X86Emitter emit) {
         emit.addStatement("jmp " + emit.lineToLabel(jumpTo));
     }
+    public int jumpTo() {
+        return jumpTo;
+    }
+    public void bump(boolean direction) {
+        jumpTo += direction ? 1 : -1;
+    }
 }

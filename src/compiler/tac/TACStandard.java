@@ -8,6 +8,7 @@ import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.X86Emitter;
 import compiler.X86Register;
+import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 
@@ -16,13 +17,13 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class TACStandard extends TACStatement {
-    VarInfo result;
-    VarInfo first;
-    VarInfo second;
-    String resultName;
-    String firstName;
-    String secondName;
-    Operator op;
+    public VarInfo result;
+    public VarInfo first;
+    public VarInfo second;
+    public String resultName;
+    public String firstName;
+    public String secondName;
+    public final Operator op;
     public TACStandard(String resultName, String firstName, String secondName, Operator op) {
         this.resultName = resultName;
         this.firstName = firstName;
@@ -47,13 +48,13 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical type = (TypeNumerical) first.getType();
+        TypeNumerical type = firstName.startsWith("%") ? typeFromRegister(firstName) : (first == null ? new TypeInt32() : (TypeNumerical) first.getType());
         String a = X86Register.A.getRegister(type);
         String b = X86Register.B.getRegister(type);
         String d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
-        emit.addStatement(mov + second.x86() + ", " + b);
-        emit.addStatement(mov + first.x86() + ", " + a);
+        TACConst.move(a, null, first, firstName, emit);
+        TACConst.move(b, null, second, secondName, emit);
         if (op != Operator.PLUS && op != Operator.MINUS) {
             if (!(type instanceof TypeInt32)) {
                 throw new IllegalStateException("You can only do " + op + " on int32s and not other types of ints becasue I wrote this on a plane and I can't google the right syntax and my guesses were wrong");

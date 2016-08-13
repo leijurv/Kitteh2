@@ -7,6 +7,7 @@ package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -34,6 +35,11 @@ public abstract class TACOptimization {
             }
         }
         statements.remove(ind);
+    }
+    private ArrayList<Integer> jumpDestinations() {
+        ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(stmt -> stmt.jumpTo()).distinct().collect(Collectors.toCollection(ArrayList::new));
+        result.sort(null);
+        return result;
     }
     public void update(int ind, TACStatement ne) {
         statements.set(ind, ne);

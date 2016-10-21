@@ -52,13 +52,11 @@ public class TACConst extends TACStatement {
         TypeNumerical type = varName.startsWith("%") ? typeFromRegister(varName) : (TypeNumerical) var.getType();
         if (vall == null) {
             emit.addStatement("mov" + type.x86typesuffix() + " $" + val + ", " + wew);
+        } else if (varName.startsWith("%")) {
+            emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + varName);
         } else {
-            if (varName.startsWith("%")) {
-                emit.addStatement("mov" + typeFromRegister(varName).x86typesuffix() + " " + vall.x86() + ", " + varName);
-            } else {
-                emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + X86Register.B.getRegister(type));
-                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + wew);
-            }
+            emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + X86Register.B.getRegister(type));
+            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + wew);
         }
     }
     public static TypeNumerical typeFromRegister(String reg) {

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -37,19 +38,26 @@ import java.util.stream.Collectors;
 public class ExpressionParser {
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
         System.out.println("EXPARSE " + o + " " + desiredType);
+        int currentlyInParentheses = 0;
         for (int i = 0; i < o.size(); i++) {
             Object ob = o.get(i);
-            if (ob instanceof TokenNum) {
+            if (ob instanceof TokenStartParen) {
+                currentlyInParentheses++;
+            }
+            if (ob instanceof TokenEndParen) {
+                currentlyInParentheses--;
+            }
+            if (ob instanceof TokenNum && currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
                 String val = ((TokenNum) ob).val;
                 Number num;
+                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) ? (TypeNumerical) desiredType.get() : new TypeInt32();
                 if (val.contains(".")) {
-                    System.out.println("Parsing " + val + " as double");
+                    System.out.println("Parsing " + val + " as double: " + toUse);
                     num = Double.parseDouble(val);
                 } else {
-                    System.out.println("Parsing " + val + " as int");
+                    System.out.println("Parsing " + val + " as non float: " + toUse);
                     num = Integer.parseInt(val);
                 }
-                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) ? (TypeNumerical) desiredType.get() : new TypeInt32();
                 o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
             }
             if (ob instanceof TokenString) {
@@ -101,15 +109,17 @@ public class ExpressionParser {
                             }
                             System.out.println("Doing replace " + o + " " + inParen);
                             if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
-                                //tfw parallel expression parsing
-                                //tfw this is a GOOD idea /s
-                                ArrayList<Expression> args = inParen.stream().parallel().map(p -> parseImpl(p, Optional.empty(), context)).collect(Collectors.toCollection(ArrayList::new));
                                 String funcName;
                                 if (o.get(i - 1) instanceof TokenVariable) {
                                     funcName = ((TokenVariable) o.get(i - 1)).val;
                                 } else {
-                                    funcName = ((TokenKeyword) o.get(i - 1)).toString();
+                                    funcName = ((TokenKeyword) o.get(i - 1)).toString();//some functions that you call are also keywords
                                 }
+                                ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+                                System.out.println("Expecting inputs: " + desiredTypes);
+                                //tfw parallel expression parsing
+                                //tfw this is a GOOD idea /s
+                                ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
                                 o.remove(i - 1);
                                 o.add(i - 1, new ExpressionFunctionCall(context, funcName, args));
                             } else {

@@ -19,9 +19,9 @@ public abstract class TACStatement {
     }
     protected abstract void onContextKnown();
     @Override
-    public final String toString() {
+    public final String toString() {//all calls to toString should check the context first, and this results in a single error message for every case where the context isn't already set
         if (context == null) {
-            throw new IllegalStateException("My little pony");
+            throw new IllegalStateException("Context not set");
         }
         return toString0();
     }

@@ -57,7 +57,7 @@ public class TACFunctionCall extends TACStatement {
             return;
         }
         int argsSize = params.stream().map(varinfo -> varinfo.getType()).mapToInt(type -> type.getSizeBytes()).sum();
-        int toSubtract = -context.getTotalStackSize() + argsSize + 10;//why not
+        int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
         emit.addStatement("subq $" + toSubtract + ", %rsp");
         int stackLocation = 0;
         for (VarInfo param : params) {

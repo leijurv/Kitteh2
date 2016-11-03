@@ -17,27 +17,27 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class TACConst extends TACStatement {
-    public final String varName;
-    public VarInfo var;
-    public final String val;
-    public VarInfo vall;
+    public final String destName;
+    public VarInfo dest;
+    public final String sourceName;
+    public VarInfo source;
     public TACConst(String var, String val) {
-        this.varName = var;
-        this.val = val;
+        this.destName = var;
+        this.sourceName = val;
     }
     @Override
     public String toString0() {
-        return (var == null ? varName : var) + " = " + (vall != null ? vall : "CONST " + val);
+        return (dest == null ? destName : dest) + " = " + (source != null ? source : "CONST " + sourceName);
     }
     @Override
     public void onContextKnown() {
-        var = varName.startsWith("%") ? null : context.getRequired(varName);
+        dest = destName.startsWith(X86Register.REGISTER_PREFIX) ? null : context.getRequired(destName);
         try {//im tired ok? i know this is mal
-            Double.parseDouble(val);
+            Double.parseDouble(sourceName);
         } catch (NumberFormatException ex) {
-            if (!val.startsWith("\"")) {
-                vall = context.get(val);
-                if (vall == null) {
+            if (!sourceName.startsWith("\"")) {
+                source = context.get(sourceName);
+                if (source == null) {
                     throw new IllegalStateException("I honestly can't think of a way that this could happen. but idk it might");
                 }
             }
@@ -45,22 +45,22 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        move(varName, var, vall, val, emit);
+        move(destName, dest, source, sourceName, emit);
     }
-    public static void move(String varName, VarInfo var, VarInfo vall, String val, X86Emitter emit) {
-        String wew = varName.startsWith("%") ? varName : var.x86();
-        TypeNumerical type = varName.startsWith("%") ? typeFromRegister(varName) : (TypeNumerical) var.getType();
-        if (vall == null) {
-            emit.addStatement("mov" + type.x86typesuffix() + " $" + val + ", " + wew);
-        } else if (varName.startsWith("%")) {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + varName);
+    public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
+        String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
+        TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
+        if (source == null) {
+            emit.addStatement("mov" + type.x86typesuffix() + " $" + sourceName + ", " + destination);
+        } else if (destName.startsWith(X86Register.REGISTER_PREFIX)) {
+            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + destName);
         } else {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + vall.x86() + ", " + X86Register.B.getRegister(type));
-            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + wew);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.B.getRegister(type));
+            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + destination);
         }
     }
     public static TypeNumerical typeFromRegister(String reg) {
-        if (reg.startsWith("%")) {
+        if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
             return typeFromRegister(reg.substring(1));
         }
         if (reg.length() == 2) {

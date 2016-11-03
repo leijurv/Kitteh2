@@ -48,7 +48,7 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical type = firstName.startsWith("%") ? typeFromRegister(firstName) : (first == null ? new TypeInt32() : (TypeNumerical) first.getType());
+        TypeNumerical type = firstName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(firstName) : (first == null ? new TypeInt32() : (TypeNumerical) first.getType());
         String a = X86Register.A.getRegister(type);
         String b = X86Register.B.getRegister(type);
         String d = X86Register.D.getRegister(type);

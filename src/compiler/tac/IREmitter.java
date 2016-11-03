@@ -8,6 +8,8 @@ import compiler.Context;
 import java.util.ArrayList;
 
 /**
+ * A growing list of TAC statements, with extra information like the
+ * currentContext, and the destination of break and continue statements
  *
  * @author leijurv
  */

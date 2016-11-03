@@ -13,6 +13,7 @@ import compiler.type.TypeNumerical;
 public enum X86Register {
     A, B, C, D;
     public String getRegister(TypeNumerical version) {
-        return "%" + version.x86registerprefix() + toString().toLowerCase() + version.x86registersuffix();//e.g. %eax
+        return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + version.x86registersuffix();//e.g. %eax
     }
+    public static String REGISTER_PREFIX = "%";
 }

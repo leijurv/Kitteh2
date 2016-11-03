@@ -10,6 +10,7 @@ import compiler.X86Register;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 
 /**
@@ -63,14 +64,25 @@ public class TACConst extends TACStatement {
         if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
             return typeFromRegister(reg.substring(1));
         }
-        if (reg.length() == 2) {
-            return new TypeInt16();
-        }
-        switch (reg.charAt(0)) {
-            case 'e':
-                return new TypeInt32();
-            case 'r':
-                return new TypeInt64();
+        switch (reg.length()) {
+            case 2:
+                switch (reg.charAt(1)) {
+                    case 'l':
+                        return new TypeInt8();
+                    case 'x':
+                        return new TypeInt16();
+                    default:
+                        throw new IllegalStateException();
+                }
+            case 3:
+                switch (reg.charAt(0)) {
+                    case 'e':
+                        return new TypeInt32();
+                    case 'r':
+                        return new TypeInt64();
+                    default:
+                        throw new IllegalStateException();
+                }
             default:
                 throw new IllegalStateException();
         }

@@ -7,10 +7,13 @@ package compiler.expression;
 import compiler.Context;
 import compiler.Operator;
 import compiler.tac.IREmitter;
+import compiler.tac.TACConst;
+import compiler.tac.TACJump;
 import compiler.tac.TACJumpCmp;
 import compiler.tac.TACStandard;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 
 /**
  *
@@ -39,6 +42,15 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+        if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean) {
+            int ifTrue = emit.lineNumberOfNextStatement() + condLength() + 2;
+            int ifFalse = ifTrue + 1;
+            generateConditionalJump(emit, tempVars, ifTrue, false);
+            emit.emit(new TACConst(resultLocation, "0"));
+            emit.emit(new TACJump(ifFalse));
+            emit.emit(new TACConst(resultLocation, "1"));
+            return;
+        }
         String aName = tempVars.getTempVar(a.getType());
         a.generateTAC(emit, tempVars, aName);
         String bName = tempVars.getTempVar(b.getType());
@@ -47,14 +59,17 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public int calculateTACLength() {
-        return a.getTACLength() + b.getTACLength() + 1;
+        if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean) {
+            return condLength() + 3;
+        }
+        return condLength();
     }
     @Override
     public int condLength() {
         if (op == Operator.AND || op == Operator.OR) {
             return ((ExpressionConditionalJumpable) a).condLength() + ((ExpressionConditionalJumpable) b).condLength();
         }
-        return calculateTACLength();
+        return a.getTACLength() + b.getTACLength() + 1;
     }
     /**
      * honestly i don't even know

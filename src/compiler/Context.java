@@ -33,7 +33,8 @@ public class Context {
         @Override
         public String toString() {
             //return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + ", val: " + knownValue + "}");
-            return ("{type: " + type + ", location: " + stackLocation + "}");
+            return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+            //return ("{type: " + type + ", location: " + stackLocation + "}");
         }
         public Type getType() {
             return type;

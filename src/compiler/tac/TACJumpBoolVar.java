@@ -34,7 +34,7 @@ public class TACJumpBoolVar extends TACJump {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("cmpl $0, " + var.x86());
+        emit.addStatement("cmpb $0, " + var.x86());
         if (invert) {
             emit.addStatement("je " + emit.lineToLabel(jumpTo));
         } else {

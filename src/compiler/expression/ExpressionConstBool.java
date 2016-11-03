@@ -41,7 +41,7 @@ public class ExpressionConstBool extends ExpressionConditionalJumpable implement
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        emit.emit(new TACConst(resultLocation, bool + ""));
+        emit.emit(new TACConst(resultLocation, bool ? "1" : "0"));
     }
     @Override
     protected int calculateTACLength() {

@@ -23,6 +23,7 @@ import compiler.token.TokenStartParen;
 import compiler.token.TokenString;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ExpressionParser {
             if (ob instanceof TokenNum && currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
                 String val = ((TokenNum) ob).val;
                 Number num;
-                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) ? (TypeNumerical) desiredType.get() : new TypeInt32();
+                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
                 if (val.contains(".")) {
                     System.out.println("Parsing " + val + " as double: " + toUse);
                     num = Double.parseDouble(val);

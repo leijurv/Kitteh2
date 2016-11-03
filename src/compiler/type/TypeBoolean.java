@@ -9,9 +9,5 @@ package compiler.type;
  *
  * @author leijurv
  */
-public class TypeBoolean extends Type {
-    @Override
-    public int getSizeBytes() {
-        return 1;
-    }
+public class TypeBoolean extends TypeInt8 {
 }

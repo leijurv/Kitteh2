@@ -7,6 +7,7 @@ package compiler;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
@@ -27,6 +28,7 @@ public enum Keyword {
     CONTINUE("CATINUE", false, null, null),
     RETURN("POUNCE", false, null, null),
     FUNC("CHASE", true, null, null),
+    BOOL("BOWL", false, null, new TypeBoolean()),
     BYTE("BITE", false, null, new TypeInt8()),
     SHORT("SHRT", false, null, new TypeInt16()),
     INT("MEOWNT", false, null, new TypeInt32()),

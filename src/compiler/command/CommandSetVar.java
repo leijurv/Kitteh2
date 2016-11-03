@@ -6,9 +6,13 @@
 package compiler.command;
 import compiler.Context;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConditionalJumpable;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
+import compiler.tac.TACConst;
+import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeBoolean;
 import java.util.ArrayList;
 
 /**
@@ -25,10 +29,23 @@ public class CommandSetVar extends Command {
     }
     @Override
     public void generateTAC0(IREmitter emit) {
-        val.generateTAC(emit, new TempVarUsage(context), var);//this one, at least, is easy
+        if (val.getType() instanceof TypeBoolean) {
+            TempVarUsage hm = new TempVarUsage(context);
+            int ifTrue = emit.lineNumberOfNextStatement() + ((ExpressionConditionalJumpable) val).condLength() + 2;
+            int ifFalse = ifTrue + 1;
+            ((ExpressionConditionalJumpable) val).generateConditionalJump(emit, hm, ifTrue, false);
+            emit.emit(new TACConst(var, "0"));
+            emit.emit(new TACJump(ifFalse));
+            emit.emit(new TACConst(var, "1"));
+        } else {
+            val.generateTAC(emit, new TempVarUsage(context), var);//this one, at least, is easy
+        }
     }
     @Override
     protected int calculateTACLength() {
+        if (val.getType() instanceof TypeBoolean) {
+            return ((ExpressionConditionalJumpable) val).condLength() + 3;
+        }
         return val.getTACLength();
     }
     @Override

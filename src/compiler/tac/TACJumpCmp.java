@@ -37,7 +37,7 @@ public class TACJumpCmp extends TACJump {
         first = context.getRequired(firstName);
         second = context.getRequired(secondName);
         if (!first.getType().equals(second.getType())) {
-            throw new IllegalStateException("apples to oranges");
+            throw new IllegalStateException("apples to oranges " + first + " " + second);
         }
     }
     @Override

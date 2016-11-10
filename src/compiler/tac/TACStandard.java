@@ -11,6 +11,7 @@ import compiler.X86Register;
 import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
 
 /**
  *
@@ -43,7 +44,10 @@ public class TACStandard extends TACStatement {
             throw new IllegalStateException();
         }
         if (!first.getType().equals(second.getType())) {
-            throw new IllegalStateException();
+            if (first.getType() instanceof TypePointer) {
+                return;
+            }
+            throw new IllegalStateException(this + "");
         }
     }
     @Override

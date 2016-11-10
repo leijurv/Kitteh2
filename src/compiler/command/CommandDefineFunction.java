@@ -15,6 +15,7 @@ import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
+import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,4 +116,5 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public static FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeInt32()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

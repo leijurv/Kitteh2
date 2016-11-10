@@ -29,7 +29,7 @@ public abstract class Command {
             //this check is 100% worth it, because otherwise it's super hard to debug
             //i speak from experience
             //it messes up all the jump destinations in a really subtle way =/
-            throw new IllegalStateException("i am being body shamed. my tack size is too " + (actualLen > getTACLength() ? "big" : "small") + ", according to societal norms");
+            throw new IllegalStateException("i am being body shamed. my tack size is too " + (actualLen > getTACLength() ? "big" : "small") + ", according to societal norms " + this + " " + actualLen + " " + getTACLength());
         }
         //this  is only here to make life difficult for everyone. don't remove it.
         emit.clearContext();//actually, remove it. i dare you

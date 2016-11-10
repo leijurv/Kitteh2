@@ -6,6 +6,7 @@
 package compiler.parse;
 import compiler.Context;
 import compiler.Keyword;
+import compiler.Operator;
 import compiler.command.Command;
 import compiler.command.CommandBreak;
 import compiler.command.CommandContinue;
@@ -14,20 +15,22 @@ import compiler.command.CommandExp;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
 import compiler.command.CommandReturn;
+import compiler.command.CommandSetPtr;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.token.Token;
 import compiler.token.TokenComma;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
+import compiler.token.TokenOperator;
 import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
-import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.IllformedLocaleException;
 import java.util.List;
@@ -91,12 +94,10 @@ public class Parser {
                                 throw new IllegalStateException();
                             }
                             retType = returning.type;
+                        } else if (returnType.isEmpty()) {
+                            retType = new TypeVoid();
                         } else {
-                            if (returnType.isEmpty()) {
-                                retType = new TypeVoid();
-                            } else {
-                                throw new IllegalStateException("no multiple returns yet. sorry!");
-                            }
+                            throw new IllegalStateException("no multiple returns yet. sorry!");
                         }
                         ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
                             if (tokenList.size() != 2) {
@@ -276,50 +277,70 @@ public class Parser {
             }
             return new CommandExp(ex, context);
         }
-        if (eqLoc == 0) {
-            throw new IllegalStateException();
-        }
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
-        if (eqLoc == 1) {
-            //ok we just doing something like i=5
-            if (!(tokens.get(0) instanceof TokenVariable)) {
-                throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
+        switch (eqLoc) {
+            case 0:
+                throw new IllegalStateException("Line cannot begin with =");
+            case 1: {
+                //ok we just doing something like i=5
+                if (!(tokens.get(0) instanceof TokenVariable)) {
+                    throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
+                }
+                TokenVariable toSet = (TokenVariable) tokens.get(0);
+                Type type = context.getType(toSet.val);
+                boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
+                if (inferType ^ (type == null)) {//look at that arousing use of xor
+                    throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
+                }
+                Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
+                if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
+                    throw new IllegalStateException(type + " " + ex.getType());
+                }
+                if (type == null) {
+                    context.setType(toSet.val, ex.getType());
+                }
+                return new CommandSetVar(toSet.val, ex, context);
             }
-            TokenVariable toSet = (TokenVariable) tokens.get(0);
-            Type type = context.getType(toSet.val);
-            boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
-            if (inferType ^ (type == null)) {//look at that arousing use of xor
-                throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
+            case 2: {
+                if (!(tokens.get(0) instanceof TokenKeyword)) {
+                    //throw new RasterFormatException("");
+                    break;
+                }
+                Keyword typeKeyword = ((TokenKeyword) tokens.get(0)).getKeyword();
+                if (!typeKeyword.isType()) {
+                    //throw new RasterFormatException("");
+                    break;
+                }
+                //if the first token is a type, we are doing something like int i=5
+                Type type = typeKeyword.type;
+                if (!(tokens.get(1) instanceof TokenVariable)) {
+                    throw new IllegalStateException("You can't set the value of " + tokens.get(1) + " lol");
+                }
+                TokenVariable toSet = (TokenVariable) tokens.get(1);
+                if (context.varDefined(toSet.val)) {
+                    throw new IllegalStateException("Babe, " + toSet.val + " is already there");
+                }
+                Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);
+                context.setType(toSet.val, rightSide.getType());
+                //ok we doing something like long i=5
+                return new CommandSetVar(toSet.val, rightSide, context);
             }
-            Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
-            if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
-                throw new IllegalStateException(type + " " + ex.getType());
-            }
-            if (type == null) {
-                context.setType(toSet.val, ex.getType());
-            }
-            return new CommandSetVar(toSet.val, ex, context);
+            default:
+                break;
         }
-        if (eqLoc == 2) {
-            if (!(tokens.get(1) instanceof TokenVariable)) {
-                throw new IllegalStateException("You can't set the value of " + tokens.get(1) + " lol");
+        //ok so at this point we know it's a little more complicated than a simple variable definition or set
+        if (tokens.get(0) instanceof TokenOperator) {
+            if (((TokenOperator) tokens.get(0)).op == Operator.MULTIPLY) {
+                //ok oh boy this is something like *x=y
+                if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
+                    throw new IllegalStateException("Can't infer type on a pointer reference");
+                }
+                //left side should be fine
+                Expression leftSidePointer = ExpressionParser.parse(tokens.subList(1, eqLoc), Optional.empty(), context);//start at 1 because 0 would include the *
+                TypePointer tp = (TypePointer) leftSidePointer.getType();
+                Expression right = ExpressionParser.parse(after, Optional.of(tp.pointingTo()), context);
+                return new CommandSetPtr(context, leftSidePointer, right);
             }
-            TokenVariable toSet = (TokenVariable) tokens.get(1);
-            if (context.varDefined(toSet.val)) {
-                throw new IllegalStateException("Babe, " + toSet.val + " is already there");
-            }
-            if (!(tokens.get(0) instanceof TokenKeyword)) {
-                throw new RasterFormatException("");
-            }
-            Keyword typeKeyword = ((TokenKeyword) tokens.get(0)).getKeyword();
-            if (!typeKeyword.isType()) {
-                throw new RasterFormatException("");
-            }
-            Type type = typeKeyword.type;
-            Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);
-            context.setType(toSet.val, rightSide.getType());
-            //ok we doing something like long i=5
-            return new CommandSetVar(toSet.val, rightSide, context);
         }
         throw new IllegalStateException();
     }

@@ -10,7 +10,9 @@ import compiler.expression.ExpressionConstBool;
 import compiler.expression.ExpressionConstNum;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -61,6 +63,14 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     public Type onApplication(Type a, Type b) {
         switch (this) {
             case PLUS:
+                if (a instanceof TypePointer) {
+                    if (b instanceof TypeInt64) {
+                        return a;
+                    } else {
+                        return a;
+                        //throw new IllegalStateException("Pointers are 64 bits, so for now you can only add 64 bit integers to pointers. sorry");
+                    }
+                }
             case MINUS:
             case MULTIPLY:
             case DIVIDE:

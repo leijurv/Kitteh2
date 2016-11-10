@@ -40,29 +40,38 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        int argsSize = params.stream().map(varinfo -> varinfo.getType()).mapToInt(type -> type.getSizeBytes()).sum();
+        int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
+        toSubtract /= 16;
+        toSubtract++;
+        toSubtract *= 16;
+        emit.addStatement("subq $" + toSubtract + ", %rsp");
+        if (funcName.equals("malloc")) {
+            emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
+            emit.addStatement("movl " + params.get(0).x86() + ", %edi");
+            /*emit.addStatement("callq _malloc");
+            emit.addStatement("addq $" + toSubtract + ", %rsp");
+            return;*/
+        }
         if (funcName.equals("KEYWORD" + Keyword.PRINT)) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
             if (params.size() != 1 || !(params.get(0).getType() instanceof TypeNumerical)) {
                 throw new IllegalStateException();
             }
             TypeNumerical type = (TypeNumerical) (params.get(0).getType());
-            emit.addStatement("subq $16, %rsp");//I really don't know why, but only 16 works here
             emit.addStatement("leaq	L_.str(%rip), %rdi");//lol rip
             emit.addStatement("movb $0, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
-            emit.addStatement("xorl %edx, %edx");
+            emit.addStatement("xorq %rdx, %rdx");
             emit.addStatement("mov" + type.x86typesuffix() + " " + params.get(0).x86() + ", " + X86Register.D.getRegister(type));
-            emit.addStatement("movl %edx, %esi");//why esi? idk. again, i'm just copying gcc output asm
+            emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
             emit.addStatement("callq _printf");//I understand this one at least XD
-            emit.addStatement("addq $16, %rsp");
+            emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;
         }
-        int argsSize = params.stream().map(varinfo -> varinfo.getType()).mapToInt(type -> type.getSizeBytes()).sum();
-        int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
-        emit.addStatement("subq $" + toSubtract + ", %rsp");
         int stackLocation = 0;
         for (VarInfo param : params) {
             TypeNumerical type = (TypeNumerical) param.getType();
-            String register = X86Register.D.getRegister(type);
+            String register = X86Register.B.getRegister(type);
             emit.addStatement("mov" + type.x86typesuffix() + " " + param.x86() + ", " + register);
             emit.addStatement("mov" + type.x86typesuffix() + " " + register + ", " + stackLocation + "(%rsp)");//move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();

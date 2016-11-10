@@ -41,6 +41,9 @@ public class FunctionsContext {
         if (name.equals("KEYWORD" + Keyword.PRINT.toString())) {
             return CommandDefineFunction.PRINTINT;
         }
+        if (name.equals("malloc")) {
+            return CommandDefineFunction.MALLOC;
+        }
         FunctionHeader tr = functionMap.get(name);
         if (tr == null) {
             throw new ConcurrentModificationException("you tryna call a nonexistent function " + name);

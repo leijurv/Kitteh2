@@ -12,6 +12,7 @@ import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
 import compiler.expression.ExpressionOperator;
+import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
 import compiler.token.TokenComma;
@@ -152,17 +153,34 @@ public class ExpressionParser {
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement
          }*/
+        System.out.println("IDK MAN " + o);
+        for (int i = 0; i < o.size(); i++) {
+            if (o.get(i) instanceof TokenOperator && ((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
+                if (i != 0) {
+                    if (o.get(i - 1) instanceof Expression) {
+                        continue;
+                    }
+                }
+                Expression point = (Expression) o.remove(i + 1);
+                o.remove(i);
+                o.add(i, new ExpressionPointerDeref(point));
+                return parseImpl(o, desiredType, context);
+            }
+        }
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
                 if (o.get(i) instanceof TokenOperator && op.contains(((TokenOperator) o.get(i)).op)) {
                     if (i == 0 || i == o.size() - 1) {
+                        /* if (((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
+                            continue;
+                        }*/
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
                     TokenOperator tokOp = (TokenOperator) o.remove(i);
                     Expression leftSide = (Expression) o.remove(i - 1);
                     o.add(i - 1, new ExpressionOperator(leftSide, tokOp.op, rightSide));
-                    return parseImpl(o, Optional.empty(), context);//not all subexpressions should be the same desired type. like you might want a boolean overall but you might have i+1==2, where you expect i to be TypeNumerical
+                    return parseImpl(o, desiredType, context);
                 }
             }
         }

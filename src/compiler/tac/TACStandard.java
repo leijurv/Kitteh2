@@ -33,7 +33,7 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public String toString0() {
-        return result + " = " + first + " " + op + " " + second;
+        return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
     }
     @Override
     public void onContextKnown() {//TODO clean this up somehow, because this pattern is duplicated in all the TACs. maybe a hashmap in the superclass. idk

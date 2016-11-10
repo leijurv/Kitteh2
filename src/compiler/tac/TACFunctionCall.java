@@ -11,6 +11,7 @@ import compiler.X86Register;
 import compiler.type.TypeNumerical;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -29,7 +30,8 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        return result + " = CALLFUNC " + funcName + "(" + params + ")";
+        ArrayList<String> p = IntStream.range(0, paramNames.size()).mapToObj(i -> params.get(i) == null ? paramNames.get(i) : params.get(i).toString()).collect(Collectors.toCollection(ArrayList::new));
+        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + funcName + "(" + p + ")";
     }
     @Override
     public void onContextKnown() {
@@ -44,7 +46,7 @@ public class TACFunctionCall extends TACStatement {
         int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
         toSubtract /= 16;
         toSubtract++;
-        toSubtract *= 16;
+        toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (funcName.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register

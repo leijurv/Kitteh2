@@ -37,7 +37,7 @@ public class UselessTempVars extends TACOptimization {
                     n.secondName = curr.sourceName;
                     n.second = curr.source;
                     remove(ind);
-                    ind = Math.max(-1, ind - 1);
+                    ind = Math.max(-1, ind - 2);
                     continue;
                 }
                 if (n.firstName.equals(valSet)) {
@@ -45,7 +45,7 @@ public class UselessTempVars extends TACOptimization {
                     n.firstName = curr.sourceName;
                     n.first = curr.source;
                     remove(ind);
-                    ind = Math.max(-1, ind - 1);
+                    ind = Math.max(-1, ind - 2);
                     continue;
                 }
             }

@@ -32,7 +32,6 @@ public class CommandReturn extends Command {
             TempVarUsage lol = new TempVarUsage(context);
             String var = lol.getTempVar(toReturn.getType());
             toReturn.generateTAC(emit, lol, var);
-            System.out.println(toReturn);
             emit.emit(new TACConst(X86Register.A.getRegister((TypeNumerical) toReturn.getType()), var));
         }
         emit.emit(new TACReturn());

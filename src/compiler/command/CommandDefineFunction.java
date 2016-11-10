@@ -65,6 +65,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public void generateX86(StringBuilder resp) {
+        Context.VarInfo.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
@@ -75,10 +76,19 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             System.out.println(i + ":     " + result.get(i));
         }
         System.out.println();
+        Context.VarInfo.printFull = false;
+        System.out.println("TAC FOR " + name);
+        for (int i = 0; i < result.size(); i++) {
+            System.out.println(i + ":     " + result.get(i));
+        }
+        System.out.println();
+        Context.VarInfo.printFull = true;
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < result.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
+            emitter.addStatement("#   " + result.get(i));
             result.get(i).printx86(emitter);
+            emitter.addStatement("");//nice blank line makes it more readable =)
         }
         boolean endsWithReturn = result.get(result.size() - 1) instanceof TACReturn;
         emitter.addStatement(emitter.lineToLabel(result.size()) + ":");

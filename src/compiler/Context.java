@@ -20,6 +20,7 @@ import java.util.stream.Stream;
  */
 public class Context {
     public static class VarInfo {
+        public static boolean printFull = true;
         String name;
         Type type;
         ExpressionConst knownValue;
@@ -33,7 +34,11 @@ public class Context {
         @Override
         public String toString() {
             //return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + ", val: " + knownValue + "}");
-            return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+            if (printFull) {
+                return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+            } else {
+                return name;
+            }
             //return ("{type: " + type + ", location: " + stackLocation + "}");
         }
         public Type getType() {

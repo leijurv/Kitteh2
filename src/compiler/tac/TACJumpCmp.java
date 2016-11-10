@@ -20,17 +20,15 @@ public class TACJumpCmp extends TACJump {
     String firstName;
     String secondName;
     Operator op;
-    boolean neg;
-    public TACJumpCmp(String first, String second, Operator op, int jumpTo, boolean negated) {
+    public TACJumpCmp(String first, String second, Operator op, int jumpTo) {
         super(jumpTo);
         this.op = op;
         this.firstName = first;
         this.secondName = second;
-        this.neg = negated;
     }
     @Override
     public String toString0() {
-        return "jump to " + jumpTo + " if " + (neg ? "not " : "") + first + " " + op + " " + second;
+        return "jump to " + jumpTo + " if " + first + " " + op + " " + second;
     }
     @Override
     public void onContextKnown() {
@@ -46,7 +44,6 @@ public class TACJumpCmp extends TACJump {
         emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
         emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
-        Operator o = neg ? op.invert() : op;
-        emit.addStatement(o.tox86() + " " + emit.lineToLabel(jumpTo));
+        emit.addStatement(op.tox86() + " " + emit.lineToLabel(jumpTo));
     }
 }

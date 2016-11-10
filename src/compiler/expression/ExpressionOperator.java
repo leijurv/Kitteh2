@@ -125,7 +125,8 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
             a.generateTAC(emit, tempVars, aName);
             String bName = tempVars.getTempVar(b.getType());
             b.generateTAC(emit, tempVars, bName);
-            emit.emit(new TACJumpCmp(aName, bName, op, jumpTo, invert));
+            Operator operator = invert ? op.invert() : op;
+            emit.emit(new TACJumpCmp(aName, bName, operator, jumpTo));
         }
     }
     @Override

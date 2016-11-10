@@ -23,30 +23,12 @@ public abstract class TACOptimization {
         this.statements = new ArrayList<>(statements);
     }
     public int size() {
-        //return statements.size();
         return current.size();
     }
     public void remove(int ind) {
-        /*for (int i = 0; i < statements.size(); i++) {
-            TACStatement stmt = statements.get(i);
-            if (stmt instanceof TACJump) {
-                TACJump jmp = (TACJump) stmt;
-                int to = jmp.jumpTo();
-                if (to > ind) {
-                    jmp.bump(false);
-                    //1: a
-                    //2: b -- to remove
-                    //3: c
-                    //jump to c / 3 becomes jump to c / 2 -- bump
-                    //jump to b / 2 becomes jump to c / 2 -- no bump
-                    //jump to a / 1 becomes jump to a / 1 -- no bump
-                }
-            }
-        }
-        statements.remove(ind);*/
         current.remove(ind);
     }
-    private ArrayList<Integer> jumpDestinations() {
+    private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
         ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(stmt -> stmt.jumpTo()).distinct().collect(Collectors.toCollection(ArrayList::new));
         result.sort(null);
         return result;
@@ -58,12 +40,12 @@ public abstract class TACOptimization {
         return current.get(i);
     }
     public ArrayList<TACStatement> go() {
-        ArrayList<Integer> jd = jumpDestinations();
-        ArrayList<Integer> newJd = new ArrayList<>();
+        ArrayList<Integer> origJumpDests = jumpDestinations(statements);
+        ArrayList<Integer> newJumpDests = new ArrayList<>();
         ArrayList<List<TACStatement>> blocks = new ArrayList<>();
-        for (int i = -1; i < jd.size(); i++) {
-            int start = i == -1 ? 0 : jd.get(i);
-            int end = i + 1 == jd.size() ? statements.size() : jd.get(i + 1);
+        for (int i = -1; i < origJumpDests.size(); i++) {
+            int start = i == -1 ? 0 : origJumpDests.get(i);
+            int end = i + 1 == origJumpDests.size() ? statements.size() : origJumpDests.get(i + 1);
             if (start == end) {
                 continue;
             }
@@ -76,17 +58,16 @@ public abstract class TACOptimization {
             current = new ArrayList<>(blocks.get(i));
             run();
             blocks.set(i, current);
-            newJd.add(pos += current.size());
+            pos += current.size();
+            newJumpDests.add(pos);
+            //newJumpDests.add(pos += current.size());
         }
-        System.out.println(blocks);
-        //run();
-        //return statements;
         ArrayList<TACStatement> result = blocks.stream().flatMap(x -> x.stream()).collect(Collectors.toCollection(ArrayList::new));
         for (int i = 0; i < result.size(); i++) {
             if (result.get(i) instanceof TACJump) {
                 TACJump tj = (TACJump) result.get(i);
                 int dest = tj.jumpTo();
-                tj.setJumpTo(newJd.get(jd.indexOf(dest)));
+                tj.setJumpTo(newJumpDests.get(origJumpDests.indexOf(dest)));
             }
         }
         return result;

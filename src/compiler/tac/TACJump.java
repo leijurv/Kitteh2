@@ -32,7 +32,7 @@ public class TACJump extends TACStatement {
     public int jumpTo() {
         return jumpTo;
     }
-    public void bump(boolean direction) {
-        jumpTo += direction ? 1 : -1;
+    public void setJumpTo(int n) {
+        jumpTo = n;
     }
 }

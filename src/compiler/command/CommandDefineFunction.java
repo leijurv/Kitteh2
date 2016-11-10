@@ -10,7 +10,6 @@ import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
-import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer;
 import compiler.type.Type;
@@ -90,11 +89,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             result.get(i).printx86(emitter);
             emitter.addStatement("");//nice blank line makes it more readable =)
         }
-        boolean endsWithReturn = result.get(result.size() - 1) instanceof TACReturn;
-        emitter.addStatement(emitter.lineToLabel(result.size()) + ":");
-        if (!endsWithReturn) {
-            new TACReturn().printx86(emitter);
-        }
         resp.append("	.globl	_").append(name).append("\n	.align	4, 0x90\n");
         resp.append("_").append(name).append(":\n");
         resp.append(FUNC_HEADER).append('\n');
@@ -116,8 +110,8 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             this.arguments = arguments;
         }
         public final String name;
-        Type returnType;
-        ArrayList<Type> arguments;
+        final Type returnType;
+        final ArrayList<Type> arguments;
         public Type getReturnType() {
             return returnType;
         }

@@ -21,7 +21,7 @@ public abstract class TACStatement {
     @Override
     public final String toString() {//all calls to toString should check the context first, and this results in a single error message for every case where the context isn't already set
         if (context == null) {
-            throw new IllegalStateException("Context not set");
+            throw new IllegalStateException("Context not set " + getClass());
         }
         return toString0();
     }

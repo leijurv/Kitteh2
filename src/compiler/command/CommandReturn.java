@@ -42,5 +42,8 @@ public class CommandReturn extends Command {
     }
     @Override
     public void staticValues() {
+        if (toReturn != null) {
+            toReturn = toReturn.insertKnownValues(context);
+        }
     }
 }

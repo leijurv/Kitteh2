@@ -67,6 +67,11 @@ public class IREmitter {//extends ArrayList XDDD
         if (currentContext != null) {
             throw new IllegalStateException("YOU CAN NEVER ESCAPE THE FITNESSGRAM");
         }
+        if (!(result.get(result.size() - 1) instanceof TACReturn)) {
+            TACReturn ret = new TACReturn();
+            ret.setContext(result.get(0).context);
+            result.add(ret);
+        }
         return result;
     }
 }

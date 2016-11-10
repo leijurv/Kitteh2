@@ -35,7 +35,7 @@ public class ExpressionFunctionCall extends Expression {
         }
         ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
-            throw new ArithmeticException("Expected types " + expected + ", got types " + got);
+            // throw new ArithmeticException("Expected types " + expected + ", got types " + got);
         }
     }
     @Override

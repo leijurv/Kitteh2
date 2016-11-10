@@ -63,7 +63,11 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     public Type onApplication(Type a, Type b) {
         switch (this) {
             case PLUS:
+            case MINUS:
                 if (a instanceof TypePointer) {
+                    if (b instanceof TypePointer) {
+                        throw new IllegalStateException("Can't add a pointer to a pointer " + a + " " + b);
+                    }
                     if (b instanceof TypeInt64) {
                         return a;
                     } else {
@@ -71,7 +75,6 @@ public enum Operator {//extends Token maybe? might make things easier... idk
                         //throw new IllegalStateException("Pointers are 64 bits, so for now you can only add 64 bit integers to pointers. sorry");
                     }
                 }
-            case MINUS:
             case MULTIPLY:
             case DIVIDE:
             case MOD:

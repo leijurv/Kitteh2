@@ -153,7 +153,6 @@ public class ExpressionParser {
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement
          }*/
-        System.out.println("IDK MAN " + o);
         for (int i = 0; i < o.size(); i++) {
             if (o.get(i) instanceof TokenOperator && ((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
                 if (i != 0) {

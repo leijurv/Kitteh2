@@ -16,10 +16,12 @@ import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
 import compiler.token.TokenComma;
+import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
+import compiler.token.TokenStartBrkt;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenString;
 import compiler.token.TokenVariable;
@@ -146,6 +148,46 @@ public class ExpressionParser {
             }
         }
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
+        for (int i = 0; i < o.size(); i++) {
+            if (o.get(i) instanceof TokenStartBrkt) {
+                o.remove(i);
+                int sq = 1;
+                int j = i;
+                ArrayList<Object> inBrkts = new ArrayList<>();
+                while (j < o.size()) {
+                    Object ob = o.remove(j);
+                    if (ob instanceof TokenStartBrkt) {
+                        sq++;
+                        continue;
+                    }
+                    if (ob instanceof TokenEndBrkt) {
+                        sq--;
+                        if (sq == 0) {
+                            break;
+                        }
+                        continue;
+                    }
+                    inBrkts.add(ob);
+                }
+                if (sq != 0) {
+                    throw new IllegalStateException("Mismatch " + o);
+                }
+                Expression index = parseImpl(inBrkts, Optional.of(new TypeInt32()), context);
+                Expression array = (Expression) o.remove(i - 1);
+                TypePointer tp = (TypePointer) array.getType();
+                Type arrayContents = tp.pointingTo();
+                ExpressionConstNum sizeofArrayContents = new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32());
+                //so we want...
+                //*(array + index * sizeof(arrayContents))
+                Expression finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, sizeofArrayContents);
+                //*(array+finalIndex)
+                Expression ptr = new ExpressionOperator(array, Operator.PLUS, finalIndex);
+                //*(ptr)
+                Expression element = new ExpressionPointerDeref(ptr);
+                o.add(i - 1, element);
+                return parseImpl(o, desiredType, context);
+            }
+        }
         //getting array item (like arr[ind])
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement

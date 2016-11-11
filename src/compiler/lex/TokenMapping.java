@@ -7,9 +7,11 @@ package compiler.lex;
 import compiler.Operator;
 import compiler.token.Token;
 import compiler.token.TokenComma;
+import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenOperator;
 import compiler.token.TokenSemicolon;
+import compiler.token.TokenStartBrkt;
 import compiler.token.TokenStartParen;
 import java.util.HashMap;
 import javax.xml.ws.WebServiceException;
@@ -28,6 +30,8 @@ public class TokenMapping {
         MAPPINGS.put('/', new TokenOperator(Operator.DIVIDE));
         MAPPINGS.put('%', new TokenOperator(Operator.MOD));
         MAPPINGS.put(';', new TokenSemicolon());
+        MAPPINGS.put('[', new TokenStartBrkt());
+        MAPPINGS.put(']', new TokenEndBrkt());
     }
     public static boolean charMapsToToken(char ch) {
         return MAPPINGS.containsKey(ch);

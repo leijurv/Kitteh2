@@ -15,7 +15,7 @@ import compiler.type.TypePointer;
  * @author leijurv
  */
 public class ExpressionPointerDeref extends Expression {
-    Expression deReferencing;
+    private final Expression deReferencing;
     public ExpressionPointerDeref(Expression deref) {
         this.deReferencing = deref;
     }

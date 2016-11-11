@@ -20,9 +20,9 @@ import compiler.type.TypeBoolean;
  * @author leijurv
  */
 public class ExpressionOperator extends ExpressionConditionalJumpable {
-    Operator op;
-    Expression a;
-    Expression b;
+    private final Operator op;
+    private Expression a;
+    private Expression b;
     public ExpressionOperator(Expression a, Operator op, Expression b) {
         this.a = a;
         this.b = b;

@@ -57,9 +57,9 @@ public class Compiler {
         resp.append('\n');
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(resp.toString().getBytes());
     }
-    static String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
+    private static final String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
             + "    .macosx_version_min 10, 10";
-    static String FOOTER = "\n"
+    private static final String FOOTER = "\n"
             + ".section	__TEXT,__cstring,cstring_literals\n"
             + "L_.str:                                 ## @.str\n"
             + "	.asciz	\"%i\\n\"\n"

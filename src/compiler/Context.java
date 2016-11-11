@@ -21,10 +21,10 @@ import java.util.stream.Stream;
 public class Context {
     public static class VarInfo {
         public static boolean printFull = true;
-        String name;
-        Type type;
-        ExpressionConst knownValue;
-        int stackLocation;
+        private final String name;
+        private final Type type;
+        private ExpressionConst knownValue;
+        private final int stackLocation;
         //TODO maybe a pointer to the Context / TempVarInfo that instantiated this
         public VarInfo(String name, Type type, int stackLocation) {
             this.name = name;

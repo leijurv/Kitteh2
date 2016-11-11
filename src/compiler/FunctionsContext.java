@@ -17,8 +17,8 @@ import java.util.HashMap;
  * @author leijurv
  */
 public class FunctionsContext {
-    HashMap<String, FunctionHeader> functionMap = new HashMap<>();
-    ArrayList<CommandDefineFunction> functionDefinitions;
+    private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
+    private final ArrayList<CommandDefineFunction> functionDefinitions;
     public FunctionsContext(ArrayList<Command> definitions) {
         functionDefinitions = new ArrayList<>(definitions.size());
         for (Command com : definitions) {

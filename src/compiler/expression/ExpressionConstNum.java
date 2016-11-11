@@ -16,8 +16,8 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class ExpressionConstNum extends Expression implements ExpressionConst {
-    Number val;
-    Type type;
+    private final Number val;
+    private final Type type;
     public ExpressionConstNum(Number val, TypeNumerical type) {
         this.val = val;
         this.type = type;

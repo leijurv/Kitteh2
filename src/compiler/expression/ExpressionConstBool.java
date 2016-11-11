@@ -16,7 +16,7 @@ import compiler.type.TypeBoolean;
  * @author leijurv
  */
 public class ExpressionConstBool extends ExpressionConditionalJumpable implements ExpressionConst {
-    boolean bool;
+    private final boolean bool;
     public ExpressionConstBool(boolean bool) {
         this.bool = bool;
     }

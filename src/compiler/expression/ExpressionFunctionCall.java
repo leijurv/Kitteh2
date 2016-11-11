@@ -19,8 +19,8 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionFunctionCall extends Expression {
-    ArrayList<Expression> args;
-    FunctionHeader calling;
+    private final ArrayList<Expression> args;
+    private final FunctionHeader calling;
     public ExpressionFunctionCall(Context context, String funcName, ArrayList<Expression> args) {
         this.args = args;
         this.calling = context.gc.getHeader(funcName);

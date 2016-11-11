@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class Lexer extends AbstractLexer {
-    public Lexer(String line) {
+    private Lexer(String line) {
         super(line);
     }
     public static ArrayList<Token> lex(String line) {
@@ -137,7 +137,7 @@ public class Lexer extends AbstractLexer {
             //lol don't put anything here
         }
     }
-    public String readAlphanumerical() {
+    private String readAlphanumerical() {
         int start = pos();
         while (has()) {
             char ch = peek();
@@ -149,7 +149,7 @@ public class Lexer extends AbstractLexer {
         }
         return substringSince(start);
     }
-    public String readNumerical() {
+    private String readNumerical() {
         int start = pos();
         boolean hasHitPeriod = false;//lenny
         while (has()) {
@@ -170,7 +170,7 @@ public class Lexer extends AbstractLexer {
         }
         return substringSince(start);
     }
-    public static boolean allAlpha(String s) {
+    private static boolean allAlpha(String s) {
         for (char c : s.toCharArray()) {
             if (!alphabetical(c)) {
                 return false;
@@ -178,7 +178,7 @@ public class Lexer extends AbstractLexer {
         }
         return true;
     }
-    public static boolean allNum(String s) {
+    private static boolean allNum(String s) {
         for (char c : s.toCharArray()) {
             if (!numerical(c)) {
                 return false;
@@ -186,10 +186,10 @@ public class Lexer extends AbstractLexer {
         }
         return true;
     }
-    public static boolean alphabetical(char c) {
+    private static boolean alphabetical(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
-    public static boolean numerical(char c) {
+    private static boolean numerical(char c) {
         return c >= '0' && c <= '9';
     }
 }

@@ -12,6 +12,6 @@ package compiler.type;
 public class TypeVoid extends Type {
     @Override
     public int getSizeBytes() {
-        return 0;
+        throw new UnsupportedOperationException();
     }
 }

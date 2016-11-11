@@ -31,6 +31,7 @@ import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
+import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.IllformedLocaleException;
 import java.util.List;
@@ -52,7 +53,9 @@ public class Parser {
                 throw new IllegalStateException(o.toString());
             }
             Line l = (Line) o;
-            if (i != lexed.size() - 1 && lexed.get(i + 1) instanceof ArrayList) {//this line begins a block
+            if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {//this line begins a block
+                result.add(parseLine(l.getTokens(), context));
+            } else {
                 ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
                 ArrayList<Token> lineTokens = l.getTokens();
                 if (lineTokens.isEmpty()) {
@@ -117,11 +120,11 @@ public class Parser {
                             TokenVariable tv = (TokenVariable) (tokenList.get(1));
                             return new Pair<>(tv.val, k.type);
                         }).collect(Collectors.toCollection(ArrayList::new));
-                        if (context.getTotalStackSize() != 0) {//make sure this is top level
+                        if (!context.isTopLevel()) {//make sure this is top level
                             throw new IllegalStateException();
                         }
                         Context subContext = new Context();//create new context because all funcs are top level
-                        int pos = 16;//args start at *(ebp+16) in order to leave room for eip and rbp on the call stack
+                        int pos = 16;//args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
                         //source: http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
                         for (Pair<String, Type> arg : args) {
                             subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
@@ -134,7 +137,7 @@ public class Parser {
                         System.out.println("Parsing for loop with params " + params);
                         int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
                         switch (numSemis) {
-                            case 0: // for{   OR  for i<5{
+                            case 0: { // for{   OR  for i<5{
                                 Context sub = context.subContext();
                                 ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
                                 if (params.isEmpty()) {//for{
@@ -145,20 +148,22 @@ public class Parser {
                                     result.add(new CommandFor(condition, blockCommands, sub));
                                 }
                                 break;
-                            case 2://for i:=0; i<1000; i++{
+                            }
+                            case 2: {//for i:=0; i<1000; i++{
                                 //I wish I could do params.split(TokenSemicolon)
                                 int firstSemi = firstSemicolon(params);
                                 int secondSemi = lastSemicolon(params);
                                 ArrayList<Token> first = new ArrayList<>(params.subList(0, firstSemi));
                                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
-                                sub = context.subContext();
+                                Context sub = context.subContext();
                                 Command initialization = parseLine(first, sub);
-                                blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
+                                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                                 Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                                 Command afterthought = parseLine(third, sub);
                                 result.add(new CommandFor(initialization, condition, afterthought, blockCommands, sub));
                                 break;
+                            }
                             default:
                                 throw new IllegalStateException("what are you even doing");
                         }
@@ -171,10 +176,8 @@ public class Parser {
                         result.add(new CommandIf(condition, blockCommands, sub));
                         break;
                     default:
-                        throw new IllegalStateException("Leif hasn't written parsing for block type \"" + beginningKeyword + '"');
+                        throw new IllegalStateException("No parsing for block type \"" + beginningKeyword + '"');
                 }
-            } else {
-                result.add(parseLine(l.getTokens(), context));
             }
         }
         return result;
@@ -333,7 +336,7 @@ public class Parser {
             if (((TokenOperator) tokens.get(0)).op == Operator.MULTIPLY) {
                 //ok oh boy this is something like *x=y
                 if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
-                    throw new IllegalStateException("Can't infer type on a pointer reference");
+                    throw new RasterFormatException("Can't infer type on a pointer reference");
                 }
                 //left side should be fine
                 Expression leftSidePointer = ExpressionParser.parse(tokens.subList(1, eqLoc), Optional.empty(), context);//start at 1 because 0 would include the *

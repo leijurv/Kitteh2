@@ -73,6 +73,18 @@ public class Context {
         }
         return currentTempVarUsage;
     }
+    public boolean isTopLevel() {
+        if (values.length == 1) {
+            if (getTotalStackSize() != 0) {
+                throw new SecurityException();
+            }
+            return true;
+        }
+        if (getTotalStackSize() == 0) {
+            throw new SecurityException();
+        }
+        return false;
+    }
     public void setTempVarUsage(TempVarUsage curr) {
         if (curr == null) {
             Stream s = Stream.of(new String[]{});

@@ -18,17 +18,22 @@ import compiler.command.CommandReturn;
 import compiler.command.CommandSetPtr;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConstNum;
+import compiler.expression.ExpressionOperator;
 import compiler.token.Token;
 import compiler.token.TokenComma;
+import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenOperator;
 import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
+import compiler.token.TokenStartBrkt;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
 import java.awt.image.RasterFormatException;
@@ -322,6 +327,37 @@ public class Parser {
                 Expression right = ExpressionParser.parse(after, Optional.of(tp.pointingTo()), context);
                 return new CommandSetPtr(context, leftSidePointer, right);
             }
+        }
+        if (tokens.get(eqLoc - 1) instanceof TokenEndBrkt) {
+            //a[b]=c
+            int j = eqLoc - 2;
+            int count = 1;
+            while (j > 0) {
+                if (tokens.get(j) instanceof TokenEndBrkt) {
+                    count++;
+                }
+                if (tokens.get(j) instanceof TokenStartBrkt) {
+                    count--;
+                    break;
+                }
+                j--;
+            }
+            if (count != 0) {
+                throw new RasterFormatException("");
+            }
+            Expression array = ExpressionParser.parse(tokens.subList(0, j), Optional.empty(), context);
+            Expression index = ExpressionParser.parse(tokens.subList(j + 1, eqLoc - 1), Optional.of(new TypeInt32()), context);
+            TypePointer tp = (TypePointer) array.getType();
+            Type arrayContents = tp.pointingTo();
+            ExpressionConstNum sizeofArrayContents = new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32());
+            //so we want...
+            //*(array + index * sizeof(arrayContents))
+            Expression finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, sizeofArrayContents);
+            //*(array+finalIndex)
+            Expression ptr = new ExpressionOperator(array, Operator.PLUS, finalIndex);
+            //*(ptr)
+            Expression right = ExpressionParser.parse(after, Optional.of(arrayContents), context);
+            return new CommandSetPtr(context, ptr, right);
         }
         throw new IllegalStateException(tokens + "");
     }

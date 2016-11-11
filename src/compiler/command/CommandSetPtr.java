@@ -15,8 +15,8 @@ import compiler.tac.TempVarUsage;
  * @author leijurv
  */
 public class CommandSetPtr extends Command {
-    private final Expression pointer;
-    private final Expression value;
+    private Expression pointer;
+    private Expression value;
     public CommandSetPtr(Context context, Expression pointer, Expression value) {
         super(context);
         this.pointer = pointer;
@@ -37,6 +37,9 @@ public class CommandSetPtr extends Command {
     }
     @Override
     public void staticValues() {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        pointer = pointer.insertKnownValues(context);
+        pointer = pointer.calculateConstants();
+        value = value.insertKnownValues(context);
+        value = value.calculateConstants();
     }
 }

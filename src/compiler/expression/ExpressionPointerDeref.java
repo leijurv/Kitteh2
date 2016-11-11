@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.expression;
+import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TempVarUsage;
@@ -33,5 +34,13 @@ public class ExpressionPointerDeref extends Expression {
     @Override
     protected int calculateTACLength() {
         return 1 + deReferencing.getTACLength();
+    }
+    @Override
+    public Expression calculateConstants() {
+        return new ExpressionPointerDeref(deReferencing.calculateConstants());
+    }
+    @Override
+    public Expression insertKnownValues(Context context) {
+        return new ExpressionPointerDeref(deReferencing.insertKnownValues(context));
     }
 }

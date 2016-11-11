@@ -7,6 +7,7 @@ package compiler.parse;
 import compiler.Context;
 import compiler.Operator;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionCast;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
@@ -30,6 +31,7 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -130,7 +132,17 @@ public class ExpressionParser {
                     if (o.get(i - 1) instanceof TokenVariable) {
                         funcName = ((TokenVariable) o.get(i - 1)).val;
                     } else {
-                        funcName = ((TokenKeyword) o.get(i - 1)).toString();//some functions that you call are also keywords
+                        TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
+                        if (tk.getKeyword().isType()) {
+                            //this is a cast
+                            if (inParen.size() != 1) {
+                                throw new RasterFormatException("");
+                            }
+                            Expression input = parseImpl(inParen.get(0), Optional.empty(), context);
+                            o.set(i - 1, new ExpressionCast(input, tk.getKeyword().type));
+                            return parseImpl(o, desiredType, context);
+                        }
+                        funcName = tk.toString();//some functions that you call are also keywords
                     }
                     ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
                     System.out.println("Expecting inputs: " + desiredTypes);

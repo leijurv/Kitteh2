@@ -170,22 +170,6 @@ public class Lexer extends AbstractLexer {
         }
         return substring(start);
     }
-    private static boolean allAlpha(String s) {
-        for (char c : s.toCharArray()) {
-            if (!alphabetical(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    private static boolean allNum(String s) {
-        for (char c : s.toCharArray()) {
-            if (!numerical(c)) {
-                return false;
-            }
-        }
-        return true;
-    }
     private static boolean alphabetical(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }

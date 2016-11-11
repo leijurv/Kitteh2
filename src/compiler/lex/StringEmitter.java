@@ -30,7 +30,7 @@ public class StringEmitter {
     public boolean has() {
         return pos < str.length();
     }
-    public int currentPos() {
+    public int pos() {
         return pos;
     }
     public String substring(int start) {

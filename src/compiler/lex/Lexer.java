@@ -147,7 +147,7 @@ public class Lexer extends AbstractLexer {
                 break;
             }
         }
-        return substringSince(start);
+        return substring(start);
     }
     private String readNumerical() {
         int start = pos();
@@ -163,12 +163,12 @@ public class Lexer extends AbstractLexer {
                 }
                 pop();
             } else if (alphabetical(ch)) {
-                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substringSince(start) + ch);
+                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substring(start) + ch);
             } else {
                 break;
             }
         }
-        return substringSince(start);
+        return substring(start);
     }
     private static boolean allAlpha(String s) {
         for (char c : s.toCharArray()) {

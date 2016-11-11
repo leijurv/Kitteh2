@@ -8,6 +8,7 @@ import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
+import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
 
 /**
@@ -19,6 +20,17 @@ public class UselessTempVars extends TACOptimization {
     public UselessTempVars(ArrayList<TACStatement> statements) {
         super(statements);
     }
+    public static boolean isTempVariable(String s) {
+        if (!s.startsWith(TempVarUsage.TEMP_VARIABLE_PREFIX)) {//all temp vars start with t. variables starting with a t are not supported in kitteh
+            return false;
+        }
+        try {
+            Integer.parseInt(s.substring(TempVarUsage.TEMP_VARIABLE_PREFIX.length()));
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     @Override
     public void run() {
         for (int ind = 0; ind < size() - 1; ind++) {
@@ -27,7 +39,7 @@ public class UselessTempVars extends TACOptimization {
             }
             TACConst curr = (TACConst) get(ind);
             String valSet = curr.destName;
-            if (!valSet.startsWith("t")) {//all temp vars start with t. variables starting with a t are not supported in kitteh
+            if (!isTempVariable(valSet)) {
                 continue;
             }
             TACStatement next = get(ind + 1);

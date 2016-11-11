@@ -61,7 +61,7 @@ public class Compiler {
             + "    .macosx_version_min 10, 10";
     private static final String FOOTER = "\n"
             + ".section	__TEXT,__cstring,cstring_literals\n"
-            + "L_.str:                                 ## @.str\n"
-            + "	.asciz	\"%i\\n\"\n"
+            + "lldformatstring:\n"
+            + "	.asciz	\"%lld\\n\"\n"
             + ".subsections_via_symbols";
 }

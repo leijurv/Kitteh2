@@ -58,7 +58,6 @@ public class TACStandard extends TACStatement {
         String d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
         TACConst.move(a, null, first, firstName, emit);
-        TACConst.move(b, null, second, secondName, emit);
         if (type instanceof TypePointer && second != null) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
@@ -70,16 +69,13 @@ public class TACStandard extends TACStatement {
             }
             //we put the pointer in A
             //and the integer in B
-            //there's an issue because the pointer can be longer than the type of second so it can copy garbage into the higher 32 bits of the register
-            //so let's make sure that b has the type of the integer and not the pointer
-            //*and* zero out the upper part of b first
-            //so if you try to add an int32 to a pointer, the top 32 bits of the addition will be random
-            emit.addStatement("xorq %rbx,%rbx");
-            TACConst.move(X86Register.B.getRegister((TypeNumerical) second.getType()), null, second, secondName, emit);
-            //note that *(x+(0-1)) will not have the same effect as *(x-1)
-            //beacuse 0-1 will be an int32, and will end up being FF FF FF FF
-            //however, x is an int64, so you're adding 00 00 00 00 FF FF FF FF to x
-            //this does not have the same effect as x-1, which is adding FF FF FF FF FF FF FF FF as expected
+            if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
+                TACConst.move(b, null, second, secondName, emit);
+            } else {
+                emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + ",%rbx");
+            }
+        } else {
+            TACConst.move(b, null, second, secondName, emit);
         }
         if (op != Operator.PLUS && op != Operator.MINUS) {
             if (!(type instanceof TypeInt32)) {

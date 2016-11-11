@@ -5,11 +5,13 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Keyword;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeNumerical;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,6 +35,12 @@ public class ExpressionFunctionCall extends Expression {
         }
         ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
+            if (calling.name.equals("KEYWORD" + Keyword.PRINT.toString())) {
+                if (got.get(0) instanceof TypeNumerical) {
+                    //good enough
+                    return;
+                }
+            }
             throw new ArithmeticException("Expected types " + expected + ", got types " + got);
         }
     }

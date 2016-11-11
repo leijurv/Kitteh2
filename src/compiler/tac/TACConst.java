@@ -49,8 +49,14 @@ public class TACConst extends TACStatement {
         move(destName, dest, source, sourceName, emit);
     }
     public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
+        if (dest != null && source != null && !dest.getType().equals(source.getType())) {
+            throw new RuntimeException(source + " " + dest);
+        }
         String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
         TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
+        if (source != null && type.getSizeBytes() != source.getType().getSizeBytes()) {
+            throw new RuntimeException(source + " " + dest + " " + type + " " + source.getType());
+        }
         if (source == null) {
             emit.addStatement("mov" + type.x86typesuffix() + " $" + sourceName + ", " + destination);
         } else if (destName.startsWith(X86Register.REGISTER_PREFIX)) {

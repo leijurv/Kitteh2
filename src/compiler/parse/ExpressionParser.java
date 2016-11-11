@@ -139,7 +139,13 @@ public class ExpressionParser {
                                 throw new RasterFormatException("");
                             }
                             Expression input = parseImpl(inParen.get(0), Optional.empty(), context);
-                            o.set(i - 1, new ExpressionCast(input, tk.getKeyword().type));
+                            if (input.getType().equals(tk.getKeyword().type)) {
+                                //no cast required...
+                                System.out.println("Warning: " + input + " is already type " + tk.getKeyword().type);
+                                o.set(i - 1, input);
+                            } else {
+                                o.set(i - 1, new ExpressionCast(input, tk.getKeyword().type));
+                            }
                             return parseImpl(o, desiredType, context);
                         }
                         funcName = tk.toString();//some functions that you call are also keywords

@@ -9,6 +9,7 @@ import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.command.CommandDefineFunction.FunctionHeader;
+import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -66,12 +67,16 @@ public class TACFunctionCall extends TACStatement {
             if (params.size() != 1 || !(header.inputs().get(0) instanceof TypeNumerical)) {
                 throw new IllegalStateException();
             }
-            TypeNumerical type = (TypeNumerical) (header.inputs().get(0));
-            emit.addStatement("leaq	L_.str(%rip), %rdi");//lol rip
+            TypeNumerical type = (TypeNumerical) (params.get(0) == null ? header.inputs().get(0) : params.get(0).getType());
+            emit.addStatement("leaq lldformatstring(%rip), %rdi");//lol rip
             emit.addStatement("movb $0, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
             emit.addStatement("xorq %rdx, %rdx");
             TACConst.move(X86Register.D.getRegister(type), null, params.get(0), paramNames.get(0), emit);
-            emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
+            if (type.equals(new TypeInt64())) {
+                emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
+            } else {
+                emit.addStatement("movs" + type.x86typesuffix() + "q " + X86Register.D.getRegister(type) + ", %rsi");
+            }
             emit.addStatement("callq _printf");//I understand this one at least XD
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;

@@ -10,6 +10,7 @@ import compiler.X86Emitter;
 import compiler.X86Register;
 import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 
@@ -54,7 +55,7 @@ public class TACStandard extends TACStatement {
     public void printx86(X86Emitter emit) {
         TypeNumerical type = firstName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(firstName) : (first == null ? new TypeInt32() : (TypeNumerical) first.getType());
         String a = X86Register.A.getRegister(type);
-        String b = X86Register.B.getRegister(type);
+        String c = X86Register.C.getRegister(type);
         String d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
         TACConst.move(a, null, first, firstName, emit);
@@ -70,12 +71,12 @@ public class TACStandard extends TACStatement {
             //we put the pointer in A
             //and the integer in B
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
-                TACConst.move(b, null, second, secondName, emit);
+                TACConst.move(c, null, second, secondName, emit);
             } else {
-                emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + ",%rbx");
+                emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
-            TACConst.move(b, null, second, secondName, emit);
+            TACConst.move(c, null, second, secondName, emit);
         }
         if (op != Operator.PLUS && op != Operator.MINUS) {
             if (!(type instanceof TypeInt32)) {
@@ -84,25 +85,25 @@ public class TACStandard extends TACStatement {
         }
         switch (op) {
             case PLUS:
-                emit.addStatement("add" + type.x86typesuffix() + " " + a + ", " + b);
-                emit.addStatement(mov + b + ", " + result.x86());
+                emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MINUS:
-                emit.addStatement("sub" + type.x86typesuffix() + " " + b + ", " + a);
+                emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MOD:
                 emit.addStatement("xor " + d + ", " + d);
-                emit.addStatement("idivl " + b);
+                emit.addStatement("idivl " + c);
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
             case DIVIDE:
                 emit.addStatement("xor " + d + ", " + d);
-                emit.addStatement("idivl " + b);
+                emit.addStatement("idivl " + c);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MULTIPLY:
-                emit.addStatement("imull " + b + ", " + a);
+                emit.addStatement("imull " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             default:

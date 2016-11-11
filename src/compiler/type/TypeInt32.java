@@ -30,4 +30,8 @@ public class TypeInt32 extends TypeNumerical {
     public char x86registersuffix() {
         return 'x';
     }
+    @Override
+    public String x86r_registersuffix() {
+        return "d";
+    }
 }

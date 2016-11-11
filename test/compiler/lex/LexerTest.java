@@ -55,26 +55,4 @@ public class LexerTest {
         ArrayList<Token> result = Lexer.lex(input);
         assertEquals(expResult, result);
     }
-    /**
-     * Test of readAlphanumerical method, of class Lexer.
-     */
-    @Test
-    public void testReadAlphanumerical() {
-        System.out.println("readAlphanumerical");
-        Lexer instance = new Lexer("wew420.");
-        String expResult = "wew420";
-        String result = instance.readAlphanumerical();
-        assertEquals(expResult, result);
-    }
-    /**
-     * Test of readNumerical method, of class Lexer.
-     */
-    @Test
-    public void testReadNumerical() {
-        System.out.println("readNumerical");
-        Lexer instance = new Lexer("5021.3(");
-        String expResult = "5021.3";
-        String result = instance.readNumerical();
-        assertEquals(expResult, result);
-    }
 }

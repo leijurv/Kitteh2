@@ -67,9 +67,9 @@ public class StringEmitterTest {
     public void testCurrentPos() {
         System.out.println("currentPos");
         StringEmitter instance = new StringEmitter("cat");
-        assertEquals(instance.currentPos(), 0);
+        assertEquals(instance.pos(), 0);
         instance.pop();
-        assertEquals(instance.currentPos(), 1);
+        assertEquals(instance.pos(), 1);
     }
     /**
      * Test of substring method, of class StringEmitter.

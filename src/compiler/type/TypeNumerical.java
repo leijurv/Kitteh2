@@ -13,4 +13,5 @@ public abstract class TypeNumerical extends Type {
     public abstract char x86typesuffix();
     public abstract String x86registerprefix();
     public abstract char x86registersuffix();
+    public abstract String x86r_registersuffix();
 }

@@ -26,4 +26,8 @@ public class TypeInt64 extends TypeNumerical {
     public char x86registersuffix() {
         return 'x';
     }
+    @Override
+    public String x86r_registersuffix() {
+        return "";
+    }
 }

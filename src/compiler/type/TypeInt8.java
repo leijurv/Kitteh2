@@ -26,4 +26,8 @@ public class TypeInt8 extends TypeNumerical {
     public int getSizeBytes() {
         return 1;
     }
+    @Override
+    public String x86r_registersuffix() {
+        return "b";
+    }
 }

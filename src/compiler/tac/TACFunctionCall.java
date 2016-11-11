@@ -88,8 +88,8 @@ public class TACFunctionCall extends TACStatement {
             if (params.get(i) == null) {
                 emit.addStatement("mov" + type.x86typesuffix() + " $" + paramNames.get(i) + ", " + dest);
             } else {
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params.get(i).x86() + ", " + X86Register.B.getRegister(type));
-                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + dest);
+                emit.addStatement("mov" + type.x86typesuffix() + " " + params.get(i).x86() + ", " + X86Register.D.getRegister(type));
+                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.D.getRegister(type) + ", " + dest);
             }
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();

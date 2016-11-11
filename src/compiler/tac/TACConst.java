@@ -62,8 +62,8 @@ public class TACConst extends TACStatement {
         } else if (destName.startsWith(X86Register.REGISTER_PREFIX)) {
             emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + destName);
         } else {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.B.getRegister(type));
-            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.B.getRegister(type) + ", " + destination);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.C.getRegister(type));
+            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.C.getRegister(type) + ", " + destination);
         }
     }
     public static TypeNumerical typeFromRegister(String reg) {

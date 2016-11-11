@@ -36,7 +36,7 @@ public class TACPointerDeref extends TACStatement {
     public void printx86(X86Emitter emit) {
         emit.addStatement("movq " + source.x86() + ", %rax");
         TypeNumerical d = (TypeNumerical) dest.getType();
-        emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.B.getRegister(d));
-        emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.B.getRegister(d) + ", " + dest.x86());
+        emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.C.getRegister(d));
+        emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
     }
 }

@@ -90,19 +90,15 @@ public class ExpressionParser {
             }
         }
         if (o.size() == 1) {
-            if (!(o.get(0) instanceof Expression)) {
-                throw new IllegalStateException();
-            }
             return (Expression) o.get(0);
         }
-        //variable definitions / settings (=, :=)
         for (int i = 0; i < o.size(); i++) {//recursively call parseImpl on the contents of parentheses
             if (o.get(i) instanceof TokenStartParen) {
                 ArrayList<ArrayList<Object>> inParen = new ArrayList<>();
                 ArrayList<Object> temp = new ArrayList<>();
                 int numParens = 1;
                 o.remove(i);
-                for (; i < o.size();) {
+                while (i < o.size()) {
                     Object b = o.remove(i);
                     if (b instanceof TokenEndParen) {
                         numParens--;
@@ -110,28 +106,7 @@ public class ExpressionParser {
                             if (!temp.isEmpty()) {
                                 inParen.add(temp);
                             }
-                            System.out.println("Doing replace " + o + " " + inParen);
-                            if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
-                                String funcName;
-                                if (o.get(i - 1) instanceof TokenVariable) {
-                                    funcName = ((TokenVariable) o.get(i - 1)).val;
-                                } else {
-                                    funcName = ((TokenKeyword) o.get(i - 1)).toString();//some functions that you call are also keywords
-                                }
-                                ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
-                                System.out.println("Expecting inputs: " + desiredTypes);
-                                //tfw parallel expression parsing
-                                //tfw this is a GOOD idea /s
-                                ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
-                                o.remove(i - 1);
-                                o.add(i - 1, new ExpressionFunctionCall(context, funcName, args));
-                            } else {
-                                if (inParen.size() != 1) {
-                                    throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
-                                }
-                                o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
-                            }
-                            return parseImpl(o, desiredType, context);
+                            break;
                         }
                     }
                     if (b instanceof TokenComma && numParens == 1) {
@@ -144,12 +119,33 @@ public class ExpressionParser {
                         numParens++;
                     }
                 }
-                throw new IllegalStateException("mismatched ( and )");
+                if (numParens != 0) {
+                    throw new IllegalStateException("mismatched ( and )");
+                }
+                System.out.println("Doing replace " + o + " " + inParen);
+                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
+                    String funcName;
+                    if (o.get(i - 1) instanceof TokenVariable) {
+                        funcName = ((TokenVariable) o.get(i - 1)).val;
+                    } else {
+                        funcName = ((TokenKeyword) o.get(i - 1)).toString();//some functions that you call are also keywords
+                    }
+                    ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+                    System.out.println("Expecting inputs: " + desiredTypes);
+                    //tfw parallel expression parsing
+                    //tfw this is a GOOD idea /s
+                    ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
+                    o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
+                } else {
+                    if (inParen.size() != 1) {
+                        throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
+                    }
+                    o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
+                }
+                return parseImpl(o, desiredType, context);
             }
         }
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
-        //only three items in o; assume the middle one must be an operator
-        //function calls (a TokenVariable then an Expression / ArrayList<Expression>)
         //getting array item (like arr[ind])
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement
@@ -162,8 +158,7 @@ public class ExpressionParser {
                     }
                 }
                 Expression point = (Expression) o.remove(i + 1);
-                o.remove(i);
-                o.add(i, new ExpressionPointerDeref(point));
+                o.set(i, new ExpressionPointerDeref(point));
                 return parseImpl(o, desiredType, context);
             }
         }
@@ -171,9 +166,6 @@ public class ExpressionParser {
             for (int i = 0; i < o.size(); i++) {
                 if (o.get(i) instanceof TokenOperator && op.contains(((TokenOperator) o.get(i)).op)) {
                     if (i == 0 || i == o.size() - 1) {
-                        /* if (((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
-                            continue;
-                        }*/
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
@@ -201,9 +193,6 @@ public class ExpressionParser {
         return r;
     }
     public static Expression parse(List<Token> tokens, Optional<Type> desiredType, Context context) {
-        return purse(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
-    }
-    public static Expression parse(ArrayList<Token> tokens, Optional<Type> desiredType, Context context) {
         return purse(new ArrayList<>(tokens), desiredType, context);//this both casts each item from Token to Object, as well as cloning the arraylist because we are going to BUTCHER it
     }
 }

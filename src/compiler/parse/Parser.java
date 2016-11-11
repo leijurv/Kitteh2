@@ -315,19 +315,6 @@ public class Parser {
             }
         }
         //ok so at this point we know it's a little more complicated than a simple variable definition or set
-        if (tokens.get(0) instanceof TokenOperator) {
-            if (((TokenOperator) tokens.get(0)).op == Operator.MULTIPLY) {
-                //ok oh boy this is something like *x=y
-                if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
-                    throw new RasterFormatException("Can't infer type on a pointer reference");
-                }
-                //left side should be fine
-                Expression leftSidePointer = ExpressionParser.parse(tokens.subList(1, eqLoc), Optional.empty(), context);//start at 1 because 0 would include the *
-                TypePointer tp = (TypePointer) leftSidePointer.getType();
-                Expression right = ExpressionParser.parse(after, Optional.of(tp.pointingTo()), context);
-                return new CommandSetPtr(context, leftSidePointer, right);
-            }
-        }
         if (tokens.get(eqLoc - 1) instanceof TokenEndBrkt) {
             //a[b]=c
             int j = eqLoc - 2;
@@ -358,6 +345,19 @@ public class Parser {
             //*(ptr)
             Expression right = ExpressionParser.parse(after, Optional.of(arrayContents), context);
             return new CommandSetPtr(context, ptr, right);
+        }
+        if (tokens.get(0) instanceof TokenOperator) {
+            if (((TokenOperator) tokens.get(0)).op == Operator.MULTIPLY) {
+                //ok oh boy this is something like *x=y
+                if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
+                    throw new RasterFormatException("Can't infer type on a pointer reference");
+                }
+                //left side should be fine
+                Expression leftSidePointer = ExpressionParser.parse(tokens.subList(1, eqLoc), Optional.empty(), context);//start at 1 because 0 would include the *
+                TypePointer tp = (TypePointer) leftSidePointer.getType();
+                Expression right = ExpressionParser.parse(after, Optional.of(tp.pointingTo()), context);
+                return new CommandSetPtr(context, leftSidePointer, right);
+            }
         }
         throw new IllegalStateException(tokens + "");
     }

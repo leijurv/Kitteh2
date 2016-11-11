@@ -38,11 +38,11 @@ public class TACCast extends TACStatement {
     public static void cast(VarInfo input, VarInfo dest, X86Emitter emit) {
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
-        if (inp.getSizeBytes() == out.getSizeBytes()) {
-            throw new IllegalStateException(input + " " + dest);
-        }
-        if (inp.getSizeBytes() > out.getSizeBytes()) {
+        if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
+            if (inp.equals(out)) {
+                throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes());
+            }
             emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
         } else {
             //up cast

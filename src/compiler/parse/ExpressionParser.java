@@ -127,28 +127,58 @@ public class ExpressionParser {
                     throw new IllegalStateException("mismatched ( and )");
                 }
                 System.out.println("Doing replace " + o + " " + inParen);
-                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
-                    String funcName;
+                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword || (o.get(i - 1) instanceof TokenOperator))) {
+                    String funcName = null;
                     if (o.get(i - 1) instanceof TokenVariable) {
                         funcName = ((TokenVariable) o.get(i - 1)).val;
                     } else {
-                        TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
-                        if (tk.getKeyword().isType()) {
-                            //this is a cast
+                        boolean isCast = false;
+                        Type castingTo = null;
+                        if (o.get(i - 1) instanceof TokenKeyword) {
+                            TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
+                            if (tk.getKeyword().isType()) {
+                                //this is a cast
+                                isCast = true;
+                                castingTo = tk.getKeyword().type;
+                            }
+                            funcName = tk.toString();//some functions that you call are also keywords
+                        }
+                        int stars = i;
+                        for (int j = i - 1; j > 0; j--) {
+                            if (o.get(j) instanceof TokenOperator && ((TokenOperator) o.get(j)).op == Operator.MULTIPLY) {
+                                stars = j;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (stars != i) {
+                            //at least some stars, but it could be either a non-cast 5*f(x) or a cast int*(x)
+                            if (o.get(stars - 1) instanceof TokenKeyword) {
+                                TokenKeyword tk = ((TokenKeyword) o.get(stars - 1));
+                                if (tk.getKeyword().isType()) {
+                                    isCast = true;
+                                    castingTo = tk.getKeyword().type;
+                                    for (int j = stars; j < i; j++) {
+                                        castingTo = new TypePointer(castingTo);
+                                        o.remove(stars);
+                                    }
+                                }
+                            }
+                        }
+                        if (isCast) {
                             if (inParen.size() != 1) {
                                 throw new RasterFormatException("");
                             }
                             Expression input = parseImpl(inParen.get(0), Optional.empty(), context);
-                            if (input.getType().equals(tk.getKeyword().type)) {
+                            if (input.getType().equals(castingTo)) {
                                 //no cast required...
-                                System.out.println("Warning: " + input + " is already type " + tk.getKeyword().type);
-                                o.set(i - 1, input);
+                                System.out.println("Warning: " + input + " is already type " + castingTo);
+                                o.set(stars - 1, input);
                             } else {
-                                o.set(i - 1, new ExpressionCast(input, tk.getKeyword().type));
+                                o.set(stars - 1, new ExpressionCast(input, castingTo));
                             }
                             return parseImpl(o, desiredType, context);
                         }
-                        funcName = tk.toString();//some functions that you call are also keywords
                     }
                     ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
                     System.out.println("Expecting inputs: " + desiredTypes);

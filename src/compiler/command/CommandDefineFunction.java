@@ -120,5 +120,5 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public static final FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
-    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeInt32()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

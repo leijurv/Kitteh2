@@ -19,11 +19,9 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionFunctionCall extends Expression {
-    String funcName;
     ArrayList<Expression> args;
     FunctionHeader calling;
     public ExpressionFunctionCall(Context context, String funcName, ArrayList<Expression> args) {
-        this.funcName = funcName;
         this.args = args;
         this.calling = context.gc.getHeader(funcName);
         verifyTypes();
@@ -35,7 +33,7 @@ public class ExpressionFunctionCall extends Expression {
         }
         ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
-            // throw new ArithmeticException("Expected types " + expected + ", got types " + got);
+            throw new ArithmeticException("Expected types " + expected + ", got types " + got);
         }
     }
     @Override
@@ -44,7 +42,7 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public String toString() {
-        return funcName + args;
+        return calling.name + args;
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
@@ -53,7 +51,7 @@ public class ExpressionFunctionCall extends Expression {
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toCollection(ArrayList::new));
-        emit.emit(new TACFunctionCall(resultLocation, funcName, argNames));
+        emit.emit(new TACFunctionCall(resultLocation, calling, argNames));
     }
     @Override
     public int calculateTACLength() {

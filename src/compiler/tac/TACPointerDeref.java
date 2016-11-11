@@ -29,7 +29,8 @@ public class TACPointerDeref extends TACStatement {
     }
     @Override
     public String toString0() {
-        return "Dereference " + source + " into " + dest;
+        //return "Dereference " + source + " into " + dest;
+        return dest + " = *" + source;
     }
     @Override
     public void printx86(X86Emitter emit) {

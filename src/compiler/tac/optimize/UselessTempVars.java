@@ -5,6 +5,7 @@
  */
 package compiler.tac.optimize;
 import compiler.tac.TACConst;
+import compiler.tac.TACFunctionCall;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import java.util.ArrayList;
@@ -57,6 +58,24 @@ public class UselessTempVars extends TACOptimization {
                     c.source = curr.source;
                     remove(ind);
                     ind = Math.max(-1, ind - 2);
+                    continue;
+                }
+            }
+            if (next instanceof TACFunctionCall) {
+                TACFunctionCall c = (TACFunctionCall) next;
+                boolean shouldContinue = false;
+                for (int i = 0; i < c.paramNames.size(); i++) {
+                    if (c.paramNames.get(i).equals(valSet)) {
+                        System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                        c.paramNames.set(i, curr.sourceName);
+                        c.params.set(i, curr.source);
+                        remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        shouldContinue = true;
+                        break;
+                    }
+                }
+                if (shouldContinue) {
                     continue;
                 }
             }

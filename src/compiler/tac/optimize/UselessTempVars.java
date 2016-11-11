@@ -10,6 +10,7 @@ import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Remove temp vars that have no point Like t1=5,a=t1+t2 should become a=5+t2
@@ -32,24 +33,24 @@ public class UselessTempVars extends TACOptimization {
         }
     }
     @Override
-    public void run() {
-        for (int ind = 0; ind < size() - 1; ind++) {
-            if (!(get(ind) instanceof TACConst)) {
+    public void run(List<TACStatement> block) {
+        for (int ind = 0; ind < block.size() - 1; ind++) {
+            if (!(block.get(ind) instanceof TACConst)) {
                 continue;
             }
-            TACConst curr = (TACConst) get(ind);
+            TACConst curr = (TACConst) block.get(ind);
             String valSet = curr.destName;
             if (!isTempVariable(valSet)) {
                 continue;
             }
-            TACStatement next = get(ind + 1);
+            TACStatement next = block.get(ind + 1);
             if (next instanceof TACStandard) {
                 TACStandard n = (TACStandard) next;
                 if (n.secondName.equals(valSet)) {
                     System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     n.secondName = curr.sourceName;
                     n.second = curr.source;
-                    remove(ind);
+                    block.remove(ind);
                     ind = Math.max(-1, ind - 2);
                     continue;
                 }
@@ -57,7 +58,7 @@ public class UselessTempVars extends TACOptimization {
                     System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     n.firstName = curr.sourceName;
                     n.first = curr.source;
-                    remove(ind);
+                    block.remove(ind);
                     ind = Math.max(-1, ind - 2);
                     continue;
                 }
@@ -68,7 +69,7 @@ public class UselessTempVars extends TACOptimization {
                     System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     c.sourceName = curr.sourceName;
                     c.source = curr.source;
-                    remove(ind);
+                    block.remove(ind);
                     ind = Math.max(-1, ind - 2);
                     continue;
                 }
@@ -81,7 +82,7 @@ public class UselessTempVars extends TACOptimization {
                         System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                         c.paramNames.set(i, curr.sourceName);
                         c.params.set(i, curr.source);
-                        remove(ind);
+                        block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         shouldContinue = true;
                         break;

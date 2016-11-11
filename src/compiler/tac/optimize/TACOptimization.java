@@ -17,27 +17,14 @@ import java.util.stream.Collectors;
 public abstract class TACOptimization {
     private final ArrayList<TACStatement> original;
     private final ArrayList<TACStatement> statements;
-    private List<TACStatement> current;
     public TACOptimization(ArrayList<TACStatement> statements) {
         this.original = new ArrayList<>(statements);
         this.statements = new ArrayList<>(statements);
-    }
-    public int size() {
-        return current.size();
-    }
-    public void remove(int ind) {
-        current.remove(ind);
     }
     private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
         ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(stmt -> stmt.jumpTo()).distinct().collect(Collectors.toCollection(ArrayList::new));
         result.sort(null);
         return result;
-    }
-    public void update(int ind, TACStatement ne) {
-        current.set(ind, ne);
-    }
-    public TACStatement get(int i) {
-        return current.get(i);
     }
     public ArrayList<TACStatement> go() {
         ArrayList<Integer> origJumpDests = jumpDestinations(statements);
@@ -55,22 +42,24 @@ public abstract class TACOptimization {
         }
         int pos = 0;
         for (int i = 0; i < blocks.size(); i++) {
-            current = new ArrayList<>(blocks.get(i));
-            run();
-            blocks.set(i, current);
-            pos += current.size();
+            List<TACStatement> block = new ArrayList<>(blocks.get(i));
+            run(block);
+            blocks.set(i, block);
+            pos += block.size();
             newJumpDests.add(pos);
             //newJumpDests.add(pos += current.size());
         }
         ArrayList<TACStatement> result = blocks.stream().flatMap(x -> x.stream()).collect(Collectors.toCollection(ArrayList::new));
         for (int i = 0; i < result.size(); i++) {
             if (result.get(i) instanceof TACJump) {
-                TACJump tj = (TACJump) result.get(i);
-                int dest = tj.jumpTo();
-                tj.setJumpTo(newJumpDests.get(origJumpDests.indexOf(dest)));
+                TACJump jump = (TACJump) result.get(i);
+                int dest = jump.jumpTo();
+                int destIndex = origJumpDests.indexOf(dest);
+                int newDest = newJumpDests.get(destIndex);
+                jump.setJumpTo(newDest);
             }
         }
         return result;
     }
-    protected abstract void run();
+    protected abstract void run(List<TACStatement> block);
 }

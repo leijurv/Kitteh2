@@ -19,21 +19,21 @@ import javax.xml.ws.WebServiceException;
  * @author leijurv
  */
 public class TokenMapping {
-    private static final HashMap<Character, Token> mappings = new HashMap<>();
+    private static final HashMap<Character, Token> MAPPINGS = new HashMap<>();
     static {
-        mappings.put('(', new TokenStartParen());
-        mappings.put(')', new TokenEndParen());
-        mappings.put(',', new TokenComma());
-        mappings.put('*', new TokenOperator(Operator.MULTIPLY));
-        mappings.put('/', new TokenOperator(Operator.DIVIDE));
-        mappings.put('%', new TokenOperator(Operator.MOD));
-        mappings.put(';', new TokenSemicolon());
+        MAPPINGS.put('(', new TokenStartParen());
+        MAPPINGS.put(')', new TokenEndParen());
+        MAPPINGS.put(',', new TokenComma());
+        MAPPINGS.put('*', new TokenOperator(Operator.MULTIPLY));
+        MAPPINGS.put('/', new TokenOperator(Operator.DIVIDE));
+        MAPPINGS.put('%', new TokenOperator(Operator.MOD));
+        MAPPINGS.put(';', new TokenSemicolon());
     }
     public static boolean charMapsToToken(char ch) {
-        return mappings.containsKey(ch);
+        return MAPPINGS.containsKey(ch);
     }
     public static Token getStaticToken(char ch) {
-        Token t = mappings.get(ch);
+        Token t = MAPPINGS.get(ch);
         if (t == null) {
             throw new WebServiceException();//lol
         }

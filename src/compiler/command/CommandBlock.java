@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public abstract class CommandBlock extends Command {
-    ArrayList<Command> contents;
+    protected final ArrayList<Command> contents;
     public CommandBlock(Context context, ArrayList<Command> contents) {
         super(context);
         this.contents = contents;

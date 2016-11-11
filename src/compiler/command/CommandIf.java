@@ -19,7 +19,6 @@ public class CommandIf extends CommandBlock {
     Expression condition;
     public CommandIf(Expression condition, ArrayList<Command> contents, Context context) {
         super(context, contents);
-        this.contents = contents;
         this.condition = condition;
     }
     @Override

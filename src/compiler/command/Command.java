@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public abstract class Command {
-    protected Context context;
+    protected final Context context;
     protected Command(Context context) {
         this.context = context;
     }

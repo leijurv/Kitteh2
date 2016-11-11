@@ -15,8 +15,8 @@ import compiler.tac.TempVarUsage;
  * @author leijurv
  */
 public class CommandSetPtr extends Command {
-    Expression pointer;
-    Expression value;
+    private final Expression pointer;
+    private final Expression value;
     public CommandSetPtr(Context context, Expression pointer, Expression value) {
         super(context);
         this.pointer = pointer;

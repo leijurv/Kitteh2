@@ -15,5 +15,5 @@ public enum X86Register {
     public String getRegister(TypeNumerical version) {
         return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + version.x86registersuffix();//e.g. %eax
     }
-    public static String REGISTER_PREFIX = "%";
+    public static final String REGISTER_PREFIX = "%";
 }

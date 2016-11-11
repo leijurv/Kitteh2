@@ -20,8 +20,8 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class CommandSetVar extends Command {
-    Expression val;
-    String var;
+    private Expression val;
+    private final String var;
     public CommandSetVar(String var, Expression val, Context context) {
         super(context);
         this.val = val;

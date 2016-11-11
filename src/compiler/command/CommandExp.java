@@ -15,7 +15,7 @@ import compiler.tac.TempVarUsage;
  * @author leijurv
  */
 public class CommandExp extends Command {
-    Expression ex;
+    private Expression ex;
     public CommandExp(Expression ex, Context context) {
         super(context);
         this.ex = ex;

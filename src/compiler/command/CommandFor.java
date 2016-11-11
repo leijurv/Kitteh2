@@ -17,9 +17,9 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class CommandFor extends CommandBlock {
-    Command initialization;
-    Expression condition;
-    Command afterthought;
+    private Command initialization;
+    private Expression condition;
+    private Command afterthought;
     public CommandFor(Command initialization, Expression condition, Command afterthought, ArrayList<Command> contents, Context context) {
         super(context, contents);
         this.initialization = initialization;

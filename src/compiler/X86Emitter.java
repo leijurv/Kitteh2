@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  */
 public class X86Emitter {
     public static final String STATIC_LABEL_PREFIX = "L";
-    ArrayList<String> statements = new ArrayList<>();
-    String prefix;
+    private final ArrayList<String> statements = new ArrayList<>();
+    private final String prefix;
     public X86Emitter(String funcLabelPrefix) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
     }

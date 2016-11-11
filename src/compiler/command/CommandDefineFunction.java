@@ -26,12 +26,12 @@ import javafx.util.Pair;
  * @author leijurv
  */
 public class CommandDefineFunction extends Command {//dont extend commandblock because we only get the contents later because of header first parsing
-    ArrayList<Pair<String, Type>> arguments;
-    Type returnType;
-    String name;
-    ArrayList<Command> contents;
-    ArrayList<Object> rawContents;
-    FunctionHeader header;
+    private final ArrayList<Pair<String, Type>> arguments;
+    private final Type returnType;
+    private final String name;
+    private ArrayList<Command> contents;
+    private final ArrayList<Object> rawContents;
+    private final FunctionHeader header;
     public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.arguments = arguments;
@@ -95,13 +95,13 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         resp.append(emitter.toX86()).append('\n');
         resp.append(FUNC_FOOTER).append('\n');
     }
-    static final String FUNC_HEADER = "	.cfi_startproc\n"
+    private static final String FUNC_HEADER = "	.cfi_startproc\n"
             + "	pushq	%rbp\n"
             + "	.cfi_def_cfa_offset 16\n"
             + "	.cfi_offset %rbp, -16\n"
             + "	movq	%rsp, %rbp\n"
             + "	.cfi_def_cfa_register %rbp";
-    static final String FUNC_FOOTER = "	.cfi_endproc";
+    private static final String FUNC_FOOTER = "	.cfi_endproc";
 
     public static class FunctionHeader {
         private FunctionHeader(String name, Type returnType, ArrayList<Type> arguments) {
@@ -110,8 +110,8 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             this.arguments = arguments;
         }
         public final String name;
-        final Type returnType;
-        final ArrayList<Type> arguments;
+        private final Type returnType;
+        private final ArrayList<Type> arguments;
         public Type getReturnType() {
             return returnType;
         }
@@ -119,6 +119,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             return arguments;
         }
     }
-    public static FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
-    public static FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeInt32()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static final FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeInt32()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

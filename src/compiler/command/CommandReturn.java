@@ -18,7 +18,7 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class CommandReturn extends Command {
-    Expression toReturn;
+    private Expression toReturn;
     public CommandReturn(Context context, Expression toReturn) {
         super(context);
         this.toReturn = toReturn;

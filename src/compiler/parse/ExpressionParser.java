@@ -136,6 +136,9 @@ public class ExpressionParser {
                     System.out.println("Expecting inputs: " + desiredTypes);
                     //tfw parallel expression parsing
                     //tfw this is a GOOD idea /s
+                    if (inParen.size() != desiredTypes.size()) {
+                        throw new SecurityException("mismatched arg count");
+                    }
                     ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
                     o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
                 } else {

@@ -90,35 +90,21 @@ public class Parser {
                         List<Token> returnType = params.subList(endParen + 1, params.size());
                         System.out.println("Return type: " + returnType);
                         Type retType;
-                        if (returnType.size() == 1) {
-                            TokenKeyword rt = (TokenKeyword) (returnType.get(0));
-                            Keyword returning = rt.getKeyword();
-                            if (!returning.isType()) {
-                                throw new IllegalStateException();
-                            }
-                            retType = returning.type;
+                        if (typeFromTokens(returnType) != null) {
+                            retType = typeFromTokens(returnType);
                         } else if (returnType.isEmpty()) {
                             retType = new TypeVoid();
                         } else {
                             throw new IllegalStateException("no multiple returns yet. sorry!");
                         }
                         ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
-                            if (tokenList.size() != 2) {
-                                throw new IllegalStateException();
+                            List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
+                            Type type = typeFromTokens(typeDefinition);
+                            if (type == null) {
+                                throw new IllegalStateException(typeDefinition + "");
                             }
-                            if (!(tokenList.get(0) instanceof TokenKeyword)) {
-                                throw new IllegalStateException(tokenList.get(0) + "");
-                            }
-                            TokenKeyword tk = (TokenKeyword) (tokenList.get(0));
-                            Keyword k = tk.getKeyword();
-                            if (!k.isType()) {
-                                throw new IllegalStateException();
-                            }
-                            if (!(tokenList.get(1) instanceof TokenVariable)) {
-                                throw new IllegalStateException();
-                            }
-                            TokenVariable tv = (TokenVariable) (tokenList.get(1));
-                            return new Pair<>(tv.val, k.type);
+                            TokenVariable tv = (TokenVariable) (tokenList.get(tokenList.size() - 1));
+                            return new Pair<>(tv.val, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
                         if (!context.isTopLevel()) {//make sure this is top level
                             throw new IllegalStateException();
@@ -304,22 +290,16 @@ public class Parser {
                 }
                 return new CommandSetVar(toSet.val, ex, context);
             }
-            case 2: {
-                if (!(tokens.get(0) instanceof TokenKeyword)) {
-                    //throw new RasterFormatException("");
-                    break;
-                }
-                Keyword typeKeyword = ((TokenKeyword) tokens.get(0)).getKeyword();
-                if (!typeKeyword.isType()) {
-                    //throw new RasterFormatException("");
-                    break;
-                }
+            default: {
                 //if the first token is a type, we are doing something like int i=5
-                Type type = typeKeyword.type;
-                if (!(tokens.get(1) instanceof TokenVariable)) {
-                    throw new IllegalStateException("You can't set the value of " + tokens.get(1) + " lol");
+                Type type = typeFromTokens(tokens.subList(0, eqLoc - 1));
+                if (type == null) {
+                    break;
                 }
-                TokenVariable toSet = (TokenVariable) tokens.get(1);
+                if (!(tokens.get(eqLoc - 1) instanceof TokenVariable)) {
+                    throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
+                }
+                TokenVariable toSet = (TokenVariable) tokens.get(eqLoc - 1);
                 if (context.varDefined(toSet.val)) {
                     throw new IllegalStateException("Babe, " + toSet.val + " is already there");
                 }
@@ -328,8 +308,6 @@ public class Parser {
                 //ok we doing something like long i=5
                 return new CommandSetVar(toSet.val, rightSide, context);
             }
-            default:
-                break;
         }
         //ok so at this point we know it's a little more complicated than a simple variable definition or set
         if (tokens.get(0) instanceof TokenOperator) {
@@ -345,6 +323,30 @@ public class Parser {
                 return new CommandSetPtr(context, leftSidePointer, right);
             }
         }
-        throw new IllegalStateException();
+        throw new IllegalStateException(tokens + "");
+    }
+    public static Type typeFromTokens(List<Token> tokens) {
+        if (tokens.isEmpty()) {
+            return null;
+        }
+        Token first = tokens.get(0);
+        if (!(first instanceof TokenKeyword)) {
+            return null;
+        }
+        Keyword keyword = ((TokenKeyword) first).getKeyword();
+        if (!keyword.isType()) {
+            return null;
+        }
+        Type tp = keyword.type;
+        for (int i = 1; i < tokens.size(); i++) {
+            if (!(tokens.get(i) instanceof TokenOperator)) {
+                return null;
+            }
+            if (((TokenOperator) tokens.get(i)).op != Operator.MULTIPLY) {
+                return null;
+            }
+            tp = new TypePointer(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer
+        }
+        return tp;
     }
 }

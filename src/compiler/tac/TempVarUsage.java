@@ -35,7 +35,7 @@ public class TempVarUsage {
     }
     public String getTempVar(Type type) {
         String name = TEMP_VARIABLE_PREFIX + ind++;
-        if (ind > 8) {
+        if (ind > 16) {
             throw new IllegalStateException("I hope you're Dora because I'm going to need a Map to get out of this one");
         }
         sizeSoFar -= type.getSizeBytes();

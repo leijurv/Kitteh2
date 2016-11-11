@@ -49,6 +49,17 @@ public class UselessTempVars extends TACOptimization {
                     continue;
                 }
             }
+            if (next instanceof TACConst) {
+                TACConst c = (TACConst) next;
+                if (c.sourceName.equals(valSet)) {
+                    System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                    c.sourceName = curr.sourceName;
+                    c.source = curr.source;
+                    remove(ind);
+                    ind = Math.max(-1, ind - 2);
+                    continue;
+                }
+            }
         }
     }
 }

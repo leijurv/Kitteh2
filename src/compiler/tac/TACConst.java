@@ -18,9 +18,9 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class TACConst extends TACStatement {
-    public final String destName;
+    public String destName;
     public VarInfo dest;
-    public final String sourceName;
+    public String sourceName;
     public VarInfo source;
     public TACConst(String var, String val) {
         this.destName = var;

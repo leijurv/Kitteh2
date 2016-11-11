@@ -80,7 +80,7 @@ public class TACStandard extends TACStatement {
         }
         if (op != Operator.PLUS && op != Operator.MINUS) {
             if (!(type instanceof TypeInt32)) {
-                throw new IllegalStateException("You can only do " + op + " on int32s and not other types of ints becasue I wrote this on a plane and I can't google the right syntax and my guesses were wrong");
+                //throw new IllegalStateException("You can only do " + op + " on int32s and not other types of ints becasue I wrote this on a plane and I can't google the right syntax and my guesses were wrong");
             }
         }
         switch (op) {
@@ -93,17 +93,17 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MOD:
-                emit.addStatement("xor " + d + ", " + d);
-                emit.addStatement("idivl " + c);
+                emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);
+                emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
             case DIVIDE:
-                emit.addStatement("xor " + d + ", " + d);
-                emit.addStatement("idivl " + c);
+                emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);
+                emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MULTIPLY:
-                emit.addStatement("imull " + c + ", " + a);
+                emit.addStatement("imul" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             default:

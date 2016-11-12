@@ -29,7 +29,7 @@ public class TACCast extends TACStatement {
     }
     @Override
     public String toString0() {
-        return dest + "= (" + dest.getType() + ") " + input;
+        return dest + " = (" + dest.getType() + ") " + input;
     }
     @Override
     public void printx86(X86Emitter emit) {

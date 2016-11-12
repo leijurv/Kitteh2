@@ -19,7 +19,7 @@ public abstract class CommandBlock extends Command {
         this.contents = contents;
     }
     @Override
-    public final ArrayList<String> getAllVarsModified() {
+    public ArrayList<String> getAllVarsModified() {
         return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toCollection(ArrayList::new));
     }
 }

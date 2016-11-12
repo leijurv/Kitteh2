@@ -87,6 +87,29 @@ public class CompilerTest {
                 + "}", true, "25164150\n");//tests proper handling of longs and casting, as the numbers here are greater than 2^32
     }
     @Test
+    public void testEuler7() throws Exception {
+        verifyCompilation("func isPrime(int num) int{\n"
+                + "	for j:=3; j*j<=num; j=j+2{\n"
+                + "		if num % j==0{\n"
+                + "			return 0\n"
+                + "		}\n"
+                + "	}\n"
+                + "	return 1\n"
+                + "}\n"
+                + "func main(){\n"
+                + "	i:=3\n"
+                + "	for soFar:=0; true; i=i+2{\n"
+                + "		if isPrime(i)==1{\n"
+                + "			soFar=soFar+1\n"
+                + "			if soFar==10000{\n"
+                + "				print(i)\n"
+                + "				break\n"
+                + "			}\n"
+                + "		}\n"
+                + "	}\n"
+                + "}", true, "104743\n");
+    }
+    @Test
     public void countPrimes() throws Exception {
         verifyCompilation("func isPrime(int num) int{\n"
                 + "	for j:=3; j*j<=num; j=j+2{\n"

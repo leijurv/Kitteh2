@@ -13,6 +13,7 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -49,7 +50,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
     public String toString() {
         return str;
     }
-    public static ArrayList<List<Operator>> orderOfOperations() {
+    private static ArrayList<List<Operator>> orderOfOperations() {
         //Having it just be an array would put equal things next to each other, but not at the same place
         //For example, + might be sorted before - even though they have the same precedence
         //so, a-b+c might be parsed as a-(b+c)
@@ -106,6 +107,9 @@ public enum Operator {//extends Token maybe? might make things easier... idk
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
     public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
+        if (!((Expression) a).getType().equals(((Expression) b).getType())) {
+            throw new FileSystemAlreadyExistsException("");
+        }
         onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
         switch (this) {
             case PLUS:

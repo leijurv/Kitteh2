@@ -30,4 +30,8 @@ public class TypeInt8 extends TypeNumerical {
     public String x86r_registersuffix() {
         return "b";
     }
+    @Override
+    public String toString() {
+        return "byte";
+    }
 }

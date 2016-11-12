@@ -30,7 +30,7 @@ public enum Keyword {
     FUNC("CHASE", true, null, null),
     BOOL("BOWL", false, null, new TypeBoolean()),
     BYTE("BITE", false, null, new TypeInt8()),
-    SHORT("SHRT", false, null, new TypeInt16()),
+    SHORT("CHOMP", false, null, new TypeInt16()),
     INT("MEOWNT", false, null, new TypeInt32()),
     LONG("LAWNG", false, null, new TypeInt64());
     public static boolean CAT_MODE = false;

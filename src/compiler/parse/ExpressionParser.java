@@ -185,21 +185,23 @@ public class ExpressionParser {
                             return parseImpl(o, desiredType, context);
                         }
                     }
-                    ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
-                    System.out.println("Expecting inputs: " + desiredTypes);
-                    //tfw parallel expression parsing
-                    //tfw this is a GOOD idea /s
-                    if (inParen.size() != desiredTypes.size()) {
-                        throw new SecurityException("mismatched arg count");
+                    if (funcName != null) {
+                        ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+                        System.out.println("Expecting inputs: " + desiredTypes);
+                        //tfw parallel expression parsing
+                        //tfw this is a GOOD idea /s
+                        if (inParen.size() != desiredTypes.size()) {
+                            throw new SecurityException("mismatched arg count");
+                        }
+                        ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
+                        o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
+                        return parseImpl(o, desiredType, context);
                     }
-                    ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
-                    o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
-                } else {
-                    if (inParen.size() != 1) {
-                        throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
-                    }
-                    o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
                 }
+                if (inParen.size() != 1) {
+                    throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
+                }
+                o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
                 return parseImpl(o, desiredType, context);
             }
         }

@@ -29,9 +29,13 @@ public class Compiler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        System.out.println("First stream: " + streamTime());
-        System.out.println("Second stream: " + streamTime());
+        System.out.println("First stream: " + streamTime());//almost always several hundred ms
+        System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());
+        String asm = compile(new String(program));
+        new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
+    }
+    public static String compile(String program) {
         ArrayList<String> k = Preprocessor.preprocess(new String(program));
         ArrayList<Object> lol = new ArrayList<>();
         for (String l : k) {
@@ -55,7 +59,7 @@ public class Compiler {
         }
         resp.append(FOOTER);
         resp.append('\n');
-        new FileOutputStream("/Users/leijurv/Documents/blar.s").write(resp.toString().getBytes());
+        return resp.toString();
     }
     private static final String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
             + "    .macosx_version_min 10, 10";

@@ -206,8 +206,20 @@ public class CompilerTest {
         assertEquals(true, asm.exists());
         String[] compilationCommand = {"gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
         System.out.println(Arrays.asList(compilationCommand));
-        Process gcc = new ProcessBuilder(compilationCommand).redirectOutput(Redirect.INHERIT).redirectError(Redirect.INHERIT).start();
+        Process gcc = new ProcessBuilder(compilationCommand).start();
         System.out.println("GCC return value: " + gcc.waitFor());
+        if (gcc.waitFor() != 0) {
+            int j;
+            StringBuilder result = new StringBuilder();
+            while ((j = gcc.getErrorStream().read()) >= 0) {
+                result.append((char) j);
+            }
+            while ((j = gcc.getInputStream().read()) >= 0) {
+                result.append((char) j);
+            }
+            System.out.println(result);
+            System.out.println("Oh well");
+        }
         assertEquals(0, gcc.waitFor());
         assertEquals(true, executable.exists());
         Process ex = new ProcessBuilder(executable.getAbsolutePath()).redirectError(Redirect.INHERIT).start();

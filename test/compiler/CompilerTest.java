@@ -181,6 +181,9 @@ public class CompilerTest {
         verifyCompilation(program, false, null);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+        if (!new File("/usr/bin/gcc").exists()) {
+            assertNull("GCC must exist");
+        }
         if (!shouldCompile) {
             assertNull(desiredExecutionOutput);
         }

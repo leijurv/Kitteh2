@@ -75,6 +75,18 @@ public class CompilerTest {
                 + "}", true, "4613732\n");
     }
     @Test
+    public void testEuler6() throws Exception {
+        verifyCompilation("func main(){\n"
+                + "	long sum=0\n"
+                + "	int othersum=0\n"
+                + "	for i:=0; i<=100; i=i+1{\n"
+                + "		sum=sum+long(i*i)\n"
+                + "		othersum=othersum+i\n"
+                + "	}\n"
+                + "	print(long(othersum)*long(othersum)-sum)\n"
+                + "}", true, "25164150\n");//tests proper handling of longs and casting, as the numbers here are greater than 2^32
+    }
+    @Test
     public void countPrimes() throws Exception {
         verifyCompilation("func isPrime(int num) int{\n"
                 + "	for j:=3; j*j<=num; j=j+2{\n"

@@ -60,7 +60,7 @@ public class X86RegisterTest {
     public void testRegister(X86Register reg, String... requiredValues) {
         assertEquals(types.length, requiredValues.length);
         for (int i = 0; i < types.length; i++) {
-            assertEquals(requiredValues[i], reg.getRegister(types[i]));
+            assertEquals(requiredValues[i], reg.getRegister(types[i], true));
         }
     }
 }

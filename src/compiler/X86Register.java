@@ -13,6 +13,9 @@ import compiler.type.TypeNumerical;
 public enum X86Register {
     A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
     public String getRegister(TypeNumerical version) {
+        return getRegister(version, false);
+    }
+    public String getRegister(TypeNumerical version, boolean allowSpills) {
         //technically shouldn't be modified without restoring on return: B, R12, R13, R14, R15
         /*
          Registers %rbp, %rbx and
@@ -21,13 +24,15 @@ required to preserve their values. In other words, a called function must preser
 these registers’ values for its caller.
         from the system V abi
          */
-        switch (this) {
-            case B:
-            case R12:
-            case R13:
-            case R14:
-            case R15:
-                throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
+        if (!allowSpills) {
+            switch (this) {
+                case B:
+                case R12:
+                case R13:
+                case R14:
+                case R15:
+                    throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
+            }
         }
         switch (this) {
             case A:

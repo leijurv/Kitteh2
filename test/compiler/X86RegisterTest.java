@@ -35,25 +35,60 @@ public class X86RegisterTest {
     @After
     public void tearDown() {
     }
-    /**
-     * Test of getRegister method, of class X86Register.
-     */
     @Test
-    public void testGetRegister() {
-        System.out.println("getRegister");
+    public void testGetRegisterA() {
         testRegister(X86Register.A, "%rax", "%eax", "%ax", "%al");
+    }
+    @Test
+    public void testGetRegisterB() {
         testRegister(X86Register.B, "%rbx", "%ebx", "%bx", "%bl");
+    }
+    @Test
+    public void testGetRegisterC() {
         testRegister(X86Register.C, "%rcx", "%ecx", "%cx", "%cl");
+    }
+    @Test
+    public void testGetRegisterD() {
         testRegister(X86Register.D, "%rdx", "%edx", "%dx", "%dl");
+    }
+    @Test
+    public void testGetRegisterSI() {
         testRegister(X86Register.SI, "%rsi", "%esi", "%si", "%sil");
+    }
+    @Test
+    public void testGetRegisterDI() {
         testRegister(X86Register.DI, "%rdi", "%edi", "%di", "%dil");
+    }
+    @Test
+    public void testGetRegisterR8() {
         testRegister(X86Register.R8, "%r8", "%r8d", "%r8w", "%r8b");
+    }
+    @Test
+    public void testGetRegisterR9() {
         testRegister(X86Register.R9, "%r9", "%r9d", "%r9w", "%r9b");
+    }
+    @Test
+    public void testGetRegisterR10() {
         testRegister(X86Register.R10, "%r10", "%r10d", "%r10w", "%r10b");
+    }
+    @Test
+    public void testGetRegisterR11() {
         testRegister(X86Register.R11, "%r11", "%r11d", "%r11w", "%r11b");
+    }
+    @Test
+    public void testGetRegisterR12() {
         testRegister(X86Register.R12, "%r12", "%r12d", "%r12w", "%r12b");
+    }
+    @Test
+    public void testGetRegisterR13() {
         testRegister(X86Register.R13, "%r13", "%r13d", "%r13w", "%r13b");
+    }
+    @Test
+    public void testGetRegisterR14() {
         testRegister(X86Register.R14, "%r14", "%r14d", "%r14w", "%r14b");
+    }
+    @Test
+    public void testGetRegisterR15() {
         testRegister(X86Register.R15, "%r15", "%r15d", "%r15w", "%r15b");
     }
     static final TypeNumerical[] types = {new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()};

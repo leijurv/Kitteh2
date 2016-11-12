@@ -11,6 +11,7 @@ import compiler.preprocess.StripLocation;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import javax.xml.crypto.NoSuchMechanismException;
 
 /**
  *
@@ -30,6 +31,9 @@ public class FunctionsContext {
                 throw new EnumConstantNotPresentException(StripLocation.class, "   error: Two functions with same name: " + name);
             }
             functionMap.put(name, header);
+        }
+        if (!functionMap.containsKey("main")) {
+            throw new NoSuchMechanismException("You need a main function");
         }
     }
     public void parseRekursively() {

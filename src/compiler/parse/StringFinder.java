@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.token.TokenChar;
 import compiler.token.TokenString;
 import java.util.ArrayList;
 
@@ -40,7 +41,7 @@ public class StringFinder implements Transform<ArrayList<Object>> {
                                     if (strType != '\'') {
                                         throw new IllegalStateException("lol what");
                                     }
-                                    if (((String) strContents).length() != 1) {
+                                    if (strContents.length() != 1) {
                                         System.out.println(line);
                                         throw new IllegalStateException("lol your single quotes can only hold single things: " + strContents);
                                     }
@@ -48,7 +49,7 @@ public class StringFinder implements Transform<ArrayList<Object>> {
                                 }
                                 String after = line.substring(i + 1, line.length());
                                 lines.set(j, before);
-                                lines.add(j + 1, new TokenString(strContents));
+                                lines.add(j + 1, strType == '"' ? new TokenString(strContents) : new TokenChar(strContents.charAt(0)));
                                 lines.add(j + 2, after);
                                 break;
                             }

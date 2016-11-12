@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.token.TokenChar;
 import compiler.token.TokenString;
 import java.util.ArrayList;
 
@@ -29,13 +30,13 @@ public class LineGrouper {
                         temp = new ArrayList<>();
                         temp.add(o);
                     } else {
-                        if (!(prev instanceof TokenString)) {
+                        if (!(prev instanceof TokenString) && !(prev instanceof TokenChar)) {
                             throw new IllegalStateException("what");
                         }
                         temp.add(o);
                     }
                 }
-            } else if (o instanceof TokenString) {
+            } else if (o instanceof TokenString || o instanceof TokenChar) {
                 temp.add(o);
             } else {
                 if (!temp.isEmpty()) {

@@ -9,6 +9,7 @@ import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
 import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
@@ -16,6 +17,7 @@ import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
+import compiler.token.TokenChar;
 import compiler.token.TokenComma;
 import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
@@ -69,6 +71,9 @@ public class ExpressionParser {
             }
             if (ob instanceof TokenString) {
                 o.set(i, new ExpressionConstStr(((TokenString) ob).val));
+            }
+            if (ob instanceof TokenChar) {
+                o.set(i, new ExpressionConstChar(((TokenChar) ob).val));
             }
             if (ob instanceof TokenVariable) {
                 if (i != o.size() - 1 && o.get(i + 1) instanceof TokenStartParen) {

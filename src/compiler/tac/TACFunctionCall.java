@@ -9,8 +9,8 @@ import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.command.CommandDefineFunction.FunctionHeader;
-import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -72,10 +72,13 @@ public class TACFunctionCall extends TACStatement {
             emit.addStatement("movb $0, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
             emit.addStatement("xorq %rdx, %rdx");
             TACConst.move(X86Register.D.getRegister(type), null, params.get(0), paramNames.get(0), emit);
-            if (type.equals(new TypeInt64())) {
+            if (type.getSizeBytes() == 8) {
                 emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
             } else {
                 emit.addStatement("movs" + type.x86typesuffix() + "q " + X86Register.D.getRegister(type) + ", %rsi");
+            }
+            if (type instanceof TypePointer) {
+                emit.addStatement("movq %rdx, %rdi");
             }
             emit.addStatement("callq _printf");//I understand this one at least XD
             emit.addStatement("addq $" + toSubtract + ", %rsp");

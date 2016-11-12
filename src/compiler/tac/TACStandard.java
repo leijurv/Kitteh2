@@ -78,11 +78,6 @@ public class TACStandard extends TACStatement {
         } else {
             TACConst.move(c, null, second, secondName, emit);
         }
-        if (op != Operator.PLUS && op != Operator.MINUS) {
-            if (!(type instanceof TypeInt32)) {
-                //throw new IllegalStateException("You can only do " + op + " on int32s and not other types of ints becasue I wrote this on a plane and I can't google the right syntax and my guesses were wrong");
-            }
-        }
         switch (op) {
             case PLUS:
                 emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);

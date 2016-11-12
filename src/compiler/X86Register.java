@@ -22,6 +22,14 @@ these registers’ values for its caller.
         from the system V abi
          */
         switch (this) {
+            case B:
+            case R12:
+            case R13:
+            case R14:
+            case R15:
+                throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
+        }
+        switch (this) {
             case A:
             case B:
             case C:

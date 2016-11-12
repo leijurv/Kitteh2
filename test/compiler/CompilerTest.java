@@ -58,6 +58,23 @@ public class CompilerTest {
         verifyCompilation("func main(){ \n sum:=0 \n for i:=0; i<1000; i=i+1 { \n if i%3==0||i%5==0{ \n sum=sum+i \n } \n } \n print(sum) \n }", true, "233168\n");
     }
     @Test
+    public void testEuler2() throws Exception {
+        verifyCompilation("func main(){\n"
+                + "	prev:=1\n"
+                + "	this:=1\n"
+                + "	sum:=0\n"
+                + "	for this < 4000000{\n"
+                + "		if this%2==0{\n"
+                + "			sum=sum+this\n"
+                + "		}\n"
+                + "		wew:=this\n"
+                + "		this=prev+this\n"
+                + "		prev=wew\n"
+                + "	}\n"
+                + "	print(sum)\n"
+                + "}", true, "4613732\n");
+    }
+    @Test
     public void countPrimes() throws Exception {
         verifyCompilation("func isPrime(int num) int{\n"
                 + "	for j:=3; j*j<=num; j=j+2{\n"
@@ -232,7 +249,7 @@ public class CompilerTest {
         while ((j = ex.getInputStream().read()) >= 0) {
             result.append((char) j);
         }
-        System.out.println("Execution output" + result);
+        System.out.println("Execution output \"" + result + "\"");
         assertEquals(desiredExecutionOutput, result.toString());
     }
 }

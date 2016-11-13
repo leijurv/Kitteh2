@@ -14,7 +14,7 @@ public abstract class Token {//todo maybe this should be an interface
     public abstract String toString();
     @Override
     public boolean equals(Object o) {
-        if (o.getClass() != getClass()) {
+        if (o != null && o.getClass() != getClass()) {
             return false;
         }
         return toString().equals(o + "");

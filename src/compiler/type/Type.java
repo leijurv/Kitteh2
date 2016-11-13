@@ -13,7 +13,7 @@ public abstract class Type {//TODO maybe this should be an enum
     public abstract int getSizeBytes();
     @Override
     public boolean equals(Object o) {
-        return getClass() == o.getClass();
+        return o != null && getClass() == o.getClass();
     }
     @Override
     public int hashCode() {

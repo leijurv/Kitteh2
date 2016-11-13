@@ -26,17 +26,13 @@ import javafx.util.Pair;
  * @author leijurv
  */
 public class CommandDefineFunction extends Command {//dont extend commandblock because we only get the contents later because of header first parsing
-    private final ArrayList<Pair<String, Type>> arguments;
-    private final Type returnType;
     private final String name;
     private ArrayList<Command> contents;
     private final ArrayList<Object> rawContents;
     private final FunctionHeader header;
     public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
         super(context);
-        this.arguments = arguments;
         this.name = functionName;
-        this.returnType = returnType;
         this.rawContents = rawContents;
         this.header = new FunctionHeader(name, returnType, arguments.stream().map(arg -> arg.getValue()).collect(Collectors.toCollection(ArrayList::new)));
     }

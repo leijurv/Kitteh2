@@ -37,6 +37,7 @@ import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
 import java.awt.image.RasterFormatException;
+import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.ArrayList;
 import java.util.IllformedLocaleException;
 import java.util.List;
@@ -82,7 +83,9 @@ public class Parser {
                         //func main(int i) int {
                         TokenVariable functionName = (TokenVariable) params.get(0);
                         System.out.println("FunctionName: " + functionName);
-                        TokenStartParen beginArgumentList = (TokenStartParen) params.get(1);
+                        if (!(params.get(1) instanceof TokenStartParen)) {
+                            throw new AnnotationTypeMismatchException(null, "");
+                        }
                         int endParen = -1;
                         for (int j = 2; j < params.size(); j++) {
                             if (params.get(j) instanceof TokenEndParen) {

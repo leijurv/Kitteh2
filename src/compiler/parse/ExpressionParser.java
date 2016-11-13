@@ -84,10 +84,7 @@ public class ExpressionParser {
                 }
                 String name = ((TokenVariable) ob).val;
                 Expression ex = new ExpressionVariable(name, context);
-                Type type = ex.getType();
-                if (type == null) {
-                    throw new IllegalStateException("Trying to use " + name + " before it's defined");
-                }
+                ex.getType();
                 o.set(i, ex);
             }
             if (ob instanceof TokenKeyword) {

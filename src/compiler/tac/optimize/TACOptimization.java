@@ -15,10 +15,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public abstract class TACOptimization {
-    private final ArrayList<TACStatement> original;
     private final ArrayList<TACStatement> statements;
     public TACOptimization(ArrayList<TACStatement> statements) {
-        this.original = new ArrayList<>(statements);
         this.statements = new ArrayList<>(statements);
     }
     private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {

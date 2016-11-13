@@ -55,9 +55,6 @@ public class Compiler {
             com.staticValues();
         }
         System.out.println("> DONE STATIC VALUES: " + commands);
-        StringBuilder resp = new StringBuilder();
-        resp.append(HEADER);
-        resp.append('\n');
         List<Pair<CommandDefineFunction, ArrayList<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
                 .map(com -> new Pair<>(com, com.totac()))
@@ -77,6 +74,9 @@ public class Compiler {
             System.out.println();
             Context.VarInfo.printFull = true;
         }
+        StringBuilder resp = new StringBuilder();
+        resp.append(HEADER);
+        resp.append('\n');
         resp.append(wew.parallelStream().map(pair -> pair.getKey().generateX86(pair.getValue())).collect(Collectors.joining()));
         resp.append(FOOTER);
         resp.append('\n');

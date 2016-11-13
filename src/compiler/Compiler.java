@@ -49,16 +49,18 @@ public class Compiler {
         long c = System.currentTimeMillis();
         FunctionsContext gc = new FunctionsContext(commands);
         gc.parseRekursively();
-        long d = System.currentTimeMillis();
         System.out.println("> DONE PARSING: " + commands);
+        long d = System.currentTimeMillis();
         for (Command com : commands) {
             com.staticValues();
         }
         System.out.println("> DONE STATIC VALUES: " + commands);
+        long e = System.currentTimeMillis();
         List<Pair<CommandDefineFunction, ArrayList<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
                 .map(com -> new Pair<>(com, com.totac()))
                 .collect(Collectors.toList());
+        long f = System.currentTimeMillis();
         for (Pair<CommandDefineFunction, ArrayList<TACStatement>> pair : wew) {
             Context.VarInfo.printFull = true;
             System.out.println("TAC FOR " + pair.getKey().getHeader().name);
@@ -74,14 +76,15 @@ public class Compiler {
             System.out.println();
             Context.VarInfo.printFull = true;
         }
+        long g = System.currentTimeMillis();
         StringBuilder resp = new StringBuilder();
         resp.append(HEADER);
         resp.append('\n');
         resp.append(wew.parallelStream().map(pair -> pair.getKey().generateX86(pair.getValue())).collect(Collectors.joining()));
         resp.append(FOOTER);
         resp.append('\n');
-        long e = System.currentTimeMillis();
-        String loll = ("preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " x86gen " + (e - d) + " overall " + (e - a));
+        long h = System.currentTimeMillis();
+        String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
         System.out.println(loll);
         System.err.println(loll);
         return resp.toString();

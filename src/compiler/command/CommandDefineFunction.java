@@ -68,15 +68,17 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public ArrayList<TACStatement> totac() {
+        System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.VarInfo.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
         }
         ArrayList<TACStatement> result = TACOptimizer.optimize(emit);
+        System.out.println("> END TAC GENERATION FOR " + name);
         return result;
     }
-    public String generateX86(ArrayList<TACStatement> result) {
+    public static String generateX86(String name, ArrayList<TACStatement> result) {
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < result.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");

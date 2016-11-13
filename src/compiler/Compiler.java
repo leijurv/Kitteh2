@@ -25,7 +25,7 @@ import javafx.util.Pair;
 public class Compiler {
     public static long streamTime() {
         long a = System.currentTimeMillis();
-        IntStream.range(0, 5).parallel().sum();
+        IntStream.range(0, 5).map(x -> x + 1).parallel().sum();
         long b = System.currentTimeMillis();
         return b - a;
     }

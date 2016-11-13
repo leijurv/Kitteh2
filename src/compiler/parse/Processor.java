@@ -38,7 +38,7 @@ public class Processor {
         System.out.println("Done processing, beginning parsing " + o);
         ArrayList<Command> res = new Parser().parse(o, context);
         long d = System.currentTimeMillis();
-        System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c));
+        System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c) + " -- total " + (d - a));
         return res;
     }
 }

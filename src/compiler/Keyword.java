@@ -28,6 +28,7 @@ public enum Keyword {
     CONTINUE("CATINUE", false, null, null),
     RETURN("POUNCE", false, null, null),
     FUNC("CHASE", true, null, null),
+    STRUCT("IDKWHATEVER", true, null, null),
     BOOL("BOWL", false, null, new TypeBoolean()),
     BYTE("BITE", false, null, new TypeInt8()),
     SHORT("CHOMP", false, null, new TypeInt16()),
@@ -43,6 +44,12 @@ public enum Keyword {
         this.canBeginBlock = canBeginBlock;
         this.constVal = constVal;
         this.type = typeVal;
+        if (!super.toString().toUpperCase().equals(super.toString())) {
+            throw new IllegalStateException(super.toString() + " " + super.toString().toUpperCase());
+        }
+        if (!catVersion.toUpperCase().equals(catVersion)) {
+            throw new IllegalStateException(catVersion + " " + catVersion.toUpperCase());
+        }
     }
     public boolean isType() {
         return type != null;

@@ -10,6 +10,7 @@ import compiler.token.TokenComma;
 import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenOperator;
+import compiler.token.TokenPeriod;
 import compiler.token.TokenSemicolon;
 import compiler.token.TokenStartBrakt;
 import compiler.token.TokenStartParen;
@@ -32,6 +33,7 @@ public class TokenMapping {
         MAPPINGS.put(';', new TokenSemicolon());
         MAPPINGS.put('[', new TokenStartBrakt());
         MAPPINGS.put(']', new TokenEndBrkt());
+        MAPPINGS.put('.', new TokenPeriod());
     }
     public static boolean charMapsToToken(char ch) {
         return MAPPINGS.containsKey(ch);

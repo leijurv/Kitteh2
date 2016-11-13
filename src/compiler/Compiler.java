@@ -44,7 +44,7 @@ public class Compiler {
         ArrayList<Object> lol = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lol);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(lol, null);
+        ArrayList<Command> commands = Processor.parse(lol, new Context());
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
         FunctionsContext gc = new FunctionsContext(commands);

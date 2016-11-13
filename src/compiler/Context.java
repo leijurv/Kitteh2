@@ -52,6 +52,7 @@ public class Context {
         }
     }
     private final HashMap<String, VarInfo>[] values;
+    private final HashMap<String, Struct> structs;
     private int stackSize;
     private Integer additionalSizeTemp = null;
     private TempVarUsage currentTempVarUsage = null;
@@ -61,6 +62,19 @@ public class Context {
     public Context() {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
+        this.structs = new HashMap<>();
+    }
+    public void defineStruct(Struct struct) {
+        if (structs.containsKey(struct.name)) {
+            throw new RuntimeException();
+        }
+        if (!isTopLevel()) {
+            throw new RuntimeException();
+        }
+        structs.put(struct.name, struct);
+    }
+    public Struct getStruct(String name) {
+        return structs.get(name);
     }
     public void setCurrFunc(CommandDefineFunction cdf) {
         this.currentFunction = cdf;
@@ -107,18 +121,19 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize) {
+    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction) {
         this.values = values;
         this.stackSize = stackSize;
+        this.structs = structs;
+        this.gc = gc;
+        this.currentFunction = currentFunction;
     }
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize);
-        subContext.setCurrFunc(currentFunction);
-        subContext.gc = gc;
+        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction);
         return subContext;
     }
     /*public Context superContext() {
@@ -205,6 +220,6 @@ public class Context {
     }
     @Override
     public String toString() {
-        return Arrays.asList(values).toString();
+        return Arrays.asList(values).toString() + " " + structs;
     }
 }

@@ -39,6 +39,7 @@ public class CommandSetPtr extends Command {
     public void staticValues() {
         pointer = pointer.insertKnownValues(context);
         pointer = pointer.calculateConstants();
+        System.out.println("aoeuaoeuaoeu " + pointer + " " + value);
         value = value.insertKnownValues(context);
         value = value.calculateConstants();
     }

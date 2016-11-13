@@ -43,5 +43,10 @@ public class TempVarUsage {
         context.updateMinAdditionalSizeTemp(sizeSoFar);//make sure the context knows how much temp var bytes we gobblin up
         return name;//yes
     }
+    public String registerLabelManually(int stackLocation, Type type) {//used for structs
+        String name = TEMP_VARIABLE_PREFIX + "sketchymanual" + ind;
+        types.put(name, new VarInfo(name, type, stackLocation));
+        return name;
+    }
     public static final String TEMP_VARIABLE_PREFIX = "tmp";
 }

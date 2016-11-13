@@ -8,6 +8,7 @@ import compiler.Context.VarInfo;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
+import compiler.type.TypeStruct;
 
 /**
  *
@@ -35,8 +36,21 @@ public class TACPointerDeref extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         emit.addStatement("movq " + source.x86() + ", %rax");
-        TypeNumerical d = (TypeNumerical) dest.getType();
-        emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.C.getRegister(d));
-        emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+        if (dest.getType() instanceof TypeNumerical) {
+            TypeNumerical d = (TypeNumerical) dest.getType();
+            emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.C.getRegister(d));
+            emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+        } else if (dest.getType() instanceof TypeStruct) {
+            TypeStruct ts = (TypeStruct) dest.getType();
+            int size = ts.getSizeBytes();
+            //this is a really bad way to do this
+            int destLocation = dest.getStackLocation();
+            for (int i = 0; i < size; i++) {
+                emit.addStatement("movb " + i + "(%rax), %cl");
+                emit.addStatement("movb %cl, " + (destLocation + i) + "(%rbp)");
+            }
+        } else {
+            throw new RuntimeException();
+        }
     }
 }

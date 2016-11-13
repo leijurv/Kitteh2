@@ -15,6 +15,7 @@ import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
+import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
 import compiler.token.TokenChar;
@@ -24,6 +25,7 @@ import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
+import compiler.token.TokenPeriod;
 import compiler.token.TokenStartBrakt;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenString;
@@ -81,7 +83,16 @@ public class ExpressionParser {
                     //let's just like not
                     continue;
                 }
+                if (i != 0 && o.get(i - 1) instanceof TokenPeriod) {
+                    //struct field access like a.field1
+                    //field1 isn't a real variable with a type on its own
+                    //don't turn it to an expressionvariable
+                    continue;
+                }
                 String name = ((TokenVariable) ob).val;
+                if (context.getStruct(name) != null) {
+                    continue;
+                }
                 Expression ex = new ExpressionVariable(name, context);
                 ex.getType();
                 o.set(i, ex);
@@ -130,7 +141,7 @@ public class ExpressionParser {
                 if (numParens != 0) {
                     throw new IllegalStateException("mismatched ( and )");
                 }
-                if (inParen.size() == 1 && typeFromObjs(inParen.get(0)) != null) {
+                if (inParen.size() == 1 && typeFromObjs(inParen.get(0), context) != null) {
                     //this is a cast, skip the rest and don't modify these parentheses
                     continue;
                 } else {
@@ -207,6 +218,14 @@ public class ExpressionParser {
                 o.add(i - 1, element);
                 return parseImpl(o, desiredType, context);
             }
+            if (o.get(i) instanceof TokenPeriod) {
+                TokenVariable next = (TokenVariable) o.remove(i + 1);
+                String fieldName = next.val;
+                o.remove(i);
+                Expression prev = (Expression) o.remove(i - 1);
+                o.add(i - 1, new ExpressionStructFieldAccess(prev, fieldName));
+                return parseImpl(o, desiredType, context);
+            }
         }
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement
@@ -230,7 +249,7 @@ public class ExpressionParser {
                     }
                     inBrkts.add((Token) ob);
                 }
-                Type type = Parser.typeFromTokens(inBrkts);
+                Type type = Parser.typeFromTokens(inBrkts, context);
                 Expression casting = (Expression) o.remove(i);
                 o.add(i, new ExpressionCast(casting, type));
                 return parseImpl(o, desiredType, context);
@@ -264,7 +283,7 @@ public class ExpressionParser {
         }
         throw new IllegalStateException("Unable to parse " + o);
     }
-    public static Type typeFromObjs(ArrayList<Object> o) {
+    public static Type typeFromObjs(ArrayList<Object> o, Context context) {
         ArrayList<Token> tmp = new ArrayList<>(o.size());
         for (Object obj : o) {
             if (!(obj instanceof Token)) {
@@ -272,7 +291,7 @@ public class ExpressionParser {
             }
             tmp.add((Token) obj);
         }
-        return Parser.typeFromTokens(tmp);
+        return Parser.typeFromTokens(tmp, context);
     }
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);

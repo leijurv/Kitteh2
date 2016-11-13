@@ -47,6 +47,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         context.setCurrFunc(this);
         context.gc = gc;
         contents = Processor.parse(rawContents, context);
+        contents.remove(null);
         context.gc = null;
     }
     @Override

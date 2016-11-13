@@ -7,6 +7,7 @@ package compiler.parse;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
+import compiler.Struct;
 import compiler.command.Command;
 import compiler.command.CommandBreak;
 import compiler.command.CommandContinue;
@@ -20,6 +21,7 @@ import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionOperator;
+import compiler.lex.Lexer;
 import compiler.token.Token;
 import compiler.token.TokenComma;
 import compiler.token.TokenEndBrkt;
@@ -35,6 +37,7 @@ import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
 import java.awt.image.RasterFormatException;
 import java.lang.annotation.AnnotationTypeMismatchException;
@@ -99,8 +102,8 @@ public class Parser {
                         List<Token> returnType = params.subList(endParen + 1, params.size());
                         System.out.println("Return type: " + returnType);
                         Type retType;
-                        if (typeFromTokens(returnType) != null) {
-                            retType = typeFromTokens(returnType);
+                        if (typeFromTokens(returnType, context) != null) {
+                            retType = typeFromTokens(returnType, context);
                         } else if (returnType.isEmpty()) {
                             retType = new TypeVoid();
                         } else {
@@ -108,17 +111,17 @@ public class Parser {
                         }
                         ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
                             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
-                            Type type = typeFromTokens(typeDefinition);
+                            Type type = typeFromTokens(typeDefinition, context);
                             if (type == null) {
                                 throw new IllegalStateException(typeDefinition + "");
                             }
                             TokenVariable tv = (TokenVariable) (tokenList.get(tokenList.size() - 1));
                             return new Pair<>(tv.val, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
-                        if (context != null && !context.isTopLevel()) {//make sure this is top level
+                        if (!context.isTopLevel()) {//make sure this is top level
                             throw new IllegalStateException();
                         }
-                        Context subContext = new Context();//create new context because all funcs are top level
+                        Context subContext = context.subContext();
                         int pos = 16;//args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
                         //source: http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
                         for (Pair<String, Type> arg : args) {
@@ -169,6 +172,29 @@ public class Parser {
                         Context sub = context.subContext();
                         ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
                         result.add(new CommandIf(condition, blockCommands, sub));
+                        break;
+                    case STRUCT:
+                        if (params.size() != 1) {
+                            throw new IllegalStateException();
+                        }
+                        if (!(params.get(0) instanceof TokenVariable)) {
+                            throw new IllegalStateException();
+                        }
+                        String structName = ((TokenVariable) params.get(0)).val;
+                        ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
+                        ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
+                        for (int j = 0; j < rawBlock.size(); j++) {
+                            String thisLine = (String) rawBlock.get(j);
+                            ArrayList<Token> tokens = Lexer.lex(thisLine);
+                            System.out.println(tokens);
+                            fieldNames.add(((TokenVariable) tokens.get(tokens.size() - 1)).val);
+                            fieldTypes.add(typeFromTokens(tokens.subList(0, tokens.size() - 1), context));
+                        }
+                        System.out.println(fieldNames);
+                        System.out.println(fieldTypes);
+                        System.out.println("Parsing struct " + params + " " + rawBlock);
+                        Struct struct = new Struct(structName, fieldTypes, fieldNames);
+                        context.defineStruct(struct);
                         break;
                     default:
                         throw new IllegalStateException("No parsing for block type \"" + beginningKeyword + '"');
@@ -264,6 +290,20 @@ public class Parser {
             }
         }
         if (eqLoc == -1) {
+            Type type = typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
+            System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
+            if (type != null) {
+                if (!(tokens.get(tokens.size() - 1) instanceof TokenVariable)) {
+                    throw new IllegalStateException("You can't set the value of " + tokens.get(tokens.size() - 1) + " lol");
+                }
+                TokenVariable toSet = (TokenVariable) tokens.get(tokens.size() - 1);
+                if (context.varDefined(toSet.val)) {
+                    throw new IllegalStateException("Babe, " + toSet.val + " is already there");
+                }
+                context.setType(toSet.val, type);
+                //ok we doing something like long i=5
+                return null;
+            }
             //this isn't setting a variable, so it's an expression I think
             Expression ex = ExpressionParser.parse(tokens, Optional.empty(), context);
             System.out.println("Parsed " + tokens + " to " + ex);
@@ -301,7 +341,7 @@ public class Parser {
             }
             default: {
                 //if the first token is a type, we are doing something like int i=5
-                Type type = typeFromTokens(tokens.subList(0, eqLoc - 1));
+                Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);
                 if (type == null) {
                     break;
                 }
@@ -365,19 +405,28 @@ public class Parser {
         }
         throw new IllegalStateException(tokens + "");
     }
-    public static Type typeFromTokens(List<Token> tokens) {
+    public static Type typeFromTokens(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             return null;
         }
         Token first = tokens.get(0);
-        if (!(first instanceof TokenKeyword)) {
+        Type tp;
+        if (first instanceof TokenKeyword) {
+            Keyword keyword = ((TokenKeyword) first).getKeyword();
+            if (!keyword.isType()) {
+                return null;
+            }
+            tp = keyword.type;
+        } else if (first instanceof TokenVariable) {
+            String name = ((TokenVariable) first).val;
+            Struct struct = context.getStruct(name);
+            if (struct == null) {
+                return null;
+            }
+            tp = new TypeStruct(struct);
+        } else {
             return null;
         }
-        Keyword keyword = ((TokenKeyword) first).getKeyword();
-        if (!keyword.isType()) {
-            return null;
-        }
-        Type tp = keyword.type;
         for (int i = 1; i < tokens.size(); i++) {
             if (!(tokens.get(i) instanceof TokenOperator)) {
                 return null;

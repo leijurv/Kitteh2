@@ -11,6 +11,7 @@ import compiler.preprocess.StripLocation;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.stream.Stream;
 import javax.xml.crypto.NoSuchMechanismException;
 
 /**
@@ -18,6 +19,7 @@ import javax.xml.crypto.NoSuchMechanismException;
  * @author leijurv
  */
 public class FunctionsContext {
+    public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
     public FunctionsContext(ArrayList<Command> definitions) {
@@ -37,9 +39,15 @@ public class FunctionsContext {
         }
     }
     public void parseRekursively() {
-        for (CommandDefineFunction cdf : functionDefinitions) {
-            cdf.parse(this);
+        Stream<CommandDefineFunction> stream = functionDefinitions.stream();
+        if (PARALLEL_FUNCTION_PARSING) {
+            stream = stream.parallel();
         }
+        stream.forEach(cdf -> {
+            System.out.println("> Starting parsing function " + cdf.getHeader().name);
+            cdf.parse(this);
+            System.out.println("> Finished parsing function " + cdf.getHeader().name);
+        });
     }
     public FunctionHeader getHeader(String name) {
         if (name.equals("KEYWORD" + Keyword.PRINT.toString())) {

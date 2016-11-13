@@ -52,7 +52,6 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        System.out.println(this);
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
             type = typeFromRegister(firstName);

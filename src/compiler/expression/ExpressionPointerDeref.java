@@ -37,8 +37,7 @@ public class ExpressionPointerDeref extends Expression {
     }
     @Override
     public Expression calculateConstants() {
-        Expression res = new ExpressionPointerDeref(deReferencing.calculateConstants());
-        return res;
+        return new ExpressionPointerDeref(deReferencing.calculateConstants());
     }
     @Override
     public Expression insertKnownValues(Context context) {

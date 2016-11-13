@@ -10,4 +10,8 @@ package compiler.type;
  * @author leijurv
  */
 public class TypeBoolean extends TypeInt8 {
+    @Override
+    public String toString() {
+        return "bool";
+    }
 }

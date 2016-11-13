@@ -40,6 +40,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         this.rawContents = rawContents;
         this.header = new FunctionHeader(name, returnType, arguments.stream().map(arg -> arg.getValue()).collect(Collectors.toCollection(ArrayList::new)));
     }
+    @Override
+    public String toString() {
+        return header + " " + (contents == null ? "unparsed" + rawContents : "parsed" + contents);
+    }
     public FunctionHeader getHeader() {
         return header;
     }
@@ -117,6 +121,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
         public ArrayList<Type> inputs() {
             return arguments;
+        }
+        @Override
+        public String toString() {
+            return "func " + name + arguments + " " + returnType;
         }
     }
     public static final FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));

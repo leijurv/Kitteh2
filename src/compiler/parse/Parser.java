@@ -312,7 +312,7 @@ public class Parser {
                 if (context.varDefined(toSet.val)) {
                     throw new IllegalStateException("Babe, " + toSet.val + " is already there");
                 }
-                Expression rightSide = ExpressionParser.parse(after, Optional.ofNullable(type), context);
+                Expression rightSide = ExpressionParser.parse(after, Optional.of(type), context);
                 context.setType(toSet.val, rightSide.getType());
                 //ok we doing something like long i=5
                 return new CommandSetVar(toSet.val, rightSide, context);

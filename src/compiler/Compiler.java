@@ -41,7 +41,7 @@ public class Compiler {
         for (String l : k) {
             lol.add(l);
         }
-        ArrayList<Command> commands = Processor.parse(lol, new Context());
+        ArrayList<Command> commands = Processor.parse(lol, null);
         System.out.println(commands);
         FunctionsContext gc = new FunctionsContext(commands);
         gc.parseRekursively();

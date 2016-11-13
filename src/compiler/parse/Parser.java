@@ -111,7 +111,7 @@ public class Parser {
                             TokenVariable tv = (TokenVariable) (tokenList.get(tokenList.size() - 1));
                             return new Pair<>(tv.val, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
-                        if (!context.isTopLevel()) {//make sure this is top level
+                        if (context != null && !context.isTopLevel()) {//make sure this is top level
                             throw new IllegalStateException();
                         }
                         Context subContext = new Context();//create new context because all funcs are top level

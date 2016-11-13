@@ -68,6 +68,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public ArrayList<TACStatement> totac() {
+        long start = System.currentTimeMillis();
         System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.VarInfo.printFull = true;
         IREmitter emit = new IREmitter();
@@ -75,10 +76,12 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.generateTAC(emit);
         }
         ArrayList<TACStatement> result = TACOptimizer.optimize(emit);
-        System.out.println("> END TAC GENERATION FOR " + name);
+        System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }
     public static String generateX86(String name, ArrayList<TACStatement> result) {
+        long start = System.currentTimeMillis();
+        System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < result.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
@@ -92,6 +95,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         resp.append(FUNC_HEADER).append('\n');
         resp.append(emitter.toX86()).append('\n');
         resp.append(FUNC_FOOTER).append('\n');
+        System.out.println("> END X86 GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return resp.toString();
     }
     private static final String FUNC_HEADER = "	.cfi_startproc\n"

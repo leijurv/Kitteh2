@@ -42,9 +42,6 @@ public class CommandIf extends CommandBlock {
     public void staticValues() {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
-        for (String s : getAllVarsModified()) {
-            context.clearKnownValue(s);
-        }
         for (Command com : contents) {
             com.staticValues();
         }

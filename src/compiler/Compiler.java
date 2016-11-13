@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
 public class Compiler {
     public static long streamTime() {
         long a = System.currentTimeMillis();
-        IntStream.range(0, 5).sum();
+        IntStream.range(0, 5).parallel().sum();
         long b = System.currentTimeMillis();
         return b - a;
     }
@@ -36,20 +36,21 @@ public class Compiler {
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
     public static String compile(String program) {
-        ArrayList<String> k = Preprocessor.preprocess(new String(program));
-        ArrayList<Object> lol = new ArrayList<>();
-        for (String l : k) {
-            lol.add(l);
-        }
+        long a = System.currentTimeMillis();
+        ArrayList<Object> lol = Preprocessor.preprocess(program);
+        System.out.println("> DONE PREPROCESSING: " + lol);
+        long b = System.currentTimeMillis();
         ArrayList<Command> commands = Processor.parse(lol, null);
-        System.out.println(commands);
+        System.out.println("> DONE PROCESSING: " + commands);
+        long c = System.currentTimeMillis();
         FunctionsContext gc = new FunctionsContext(commands);
         gc.parseRekursively();
-        System.out.println(commands);
+        long d = System.currentTimeMillis();
+        System.out.println("> DONE PARSING: " + commands);
         for (Command com : commands) {
             com.staticValues();
         }
-        System.out.println(commands);
+        System.out.println("> DONE STATIC VALUES: " + commands);
         StringBuilder resp = new StringBuilder();
         resp.append(HEADER);
         resp.append('\n');
@@ -59,6 +60,10 @@ public class Compiler {
         }
         resp.append(FOOTER);
         resp.append('\n');
+        long e = System.currentTimeMillis();
+        String loll = ("preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " x86gen " + (e - d) + " overall " + (e - a));
+        System.out.println(loll);
+        System.err.println(loll);
         return resp.toString();
     }
     private static final String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"

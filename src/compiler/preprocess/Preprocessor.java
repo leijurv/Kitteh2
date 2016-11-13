@@ -26,13 +26,17 @@ public class Preprocessor {
         CHAR_STRIPPER,
         REMOVE_BLANK
     };
-    public static ArrayList<String> preprocess(String rawProgram) {
+    public static ArrayList<Object> preprocess(String rawProgram) {
         rawProgram = new StripComments().transform(rawProgram);
         ArrayList<String> program = new ArrayList<>(Arrays.asList(rawProgram.split("\n")));
         for (Transform<ArrayList<String>> action : PREPROCESSOR_ACTIONS) {
             System.out.println(program);
             action.apply(program);
         }
-        return program;
+        ArrayList<Object> temp = new ArrayList<>(program.size());
+        for (String line : program) {
+            temp.add(line);
+        }
+        return temp;
     }
 }

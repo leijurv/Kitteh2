@@ -9,7 +9,6 @@ import compiler.Operator;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import static compiler.tac.TACConst.typeFromRegister;
-import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
@@ -53,7 +52,14 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical type = firstName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(firstName) : (first == null ? new TypeInt32() : (TypeNumerical) first.getType());
+        TypeNumerical type;
+        if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
+            type = typeFromRegister(firstName);
+        } else if (first == null) {
+            type = (TypeNumerical) second.getType();
+        } else {
+            type = (TypeNumerical) first.getType();
+        }
         String a = X86Register.A.getRegister(type);
         String c = X86Register.C.getRegister(type);
         String d = X86Register.D.getRegister(type);
@@ -76,7 +82,11 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
-            TACConst.move(c, null, second, secondName, emit);
+            try {
+                TACConst.move(c, null, second, secondName, emit);
+            } catch (Exception e) {
+                throw new RuntimeException(this + " " + type + " " + firstName + " " + secondName, e);
+            }
         }
         switch (op) {
             case PLUS:

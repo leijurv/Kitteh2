@@ -33,7 +33,6 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -103,9 +102,12 @@ public class ExpressionParser {
                 ArrayList<ArrayList<Object>> inParen = new ArrayList<>();
                 ArrayList<Object> temp = new ArrayList<>();
                 int numParens = 1;
-                o.remove(i);
-                while (i < o.size()) {
-                    Object b = o.remove(i);
+                ArrayList<Object> copy = new ArrayList<>(o);
+                int numToRemoveAti = 1;
+                copy.remove(i);
+                while (i < copy.size()) {
+                    Object b = copy.remove(i);
+                    numToRemoveAti++;
                     if (b instanceof TokenEndParen) {
                         numParens--;
                         if (numParens == 0) {
@@ -128,72 +130,34 @@ public class ExpressionParser {
                 if (numParens != 0) {
                     throw new IllegalStateException("mismatched ( and )");
                 }
+                if (inParen.size() == 1 && typeFromObjs(inParen.get(0)) != null) {
+                    //this is a cast, skip the rest and don't modify these parentheses
+                    continue;
+                } else {
+                    //not a cast
+                    for (int j = 0; j < numToRemoveAti; j++) {
+                        o.remove(i);
+                    }
+                }
                 System.out.println("Doing replace " + o + " " + inParen);
-                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword || (o.get(i - 1) instanceof TokenOperator))) {
-                    String funcName = null;
+                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
+                    String funcName;
                     if (o.get(i - 1) instanceof TokenVariable) {
                         funcName = ((TokenVariable) o.get(i - 1)).val;
                     } else {
-                        boolean isCast = false;
-                        Type castingTo = null;
-                        if (o.get(i - 1) instanceof TokenKeyword) {
-                            TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
-                            if (tk.getKeyword().isType()) {
-                                //this is a cast
-                                isCast = true;
-                                castingTo = tk.getKeyword().type;
-                            }
-                            funcName = tk.toString();//some functions that you call are also keywords
-                        }
-                        int stars = i;
-                        for (int j = i - 1; j > 0; j--) {
-                            if (o.get(j) instanceof TokenOperator && ((TokenOperator) o.get(j)).op == Operator.MULTIPLY) {
-                                stars = j;
-                            } else {
-                                break;
-                            }
-                        }
-                        if (stars != i) {
-                            //at least some stars, but it could be either a non-cast 5*f(x) or a cast int*(x)
-                            if (o.get(stars - 1) instanceof TokenKeyword) {
-                                TokenKeyword tk = ((TokenKeyword) o.get(stars - 1));
-                                if (tk.getKeyword().isType()) {
-                                    isCast = true;
-                                    castingTo = tk.getKeyword().type;
-                                    for (int j = stars; j < i; j++) {
-                                        castingTo = new TypePointer<>(castingTo);
-                                        o.remove(stars);
-                                    }
-                                }
-                            }
-                        }
-                        if (isCast) {
-                            if (inParen.size() != 1) {
-                                throw new RasterFormatException("");
-                            }
-                            Expression input = parseImpl(inParen.get(0), Optional.empty(), context);
-                            if (input.getType().equals(castingTo)) {
-                                //no cast required...
-                                System.out.println("Warning: " + input + " is already type " + castingTo);
-                                o.set(stars - 1, input);
-                            } else {
-                                o.set(stars - 1, new ExpressionCast(input, castingTo));
-                            }
-                            return parseImpl(o, desiredType, context);
-                        }
+                        TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
+                        funcName = tk.toString();//some functions that you call are also keywords
                     }
-                    if (funcName != null) {
-                        ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
-                        System.out.println("Expecting inputs: " + desiredTypes);
-                        //tfw parallel expression parsing
-                        //tfw this is a GOOD idea /s
-                        if (inParen.size() != desiredTypes.size()) {
-                            throw new SecurityException("mismatched arg count");
-                        }
-                        ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
-                        o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
-                        return parseImpl(o, desiredType, context);
+                    ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+                    System.out.println("Expecting inputs: " + desiredTypes);
+                    //tfw parallel expression parsing
+                    //tfw this is a GOOD idea /s
+                    if (inParen.size() != desiredTypes.size()) {
+                        throw new SecurityException("mismatched arg count");
                     }
+                    ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
+                    o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
+                    return parseImpl(o, desiredType, context);
                 }
                 if (inParen.size() != 1) {
                     throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
@@ -203,6 +167,7 @@ public class ExpressionParser {
             }
         }
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
+        //getting array item (like arr[ind])
         for (int i = 0; i < o.size(); i++) {
             if (o.get(i) instanceof TokenStartBrakt) {
                 o.remove(i);
@@ -243,10 +208,34 @@ public class ExpressionParser {
                 return parseImpl(o, desiredType, context);
             }
         }
-        //getting array item (like arr[ind])
         /*for (int i = 0; i < o.size(); i++) {
          //increment and decrement
          }*/
+        //casting
+        //casting comes after parentheses: (long)(a)
+        //casting comes after array accesses: (long)a[1]
+        //casting comes after increments: (long)a++
+        //TODO should casting come before or after pointer dereferences?
+        for (int i = 0; i < o.size(); i++) {
+            if (o.get(i) instanceof TokenStartParen) {
+                o.remove(i);
+                ArrayList<Token> inBrkts = new ArrayList<>();
+                while (i < o.size()) {
+                    Object ob = o.remove(i);
+                    if (ob instanceof TokenStartParen) {
+                        throw new IllegalStateException("Start paren in cast??");
+                    }
+                    if (ob instanceof TokenEndParen) {
+                        break;
+                    }
+                    inBrkts.add((Token) ob);
+                }
+                Type type = Parser.typeFromTokens(inBrkts);
+                Expression casting = (Expression) o.remove(i);
+                o.add(i, new ExpressionCast(casting, type));
+                return parseImpl(o, desiredType, context);
+            }
+        }
         for (int i = 0; i < o.size(); i++) {
             if (o.get(i) instanceof TokenOperator && ((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
                 if (i != 0) {
@@ -274,6 +263,16 @@ public class ExpressionParser {
             }
         }
         throw new IllegalStateException("Unable to parse " + o);
+    }
+    public static Type typeFromObjs(ArrayList<Object> o) {
+        ArrayList<Token> tmp = new ArrayList<>(o.size());
+        for (Object obj : o) {
+            if (!(obj instanceof Token)) {
+                return null;
+            }
+            tmp.add((Token) obj);
+        }
+        return Parser.typeFromTokens(tmp);
     }
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);

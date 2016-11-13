@@ -55,7 +55,7 @@ public class TACConst extends TACStatement {
         String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
         TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
         if (source != null && type.getSizeBytes() != source.getType().getSizeBytes()) {
-            throw new RuntimeException(source + " " + dest + " " + type + " " + source.getType());
+            throw new RuntimeException(source + " " + sourceName + " " + dest + " " + destName + " " + type + " " + source.getType());
         }
         if (source == null) {
             emit.addStatement("mov" + type.x86typesuffix() + " $" + sourceName + ", " + destination);

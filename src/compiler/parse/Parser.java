@@ -381,7 +381,7 @@ public class Parser {
             if (((TokenOperator) tokens.get(i)).op != Operator.MULTIPLY) {
                 return null;
             }
-            tp = new TypePointer(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer
+            tp = new TypePointer<>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer
         }
         return tp;
     }

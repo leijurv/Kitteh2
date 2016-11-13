@@ -164,7 +164,7 @@ public class ExpressionParser {
                                     isCast = true;
                                     castingTo = tk.getKeyword().type;
                                     for (int j = stars; j < i; j++) {
-                                        castingTo = new TypePointer(castingTo);
+                                        castingTo = new TypePointer<>(castingTo);
                                         o.remove(stars);
                                     }
                                 }

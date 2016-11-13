@@ -142,7 +142,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
                 throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
         }
     }
-    public String tox86() {
+    public String tox86jump() {
         switch (this) {
             case LESS:
                 return "jl";

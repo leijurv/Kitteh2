@@ -44,6 +44,6 @@ public class TACJumpCmp extends TACJump {
         emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
         emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
-        emit.addStatement(op.tox86() + " " + emit.lineToLabel(jumpTo));
+        emit.addStatement(op.tox86jump() + " " + emit.lineToLabel(jumpTo));
     }
 }

@@ -8,10 +8,12 @@ import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
+import compiler.tac.TACStatement;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javafx.util.Pair;
@@ -56,30 +58,26 @@ public class Compiler {
         StringBuilder resp = new StringBuilder();
         resp.append(HEADER);
         resp.append('\n');
-        String allx86 = commands.parallelStream()
+        List<Pair<CommandDefineFunction, ArrayList<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
                 .map(com -> new Pair<>(com, com.totac()))
-                .collect(Collectors.toList()).stream()
-                .map(pair -> {
-                    Context.VarInfo.printFull = true;
-                    System.out.println("TAC FOR " + pair.getKey().getHeader().name);
-                    for (int i = 0; i < pair.getValue().size(); i++) {
-                        System.out.println(i + ":     " + pair.getValue().get(i));
-                    }
-                    System.out.println();
-                    Context.VarInfo.printFull = false;
-                    System.out.println("TAC FOR " + pair.getKey().getHeader().name);
-                    for (int i = 0; i < pair.getValue().size(); i++) {
-                        System.out.println(i + ":     " + pair.getValue().get(i));
-                    }
-                    System.out.println();
-                    Context.VarInfo.printFull = true;
-                    return pair;
-                })
-                .collect(Collectors.toList()).parallelStream()
-                .map(pair -> pair.getKey().generateX86(pair.getValue()))
-                .collect(Collectors.joining());
-        resp.append(allx86);
+                .collect(Collectors.toList());
+        for (Pair<CommandDefineFunction, ArrayList<TACStatement>> pair : wew) {
+            Context.VarInfo.printFull = true;
+            System.out.println("TAC FOR " + pair.getKey().getHeader().name);
+            for (int i = 0; i < pair.getValue().size(); i++) {
+                System.out.println(i + ":     " + pair.getValue().get(i));
+            }
+            System.out.println();
+            Context.VarInfo.printFull = false;
+            System.out.println("TAC FOR " + pair.getKey().getHeader().name);
+            for (int i = 0; i < pair.getValue().size(); i++) {
+                System.out.println(i + ":     " + pair.getValue().get(i));
+            }
+            System.out.println();
+            Context.VarInfo.printFull = true;
+        }
+        resp.append(wew.parallelStream().map(pair -> pair.getKey().generateX86(pair.getValue())).collect(Collectors.joining()));
         resp.append(FOOTER);
         resp.append('\n');
         long e = System.currentTimeMillis();

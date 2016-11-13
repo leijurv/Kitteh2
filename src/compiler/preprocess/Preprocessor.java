@@ -22,6 +22,7 @@ public class Preprocessor {
             .addChar(' ', StripLocation.BOTH)//alt+space
             .build();
     static final Transform<ArrayList<String>> REMOVE_BLANK = new BlankLineRemover();
+    @SuppressWarnings("unchecked")//you can't actually do "new Transform<>[]{" so I can't fix this warning
     static final Transform<ArrayList<String>>[] PREPROCESSOR_ACTIONS = new Transform[]{
         CHAR_STRIPPER,
         REMOVE_BLANK

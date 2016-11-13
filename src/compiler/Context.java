@@ -57,6 +57,7 @@ public class Context {
     private TempVarUsage currentTempVarUsage = null;
     private CommandDefineFunction currentFunction = null;
     public FunctionsContext gc;
+    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[]{" so I can't fix this warning
     public Context() {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
@@ -110,6 +111,7 @@ public class Context {
         this.values = values;
         this.stackSize = stackSize;
     }
+    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);

@@ -49,6 +49,7 @@ import javafx.util.Pair;
  * @author leijurv
  */
 public class Parser {
+    @SuppressWarnings("unchecked")//Apparently "ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);" is unchecked idk
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {

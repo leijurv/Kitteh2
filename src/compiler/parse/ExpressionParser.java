@@ -24,7 +24,7 @@ import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
 import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
-import compiler.token.TokenStartBrkt;
+import compiler.token.TokenStartBrakt;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenString;
 import compiler.token.TokenVariable;
@@ -207,14 +207,14 @@ public class ExpressionParser {
         }
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
         for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) instanceof TokenStartBrkt) {
+            if (o.get(i) instanceof TokenStartBrakt) {
                 o.remove(i);
                 int sq = 1;
                 int j = i;
                 ArrayList<Object> inBrkts = new ArrayList<>();
                 while (j < o.size()) {
                     Object ob = o.remove(j);
-                    if (ob instanceof TokenStartBrkt) {
+                    if (ob instanceof TokenStartBrakt) {
                         sq++;
                         continue;
                     }

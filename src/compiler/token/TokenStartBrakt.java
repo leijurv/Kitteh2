@@ -9,7 +9,7 @@ package compiler.token;
  *
  * @author leijurv
  */
-public class TokenStartBrkt extends Token {
+public class TokenStartBrakt extends Token {
     @Override
     public String toString() {
         return "[";

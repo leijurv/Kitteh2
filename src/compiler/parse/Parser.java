@@ -28,7 +28,7 @@ import compiler.token.TokenKeyword;
 import compiler.token.TokenOperator;
 import compiler.token.TokenSemicolon;
 import compiler.token.TokenSetEqual;
-import compiler.token.TokenStartBrkt;
+import compiler.token.TokenStartBrakt;
 import compiler.token.TokenStartParen;
 import compiler.token.TokenVariable;
 import compiler.type.Type;
@@ -323,7 +323,7 @@ public class Parser {
                 if (tokens.get(j) instanceof TokenEndBrkt) {
                     count++;
                 }
-                if (tokens.get(j) instanceof TokenStartBrkt) {
+                if (tokens.get(j) instanceof TokenStartBrakt) {
                     count--;
                     break;
                 }

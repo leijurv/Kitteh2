@@ -67,25 +67,16 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.staticValues();
         }
     }
-    public void generateX86(StringBuilder resp) {
+    public ArrayList<TACStatement> totac() {
         Context.VarInfo.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
         }
         ArrayList<TACStatement> result = TACOptimizer.optimize(emit);
-        System.out.println("TAC FOR " + name);
-        for (int i = 0; i < result.size(); i++) {
-            System.out.println(i + ":     " + result.get(i));
-        }
-        System.out.println();
-        Context.VarInfo.printFull = false;
-        System.out.println("TAC FOR " + name);
-        for (int i = 0; i < result.size(); i++) {
-            System.out.println(i + ":     " + result.get(i));
-        }
-        System.out.println();
-        Context.VarInfo.printFull = true;
+        return result;
+    }
+    public String generateX86(ArrayList<TACStatement> result) {
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < result.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
@@ -93,11 +84,13 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             result.get(i).printx86(emitter);
             emitter.addStatement("");//nice blank line makes it more readable =)
         }
+        StringBuilder resp = new StringBuilder();
         resp.append("	.globl	_").append(name).append("\n	.align	4, 0x90\n");
         resp.append("_").append(name).append(":\n");
         resp.append(FUNC_HEADER).append('\n');
         resp.append(emitter.toX86()).append('\n');
         resp.append(FUNC_FOOTER).append('\n');
+        return resp.toString();
     }
     private static final String FUNC_HEADER = "	.cfi_startproc\n"
             + "	pushq	%rbp\n"

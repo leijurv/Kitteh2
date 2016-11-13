@@ -12,7 +12,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javafx.util.Pair;
 
 /**
  *
@@ -54,10 +56,30 @@ public class Compiler {
         StringBuilder resp = new StringBuilder();
         resp.append(HEADER);
         resp.append('\n');
-        for (Command com : commands) {
-            CommandDefineFunction wew = (CommandDefineFunction) com;
-            wew.generateX86(resp);
-        }
+        String allx86 = commands.parallelStream()
+                .map(com -> (CommandDefineFunction) com)
+                .map(com -> new Pair<>(com, com.totac()))
+                .collect(Collectors.toList()).stream()
+                .map(pair -> {
+                    Context.VarInfo.printFull = true;
+                    System.out.println("TAC FOR " + pair.getKey().getHeader().name);
+                    for (int i = 0; i < pair.getValue().size(); i++) {
+                        System.out.println(i + ":     " + pair.getValue().get(i));
+                    }
+                    System.out.println();
+                    Context.VarInfo.printFull = false;
+                    System.out.println("TAC FOR " + pair.getKey().getHeader().name);
+                    for (int i = 0; i < pair.getValue().size(); i++) {
+                        System.out.println(i + ":     " + pair.getValue().get(i));
+                    }
+                    System.out.println();
+                    Context.VarInfo.printFull = true;
+                    return pair;
+                })
+                .collect(Collectors.toList()).parallelStream()
+                .map(pair -> pair.getKey().generateX86(pair.getValue()))
+                .collect(Collectors.joining());
+        resp.append(allx86);
         resp.append(FOOTER);
         resp.append('\n');
         long e = System.currentTimeMillis();

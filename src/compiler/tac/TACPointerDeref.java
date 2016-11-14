@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.Struct;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
@@ -42,15 +43,17 @@ public class TACPointerDeref extends TACStatement {
             emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            int size = ts.getSizeBytes();
-            //this is a really bad way to do this
-            int destLocation = dest.getStackLocation();
-            for (int i = 0; i < size; i++) {
-                emit.addStatement("movb " + i + "(%rax), %cl");
-                emit.addStatement("movb %cl, " + (destLocation + i) + "(%rbp)");
-            }
+            moveStruct(0, "%rax", dest.getStackLocation(), ts.struct, emit);
         } else {
             throw new RuntimeException();
+        }
+    }
+    public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, Struct struct, X86Emitter emit) {
+        int size = new TypeStruct(struct).getSizeBytes();
+        //this is a really bad way to do this
+        for (int i = 0; i < size; i++) {
+            emit.addStatement("movb " + (i + sourceStackLocation) + "(" + sourceRegister + "), %cl");
+            emit.addStatement("movb %cl, " + (destLocation + i) + "(%rbp)");
         }
     }
 }

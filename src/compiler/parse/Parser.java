@@ -353,10 +353,10 @@ public class Parser {
         }
         //---------------------------------------------------------------------------------------------------------------
         Expression exp = ExpressionParser.parse(tokens.subList(0, eqLoc), Optional.empty(), context);
-        System.err.println("GETValue of " + exp);
+        System.out.println("GETValue of " + exp);
         Expression right = ExpressionParser.parse(after, Optional.of(exp.getType()), context);
         Command result = ((Settable) exp).setValue(right, context);
-        System.err.println(tokens + " " + result + " " + exp + " " + right);
+        System.out.println(tokens + " " + result + " " + exp + " " + right);
         return result;
     }
     public static Type typeFromTokens(List<Token> tokens, Context context) {

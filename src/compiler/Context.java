@@ -47,6 +47,9 @@ public class Context {
         public int getStackLocation() {
             return stackLocation;
         }
+        public String getName() {
+            return name;
+        }
         public String x86() {
             return (stackLocation) + ("(%rbp)");
         }

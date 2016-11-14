@@ -18,7 +18,7 @@ import compiler.type.TypePointer;
  * @author leijurv
  */
 public class ExpressionPointerDeref extends Expression implements Settable {
-    private final Expression deReferencing;
+    final Expression deReferencing;
     public ExpressionPointerDeref(Expression deref) {
         this.deReferencing = deref;
     }

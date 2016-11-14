@@ -29,6 +29,12 @@ public class TACStandard extends TACStatement {
         this.resultName = resultName;
         this.firstName = firstName;
         this.secondName = secondName;
+        try {
+            Integer.parseInt(firstName);
+            Integer.parseInt(secondName);
+            throw new RuntimeException();
+        } catch (NumberFormatException e) {
+        }
         this.op = op;
     }
     @Override

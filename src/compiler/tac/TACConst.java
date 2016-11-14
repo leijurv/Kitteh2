@@ -12,6 +12,7 @@ import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
+import compiler.type.TypeStruct;
 
 /**
  *
@@ -53,6 +54,11 @@ public class TACConst extends TACStatement {
             throw new RuntimeException(source + " " + dest);
         }
         String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
+        if (dest != null && dest.getType() instanceof TypeStruct) {
+            //oh god
+            TACPointerDeref.moveStruct(source.getStackLocation(), "%rbp", dest.getStackLocation(), ((TypeStruct) dest.getType()).struct, emit);
+            return;
+        }
         TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
         if (source != null && type.getSizeBytes() != source.getType().getSizeBytes()) {
             throw new RuntimeException(source + " " + sourceName + " " + dest + " " + destName + " " + type + " " + source.getType());

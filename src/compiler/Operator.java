@@ -13,6 +13,8 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.nio.channels.UnresolvedAddressException;
+import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -157,7 +159,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
             case GREATER_OR_EQUAL:
                 return "jge";
             default:
-                throw new IllegalStateException();
+                throw new UnresolvedAddressException();
         }
     }
     public Operator invert() {
@@ -175,7 +177,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
             case GREATER_OR_EQUAL:
                 return LESS;
             default:
-                throw new IllegalStateException();
+                throw new UnsupportedAddressTypeException();
         }
     }
 }

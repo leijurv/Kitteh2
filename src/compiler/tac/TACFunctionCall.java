@@ -11,6 +11,7 @@ import compiler.X86Register;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.nio.channels.CancelledKeyException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -65,7 +66,7 @@ public class TACFunctionCall extends TACStatement {
         if (header.name.equals("KEYWORD" + Keyword.PRINT)) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
             if (params.size() != 1 || !(header.inputs().get(0) instanceof TypeNumerical)) {
-                throw new IllegalStateException();
+                throw new CancelledKeyException();
             }
             TypeNumerical type = (TypeNumerical) (params.get(0) == null ? header.inputs().get(0) : params.get(0).getType());
             emit.addStatement("leaq lldformatstring(%rip), %rdi");//lol rip

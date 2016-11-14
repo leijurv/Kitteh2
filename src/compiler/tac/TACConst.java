@@ -13,6 +13,11 @@ import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
+import java.nio.channels.IllegalBlockingModeException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.ClosedWatchServiceException;
+import java.util.FormatterClosedException;
+import javax.management.openmbean.InvalidOpenTypeException;
 
 /**
  *
@@ -51,7 +56,7 @@ public class TACConst extends TACStatement {
     }
     public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
         if (dest != null && source != null && !dest.getType().equals(source.getType())) {
-            throw new RuntimeException(source + " " + dest);
+            throw new UnsupportedCharsetException(source + " " + dest);
         }
         String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
         if (dest != null && dest.getType() instanceof TypeStruct) {
@@ -61,7 +66,7 @@ public class TACConst extends TACStatement {
         }
         TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
         if (source != null && type.getSizeBytes() != source.getType().getSizeBytes()) {
-            throw new RuntimeException(source + " " + sourceName + " " + dest + " " + destName + " " + type + " " + source.getType());
+            throw new InvalidOpenTypeException(source + " " + sourceName + " " + dest + " " + destName + " " + type + " " + source.getType());
         }
         if (source == null) {
             emit.addStatement("mov" + type.x86typesuffix() + " $" + sourceName + ", " + destination);
@@ -84,7 +89,7 @@ public class TACConst extends TACStatement {
                     case 'x':
                         return new TypeInt16();
                     default:
-                        throw new IllegalStateException();
+                        throw new IllegalBlockingModeException();
                 }
             case 3:
                 switch (reg.charAt(0)) {
@@ -93,10 +98,10 @@ public class TACConst extends TACStatement {
                     case 'r':
                         return new TypeInt64();
                     default:
-                        throw new IllegalStateException();
+                        throw new FormatterClosedException();
                 }
             default:
-                throw new IllegalStateException();
+                throw new ClosedWatchServiceException();
         }
     }
 }

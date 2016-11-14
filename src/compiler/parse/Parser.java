@@ -35,12 +35,17 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
 import java.lang.annotation.AnnotationTypeMismatchException;
+import java.nio.file.ClosedDirectoryStreamException;
+import java.nio.file.ProviderMismatchException;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
+import javax.management.openmbean.InvalidKeyException;
+import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
  *
@@ -91,7 +96,7 @@ public class Parser {
                             }
                         }
                         if (endParen == -1) {
-                            throw new IllegalStateException();
+                            throw new InvalidKeyException();
                         }
                         List<Token> returnType = params.subList(endParen + 1, params.size());
                         System.out.println("Return type: " + returnType);
@@ -113,7 +118,7 @@ public class Parser {
                             return new Pair<>(tv.val, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
                         if (!context.isTopLevel()) {//make sure this is top level
-                            throw new IllegalStateException();
+                            throw new InvalidParameterException();
                         }
                         Context subContext = context.subContext();
                         int pos = 16;//args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
@@ -169,10 +174,10 @@ public class Parser {
                         break;
                     case STRUCT:
                         if (params.size() != 1) {
-                            throw new IllegalStateException();
+                            throw new KeyAlreadyExistsException();
                         }
                         if (!(params.get(0) instanceof TokenVariable)) {
-                            throw new IllegalStateException();
+                            throw new NumberFormatException();
                         }
                         String structName = ((TokenVariable) params.get(0)).val;
                         ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
@@ -239,7 +244,7 @@ public class Parser {
         if (tokens.get(0) instanceof TokenKeyword) {
             TokenKeyword lol = (TokenKeyword) tokens.get(0);
             if (lol.getKeyword().canBeginBlock) {
-                throw new IllegalStateException();
+                throw new ProviderMismatchException();
             }
             switch (lol.getKeyword()) {
                 case BREAK:
@@ -334,7 +339,7 @@ public class Parser {
             return new CommandSetVar(toSet.val, ex, context);
         }
         if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
-            throw new RuntimeException();
+            throw new ClosedDirectoryStreamException();
         }
         //if the first token is a type, we are doing something like int i=5
         Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);

@@ -8,6 +8,7 @@ import compiler.Context;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import java.nio.charset.IllegalCharsetNameException;
 
 /**
  *
@@ -18,7 +19,7 @@ public abstract class Expression {
         if (cachedType == null) {
             cachedType = calcType();
             if (cachedType == null) {
-                throw new IllegalStateException();
+                throw new IllegalCharsetNameException("");
             }
         }
         return cachedType;

@@ -12,6 +12,8 @@ import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.nio.channels.ClosedSelectorException;
+import java.nio.channels.IllegalChannelGroupException;
 
 /**
  *
@@ -32,7 +34,7 @@ public class TACStandard extends TACStatement {
         try {
             Integer.parseInt(firstName);
             Integer.parseInt(secondName);
-            throw new RuntimeException();
+            throw new IllegalChannelGroupException();
         } catch (NumberFormatException e) {
         }
         this.op = op;
@@ -47,7 +49,7 @@ public class TACStandard extends TACStatement {
         first = context.getRequired(firstName);
         second = context.getRequired(secondName);
         if (!result.getType().equals(op.onApplication(first.getType(), second.getType()))) {
-            throw new IllegalStateException();
+            throw new IllegalThreadStateException();
         }
         if (!first.getType().equals(second.getType())) {
             if (first.getType() instanceof TypePointer) {
@@ -75,7 +77,7 @@ public class TACStandard extends TACStatement {
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
             if (!(second.getType() instanceof TypeNumerical)) {
-                throw new IllegalStateException();
+                throw new ClosedSelectorException();
             }
             if (!second.getType().getClass().toString().contains("TypeInt")) {//look bud i'm not perfect
                 throw new IllegalStateException(second.getType().toString());
@@ -91,7 +93,7 @@ public class TACStandard extends TACStatement {
             try {
                 TACConst.move(c, null, second, secondName, emit);
             } catch (Exception e) {
-                throw new RuntimeException(this + " " + type + " " + firstName + " " + secondName, e);
+                throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }
         }
         switch (op) {

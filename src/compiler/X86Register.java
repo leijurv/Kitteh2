@@ -5,6 +5,7 @@
  */
 package compiler;
 import compiler.type.TypeNumerical;
+import java.nio.channels.IllegalSelectorException;
 
 /**
  *
@@ -53,7 +54,7 @@ these registers’ values for its caller.
             case R15:
                 return REGISTER_PREFIX + toString().toLowerCase() + version.x86r_registersuffix();
         }
-        throw new IllegalStateException();
+        throw new IllegalSelectorException();
     }
     public static final String REGISTER_PREFIX = "%";
 }

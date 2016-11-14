@@ -8,8 +8,11 @@ import compiler.command.CommandDefineFunction;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import java.awt.dnd.InvalidDnDOperationException;
+import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
 /**
@@ -69,10 +72,10 @@ public class Context {
     }
     public void defineStruct(Struct struct) {
         if (structs.containsKey(struct.name)) {
-            throw new RuntimeException();
+            throw new InvalidDnDOperationException();
         }
         if (!isTopLevel()) {
-            throw new RuntimeException();
+            throw new OverlappingFileLockException();
         }
         structs.put(struct.name, struct);
     }
@@ -171,7 +174,7 @@ public class Context {
     }
     public void registerArgumentInput(String name, Type type, int loc) {
         if (loc < 16) {
-            throw new IllegalStateException();
+            throw new PatternSyntaxException(name, type + "", loc);
         }
         if (varDefined(name)) {
             throw new IllegalStateException(name + " is already defined -_-");

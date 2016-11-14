@@ -10,6 +10,7 @@ import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
+import java.nio.file.InvalidPathException;
 
 /**
  *
@@ -45,7 +46,7 @@ public class TACPointerDeref extends TACStatement {
             TypeStruct ts = (TypeStruct) dest.getType();
             moveStruct(0, "%rax", dest.getStackLocation(), ts.struct, emit);
         } else {
-            throw new RuntimeException();
+            throw new InvalidPathException("", "");
         }
     }
     public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, Struct struct, X86Emitter emit) {

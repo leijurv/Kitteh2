@@ -44,9 +44,10 @@ public class FunctionsContext {
             stream = stream.parallel();
         }
         stream.forEach(cdf -> {
+            long start = System.currentTimeMillis();
             System.out.println("> Starting parsing function " + cdf.getHeader().name);
             cdf.parse(this);
-            System.out.println("> Finished parsing function " + cdf.getHeader().name);
+            System.out.println("> Finished parsing function " + cdf.getHeader().name + " -- " + (System.currentTimeMillis() - start) + "ms");
         });
     }
     public FunctionHeader getHeader(String name) {

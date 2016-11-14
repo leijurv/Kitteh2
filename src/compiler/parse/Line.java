@@ -6,6 +6,7 @@
 package compiler.parse;
 import compiler.lex.Lexer;
 import compiler.token.Token;
+import java.nio.channels.NonReadableChannelException;
 import java.util.ArrayList;
 
 /**
@@ -29,7 +30,7 @@ public class Line {
     }
     public void lex() {//todo we could use parallel streams here in the future to make it multithreaded
         if (tokens != null) {
-            throw new IllegalStateException();//muahahaha not even an exception message XDD
+            throw new NonReadableChannelException();//muahahaha not even an exception message XDD
         }
         tokens = new ArrayList<>(source.size());//this makes it like 1ms faster
         for (Object o : source) {//we could do a parallel stream here in the future to make it speedier

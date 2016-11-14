@@ -18,6 +18,8 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
+import java.nio.channels.ShutdownChannelGroupException;
+import java.nio.file.ReadOnlyFileSystemException;
 
 /**
  *
@@ -32,7 +34,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
         this.input = input;
         this.field = field;
         if (struct.getFieldByName(field) == null) {
-            throw new RuntimeException();
+            throw new ShutdownChannelGroupException();
         }
     }
     @Override
@@ -86,7 +88,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
             VarInfo thisVariable = context.get(((ExpressionVariable) input).name);
             return new CommandSetStructField(context, thisVariable.getStackLocation() + offsetOfThisFieldWithinStruct, rvalue);
         } else {
-            throw new RuntimeException(input + " ", new MalformedParameterizedTypeException());
+            throw new UnsupportedOperationException(input + " ", new MalformedParameterizedTypeException());
         }
     }
 
@@ -98,7 +100,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
             this.stackLoc = stackLoc;
             this.insert = insert;
             if (!insert.getType().equals(struct.getFieldByName(field).getType())) {
-                throw new RuntimeException();
+                throw new ReadOnlyFileSystemException();
             }
         }
         @Override

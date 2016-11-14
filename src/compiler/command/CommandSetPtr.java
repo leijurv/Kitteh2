@@ -9,6 +9,7 @@ import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TACPointerRef;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypePointer;
 
 /**
  *
@@ -20,6 +21,9 @@ public class CommandSetPtr extends Command {
     public CommandSetPtr(Context context, Expression pointer, Expression value) {
         super(context);
         this.pointer = pointer;
+        if (!(pointer.getType() instanceof TypePointer)) {
+            throw new IllegalArgumentException(pointer + " " + value);
+        }
         this.value = value;
     }
     @Override

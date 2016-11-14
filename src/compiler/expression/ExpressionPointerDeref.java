@@ -5,6 +5,8 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.command.Command;
+import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TempVarUsage;
@@ -15,7 +17,7 @@ import compiler.type.TypePointer;
  *
  * @author leijurv
  */
-public class ExpressionPointerDeref extends Expression {
+public class ExpressionPointerDeref extends Expression implements Settable {
     private final Expression deReferencing;
     public ExpressionPointerDeref(Expression deref) {
         this.deReferencing = deref;
@@ -42,5 +44,9 @@ public class ExpressionPointerDeref extends Expression {
     @Override
     public Expression insertKnownValues(Context context) {
         return new ExpressionPointerDeref(deReferencing.insertKnownValues(context));
+    }
+    @Override
+    public Command setValue(Expression rvalue, Context context) {
+        return new CommandSetPtr(context, deReferencing, rvalue);
     }
 }

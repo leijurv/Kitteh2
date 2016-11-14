@@ -289,6 +289,9 @@ public class Parser {
                 eqLoc = i;
             }
         }
+        if (eqLoc == 0) {
+            throw new IllegalStateException("Line cannot begin with =");
+        }
         if (eqLoc == -1) {
             Type type = typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
@@ -316,48 +319,46 @@ public class Parser {
             return new CommandExp(ex, context);
         }
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
-        switch (eqLoc) {
-            case 0:
-                throw new IllegalStateException("Line cannot begin with =");
-            case 1: {
-                //ok we just doing something like i=5
-                if (!(tokens.get(0) instanceof TokenVariable)) {
-                    throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
-                }
-                TokenVariable toSet = (TokenVariable) tokens.get(0);
-                Type type = context.getType(toSet.val);
-                boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
-                if (inferType ^ (type == null)) {//look at that arousing use of xor
-                    throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
-                }
-                Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
-                if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
-                    throw new IllegalStateException(type + " " + ex.getType());
-                }
-                if (type == null) {
-                    context.setType(toSet.val, ex.getType());
-                }
-                return new CommandSetVar(toSet.val, ex, context);
+        if (eqLoc == 1) {
+            //ok we just doing something like i=5
+            if (!(tokens.get(0) instanceof TokenVariable)) {
+                throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
-            default: {
-                //if the first token is a type, we are doing something like int i=5
-                Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);
-                if (type == null) {
-                    break;
-                }
-                if (!(tokens.get(eqLoc - 1) instanceof TokenVariable)) {
-                    throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
-                }
-                TokenVariable toSet = (TokenVariable) tokens.get(eqLoc - 1);
-                if (context.varDefined(toSet.val)) {
-                    throw new IllegalStateException("Babe, " + toSet.val + " is already there");
-                }
-                Expression rightSide = ExpressionParser.parse(after, Optional.of(type), context);
-                context.setType(toSet.val, rightSide.getType());
-                //ok we doing something like long i=5
-                return new CommandSetVar(toSet.val, rightSide, context);
+            TokenVariable toSet = (TokenVariable) tokens.get(0);
+            Type type = context.getType(toSet.val);
+            boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
+            if (inferType ^ (type == null)) {//look at that arousing use of xor
+                throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
             }
+            Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
+            if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
+                throw new IllegalStateException(type + " " + ex.getType());
+            }
+            if (type == null) {
+                context.setType(toSet.val, ex.getType());
+            }
+            return new CommandSetVar(toSet.val, ex, context);
         }
+        if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
+            throw new RuntimeException();
+        }
+        //if the first token is a type, we are doing something like int i=5
+        Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);
+        if (type != null) {
+            if (!(tokens.get(eqLoc - 1) instanceof TokenVariable)) {
+                throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
+            }
+            TokenVariable toSet = (TokenVariable) tokens.get(eqLoc - 1);
+            if (context.varDefined(toSet.val)) {
+                throw new IllegalStateException("Babe, " + toSet.val + " is already there");
+            }
+            Expression rightSide = ExpressionParser.parse(after, Optional.of(type), context);
+            context.setType(toSet.val, rightSide.getType());
+            //ok we doing something like long i=5
+            return new CommandSetVar(toSet.val, rightSide, context);
+        }
+        //---------------------------------------------------------------------------------------------------------------
+        System.out.println("GETValue of " + ExpressionParser.parse(tokens.subList(0, eqLoc), Optional.empty(), context));
         //ok so at this point we know it's a little more complicated than a simple variable definition or set
         if (tokens.get(eqLoc - 1) instanceof TokenEndBrkt) {
             //a[b]=c

@@ -130,6 +130,39 @@ public class CompilerTest {
                 + "}", true, "664579\n");
     }
     @Test
+    public void testVariousStructs() throws Exception {
+        verifyCompilation("struct teststruct{\n"
+                + "	int a;\n"
+                + ";\n"
+                + "	int b//lmao\n"
+                + "	long* c ;; ;; ;; ;; ; ; ; ; ; ; ; ;  ;\n"
+                + "}\n"
+                + "func main(){\n"
+                + "	b:=(teststruct*)malloc(420)\n"
+                + "	teststruct* c =b\n"
+                + "	((int*)b)[0]=420\n"
+                + "	((int*)b)[1]=5021\n"
+                + "	ptr:=(long*)malloc(5021)\n"
+                + "	ptr[0]=420420420\n"
+                + "	((long**)b)[1]=ptr // [1] because long*s are 8 bytes so [1] lines up with the beginning of c in teststruct\n"
+                + "	print(c[0].a)\n"
+                + "	c[0].a=5\n"
+                + "	print(c[0].a)\n"
+                + "	print(c[0].b)\n"
+                + "	print(c[0].c[0])\n"
+                + "	*ptr=*ptr+50215021\n"
+                + "	print(c[0].c[0])\n"
+                + "	teststruct aoeu=*c\n"
+                + "	print(aoeu.a)\n"
+                + "	aoeu.a=aoeu.a+46290\n"
+                + "	print(aoeu.a)\n"
+                + "	aoeu.b=444\n"
+                + "	print(aoeu.a)\n"
+                + "	print(aoeu.b)\n"
+                + "	print((*c).a)\n"
+                + "}", true, "420\n5\n5021\n420420420\n470635441\n5\n46295\n46295\n444\n5\n");
+    }
+    @Test
     public void testFactorialPrint() throws Exception {
         verifyCompilation("func main(){\n"
                 + "	for long i=0; i<(long)50; i=i+1{\n"

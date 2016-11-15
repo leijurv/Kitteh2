@@ -49,6 +49,11 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         contents = Processor.parse(rawContents, context);
         contents.remove(null);
         context.gc = null;
+        boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
+        boolean returnsVoid = header.getReturnType() instanceof TypeVoid;
+        if (!endWithReturn && !returnsVoid) {
+            throw new RuntimeException();
+        }
     }
     @Override
     protected void generateTAC0(IREmitter emit) {

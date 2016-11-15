@@ -6,6 +6,8 @@
 package compiler.tac.optimize;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACPointerDeref;
+import compiler.tac.TACPointerRef;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
@@ -89,6 +91,26 @@ public class UselessTempVars extends TACOptimization {
                     }
                 }
                 if (shouldContinue) {
+                    continue;
+                }
+            }
+            if (next instanceof TACPointerRef) {
+                TACPointerRef t = (TACPointerRef) next;
+                if (t.sourceName.equals(valSet)) {
+                    t.source = curr.source;
+                    t.sourceName = curr.sourceName;
+                    block.remove(ind);
+                    ind = Math.max(-1, ind - 2);
+                    continue;
+                }
+            }
+            if (next instanceof TACPointerDeref) {
+                TACPointerDeref t = (TACPointerDeref) next;
+                if (t.sourceName.equals(valSet)) {
+                    t.source = curr.source;
+                    t.sourceName = curr.sourceName;
+                    block.remove(ind);
+                    ind = Math.max(-1, ind - 2);
                     continue;
                 }
             }

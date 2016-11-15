@@ -15,7 +15,7 @@ import compiler.type.TypePointer;
  * @author leijurv
  */
 public class TACPointerRef extends TACStatement {
-    public final String sourceName;
+    public String sourceName;
     public Context.VarInfo source;
     public final String destName;
     public Context.VarInfo dest;
@@ -37,12 +37,12 @@ public class TACPointerRef extends TACStatement {
     @Override
     public String toString0() {
         //return "Put the value " + source + " into the location specified by " + dest;
-        return "*" + dest + " = " + source;
+        return "*" + dest + " = " + (source == null ? "CONST " + sourceName : source);
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical d = (TypeNumerical) source.getType();
-        emit.addStatement("mov" + d.x86typesuffix() + " " + source.x86() + ", " + X86Register.C.getRegister(d));
+        TypeNumerical d = (TypeNumerical) ((TypePointer) dest.getType()).pointingTo();
+        emit.addStatement("mov" + d.x86typesuffix() + " " + (source == null ? "$" + sourceName : source.x86()) + ", " + X86Register.C.getRegister(d));
         emit.addStatement("movq " + dest.x86() + ", %rax");
         emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", (%rax)");
     }

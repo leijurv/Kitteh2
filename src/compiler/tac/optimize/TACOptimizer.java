@@ -15,7 +15,15 @@ import java.util.ArrayList;
 public class TACOptimizer {
     public static ArrayList<TACStatement> optimize(IREmitter emitted) {
         ArrayList<TACStatement> input = emitted.getResult();
-        input = new UselessTempVars(input).go();
+        ArrayList<TACStatement> prev;
+        int num = 0;
+        do {
+            prev = new ArrayList<>(input);
+            input = new UselessTempVars(input).go();
+            input = new RedundantCalculations(input).go();
+            input = new ConstantCasting(input).go();
+            System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
+        } while (!prev.equals(input));
         return input;
     }
 }

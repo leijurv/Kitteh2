@@ -14,10 +14,10 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class TACCast extends TACStatement {
-    String inputName;
-    VarInfo input;
-    String destName;
-    VarInfo dest;
+    public String inputName;
+    public VarInfo input;
+    public String destName;
+    public VarInfo dest;
     public TACCast(String inputName, String dest) {
         this.inputName = inputName;
         this.destName = dest;

@@ -12,7 +12,7 @@ import compiler.X86Emitter;
  * @author leijurv
  */
 public abstract class TACStatement {
-    Context context;
+    public Context context;
     public final void setContext(Context context) {
         this.context = context;
         onContextKnown();
@@ -27,4 +27,12 @@ public abstract class TACStatement {
     }
     public abstract String toString0();
     public abstract void printx86(X86Emitter emit);
+    @Override
+    public boolean equals(Object o) {
+        return o != null && o.getClass() == getClass() && toString().equals(o.toString());
+    }
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
 }

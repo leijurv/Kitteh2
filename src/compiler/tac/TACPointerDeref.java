@@ -17,7 +17,7 @@ import java.nio.file.InvalidPathException;
  * @author leijurv
  */
 public class TACPointerDeref extends TACStatement {
-    public final String sourceName;
+    public String sourceName;
     public VarInfo source;
     public final String destName;
     public VarInfo dest;

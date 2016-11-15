@@ -187,7 +187,7 @@ public class Parser {
                             ArrayList<Token> tokens = Lexer.lex(thisLine);
                             System.out.println(tokens);
                             fieldNames.add(((TokenVariable) tokens.get(tokens.size() - 1)).val);
-                            fieldTypes.add(typeFromTokens(tokens.subList(0, tokens.size() - 1), context));
+                            fieldTypes.add(typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName));
                         }
                         System.out.println(fieldNames);
                         System.out.println(fieldTypes);
@@ -365,6 +365,9 @@ public class Parser {
         return result;
     }
     public static Type typeFromTokens(List<Token> tokens, Context context) {
+        return typeFromTokens(tokens, context, null);
+    }
+    public static Type typeFromTokens(List<Token> tokens, Context context, String selfRef) {
         if (tokens.isEmpty()) {
             return null;
         }
@@ -378,11 +381,15 @@ public class Parser {
             tp = keyword.type;
         } else if (first instanceof TokenVariable) {
             String name = ((TokenVariable) first).val;
-            Struct struct = context.getStruct(name);
-            if (struct == null) {
-                return null;
+            if (name.equals(selfRef)) {
+                tp = new TypeStruct(null);
+            } else {
+                Struct struct = context.getStruct(name);
+                if (struct == null) {
+                    return null;
+                }
+                tp = new TypeStruct(struct);
             }
-            tp = new TypeStruct(struct);
         } else {
             return null;
         }

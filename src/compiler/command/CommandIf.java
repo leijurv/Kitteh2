@@ -12,6 +12,7 @@ import compiler.expression.ExpressionConstBool;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +46,8 @@ public class CommandIf extends CommandBlock {
     public void staticValues() {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
-        ArrayList<ExpressionConst> preKnown = getAllVarsModified().stream().map(a -> context.knownValue(a)).collect(Collectors.toCollection(ArrayList::new));
+        List<String> varsMod = getAllVarsModified();
+        ArrayList<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toCollection(ArrayList::new));
         for (Command com : contents) {
             com.staticValues();
         }
@@ -55,11 +57,11 @@ public class CommandIf extends CommandBlock {
                 //set all known values back to what they were before
                 //because this is "if(false){"
                 //so whatever known values are inside should be ignored because it'll never be run
-                for (int i = 0; i < getAllVarsModified().size(); i++) {
+                for (int i = 0; i < varsMod.size(); i++) {
                     if (preKnown.get(i) == null) {
-                        context.clearKnownValue(getAllVarsModified().get(i));
+                        context.clearKnownValue(varsMod.get(i));
                     } else {
-                        context.setKnownValue(getAllVarsModified().get(i), preKnown.get(i));
+                        context.setKnownValue(varsMod.get(i), preKnown.get(i));
                     }
                 }
             }

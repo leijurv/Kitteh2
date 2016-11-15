@@ -7,9 +7,12 @@ package compiler.command;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConditionalJumpable;
+import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstBool;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -42,8 +45,21 @@ public class CommandIf extends CommandBlock {
     public void staticValues() {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
+        ArrayList<ExpressionConst> preKnown = getAllVarsModified().stream().map(a -> context.knownValue(a)).collect(Collectors.toCollection(ArrayList::new));
         for (Command com : contents) {
             com.staticValues();
+        }
+        if (condition instanceof ExpressionConstBool) {
+            boolean isTrue = ((ExpressionConstBool) condition).getVal();
+            if (!isTrue) {
+                //set all known values back to what they were before
+                //because this is "if(false){"
+                //so whatever known values are inside should be ignored because it'll never be run
+                for (int i = 0; i < getAllVarsModified().size(); i++) {
+                    context.setKnownValue(getAllVarsModified().get(i), preKnown.get(i));
+                }
+            }
+            return;
         }
         for (String s : getAllVarsModified()) {
             context.clearKnownValue(s);

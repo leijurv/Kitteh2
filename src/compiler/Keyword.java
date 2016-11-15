@@ -29,6 +29,7 @@ public enum Keyword {
     RETURN("POUNCE", false, null, null),
     FUNC("CHASE", true, null, null),
     STRUCT("IDKWHATEVER", true, null, null),
+    SIZEOF("BIGNESS", false, null, null),
     BOOL("BOWL", false, null, new TypeBoolean()),
     BYTE("BITE", false, null, new TypeInt8()),
     SHORT("CHOMP", false, null, new TypeInt16()),

@@ -5,6 +5,7 @@
  */
 package compiler.parse;
 import compiler.Context;
+import compiler.Keyword;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
@@ -140,6 +141,23 @@ public class ExpressionParser {
                 }
                 if (numParens != 0) {
                     throw new IllegalStateException("mismatched ( and )");
+                }
+                if (i != 0 && o.get(i - 1) instanceof TokenKeyword) {
+                    TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
+                    if (tk.getKeyword().toString().equals(Keyword.SIZEOF.toString())) {
+                        if (inParen.size() != 1) {
+                            throw new RuntimeException();
+                        }
+                        Type type = typeFromObjs(inParen.get(0), context);
+                        if (type == null) {
+                            throw new RuntimeException();
+                        }
+                        for (int j = 0; j < numToRemoveAti; j++) {
+                            o.remove(i);
+                        }
+                        o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
+                        return parseImpl(o, desiredType, context);
+                    }
                 }
                 if (inParen.size() == 1 && typeFromObjs(inParen.get(0), context) != null) {
                     //this is a cast, skip the rest and don't modify these parentheses

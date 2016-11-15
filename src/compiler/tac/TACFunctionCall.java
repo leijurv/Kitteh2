@@ -79,7 +79,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.addStatement("movs" + type.x86typesuffix() + "q " + X86Register.D.getRegister(type) + ", %rsi");
             }
             if (type instanceof TypePointer) {
-                emit.addStatement("movq %rdx, %rdi");
+                emit.addStatement("movq %rdx, %rdi");//comment out this line if you want print(ptr) to print out the pointer address instead of the asciz string at that pointer
             }
             emit.addStatement("callq _printf");//I understand this one at least XD
             emit.addStatement("addq $" + toSubtract + ", %rsp");

@@ -1,4 +1,11 @@
 language: java
 before_install: brew install ant
+install:
+  - echo $ENV
+  - env
+
 os:
   - osx
+compiler:
+  - gcc
+  - clang

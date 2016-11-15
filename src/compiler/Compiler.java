@@ -61,6 +61,7 @@ public class Compiler {
                 .map(com -> new Pair<>(com.getHeader().name, com.totac()))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
+        /*
         for (Pair<String, ArrayList<TACStatement>> pair : wew) {
             Context.VarInfo.printFull = true;
             System.out.println("TAC FOR " + pair.getKey());
@@ -68,7 +69,7 @@ public class Compiler {
                 System.out.println(i + ":     " + pair.getValue().get(i));
             }
             System.out.println();
-        }
+        }*/
         for (Pair<String, ArrayList<TACStatement>> pair : wew) {
             Context.VarInfo.printFull = false;
             System.out.println("TAC FOR " + pair.getKey());

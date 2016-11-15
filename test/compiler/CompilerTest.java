@@ -112,7 +112,7 @@ public class CompilerTest {
     @Test
     public void countPrimes() throws Exception {
         verifyCompilation("func isPrime(int num) int{\n"
-                + "	for j:=3; j*j<=num; j=j+2{\n"
+                + "	for j:=3; j*j≤num; j=j+2{\n"
                 + "		if num % j==0{\n"
                 + "			return 0\n"
                 + "		}\n"
@@ -122,7 +122,7 @@ public class CompilerTest {
                 + "func main(){\n"
                 + "	int count=1\n"
                 + "	for i:=3; i<10000000; i=i+2{\n"
-                + "		if isPrime(i)==1{\n"
+                + "		if isPrime(i)≠0{\n"
                 + "			count=count+1\n"
                 + "		}\n"
                 + "	}\n"
@@ -215,10 +215,10 @@ public class CompilerTest {
                 + "	}\n"
                 + "}\n"
                 + "func factorial(long i) long{\n"
-                + "	if i<=(long)1{\n"
-                + "		return 1\n"
+                + "	if i≥(long)1{\n"
+                + "		return i*factorial(i-1)\n"
                 + "	}\n"
-                + "	return i*factorial(i-1)\n"
+                + "	return 1\n"
                 + "}";
         String result = "-7055958792655077376\n"
                 + "-5968160532966932480\n"

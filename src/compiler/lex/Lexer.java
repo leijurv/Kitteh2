@@ -131,6 +131,15 @@ public class Lexer extends AbstractLexer {
                     }
                     emit(new TokenNot());
                     break;
+                case '≠':
+                    emit(new TokenOperator(Operator.NOT_EQUAL));
+                    break;
+                case '≤':
+                    emit(new TokenOperator(Operator.LESS_OR_EQUAL));
+                    break;
+                case '≥':
+                    emit(new TokenOperator(Operator.GREATER_OR_EQUAL));
+                    break;
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);
             }

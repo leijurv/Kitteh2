@@ -41,7 +41,7 @@ public abstract class TACOptimization {
         int pos = 0;
         for (int i = 0; i < blocks.size(); i++) {
             List<TACStatement> block = new ArrayList<>(blocks.get(i));
-            run(block);
+            run(block, i == 0 ? 0 : origJumpDests.get(i - 1));
             blocks.set(i, block);
             pos += block.size();
             newJumpDests.add(pos);
@@ -59,5 +59,5 @@ public abstract class TACOptimization {
         }
         return result;
     }
-    protected abstract void run(List<TACStatement> block);
+    protected abstract void run(List<TACStatement> block, int blockBegin);
 }

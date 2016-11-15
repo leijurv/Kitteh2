@@ -19,7 +19,7 @@ public class ConstantCasting extends TACOptimization {
         super(statements);
     }
     @Override
-    protected void run(List<TACStatement> block) {
+    protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size() - 1; i++) {
             if (block.get(i) instanceof TACConst) {
                 TACConst con = (TACConst) block.get(i);

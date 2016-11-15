@@ -35,7 +35,7 @@ public class UselessTempVars extends TACOptimization {
         }
     }
     @Override
-    public void run(List<TACStatement> block) {
+    public void run(List<TACStatement> block, int blockBegin) {
         for (int ind = 0; ind < block.size() - 1; ind++) {
             if (!(block.get(ind) instanceof TACConst)) {
                 continue;

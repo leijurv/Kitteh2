@@ -20,7 +20,7 @@ public class RedundantCalculations extends TACOptimization {
         super(statements);
     }
     @Override
-    protected void run(List<TACStatement> block) {
+    protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) (block.get(i));

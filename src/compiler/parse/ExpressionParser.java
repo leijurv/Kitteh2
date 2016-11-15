@@ -9,11 +9,13 @@ import compiler.Keyword;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
+import compiler.expression.ExpressionConditionalJumpable;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
+import compiler.expression.ExpressionInvert;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
@@ -24,6 +26,7 @@ import compiler.token.TokenComma;
 import compiler.token.TokenEndBrkt;
 import compiler.token.TokenEndParen;
 import compiler.token.TokenKeyword;
+import compiler.token.TokenNot;
 import compiler.token.TokenNum;
 import compiler.token.TokenOperator;
 import compiler.token.TokenPeriod;
@@ -282,6 +285,12 @@ public class ExpressionParser {
                 }
                 Expression point = (Expression) o.remove(i + 1);
                 o.set(i, new ExpressionPointerDeref(point));
+                return parseImpl(o, desiredType, context);
+            }
+        }
+        for (int i = 0; i < o.size(); i++) {
+            if (o.get(i) instanceof TokenNot) {
+                o.set(i, new ExpressionInvert((ExpressionConditionalJumpable) o.remove(i + 1)));
                 return parseImpl(o, desiredType, context);
             }
         }

@@ -42,6 +42,24 @@ public class RedundantCalculations extends TACOptimization {
                         continue;
                     }
                 }
+                if (ts.op == Operator.MULTIPLY) {
+                    if (ts.firstName.equals("1")) {
+                        TACConst repl = new TACConst(ts.resultName, ts.secondName);
+                        repl.dest = ts.result;
+                        repl.source = ts.second;
+                        repl.context = ts.context;
+                        block.set(i, repl);
+                        continue;
+                    }
+                    if (ts.secondName.equals("1")) {
+                        TACConst repl = new TACConst(ts.resultName, ts.firstName);
+                        repl.dest = ts.result;
+                        repl.source = ts.first;
+                        repl.context = ts.context;
+                        block.set(i, repl);
+                        continue;
+                    }
+                }
             }
         }
     }

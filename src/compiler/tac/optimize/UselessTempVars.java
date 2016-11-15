@@ -47,7 +47,7 @@ public class UselessTempVars extends TACOptimization {
             if (next instanceof TACStandard) {
                 TACStandard n = (TACStandard) next;
                 if (n.secondName.equals(valSet)) {
-                    System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     n.secondName = curr.sourceName;
                     n.second = curr.source;
                     block.remove(ind);
@@ -55,7 +55,7 @@ public class UselessTempVars extends TACOptimization {
                     continue;
                 }
                 if (n.firstName.equals(valSet)) {
-                    System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     n.firstName = curr.sourceName;
                     n.first = curr.source;
                     block.remove(ind);
@@ -66,7 +66,7 @@ public class UselessTempVars extends TACOptimization {
             if (next instanceof TACConst) {
                 TACConst c = (TACConst) next;
                 if (c.sourceName.equals(valSet)) {
-                    System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                     c.sourceName = curr.sourceName;
                     c.source = curr.source;
                     block.remove(ind);
@@ -79,7 +79,7 @@ public class UselessTempVars extends TACOptimization {
                 boolean shouldContinue = false;
                 for (int i = 0; i < c.paramNames.size(); i++) {
                     if (c.paramNames.get(i).equals(valSet)) {
-                        System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                         c.paramNames.set(i, curr.sourceName);
                         c.params.set(i, curr.source);
                         block.remove(ind);

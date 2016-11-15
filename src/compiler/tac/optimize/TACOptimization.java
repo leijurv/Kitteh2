@@ -34,7 +34,7 @@ public abstract class TACOptimization {
             if (start == end) {
                 continue;
             }
-            System.out.println(start + " to " + end);
+            //System.out.println(start + " to " + end);
             List<TACStatement> thisBlock = statements.subList(start, end);
             blocks.add(thisBlock);
         }

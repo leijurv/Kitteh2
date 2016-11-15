@@ -221,7 +221,7 @@ public class Context {
                 return pos;
             }
         }
-        System.out.println("WARNING: Unable to find requested variable named '" + name + "'. Returning null. Context is " + toString());
+        //System.out.println("WARNING: Unable to find requested variable named '" + name + "'. Returning null. Context is " + toString());
         return null;
     }
     @Override

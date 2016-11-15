@@ -47,7 +47,7 @@ import java.util.stream.IntStream;
  */
 public class ExpressionParser {
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
-        System.out.println("EXPARSE " + o + " " + desiredType);
+        //System.out.println("EXPARSE " + o + " " + desiredType);
         int currentlyInParentheses = 0;
         for (int i = 0; i < o.size(); i++) {
             Object ob = o.get(i);
@@ -62,10 +62,10 @@ public class ExpressionParser {
                 Number num;
                 TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
                 if (val.contains(".")) {
-                    System.out.println("Parsing " + val + " as double: " + toUse);
+                    //System.out.println("Parsing " + val + " as double: " + toUse);
                     num = Double.parseDouble(val);
                 } else {
-                    System.out.println("Parsing " + val + " as non float: " + toUse);
+                    //System.out.println("Parsing " + val + " as non float: " + toUse);
                     num = Integer.parseInt(val);
                 }
                 o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
@@ -150,7 +150,7 @@ public class ExpressionParser {
                         o.remove(i);
                     }
                 }
-                System.out.println("Doing replace " + o + " " + inParen);
+                //System.out.println("Doing replace " + o + " " + inParen);
                 if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
                     String funcName;
                     if (o.get(i - 1) instanceof TokenVariable) {
@@ -160,7 +160,7 @@ public class ExpressionParser {
                         funcName = tk.toString();//some functions that you call are also keywords
                     }
                     ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
-                    System.out.println("Expecting inputs: " + desiredTypes);
+                    //System.out.println("Expecting inputs: " + desiredTypes);
                     //tfw parallel expression parsing
                     //tfw this is a GOOD idea /s
                     if (inParen.size() != desiredTypes.size()) {

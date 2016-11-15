@@ -84,7 +84,7 @@ public class Parser {
                         //ok this is going to be fun
                         //func main(int i) int {
                         TokenVariable functionName = (TokenVariable) params.get(0);
-                        System.out.println("FunctionName: " + functionName);
+                        //System.out.println("FunctionName: " + functionName);
                         if (!(params.get(1) instanceof TokenStartParen)) {
                             throw new AnnotationTypeMismatchException(null, "");
                         }
@@ -99,7 +99,7 @@ public class Parser {
                             throw new InvalidKeyException();
                         }
                         List<Token> returnType = params.subList(endParen + 1, params.size());
-                        System.out.println("Return type: " + returnType);
+                        //System.out.println("Return type: " + returnType);
                         Type retType;
                         if (typeFromTokens(returnType, context) != null) {
                             retType = typeFromTokens(returnType, context);
@@ -131,7 +131,7 @@ public class Parser {
                         result.add(def);
                         break;
                     case FOR:
-                        System.out.println("Parsing for loop with params " + params);
+                        //System.out.println("Parsing for loop with params " + params);
                         int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
                         switch (numSemis) {
                             case 0: { // for{   OR  for i<5{
@@ -167,7 +167,7 @@ public class Parser {
                         break;
                     case IF://TODO else
                         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
-                        System.out.println("Parsed " + params + " to " + condition);
+                        //System.out.println("Parsed " + params + " to " + condition);
                         Context sub = context.subContext();
                         ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
                         result.add(new CommandIf(condition, blockCommands, sub));
@@ -185,13 +185,13 @@ public class Parser {
                         for (int j = 0; j < rawBlock.size(); j++) {
                             String thisLine = (String) rawBlock.get(j);
                             ArrayList<Token> tokens = Lexer.lex(thisLine);
-                            System.out.println(tokens);
+                            //System.out.println(tokens);
                             fieldNames.add(((TokenVariable) tokens.get(tokens.size() - 1)).val);
                             fieldTypes.add(typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName));
                         }
-                        System.out.println(fieldNames);
-                        System.out.println(fieldTypes);
-                        System.out.println("Parsing struct " + params + " " + rawBlock);
+                        //System.out.println(fieldNames);
+                        //System.out.println(fieldTypes);
+                        //System.out.println("Parsing struct " + params + " " + rawBlock);
                         Struct struct = new Struct(structName, fieldTypes, fieldNames);
                         context.defineStruct(struct);
                         break;
@@ -293,7 +293,7 @@ public class Parser {
         }
         if (eqLoc == -1) {
             Type type = typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
-            System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
+            //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
                 if (!(tokens.get(tokens.size() - 1) instanceof TokenVariable)) {
                     throw new IllegalStateException("You can't set the value of " + tokens.get(tokens.size() - 1) + " lol");
@@ -308,7 +308,7 @@ public class Parser {
             }
             //this isn't setting a variable, so it's an expression I think
             Expression ex = ExpressionParser.parse(tokens, Optional.empty(), context);
-            System.out.println("Parsed " + tokens + " to " + ex);
+            //System.out.println("Parsed " + tokens + " to " + ex);
             //only some expressions are okay
             //for example you couldn't just have "x+5" be a line on its own
             //some okay expressions to be lines on their own are: function calls, increments, and decrements
@@ -358,10 +358,10 @@ public class Parser {
         }
         //---------------------------------------------------------------------------------------------------------------
         Expression exp = ExpressionParser.parse(tokens.subList(0, eqLoc), Optional.empty(), context);
-        System.out.println("GETValue of " + exp);
+        //System.out.println("GETValue of " + exp);
         Expression right = ExpressionParser.parse(after, Optional.of(exp.getType()), context);
         Command result = ((Settable) exp).setValue(right, context);
-        System.out.println(tokens + " " + result + " " + exp + " " + right);
+        //System.out.println(tokens + " " + result + " " + exp + " " + right);
         return result;
     }
     public static Type typeFromTokens(List<Token> tokens, Context context) {

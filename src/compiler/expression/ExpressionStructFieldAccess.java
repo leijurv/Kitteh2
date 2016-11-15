@@ -49,7 +49,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
         int structLocationOnStack = structLocation.getStackLocation();
         int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
         int fieldLocationOnStack = structLocationOnStack + offsetOfThisFieldWithinStruct;
-        System.out.println(structLocationOnStack + " " + offsetOfThisFieldWithinStruct + " " + fieldLocationOnStack + " " + struct.getFieldByName(field));
+        //System.out.println(structLocationOnStack + " " + offsetOfThisFieldWithinStruct + " " + fieldLocationOnStack + " " + struct.getFieldByName(field));
         String fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType());
         emit.emit(new TACConst(resultLocation, fieldLabel));
     }
@@ -78,7 +78,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
             Expression fieldLoc = new ExpressionOperator(deref, Operator.PLUS, new ExpressionConstNum(offsetOfThisFieldWithinStruct));
             fieldLoc = new ExpressionCast(fieldLoc, new TypePointer<>(struct.getFieldByName(field).getType()));
             //*(fieldLoc) = rvalue
-            System.out.println("bcdua " + struct + " " + field + " " + fieldLoc + " " + deref + " " + rvalue);
+            // System.out.println("bcdua " + struct + " " + field + " " + fieldLoc + " " + deref + " " + rvalue);
             if (!(rvalue.getType().equals(((TypePointer) fieldLoc.getType()).pointingTo()))) {
                 throw new RasterFormatException(rvalue.getType() + " " + fieldLoc.getType());
             }

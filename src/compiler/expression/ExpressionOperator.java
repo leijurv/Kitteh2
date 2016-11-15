@@ -33,7 +33,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         Type A = a.getType();
         Type B = b.getType();
         Type result = op.onApplication(A, B);
-        System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
+        //System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
         return result;
     }
     @Override

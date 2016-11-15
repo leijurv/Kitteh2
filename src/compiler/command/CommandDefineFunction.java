@@ -77,7 +77,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        ArrayList<TACStatement> result = TACOptimizer.optimize(emit);
+        ArrayList<TACStatement> result = compiler.Compiler.OPTIMIZE ? TACOptimizer.optimize(emit) : emit.getResult();
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }

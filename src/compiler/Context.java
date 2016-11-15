@@ -196,7 +196,9 @@ public class Context {
         get(name).knownValue = val;
     }
     public void clearKnownValue(String name) {
-        setKnownValue(name, null);
+        if (get(name) != null) {
+            setKnownValue(name, null);
+        }
     }
     public int getStackLocation(String name) {
         return get(name).stackLocation;

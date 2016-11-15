@@ -60,4 +60,21 @@ public abstract class TACOptimization {
         return result;
     }
     protected abstract void run(List<TACStatement> block, int blockBegin);
+    public boolean isUsedAtOrAfter(int pos, String searchingFor) {
+        List<TACStatement> block = statements;
+        for (int j = pos; j < block.size(); j++) {
+            if (block.get(j) instanceof TACJump) {
+                int dest = ((TACJump) block.get(j)).jumpTo();
+                if (dest < pos) {
+                    //jump to before where we started our check
+                    //gotta check starting from that location now
+                    return isUsedAtOrAfter(dest, searchingFor);
+                }
+            }
+            if (block.get(j).requiredVariables().contains(searchingFor)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

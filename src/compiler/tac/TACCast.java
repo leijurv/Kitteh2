@@ -8,6 +8,8 @@ import compiler.Context.VarInfo;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -21,6 +23,10 @@ public class TACCast extends TACStatement {
     public TACCast(String inputName, String dest) {
         this.inputName = inputName;
         this.destName = dest;
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(inputName);
     }
     @Override
     protected void onContextKnown() {

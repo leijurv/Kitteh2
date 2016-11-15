@@ -9,6 +9,8 @@ import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -33,6 +35,10 @@ public class TACPointerRef extends TACStatement {
         if (!((TypePointer) dest.getType()).pointingTo().equals(source.getType())) {
             throw new IllegalStateException("what");
         }
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(sourceName, destName);
     }
     @Override
     public String toString0() {

@@ -9,6 +9,8 @@ import compiler.Operator;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.type.TypeNumerical;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -29,6 +31,10 @@ public class TACJumpCmp extends TACJump {
     @Override
     public String toString0() {
         return "jump to " + jumpTo + " if " + first + " " + op + " " + second;
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(firstName, secondName);
     }
     @Override
     public void onContextKnown() {

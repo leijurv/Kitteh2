@@ -11,6 +11,8 @@ import compiler.X86Register;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
 import java.nio.file.InvalidPathException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -29,6 +31,10 @@ public class TACPointerDeref extends TACStatement {
     protected void onContextKnown() {
         source = context.getRequired(sourceName);
         dest = context.getRequired(destName);
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(destName, sourceName);
     }
     @Override
     public String toString0() {

@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context;
 import compiler.X86Emitter;
+import java.util.List;
 
 /**
  *
@@ -35,4 +36,5 @@ public abstract class TACStatement {
     public int hashCode() {
         return toString().hashCode();
     }
+    public abstract List<String> requiredVariables();
 }

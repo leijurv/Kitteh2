@@ -16,7 +16,9 @@ import compiler.type.TypeStruct;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.ClosedWatchServiceException;
+import java.util.Arrays;
 import java.util.FormatterClosedException;
+import java.util.List;
 import javax.management.openmbean.InvalidOpenTypeException;
 
 /**
@@ -31,6 +33,10 @@ public class TACConst extends TACStatement {
     public TACConst(String var, String val) {
         this.destName = var;
         this.sourceName = val;
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(sourceName);
     }
     @Override
     public String toString0() {

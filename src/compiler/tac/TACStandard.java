@@ -14,6 +14,8 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -38,6 +40,10 @@ public class TACStandard extends TACStatement {
         } catch (NumberFormatException e) {
         }
         this.op = op;
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(firstName, secondName);
     }
     @Override
     public String toString0() {

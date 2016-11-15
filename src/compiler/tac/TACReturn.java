@@ -5,6 +5,8 @@
  */
 package compiler.tac;
 import compiler.X86Emitter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -22,5 +24,9 @@ public class TACReturn extends TACStatement {
     public void printx86(X86Emitter emit) {
         emit.addStatement("popq %rbp");
         emit.addStatement("retq");
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList();
     }
 }

@@ -7,6 +7,8 @@ package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.X86Emitter;
 import compiler.type.TypeBoolean;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -27,6 +29,10 @@ public class TACJumpBoolVar extends TACJump {
         if (!(var.getType() instanceof TypeBoolean)) {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }
+    }
+    @Override
+    public List<String> requiredVariables() {
+        return Arrays.asList(varName);
     }
     @Override
     public String toString0() {

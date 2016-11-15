@@ -23,6 +23,7 @@ public class TACOptimizer {
             input = new RedundantCalculations(input).go();
             input = new ConstantCasting(input).go();
             input = new JumpOver(input).go();
+            input = new UnusedVariables(input).go();
             System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
         } while (!prev.equals(input));
         return input;

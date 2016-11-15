@@ -52,7 +52,11 @@ public class TACPointerDeref extends TACStatement {
     public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, Struct struct, X86Emitter emit) {
         int size = new TypeStruct(struct).getSizeBytes();
         //this is a really bad way to do this
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i + 8 <= size; i += 8) {
+            emit.addStatement("movq " + (i + sourceStackLocation) + "(" + sourceRegister + "), %rcx");
+            emit.addStatement("movq %rcx, " + (destLocation + i) + "(%rbp)");
+        }
+        for (int i = size - size % 8; i + 1 <= size; i++) {
             emit.addStatement("movb " + (i + sourceStackLocation) + "(" + sourceRegister + "), %cl");
             emit.addStatement("movb %cl, " + (destLocation + i) + "(%rbp)");
         }

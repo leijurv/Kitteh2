@@ -70,14 +70,13 @@ public class Compiler {
             }
             System.out.println();
         }*/
+        Context.VarInfo.printFull = false;
         for (Pair<String, ArrayList<TACStatement>> pair : wew) {
-            Context.VarInfo.printFull = false;
             System.out.println("TAC FOR " + pair.getKey());
             for (int i = 0; i < pair.getValue().size(); i++) {
                 System.out.println(i + ":     " + pair.getValue().get(i));
             }
             System.out.println();
-            Context.VarInfo.printFull = true;
         }
         long g = System.currentTimeMillis();
         StringBuilder resp = new StringBuilder();

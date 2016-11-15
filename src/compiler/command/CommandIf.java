@@ -56,7 +56,11 @@ public class CommandIf extends CommandBlock {
                 //because this is "if(false){"
                 //so whatever known values are inside should be ignored because it'll never be run
                 for (int i = 0; i < getAllVarsModified().size(); i++) {
-                    context.setKnownValue(getAllVarsModified().get(i), preKnown.get(i));
+                    if (preKnown.get(i) == null) {
+                        context.clearKnownValue(getAllVarsModified().get(i));
+                    } else {
+                        context.setKnownValue(getAllVarsModified().get(i), preKnown.get(i));
+                    }
                 }
             }
             return;

@@ -407,9 +407,8 @@ public class CompilerTest {
             assertNull(desiredExecutionOutput);
         }
         String compiled;
-        Compiler.OPTIMIZE = optimize;
         try {
-            compiled = Compiler.compile(program);
+            compiled = Compiler.compile(program, optimize);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {

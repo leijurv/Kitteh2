@@ -69,7 +69,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.staticValues();
         }
     }
-    public ArrayList<TACStatement> totac() {
+    public ArrayList<TACStatement> totac(boolean optimize) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.VarInfo.printFull = true;
@@ -77,7 +77,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        ArrayList<TACStatement> result = compiler.Compiler.OPTIMIZE ? TACOptimizer.optimize(emit) : emit.getResult();
+        ArrayList<TACStatement> result = optimize ? TACOptimizer.optimize(emit) : emit.getResult();
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }

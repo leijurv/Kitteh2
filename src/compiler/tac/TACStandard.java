@@ -71,12 +71,8 @@ public class TACStandard extends TACStatement {
             type = typeFromRegister(firstName);
         } else if (first == null) {
             if (second == null) {
-                if (compiler.Compiler.OPTIMIZE) {
-                    //this can arise when optimize is false
-                    //when it's true, make it an exception
-                    throw new RuntimeException("that optimization related exception again " + this);
-                }
-                type = (TypeNumerical) result.getType();
+                throw new RuntimeException("that optimization related exception again " + this);
+                //type = (TypeNumerical) result.getType(); //this is a workaround for when i'm lazy
             } else {
                 type = (TypeNumerical) second.getType();
             }

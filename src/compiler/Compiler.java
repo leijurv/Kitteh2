@@ -36,11 +36,11 @@ public class Compiler {
         System.out.println("First stream: " + streamTime());//almost always several hundred ms
         System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());
-        String asm = compile(new String(program));
+        String asm = compile(new String(program), OPTIMIZE);
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
-    public static boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
-    public static String compile(String program) {
+    public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
+    public static String compile(String program, boolean optimize) {
         long a = System.currentTimeMillis();
         ArrayList<Object> lol = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lol);
@@ -52,7 +52,7 @@ public class Compiler {
         gc.parseRekursively();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
-        if (OPTIMIZE) {
+        if (optimize) {
             for (Command com : commands) {
                 com.staticValues();
             }
@@ -61,7 +61,7 @@ public class Compiler {
         long e = System.currentTimeMillis();
         List<Pair<String, ArrayList<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
-                .map(com -> new Pair<>(com.getHeader().name, com.totac()))
+                .map(com -> new Pair<>(com.getHeader().name, com.totac(optimize)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
         /*

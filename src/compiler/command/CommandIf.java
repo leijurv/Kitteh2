@@ -47,7 +47,7 @@ public class CommandIf extends CommandBlock {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
         List<String> varsMod = getAllVarsModified();
-        ArrayList<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toCollection(ArrayList::new));
+        List<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toList());
         for (Command com : contents) {
             com.staticValues();
         }
@@ -65,7 +65,8 @@ public class CommandIf extends CommandBlock {
                     }
                 }
             }
-            return;
+            return;//if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
+            //if false -> we just reset the known values to what they were before because it is guaranteed to not run
         }
         for (String s : getAllVarsModified()) {
             context.clearKnownValue(s);

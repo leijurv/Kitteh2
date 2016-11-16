@@ -7,10 +7,14 @@ package compiler.command;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConditionalJumpable;
+import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstBool;
 import compiler.tac.IREmitter;
 import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -30,8 +34,7 @@ public class CommandFor extends CommandBlock {
         this(null, condition, null, contents, context);
     }
     public CommandFor(ArrayList<Command> contents, Context context) {
-        //this.condition=new ExpressionConstant(Boolean.TRUE)
-        this(null, null, null, contents, context);
+        this(null, new ExpressionConstBool(true), null, contents, context);
     }
     @Override
     public String toString() {
@@ -76,9 +79,16 @@ public class CommandFor extends CommandBlock {
     }
     @Override
     public void staticValues() {
-        //do NOT run on the init. if you do that, it'll assume that i will always be 0, even though it changes
-        System.out.println("CLEARING " + getAllVarsModified());
-        for (String s : getAllVarsModified()) {
+        if (initialization != null) {
+            initialization.staticValues();
+            //since the afterthought is now included in getAllVarsModified
+            //and getAllVarsModified all get cleared
+            //it's fine to run static values on the initilization
+        }
+        List<String> varsMod = getAllVarsModified();
+        List<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toList());
+        System.out.println("CLEARING " + varsMod);
+        for (String s : varsMod) {
             context.clearKnownValue(s);
         }
         if (condition != null) {
@@ -91,7 +101,23 @@ public class CommandFor extends CommandBlock {
         for (Command com : contents) {
             com.staticValues();
         }
-        for (String s : getAllVarsModified()) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
+        if (condition != null) {
+            if (condition instanceof ExpressionConstBool) {
+                boolean wew = ((ExpressionConstBool) condition).getVal();
+                if (!wew) {
+                    //for false{
+                    for (int i = 0; i < varsMod.size(); i++) {
+                        if (preKnown.get(i) == null) {
+                            context.clearKnownValue(varsMod.get(i));
+                        } else {
+                            context.setKnownValue(varsMod.get(i), preKnown.get(i));
+                        }
+                    }
+                    return;//return before we clear all modified vars, because this for loop won't even run once.
+                }
+            }
+        }
+        for (String s : varsMod) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
             context.clearKnownValue(s);
         }
     }

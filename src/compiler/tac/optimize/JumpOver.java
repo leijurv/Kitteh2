@@ -6,7 +6,6 @@
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,9 +13,6 @@ import java.util.List;
  * @author leijurv
  */
 public class JumpOver extends TACOptimization {
-    public JumpOver(ArrayList<TACStatement> statements) {
-        super(statements);
-    }
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
         if (block.isEmpty()) {

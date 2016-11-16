@@ -14,15 +14,13 @@ import java.util.List;
  * @author leijurv
  */
 public class DeadCode extends TACOptimization {
-    ArrayList<TACStatement> statements;
-    public DeadCode(ArrayList<TACStatement> statements) {
-        super(statements);
-        this.statements = statements;
-        analyze();
-    }
     int rangeBegin = -1;
     int rangeEnd = -1;
-    private void analyze() {
+    @Override
+    public void reset(ArrayList<TACStatement> statements) {
+        super.reset(statements);
+        rangeBegin = -1;
+        rangeEnd = -1;
         for (int i = 0; i < statements.size(); i++) {
             if (statements.get(i).getClass() == TACJump.class) {
                 TACJump tj = (TACJump) statements.get(i);

@@ -7,7 +7,6 @@ package compiler.tac.optimize;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
 import compiler.type.TypeStruct;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,9 +14,6 @@ import java.util.List;
  * @author leijurv
  */
 public class UnusedVariables extends TACOptimization {
-    public UnusedVariables(ArrayList<TACStatement> statements) {
-        super(statements);
-    }
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {

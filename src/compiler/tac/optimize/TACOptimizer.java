@@ -17,14 +17,19 @@ public class TACOptimizer {
         ArrayList<TACStatement> input = emitted.getResult();
         ArrayList<TACStatement> prev;
         int num = 0;
+        final TACOptimization[] optimizations = {
+            new UselessTempVars(),
+            new RedundantCalculations(),
+            new ConstantCasting(),
+            new JumpOver(),
+            new UnusedVariables(),
+            new DeadCode()
+        };
         do {
             prev = new ArrayList<>(input);
-            input = new UselessTempVars(input).go();
-            input = new RedundantCalculations(input).go();
-            input = new ConstantCasting(input).go();
-            input = new JumpOver(input).go();
-            input = new UnusedVariables(input).go();
-            input = new DeadCode(input).go();
+            for (TACOptimization optim : optimizations) {
+                input = optim.go(input);
+            }
             System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
         } while (!prev.equals(input));
         return input;

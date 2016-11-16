@@ -15,16 +15,17 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public abstract class TACOptimization {
-    private final ArrayList<TACStatement> statements;
-    public TACOptimization(ArrayList<TACStatement> statements) {
-        this.statements = new ArrayList<>(statements);
-    }
+    private ArrayList<TACStatement> statements;
     private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
         ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(stmt -> stmt.jumpTo()).distinct().collect(Collectors.toCollection(ArrayList::new));
         result.sort(null);
         return result;
     }
-    public ArrayList<TACStatement> go() {
+    public void reset(ArrayList<TACStatement> newStmts) {
+        statements = new ArrayList<>(newStmts);
+    }
+    public ArrayList<TACStatement> go(ArrayList<TACStatement> stmts) {
+        reset(stmts);
         ArrayList<Integer> origJumpDests = jumpDestinations(statements);
         ArrayList<Integer> newJumpDests = new ArrayList<>();
         ArrayList<List<TACStatement>> blocks = new ArrayList<>();

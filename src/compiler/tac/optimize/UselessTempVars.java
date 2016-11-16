@@ -11,7 +11,6 @@ import compiler.tac.TACPointerRef;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,9 +19,6 @@ import java.util.List;
  * @author leijurv
  */
 public class UselessTempVars extends TACOptimization {
-    public UselessTempVars(ArrayList<TACStatement> statements) {
-        super(statements);
-    }
     public static boolean isTempVariable(String s) {
         if (!s.startsWith(TempVarUsage.TEMP_VARIABLE_PREFIX)) {//all temp vars start with t. variables starting with a t are not supported in kitteh
             return false;

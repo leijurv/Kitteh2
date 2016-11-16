@@ -37,4 +37,5 @@ public abstract class TACStatement {
         return toString().hashCode();
     }
     public abstract List<String> requiredVariables();
+    public abstract List<String> modifiedVariables();
 }

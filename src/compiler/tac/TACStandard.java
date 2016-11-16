@@ -46,6 +46,10 @@ public class TACStandard extends TACStatement {
         return Arrays.asList(firstName, secondName);
     }
     @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList(resultName);
+    }
+    @Override
     public String toString0() {
         return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
     }

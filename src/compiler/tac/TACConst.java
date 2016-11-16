@@ -39,6 +39,10 @@ public class TACConst extends TACStatement {
         return Arrays.asList(sourceName);
     }
     @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList(destName);
+    }
+    @Override
     public String toString0() {
         return (dest == null ? destName : dest) + " = " + (source != null ? source : "CONST " + sourceName);
     }

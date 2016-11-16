@@ -29,6 +29,10 @@ public class TACCast extends TACStatement {
         return Arrays.asList(inputName);
     }
     @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList(destName);
+    }
+    @Override
     protected void onContextKnown() {
         input = context.getRequired(inputName);
         dest = context.getRequired(destName);

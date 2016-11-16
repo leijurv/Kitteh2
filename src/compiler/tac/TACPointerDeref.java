@@ -34,7 +34,11 @@ public class TACPointerDeref extends TACStatement {
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(destName, sourceName);
+        return Arrays.asList(sourceName);//actually i'd say that only sourceName is required
+    }
+    @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList(destName);
     }
     @Override
     public String toString0() {

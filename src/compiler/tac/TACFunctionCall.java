@@ -13,6 +13,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import java.nio.channels.CancelledKeyException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,6 +37,10 @@ public class TACFunctionCall extends TACStatement {
     @Override
     public List<String> requiredVariables() {
         return paramNames;
+    }
+    @Override
+    public List<String> modifiedVariables() {
+        return resultName == null ? Arrays.asList() : Arrays.asList(resultName);
     }
     @Override
     public String toString0() {

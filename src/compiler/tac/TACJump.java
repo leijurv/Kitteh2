@@ -41,4 +41,8 @@ public class TACJump extends TACStatement {
     public List<String> requiredVariables() {
         return Arrays.asList();
     }
+    @Override
+    public final List<String> modifiedVariables() {//a jump definitely can't modify anything, so final
+        return Arrays.asList();
+    }
 }

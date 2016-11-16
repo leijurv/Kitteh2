@@ -23,7 +23,8 @@ public class TACOptimizer {
             new ConstantCasting(),
             new JumpOver(),
             new UnusedVariables(),
-            new DeadCode()
+            new DeadCode(),
+            new UnusedAssignment()
         };
         do {
             prev = new ArrayList<>(input);

@@ -41,6 +41,10 @@ public class TACPointerRef extends TACStatement {
         return Arrays.asList(sourceName, destName);
     }
     @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList();
+    }
+    @Override
     public String toString0() {
         //return "Put the value " + source + " into the location specified by " + dest;
         return "*" + dest + " = " + (source == null ? "CONST " + sourceName : source);

@@ -29,4 +29,8 @@ public class TACReturn extends TACStatement {
     public List<String> requiredVariables() {
         return Arrays.asList();
     }
+    @Override
+    public List<String> modifiedVariables() {
+        return Arrays.asList();
+    }
 }

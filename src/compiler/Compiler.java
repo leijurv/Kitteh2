@@ -39,7 +39,7 @@ public class Compiler {
         String asm = compile(new String(program));
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
-    public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
+    public static boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
     public static String compile(String program) {
         long a = System.currentTimeMillis();
         ArrayList<Object> lol = Preprocessor.preprocess(program);

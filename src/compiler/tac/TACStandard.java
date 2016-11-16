@@ -70,7 +70,16 @@ public class TACStandard extends TACStatement {
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
             type = typeFromRegister(firstName);
         } else if (first == null) {
-            type = (TypeNumerical) second.getType();
+            if (second == null) {
+                if (compiler.Compiler.OPTIMIZE) {
+                    //this can arise when optimize is false
+                    //when it's true, make it an exception
+                    throw new RuntimeException("that optimization related exception again " + this);
+                }
+                type = (TypeNumerical) result.getType();
+            } else {
+                type = (TypeNumerical) second.getType();
+            }
         } else {
             type = (TypeNumerical) first.getType();
         }

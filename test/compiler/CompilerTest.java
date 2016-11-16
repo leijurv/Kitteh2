@@ -392,6 +392,14 @@ public class CompilerTest {
         verifyCompilation(program, false, null);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+        verifyCompilation(program, shouldCompile, desiredExecutionOutput, false);
+        try {
+            verifyCompilation(program, shouldCompile, desiredExecutionOutput, true);
+        } catch (Exception e) {
+            throw new IllegalStateException(e + "CAUSED BY OPTIMIZATION", e);
+        }
+    }
+    public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, boolean optimize) throws IOException, InterruptedException {
         if (!new File("/usr/bin/gcc").exists()) {
             assertNull("GCC must exist");
         }
@@ -399,6 +407,7 @@ public class CompilerTest {
             assertNull(desiredExecutionOutput);
         }
         String compiled;
+        Compiler.OPTIMIZE = optimize;
         try {
             compiled = Compiler.compile(program);
             assertEquals(true, shouldCompile);

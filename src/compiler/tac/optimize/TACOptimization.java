@@ -77,4 +77,28 @@ public abstract class TACOptimization {
         }
         return false;
     }
+    public boolean accessibleFromExterior(int pos) {
+        if (statements.get(pos).getClass() != TACJump.class) {
+            throw new RuntimeException();
+        }
+        TACJump tj = (TACJump) (statements.get(pos));
+        if (tj.jumpTo() <= pos) {
+            throw new RuntimeException();
+        }
+        int rangeEnd = tj.jumpTo();
+        //anything jumps to (pos+1,rangeEnd-1)
+        //any jumps to pos are ok, and jumps to rangeEnd are ok because rangeEnd isn't in question
+        for (int i = 0; i < statements.size(); i++) {
+            if (i > pos && i < rangeEnd) {
+                continue;
+            }
+            if (statements.get(i) instanceof TACJump) {
+                int dest = ((TACJump) statements.get(i)).jumpTo();
+                if (dest > pos && dest < rangeEnd) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

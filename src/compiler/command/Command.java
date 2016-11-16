@@ -7,6 +7,7 @@ package compiler.command;
 import compiler.Context;
 import compiler.tac.IREmitter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -43,7 +44,7 @@ public abstract class Command {
         return taclen;
     }
     public abstract void staticValues();
-    public ArrayList<String> getAllVarsModified() {
+    public List<String> getAllVarsModified() {
         return new ArrayList<>();
     }
 }

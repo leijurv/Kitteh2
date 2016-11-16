@@ -122,8 +122,8 @@ public class CommandFor extends CommandBlock {
         }
     }
     @Override
-    public ArrayList<String> getAllVarsModified() {
-        ArrayList<String> mod = super.getAllVarsModified();
+    public List<String> getAllVarsModified() {
+        List<String> mod = super.getAllVarsModified();
         if (afterthought != null) {
             mod.addAll(afterthought.getAllVarsModified());
         }

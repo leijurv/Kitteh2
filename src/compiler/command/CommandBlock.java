@@ -6,6 +6,7 @@
 package compiler.command;
 import compiler.Context;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +20,7 @@ public abstract class CommandBlock extends Command {
         this.contents = contents;
     }
     @Override
-    public ArrayList<String> getAllVarsModified() {
-        return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toCollection(ArrayList::new));
+    public List<String> getAllVarsModified() {
+        return contents.stream().map(command -> command.getAllVarsModified()).flatMap(arr -> arr.stream()).collect(Collectors.toList());
     }
 }

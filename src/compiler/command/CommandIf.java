@@ -68,7 +68,7 @@ public class CommandIf extends CommandBlock {
             return;//if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if false -> we just reset the known values to what they were before because it is guaranteed to not run
         }
-        for (String s : getAllVarsModified()) {
+        for (String s : varsMod) {
             context.clearKnownValue(s);
         }
     }

@@ -12,6 +12,7 @@ import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
+import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypePointer;
@@ -25,7 +26,7 @@ import java.nio.file.ReadOnlyFileSystemException;
  *
  * @author leijurv
  */
-public class ExpressionStructFieldAccess extends Expression implements Settable {
+public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable implements Settable {
     String field;
     Expression input;
     Struct struct;
@@ -43,6 +44,10 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+        String fieldLabel = generateFieldLabel(emit, tempVars);
+        emit.emit(new TACConst(resultLocation, fieldLabel));
+    }
+    public String generateFieldLabel(IREmitter emit, TempVarUsage tempVars) {
         String temp = tempVars.getTempVar(input.getType());
         VarInfo structLocation = tempVars.getInfo(temp);
         input.generateTAC(emit, tempVars, temp);
@@ -51,7 +56,7 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
         int fieldLocationOnStack = structLocationOnStack + offsetOfThisFieldWithinStruct;
         //System.out.println(structLocationOnStack + " " + offsetOfThisFieldWithinStruct + " " + fieldLocationOnStack + " " + struct.getFieldByName(field));
         String fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType());
-        emit.emit(new TACConst(resultLocation, fieldLabel));
+        return fieldLabel;
     }
     @Override
     protected int calculateTACLength() {
@@ -117,5 +122,13 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
         } else {
             throw new UnsupportedOperationException(input + " ", new MalformedParameterizedTypeException());
         }
+    }
+    @Override
+    public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+        emit.emit(new TACJumpBoolVar(generateFieldLabel(emit, tempVars), jumpTo, invert));
+    }
+    @Override
+    public int condLength() {
+        return getTACLength();
     }
 }

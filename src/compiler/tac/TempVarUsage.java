@@ -44,9 +44,10 @@ public class TempVarUsage {
         return name;//yes
     }
     public String registerLabelManually(int stackLocation, Type type) {//used for structs
-        String name = TEMP_VARIABLE_PREFIX + "sketchymanual" + ind;
+        String name = TEMP_VARIABLE_PREFIX + TEMP_STRUCT_FIELD_INFIX + ind;
         types.put(name, ctx.new VarInfo(name, type, stackLocation));
         return name;
     }
     public static final String TEMP_VARIABLE_PREFIX = "tmp";
+    public static final String TEMP_STRUCT_FIELD_INFIX = "sketchymanual";
 }

@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.X86Register;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
+import compiler.tac.TempVarUsage;
 import compiler.type.TypeStruct;
 import java.util.List;
 
@@ -26,10 +28,10 @@ public class UnusedVariables extends TACOptimization {
             int pos = blockBegin + i;
             if (ts instanceof TACConst) {
                 String dest = ((TACConst) ts).destName;
-                if (dest.startsWith("%")) {
+                if (dest.startsWith(X86Register.REGISTER_PREFIX)) {
                     continue;
                 }
-                if (dest.contains("sketchymanual")) {
+                if (dest.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;//if you comment out this line, the tests fail.
                 }
                 if (((TACConst) ts).dest.getType() instanceof TypeStruct) {

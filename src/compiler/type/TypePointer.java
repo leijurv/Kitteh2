@@ -26,6 +26,7 @@ public class TypePointer<E extends Type> extends TypeInt64 {
     public int hashCode() {
         return pointingTo.hashCode() * 5021 + 13;
     }
+    @Override
     public String toString() {
         return "*" + pointingTo.toString();
     }

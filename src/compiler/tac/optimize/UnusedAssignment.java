@@ -4,10 +4,12 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.X86Register;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
+import compiler.tac.TempVarUsage;
 import java.util.List;
 
 /**
@@ -31,10 +33,10 @@ public class UnusedAssignment extends TACOptimization {
             if (mv.size() != 1) {
                 throw new RuntimeException();
             }
-            if (mv.get(0).startsWith("%")) {
+            if (mv.get(0).startsWith(X86Register.REGISTER_PREFIX)) {
                 continue;
             }
-            if (mv.get(0).contains("sketchymanual")) {
+            if (mv.get(0).contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
             if (!usedAfter(block, mv.get(0), i)) {

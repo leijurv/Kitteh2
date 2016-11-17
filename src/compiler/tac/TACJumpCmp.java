@@ -30,7 +30,7 @@ public class TACJumpCmp extends TACJump {
     }
     @Override
     public String toString0() {
-        return "jump to " + jumpTo + " if " + first + " " + op + " " + second;
+        return "jump to " + jumpTo + " if " + (first == null ? "CONST " + firstName : first) + " " + op + " " + (second == null ? "CONST " + secondName : second);
     }
     @Override
     public List<String> requiredVariables() {

@@ -6,6 +6,7 @@
 package compiler.tac.optimize;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
+import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class UnusedAssignment extends TACOptimization {
             if (mv.size() != 1) {
                 throw new RuntimeException();
             }
+            if (mv.get(0).startsWith("%")) {
+                continue;
+            }
+            if (mv.get(0).contains("sketchymanual")) {
+                continue;
+            }
             if (!usedAfter(block, mv.get(0), i)) {
                 block.remove(i);
                 return;
@@ -45,6 +52,9 @@ public class UnusedAssignment extends TACOptimization {
                 return true;
             }
             if (block.get(i).modifiedVariables().contains(varName)) {
+                return false;
+            }
+            if (block.get(i) instanceof TACReturn) {
                 return false;
             }
         }

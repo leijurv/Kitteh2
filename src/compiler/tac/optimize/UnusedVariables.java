@@ -10,6 +10,11 @@ import compiler.type.TypeStruct;
 import java.util.List;
 
 /**
+ * note that this is a different optimization than unusedassignment. this one
+ * only applies to tacconsts and it follows jumps (conditional or otherwise) to
+ * check all locations a variable might be used. this one only looks for
+ * variables that are set and unused, NOT for variables that are set and reset
+ * (that's unusedassignment's job)
  *
  * @author leijurv
  */

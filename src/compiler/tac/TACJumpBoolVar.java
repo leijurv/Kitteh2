@@ -15,8 +15,8 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpBoolVar extends TACJump {
-    String varName;
-    VarInfo var;
+    public String varName;
+    public VarInfo var;
     boolean invert;
     public TACJumpBoolVar(String varName, int jumpTo, boolean invert) {
         super(jumpTo);

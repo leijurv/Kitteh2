@@ -17,10 +17,10 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpCmp extends TACJump {
-    VarInfo first;
-    VarInfo second;
-    String firstName;
-    String secondName;
+    public VarInfo first;
+    public VarInfo second;
+    public String firstName;
+    public String secondName;
     Operator op;
     public TACJumpCmp(String first, String second, Operator op, int jumpTo) {
         super(jumpTo);
@@ -46,9 +46,15 @@ public class TACJumpCmp extends TACJump {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical type = (TypeNumerical) first.getType();
-        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
-        emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
+        if (first != null && second != null && !first.getType().equals(second.getType())) {
+            throw new IllegalStateException("an apple and an orange snuck in");
+        }
+        if (first == null && second == null) {
+            throw new IllegalStateException("hey i need at least either the apple or the orange");
+        }
+        TypeNumerical type = first == null ? (TypeNumerical) second.getType() : (TypeNumerical) first.getType();
+        emit.addStatement("mov" + type.x86typesuffix() + " " + (first == null ? "$" + firstName : first.x86()) + ", " + X86Register.C.getRegister(type));
+        emit.addStatement("mov" + type.x86typesuffix() + " " + (second == null ? "$" + secondName : second.x86()) + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
         emit.addStatement(op.tox86jump() + " " + emit.lineToLabel(jumpTo));
     }

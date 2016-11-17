@@ -8,6 +8,8 @@ import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
+import compiler.tac.TACJumpBoolVar;
+import compiler.tac.TACJumpCmp;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TACPointerRef;
 import compiler.tac.TACStandard;
@@ -120,6 +122,29 @@ public class UselessTempVars extends TACOptimization {
                     if (t.inputName.equals(valSet) && curr.source != null) {
                         t.input = curr.source;
                         t.inputName = curr.sourceName;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                }
+                if (next instanceof TACJumpBoolVar) {
+                    TACJumpBoolVar t = (TACJumpBoolVar) next;
+                    if (t.varName.equals(valSet)) {
+                        throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements");//but if i change things in the future this could happen and isn't a serious error
+                    }
+                }
+                if (next instanceof TACJumpCmp) {
+                    TACJumpCmp t = (TACJumpCmp) next;
+                    if (t.firstName.equals(valSet)) {
+                        t.firstName = curr.sourceName;
+                        t.first = curr.source;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                    if (t.secondName.equals(valSet)) {
+                        t.secondName = curr.sourceName;
+                        t.second = curr.source;
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;

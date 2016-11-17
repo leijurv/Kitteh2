@@ -305,7 +305,7 @@ public class CompilerTest {
                 + "func intToStr(long input) byte*{\n"
                 + "	inputCopy:=input\n"
                 + "	int count=0\n"
-                + "	if inputCopy < (long)(0){\n"
+                + "	if (long)(0) >inputCopy{\n"
                 + "		inputCopy=0-inputCopy//make it positive so \"for inputCopy > 0\" works properly\n"
                 + "		count=count+1//make room for the negative sign\n"
                 + "	}\n"

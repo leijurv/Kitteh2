@@ -12,6 +12,7 @@ import compiler.tac.TACPointerRef;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeStruct;
 import java.util.List;
 
 /**
@@ -42,83 +43,93 @@ public class UselessTempVars extends TACOptimization {
             if (!isTempVariable(valSet)) {
                 continue;
             }
-            TACStatement next = block.get(ind + 1);
-            if (next instanceof TACStandard) {
-                TACStandard n = (TACStandard) next;
-                if (n.secondName.equals(valSet)) {
-                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
-                    n.secondName = curr.sourceName;
-                    n.second = curr.source;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
-                }
-                if (n.firstName.equals(valSet)) {
-                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
-                    n.firstName = curr.sourceName;
-                    n.first = curr.source;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
-                }
-            }
-            if (next instanceof TACConst) {
-                TACConst c = (TACConst) next;
-                if (c.sourceName.equals(valSet)) {
-                    //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
-                    c.sourceName = curr.sourceName;
-                    c.source = curr.source;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
-                }
-            }
-            if (next instanceof TACFunctionCall) {
-                TACFunctionCall c = (TACFunctionCall) next;
-                boolean shouldContinue = false;
-                for (int i = 0; i < c.paramNames.size(); i++) {
-                    if (c.paramNames.get(i).equals(valSet)) {
-                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
-                        c.paramNames.set(i, curr.sourceName);
-                        c.params.set(i, curr.source);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        shouldContinue = true;
+            for (int usageLocation = ind + 1; usageLocation < block.size(); usageLocation++) {
+                TACStatement next = block.get(usageLocation);
+                if (curr.dest.getType() instanceof TypeStruct) {
+                    if (usageLocation > ind + 1) {//todo figure out why this inner IF is really necesary to make the tests succeed
                         break;
                     }
                 }
-                if (shouldContinue) {
-                    continue;
+                if (next instanceof TACStandard) {
+                    TACStandard n = (TACStandard) next;
+                    if (n.secondName.equals(valSet)) {
+                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                        n.secondName = curr.sourceName;
+                        n.second = curr.source;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                    if (n.firstName.equals(valSet)) {
+                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                        n.firstName = curr.sourceName;
+                        n.first = curr.source;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
                 }
-            }
-            if (next instanceof TACPointerRef) {
-                TACPointerRef t = (TACPointerRef) next;
-                if (t.sourceName.equals(valSet)) {
-                    t.source = curr.source;
-                    t.sourceName = curr.sourceName;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
+                if (next instanceof TACConst) {
+                    TACConst c = (TACConst) next;
+                    if (c.sourceName.equals(valSet)) {
+                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                        c.sourceName = curr.sourceName;
+                        c.source = curr.source;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
                 }
-            }
-            if (next instanceof TACPointerDeref) {
-                TACPointerDeref t = (TACPointerDeref) next;
-                if (t.sourceName.equals(valSet)) {
-                    t.source = curr.source;
-                    t.sourceName = curr.sourceName;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
+                if (next instanceof TACFunctionCall) {
+                    TACFunctionCall c = (TACFunctionCall) next;
+                    boolean shouldBreak = false;
+                    for (int i = 0; i < c.paramNames.size(); i++) {
+                        if (c.paramNames.get(i).equals(valSet)) {
+                            //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
+                            c.paramNames.set(i, curr.sourceName);
+                            c.params.set(i, curr.source);
+                            block.remove(ind);
+                            ind = Math.max(-1, ind - 2);
+                            shouldBreak = true;
+                            break;
+                        }
+                    }
+                    if (shouldBreak) {
+                        break;
+                    }
                 }
-            }
-            if (next instanceof TACCast) {
-                TACCast t = (TACCast) next;
-                if (t.inputName.equals(valSet) && curr.source != null) {
-                    t.input = curr.source;
-                    t.inputName = curr.sourceName;
-                    block.remove(ind);
-                    ind = Math.max(-1, ind - 2);
-                    continue;
+                if (next instanceof TACPointerRef) {
+                    TACPointerRef t = (TACPointerRef) next;
+                    if (t.sourceName.equals(valSet)) {
+                        t.source = curr.source;
+                        t.sourceName = curr.sourceName;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                }
+                if (next instanceof TACPointerDeref) {
+                    TACPointerDeref t = (TACPointerDeref) next;
+                    if (t.sourceName.equals(valSet)) {
+                        t.source = curr.source;
+                        t.sourceName = curr.sourceName;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                }
+                if (next instanceof TACCast) {
+                    TACCast t = (TACCast) next;
+                    if (t.inputName.equals(valSet) && curr.source != null) {
+                        t.input = curr.source;
+                        t.inputName = curr.sourceName;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
+                    }
+                }
+                if (next.requiredVariables().contains(valSet)) {
+                    break;
                 }
             }
         }

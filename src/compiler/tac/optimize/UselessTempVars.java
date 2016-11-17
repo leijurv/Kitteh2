@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACPointerDeref;
@@ -105,6 +106,16 @@ public class UselessTempVars extends TACOptimization {
                 if (t.sourceName.equals(valSet)) {
                     t.source = curr.source;
                     t.sourceName = curr.sourceName;
+                    block.remove(ind);
+                    ind = Math.max(-1, ind - 2);
+                    continue;
+                }
+            }
+            if (next instanceof TACCast) {
+                TACCast t = (TACCast) next;
+                if (t.inputName.equals(valSet) && curr.source != null) {
+                    t.input = curr.source;
+                    t.inputName = curr.sourceName;
                     block.remove(ind);
                     ind = Math.max(-1, ind - 2);
                     continue;

@@ -30,14 +30,14 @@ public class UnusedAssignment extends TACOptimization {
             if (mv.size() != 1) {
                 throw new RuntimeException();
             }
-            if (!usedAtOrAfter(block, mv.get(0), i + 1)) {
+            if (!usedAfter(block, mv.get(0), i)) {
                 block.remove(i);
                 return;
             }
         }
     }
-    static boolean usedAtOrAfter(List<TACStatement> block, String varName, int lineNumber) {
-        for (int i = lineNumber; i < block.size(); i++) {
+    static boolean usedAfter(List<TACStatement> block, String varName, int lineNumber) {
+        for (int i = lineNumber + 1; i < block.size(); i++) {
             if (block.get(i).requiredVariables().contains(varName)) {
                 return true;
             }

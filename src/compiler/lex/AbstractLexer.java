@@ -16,12 +16,14 @@ public abstract class AbstractLexer extends StringEmitter {
     private final ArrayList<Token> temp;
     protected AbstractLexer(String line) {
         super(line);
-        this.temp = new ArrayList<>();
     }
     protected void emit(Token t) {
         temp.add(t);
     }
     protected abstract void runLex();
+    {
+        temp = new ArrayList<>();
+    }
     public ArrayList<Token> lex() {//eh this can be public
         if (!temp.isEmpty()) {
             throw new IllegalStateException("babe you are reusing a lexer what are you even doing right now XDDDD haha");

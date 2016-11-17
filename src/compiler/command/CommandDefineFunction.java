@@ -72,7 +72,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public ArrayList<TACStatement> totac(boolean optimize) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN TAC GENERATION FOR " + name);
-        Context.VarInfo.printFull = true;
+        Context.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
@@ -129,5 +129,5 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public static final FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
-    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new TypePointer<>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

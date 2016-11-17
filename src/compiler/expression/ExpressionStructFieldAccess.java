@@ -86,37 +86,36 @@ public class ExpressionStructFieldAccess extends Expression implements Settable 
         } else if (input instanceof ExpressionVariable) {
             //input.field=rvalue
             VarInfo thisVariable = context.get(((ExpressionVariable) input).name);
+            class CommandSetStructField extends Command {
+                Expression insert;
+                int stackLoc;
+                public CommandSetStructField(Context aids, int stackLoc, Expression insert) {
+                    super(aids);
+                    this.stackLoc = stackLoc;
+                    this.insert = insert;
+                    if (!insert.getType().equals(struct.getFieldByName(field).getType())) {
+                        throw new ReadOnlyFileSystemException();
+                    }
+                }
+                @Override
+                protected void generateTAC0(IREmitter emit) {
+                    TempVarUsage cancer = new TempVarUsage(context);
+                    String tam = cancer.getTempVar(insert.getType());
+                    insert.generateTAC(emit, cancer, tam);
+                    String thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType());
+                    emit.emit(new TACConst(thisField, tam));
+                }
+                @Override
+                protected int calculateTACLength() {
+                    return insert.getTACLength() + 1;
+                }
+                @Override
+                public void staticValues() {
+                }
+            }
             return new CommandSetStructField(context, thisVariable.getStackLocation() + offsetOfThisFieldWithinStruct, rvalue);
         } else {
             throw new UnsupportedOperationException(input + " ", new MalformedParameterizedTypeException());
-        }
-    }
-
-    private class CommandSetStructField extends Command {
-        Expression insert;
-        int stackLoc;
-        public CommandSetStructField(Context aids, int stackLoc, Expression insert) {
-            super(aids);
-            this.stackLoc = stackLoc;
-            this.insert = insert;
-            if (!insert.getType().equals(struct.getFieldByName(field).getType())) {
-                throw new ReadOnlyFileSystemException();
-            }
-        }
-        @Override
-        protected void generateTAC0(IREmitter emit) {
-            TempVarUsage cancer = new TempVarUsage(context);
-            String tam = cancer.getTempVar(insert.getType());
-            insert.generateTAC(emit, cancer, tam);
-            String thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType());
-            emit.emit(new TACConst(thisField, tam));
-        }
-        @Override
-        protected int calculateTACLength() {
-            return insert.getTACLength() + 1;
-        }
-        @Override
-        public void staticValues() {
         }
     }
 }

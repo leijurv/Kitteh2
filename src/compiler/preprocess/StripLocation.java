@@ -11,21 +11,28 @@ package compiler.preprocess;
  * @author leijurv
  */
 public enum StripLocation {
-    BEGIN, END, BOTH;
-    public boolean stripBegin() {
-        switch (this) {
-            case BEGIN:
-            case BOTH:
-                return true;
+    BEGIN {
+        @Override
+        public boolean stripBegin() {
+            return true;
         }
-        return false;
-    }
+        @Override
+        public boolean stripEnd() {
+            return false;
+        }
+    }, END {
+        @Override
+        public boolean stripBegin() {
+            return false;
+        }
+    }, BOTH {
+        @Override
+        public boolean stripBegin() {
+            return true;
+        }
+    };
+    public abstract boolean stripBegin();
     public boolean stripEnd() {
-        switch (this) {
-            case END:
-            case BOTH:
-                return true;
-        }
-        return false;
+        return true;
     }
 }

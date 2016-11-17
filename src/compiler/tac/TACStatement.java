@@ -18,9 +18,9 @@ public abstract class TACStatement {
         this.context = context;
         onContextKnown();
     }
-    protected abstract void onContextKnown();
+    abstract protected void onContextKnown();
     @Override
-    public final String toString() {//all calls to toString should check the context first, and this results in a single error message for every case where the context isn't already set
+    final public String toString() {//all calls to toString should check the context first, and this results in a single error message for every case where the context isn't already set
         if (context == null) {
             throw new IllegalStateException("Context not set " + getClass());
         }

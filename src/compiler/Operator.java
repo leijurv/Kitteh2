@@ -108,7 +108,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
         }
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
-    public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
+    strictfp public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
         if (!((Expression) a).getType().equals(((Expression) b).getType())) {
             throw new FileSystemAlreadyExistsException("");
         }

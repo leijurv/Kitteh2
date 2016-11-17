@@ -22,8 +22,9 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class Context {
-    public static class VarInfo {
-        public static boolean printFull = true;
+    public static boolean printFull = true;
+
+    public class VarInfo {
         private final String name;
         private final Type type;
         private ExpressionConst knownValue;

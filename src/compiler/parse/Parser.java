@@ -192,7 +192,7 @@ public class Parser {
                         //System.out.println(fieldNames);
                         //System.out.println(fieldTypes);
                         //System.out.println("Parsing struct " + params + " " + rawBlock);
-                        Struct struct = new Struct(structName, fieldTypes, fieldNames);
+                        Struct struct = new Struct(structName, fieldTypes, fieldNames, context);
                         context.defineStruct(struct);
                         break;
                     default:
@@ -400,7 +400,7 @@ public class Parser {
             if (((TokenOperator) tokens.get(i)).op != Operator.MULTIPLY) {
                 return null;
             }
-            tp = new TypePointer<>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer
+            tp = new <Type>TypePointer<Type>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer
         }
         return tp;
     }

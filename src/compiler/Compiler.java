@@ -74,7 +74,7 @@ public class Compiler {
             }
             System.out.println();
         }*/
-        Context.VarInfo.printFull = false;
+        Context.printFull = false;
         for (Pair<String, ArrayList<TACStatement>> pair : wew) {
             System.out.println("TAC FOR " + pair.getKey());
             for (int i = 0; i < pair.getValue().size(); i++) {

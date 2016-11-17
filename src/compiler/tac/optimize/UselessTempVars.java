@@ -7,6 +7,7 @@ package compiler.tac.optimize;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACJump;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TACPointerRef;
 import compiler.tac.TACStandard;
@@ -40,7 +41,7 @@ public class UselessTempVars extends TACOptimization {
             }
             TACConst curr = (TACConst) block.get(ind);
             String valSet = curr.destName;
-            if (!isTempVariable(valSet)) {
+            if (!isTempVariable(valSet)) {//this should ignore struct field writes because they don't follow the pattern of "tmp" then an integer
                 continue;
             }
             for (int usageLocation = ind + 1; usageLocation < block.size(); usageLocation++) {
@@ -53,7 +54,6 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACStandard) {
                     TACStandard n = (TACStandard) next;
                     if (n.secondName.equals(valSet)) {
-                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                         n.secondName = curr.sourceName;
                         n.second = curr.source;
                         block.remove(ind);
@@ -61,7 +61,6 @@ public class UselessTempVars extends TACOptimization {
                         break;
                     }
                     if (n.firstName.equals(valSet)) {
-                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                         n.firstName = curr.sourceName;
                         n.first = curr.source;
                         block.remove(ind);
@@ -72,7 +71,6 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACConst) {
                     TACConst c = (TACConst) next;
                     if (c.sourceName.equals(valSet)) {
-                        //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                         c.sourceName = curr.sourceName;
                         c.source = curr.source;
                         block.remove(ind);
@@ -85,7 +83,6 @@ public class UselessTempVars extends TACOptimization {
                     boolean shouldBreak = false;
                     for (int i = 0; i < c.paramNames.size(); i++) {
                         if (c.paramNames.get(i).equals(valSet)) {
-                            //System.out.println("Optimizing " + valSet + " " + curr + "    " + next);
                             c.paramNames.set(i, curr.sourceName);
                             c.params.set(i, curr.source);
                             block.remove(ind);
@@ -129,7 +126,27 @@ public class UselessTempVars extends TACOptimization {
                     }
                 }
                 if (next.requiredVariables().contains(valSet)) {
+                    //this temp variable is used in a context that does not allow for optimized insertion
+                    //since temp variables are only used once, we can't insert it into an expression after its usage
                     break;
+                }
+                if (next.modifiedVariables().contains(valSet)) {
+                    //something is wrong
+                    //something like:
+                    //tmp0=1
+                    // ... (temp0 not used)
+                    //tmp0=2
+                    //so somehow tmp0 was set but then unused
+                    //again, this might be caused by a different optimization leaving dangling temp variables
+                    throw new RuntimeException("Another optimization did something weird");
+                }
+                if (next instanceof TACJump) {
+                    //if it gets to here, it means something is wrong
+                    //it means that a temp variable is set, then goes unused up to a jump
+                    //and since no temp variables are used again after a jump
+                    //it means that somehow this temp variable was generated but went unused entirely
+                    //it could indicate a bug in a different optimization btw
+                    throw new RuntimeException("Another optimization did something weird");
                 }
             }
         }

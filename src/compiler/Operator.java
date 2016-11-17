@@ -145,19 +145,25 @@ public enum Operator {//extends Token maybe? might make things easier... idk
         }
     }
     public String tox86jump() {
+        return "j" + tox86comp();
+    }
+    public String tox86set() {
+        return "set" + tox86comp();
+    }
+    public String tox86comp() {
         switch (this) {
             case LESS:
-                return "jl";
+                return "l";
             case EQUAL:
-                return "je";
+                return "e";
             case GREATER:
-                return "jg";
+                return "g";
             case NOT_EQUAL:
-                return "jne";
+                return "ne";
             case LESS_OR_EQUAL:
-                return "jle";
+                return "le";
             case GREATER_OR_EQUAL:
-                return "jge";
+                return "ge";
             default:
                 throw new UnresolvedAddressException();
         }

@@ -13,7 +13,6 @@ import compiler.tac.TACJumpCmp;
 import compiler.tac.TACStandard;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
-import compiler.type.TypeBoolean;
 
 /**
  *
@@ -42,7 +41,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean) {
+        if (op == Operator.AND || op == Operator.OR) {
             int ifTrue = emit.lineNumberOfNextStatement() + condLength() + 2;
             int ifFalse = ifTrue + 1;
             generateConditionalJump(emit, tempVars, ifTrue, false);
@@ -59,7 +58,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public int calculateTACLength() {
-        if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean) {
+        if (op == Operator.AND || op == Operator.OR) {
             return condLength() + 3;
         }
         return condLength();

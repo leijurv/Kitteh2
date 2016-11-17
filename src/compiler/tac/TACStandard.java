@@ -134,6 +134,16 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("imul" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
+            case LESS:
+            case GREATER:
+            case EQUAL:
+            case NOT_EQUAL:
+            case GREATER_OR_EQUAL:
+            case LESS_OR_EQUAL:
+                emit.addStatement("cmp" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(op.tox86set() + " %cl");
+                emit.addStatement("movb %cl, " + result.x86());
+                break;
             default:
                 throw new IllegalStateException(op + "");
         }

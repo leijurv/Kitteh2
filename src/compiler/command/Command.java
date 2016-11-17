@@ -19,7 +19,7 @@ public abstract class Command {
         this.context = context;
     }
     protected abstract void generateTAC0(IREmitter emit);
-    public void generateTAC(IREmitter emit) {
+    public final void generateTAC(IREmitter emit) {
         emit.updateContext(context);
         int before = emit.mostRecentLineNumber();
         generateTAC0(emit);

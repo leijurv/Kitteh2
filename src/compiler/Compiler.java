@@ -33,6 +33,7 @@ public class Compiler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        http://github.com/leijurv/Kitteh2
         System.out.println("First stream: " + streamTime());//almost always several hundred ms
         System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());

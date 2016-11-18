@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.Context;
 import compiler.X86Register;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
@@ -23,6 +24,7 @@ public class UnusedAssignment extends TACOptimization {
             if (block.get(i) instanceof TACFunctionCall) {
                 continue;
             }
+            Context.printFull = true;
             if (block.get(i).toString().contains("Struct")) {
                 continue;
             }

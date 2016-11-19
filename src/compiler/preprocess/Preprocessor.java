@@ -20,7 +20,6 @@ public class Preprocessor {
             .addChar('\r', StripLocation.BOTH)//idk how returns work
             .addChar((char) 11, StripLocation.BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
             .addChar(' ', StripLocation.BOTH)//alt+space
-
             .build();
     static final Transform<List<Line>> REMOVE_BLANK = new BlankLineRemover();
     @SuppressWarnings("unchecked")//you can't actually do "new Transform<>[]{" so I can't fix this warning
@@ -33,7 +32,6 @@ public class Preprocessor {
         for (Transform<List<Line>> action : PREPROCESSOR_ACTIONS) {
             action.apply(program);
         }
-        System.out.println(program);
         return program;
     }
 }

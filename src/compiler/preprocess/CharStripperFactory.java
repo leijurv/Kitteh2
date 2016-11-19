@@ -61,7 +61,6 @@ public class CharStripperFactory {
             int stripEnd;
             for (stripEnd = line.length() - 1; stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd)); stripEnd--);
             if (stripBegin > stripEnd) {
-                System.out.println("IM STRIPPING " + line);
                 return new Line("", lineObj.num());
             }
             return new Line(line.substring(stripBegin, stripEnd + 1), lineObj.num());

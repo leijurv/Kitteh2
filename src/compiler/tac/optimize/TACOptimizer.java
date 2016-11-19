@@ -24,7 +24,8 @@ public class TACOptimizer {
             new JumpOver(),
             new UnusedVariables(),
             new DeadCode(),
-            new UnusedAssignment()
+            new UnusedAssignment(),
+            new DoubleJump()
         };
         do {
             prev = new ArrayList<>(input);

@@ -66,13 +66,14 @@ public class Parser {
         }
         return result;
     }
+    @SuppressWarnings("unchecked")//ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
     public Command runLine(ArrayList<Object> lexed, Context context, int i) {
         Line l = (Line) lexed.get(i);
         try {
             if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {//this line begins a block
                 return parseLine(l.getTokens(), context);
             } else {
-                ArrayList rawBlock = (ArrayList) lexed.remove(i + 1);
+                ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
                 ArrayList<Token> lineTokens = l.getTokens();
                 if (lineTokens.isEmpty()) {
                     throw new IllegalStateException("come on it's like you're TRYING to break the parser. don't have { on a line on its own");

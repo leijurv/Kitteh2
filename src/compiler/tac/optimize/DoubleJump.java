@@ -8,7 +8,6 @@ import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -26,7 +25,6 @@ public class DoubleJump extends TACOptimization {
                     boolean unconditionalSecond = dest.getClass() == TACJump.class;
                     if (unconditionalSecond) {
                         first.setJumpTo(second.jumpTo());
-                        throw new UnsupportedOperationException(stmts.stream().map(x -> x.toString()).collect(Collectors.joining()));
                     }
                 }
             }

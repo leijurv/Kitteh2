@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
+import compiler.parse.Line;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
 import javax.xml.bind.TypeConstraintException;
@@ -50,9 +51,10 @@ public class CharStripperFactory {
         Character[] begin = stripBegin();
         Character[] end = stripEnd();
         @Override
-        public String transform(String line) {
+        public Line transform(Line lineObj) {
+            String line = lineObj.raw();
             if (line.equals("")) {
-                return line;
+                return lineObj;
             }
             int stripBegin;
             for (stripBegin = 0; stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin)); stripBegin++);
@@ -60,9 +62,9 @@ public class CharStripperFactory {
             for (stripEnd = line.length() - 1; stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd)); stripEnd--);
             if (stripBegin > stripEnd) {
                 System.out.println("IM STRIPPING " + line);
-                return "";
+                return new Line("", lineObj.num());
             }
-            return line.substring(stripBegin, stripEnd + 1);
+            return new Line(line.substring(stripBegin, stripEnd + 1), lineObj.num());
         }
     }
 }

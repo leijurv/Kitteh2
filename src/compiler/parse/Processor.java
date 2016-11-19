@@ -31,7 +31,6 @@ public class Processor {
         //System.out.println("Processing " + o);
         new StringFinder().apply(o);//This makes a lot of things easier. Without this we can't do things like if(line.contains("{")) because the { might be in a string and therefore wouldn't actually begin a block
         new BlockFinder().apply(o);
-        o = LineGrouper.groupAdjacentIntoLines(o);
         long b = System.currentTimeMillis();
         new LexLuthor().apply(o);
         long c = System.currentTimeMillis();

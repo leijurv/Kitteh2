@@ -16,17 +16,38 @@ import java.util.ArrayList;
 public class Line {
     private final ArrayList<Object> source;
     private ArrayList<Token> tokens;
-    public Line(ArrayList<Object> source) {
+    private final String raw;
+    private final int origLineNumber;
+    public Line(String raw, int origLineNumber) {
+        this.raw = raw;
+        this.origLineNumber = origLineNumber;
+        source = new ArrayList<>();
+        source.add(raw);
+    }
+    /*public Line(ArrayList<Object> source) {
         this.source = source;
         this.tokens = null;
-    }
+    }*/
     @Override
     public String toString() {
         if (tokens == null) {
-            return "rawline" + source;
+            if (source == null) {
+                return origLineNumber + ": " + raw;
+            } else {
+                return origLineNumber + ": " + source;
+            }
         } else {
-            return "line" + tokens;
+            return origLineNumber + ": " + tokens;
         }
+    }
+    public String raw() {
+        return raw;
+    }
+    public int num() {
+        return origLineNumber;
+    }
+    public ArrayList<Object> source() {
+        return source;
     }
     public void lex() {//todo we could use parallel streams here in the future to make it multithreaded
         if (tokens != null) {

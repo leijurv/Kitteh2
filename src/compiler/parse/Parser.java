@@ -19,7 +19,6 @@ import compiler.command.CommandReturn;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.expression.Settable;
-import compiler.lex.Lexer;
 import compiler.token.Token;
 import compiler.token.TokenComma;
 import compiler.token.TokenEndParen;
@@ -52,7 +51,6 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  * @author leijurv
  */
 public class Parser {
-    @SuppressWarnings("unchecked")//Apparently "ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);" is unchecked idk
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {
@@ -61,11 +59,20 @@ public class Parser {
                 //e.g. ArrayLists representing blocks are removed when the previous line has a {
                 throw new IllegalStateException(o.toString());
             }
-            Line l = (Line) o;
+            Command c = runLine(lexed, context, i);
+            if (c != null) {
+                result.add(c);
+            }
+        }
+        return result;
+    }
+    public Command runLine(ArrayList<Object> lexed, Context context, int i) {
+        Line l = (Line) lexed.get(i);
+        try {
             if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {//this line begins a block
-                result.add(parseLine(l.getTokens(), context));
+                return parseLine(l.getTokens(), context);
             } else {
-                ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
+                ArrayList rawBlock = (ArrayList) lexed.remove(i + 1);
                 ArrayList<Token> lineTokens = l.getTokens();
                 if (lineTokens.isEmpty()) {
                     throw new IllegalStateException("come on it's like you're TRYING to break the parser. don't have { on a line on its own");
@@ -122,14 +129,13 @@ public class Parser {
                         }
                         Context subContext = context.subContext();
                         int pos = 16;//args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
-                        //source: http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
+                        http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
                         for (Pair<String, Type> arg : args) {
                             subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
                             pos += arg.getValue().getSizeBytes();
                         }
                         CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, rawBlock);
-                        result.add(def);
-                        break;
+                        return def;
                     case FOR:
                         //System.out.println("Parsing for loop with params " + params);
                         int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
@@ -139,12 +145,11 @@ public class Parser {
                                 ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
                                 if (params.isEmpty()) {//for{
                                     System.out.println("I'm a strong independant for loop that doesn't need no conditions");
-                                    result.add(new CommandFor(blockCommands, sub));
+                                    return new CommandFor(blockCommands, sub);
                                 } else {//for i<5
                                     Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
-                                    result.add(new CommandFor(condition, blockCommands, sub));
+                                    return new CommandFor(condition, blockCommands, sub);
                                 }
-                                break;
                             }
                             case 2: {//for i:=0; i<1000; i++{
                                 //I wish I could do params.split(TokenSemicolon)
@@ -158,20 +163,18 @@ public class Parser {
                                 ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);//this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                                 Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                                 Command afterthought = parseLine(third, sub);
-                                result.add(new CommandFor(initialization, condition, afterthought, blockCommands, sub));
-                                break;
+                                return new CommandFor(initialization, condition, afterthought, blockCommands, sub);
                             }
                             default:
                                 throw new IllegalStateException("what are you even doing");
                         }
-                        break;
+                    //i can't put a break or a return here because it's unreachable atm
                     case IF://TODO else
                         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
                         //System.out.println("Parsed " + params + " to " + condition);
                         Context sub = context.subContext();
                         ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
-                        result.add(new CommandIf(condition, blockCommands, sub));
-                        break;
+                        return new CommandIf(condition, blockCommands, sub);
                     case STRUCT:
                         if (params.size() != 1) {
                             throw new KeyAlreadyExistsException();
@@ -183,11 +186,16 @@ public class Parser {
                         ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
                         ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
                         for (int j = 0; j < rawBlock.size(); j++) {
-                            String thisLine = (String) rawBlock.get(j);
-                            ArrayList<Token> tokens = Lexer.lex(thisLine);
+                            Line thisLine = (Line) rawBlock.get(j);
+                            thisLine.lex();
+                            ArrayList<Token> tokens = thisLine.getTokens();
                             //System.out.println(tokens);
                             fieldNames.add(((TokenVariable) tokens.get(tokens.size() - 1)).val);
-                            fieldTypes.add(typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName));
+                            Type tft = typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
+                            if (tft == null) {
+                                throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
+                            }
+                            fieldTypes.add(tft);
                         }
                         //System.out.println(fieldNames);
                         //System.out.println(fieldTypes);
@@ -199,8 +207,10 @@ public class Parser {
                         throw new IllegalStateException("No parsing for block type \"" + beginningKeyword + '"');
                 }
             }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while parsing line " + l.num(), e);
         }
-        return result;
     }
     public static List<List<Token>> splitList(List<Token> list, Class splitOn) {
         List<List<Token>> result = new ArrayList<>();

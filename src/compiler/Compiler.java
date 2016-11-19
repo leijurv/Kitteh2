@@ -43,7 +43,7 @@ public class Compiler {
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
     public static String compile(String program, boolean optimize) {
         long a = System.currentTimeMillis();
-        ArrayList<Object> lol = Preprocessor.preprocess(program);
+        ArrayList<Object> lol = Preprocessor.preprocess(program).stream().map(x -> (Object) x).collect(Collectors.toCollection(ArrayList::new));
         System.out.println("> DONE PREPROCESSING: " + lol);
         long b = System.currentTimeMillis();
         ArrayList<Command> commands = Processor.parse(lol, new Context());

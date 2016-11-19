@@ -11,14 +11,15 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class BlockFinder implements Transform<ArrayList<Object>> {
-    public static void assertBlockBeginSane(String str) {
+    public static void assertBlockBeginSane(Line line) {
+        String str = line.raw();
         for (int i = 0; i < str.length() - 1; i++) {
             if (str.charAt(i) == '}' || str.charAt(i) == '{') {
-                throw new IllegalStateException("lol what are you trying to do here: " + str);
+                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
             }
         }
         if (!str.endsWith("{")) {
-            throw new IllegalStateException("lol what are you trying to do here: " + str);
+            throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
         }
     }
     @Override
@@ -26,12 +27,12 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
         int numBrkts = 0;//BRKTRIGGERED
         int firstBracket = -1;
         for (int i = 0; i < lines.size(); i++) {
-            if (!(lines.get(i) instanceof String)) {
+            if (!(lines.get(i) instanceof Line)) {
                 continue;
             }
-            String str = (String) lines.get(i);
+            String str = ((Line) lines.get(i)).raw();
             if (str.contains("{")) {
-                assertBlockBeginSane(str);
+                assertBlockBeginSane((Line) lines.get(i));
                 numBrkts++;
                 if (numBrkts == 1) {
                     firstBracket = i;

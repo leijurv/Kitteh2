@@ -22,11 +22,11 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
          ((Line) o).lex();
          }
          }*/
-        Optional<IllegalStateException> e = lines.parallelStream().filter(line -> line instanceof Line).map(line -> (Line) line).map(line -> {
+        Optional<RuntimeException> e = lines.parallelStream().filter(line -> line instanceof Line).map(line -> (Line) line).map(line -> {
             try {
                 line.lex();
-            } catch (IllegalStateException ex) {
-                return ex;
+            } catch (Exception ex) {
+                return new RuntimeException("Exception while lexing line " + line.num(), ex);
             }
             return null;
         }).filter(ex -> ex != null).findFirst();//get the first non-null exception

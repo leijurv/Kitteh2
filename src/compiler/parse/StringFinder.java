@@ -4,22 +4,22 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.preprocess.LineBasedTransform;
 import compiler.token.TokenChar;
 import compiler.token.TokenString;
-import java.util.ArrayList;
 
 /**
  *
  * @author leijurv
  */
-public class StringFinder implements Transform<ArrayList<Object>> {
+public class StringFinder extends LineBasedTransform {
     @Override
-    public void apply(ArrayList<Object> lines) {
-        for (int j = 0; j < lines.size(); j++) {
-            if (!(lines.get(j) instanceof String)) {
+    public Line transform(Line l) {
+        for (int j = 0; j < l.source().size(); j++) {
+            if (!(l.source().get(j) instanceof String)) {
                 continue;
             }
-            String line = (String) lines.get(j);
+            String line = (String) l.source().get(j);
             boolean inString = false;
             int stringBegin = -1;
             char prevChar = 1;
@@ -48,9 +48,9 @@ public class StringFinder implements Transform<ArrayList<Object>> {
                                     //strContents = ((String) strContents).charAt(0);//if single quotes, use a Character not a String
                                 }
                                 String after = line.substring(i + 1, line.length());
-                                lines.set(j, before);
-                                lines.add(j + 1, strType == '"' ? new TokenString(strContents) : new TokenChar(strContents.charAt(0)));
-                                lines.add(j + 2, after);
+                                l.source().set(j, before);
+                                l.source().add(j + 1, strType == '"' ? new TokenString(strContents) : new TokenChar(strContents.charAt(0)));
+                                l.source().add(j + 2, after);
                                 break;
                             }
                         }
@@ -62,5 +62,6 @@ public class StringFinder implements Transform<ArrayList<Object>> {
                 throw new IllegalStateException("String not ended");//this should have been caught earlier...
             }
         }
+        return l;
     }
 }

@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
+import compiler.parse.Line;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -36,20 +38,27 @@ public class StripCommentsTest {
     @Test
     public void testTransform() {
         System.out.println("transform");
-        StripComments instance = new StripComments();
-        assertEquals(instance.transform("cat"), "cat");
-        assertEquals(instance.transform("cat\n"), "cat\n");
-        assertEquals(instance.transform("cat\nwew"), "cat\nwew");
-        assertEquals(instance.transform("cat // memer"), "cat ");
-        assertEquals(instance.transform("cat // memer\n"), "cat \n");
-        assertEquals(instance.transform("cat // memer\nwew"), "cat \nwew");
-        assertEquals(instance.transform("ca/*wew*/t"), "cat");
-        assertEquals(instance.transform("ca/*we\nw*/t"), "cat");
-        assertEquals(instance.transform("ca'//'t"), "ca'//'t");
-        assertEquals(instance.transform("ca//'t"), "ca");
-        assertEquals(instance.transform("ca\"//\"t"), "ca\"//\"t");
-        assertEquals(instance.transform("ca//\"t"), "ca");
-        assertEquals(instance.transform("ca'\"//'"), "ca'\"//'");
-        assertEquals(instance.transform("ca''//'"), "ca''");
+        test("cat", "cat");
+        test("cat\n", "cat\n");
+        test("cat\nwew", "cat\nwew");
+        test("cat // memer", "cat ");
+        test("cat // memer\n", "cat \n");
+        test("cat // memer\nwew", "cat \nwew");
+        test("ca/*wew*/t", "cat");
+        test("ca/*we\nw*/t", "cat");
+        test("ca'//'t", "ca'//'t");
+        test("ca//'t", "ca");
+        test("ca\"//\"t", "ca\"//\"t");
+        test("ca//\"t", "ca");
+        test("ca'\"//'", "ca'\"//'");
+        test("ca''//'", "ca''");
+    }
+    public void test(String a, String b) {
+        StripComments st = new StripComments();
+        List<Line> result = st.transform(a);
+        assertEquals(result.toString(), b.split("\n", -1).length, result.size());
+        for (int i = 0; i < b.split("\n", -1).length; i++) {
+            assertEquals(b.split("\n", -1)[i], result.get(i).raw());
+        }
     }
 }

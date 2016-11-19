@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
+import compiler.parse.Line;
 import compiler.parse.Transform;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -20,24 +20,20 @@ public class Preprocessor {
             .addChar('\r', StripLocation.BOTH)//idk how returns work
             .addChar((char) 11, StripLocation.BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
             .addChar(' ', StripLocation.BOTH)//alt+space
+
             .build();
-    static final Transform<ArrayList<String>> REMOVE_BLANK = new BlankLineRemover();
+    static final Transform<List<Line>> REMOVE_BLANK = new BlankLineRemover();
     @SuppressWarnings("unchecked")//you can't actually do "new Transform<>[]{" so I can't fix this warning
-    static final Transform<ArrayList<String>>[] PREPROCESSOR_ACTIONS = new Transform[]{
+    static final Transform<List<Line>>[] PREPROCESSOR_ACTIONS = new Transform[]{
         CHAR_STRIPPER,
         REMOVE_BLANK
     };
-    public static ArrayList<Object> preprocess(String rawProgram) {
-        rawProgram = new StripComments().transform(rawProgram);
-        ArrayList<String> program = new ArrayList<>(Arrays.asList(rawProgram.split("\n")));
-        for (Transform<ArrayList<String>> action : PREPROCESSOR_ACTIONS) {
-            System.out.println(program);
+    public static List<Line> preprocess(String rawProgram) {
+        List<Line> program = new StripComments().transform(rawProgram);
+        for (Transform<List<Line>> action : PREPROCESSOR_ACTIONS) {
             action.apply(program);
         }
-        ArrayList<Object> temp = new ArrayList<>(program.size());
-        for (String line : program) {
-            temp.add(line);
-        }
-        return temp;
+        System.out.println(program);
+        return program;
     }
 }

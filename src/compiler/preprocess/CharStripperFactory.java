@@ -56,10 +56,14 @@ public class CharStripperFactory {
             if (line.equals("")) {
                 return lineObj;
             }
-            int stripBegin;
-            for (stripBegin = 0; stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin)); stripBegin++);
-            int stripEnd;
-            for (stripEnd = line.length() - 1; stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd)); stripEnd--);
+            int stripBegin = 0;
+            while (stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin))) {
+                stripBegin++;
+            }
+            int stripEnd = 0;
+            while (stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd))) {
+                stripEnd--;
+            }
             if (stripBegin > stripEnd) {
                 return new Line("", lineObj.num());
             }

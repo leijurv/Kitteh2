@@ -47,7 +47,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         context.setCurrFunc(this);
         context.gc = gc;
         contents = Processor.parse(rawContents, context);
-        contents.remove(null);
         context.gc = null;
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;

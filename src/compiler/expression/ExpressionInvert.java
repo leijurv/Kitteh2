@@ -43,7 +43,8 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     public Expression insertKnownValues(Context context) {
         return new ExpressionInvert((ExpressionConditionalJumpable) inp.insertKnownValues(context));
     }
-    public Expression calculateConstants() {//calculate static calculations. e.g. the expression 5+5 should return the const 10
+    @Override
+    public Expression calculateConstants() {
         return new ExpressionInvert((ExpressionConditionalJumpable) inp.calculateConstants());
     }
 }

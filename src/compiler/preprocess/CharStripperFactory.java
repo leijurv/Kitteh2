@@ -60,7 +60,7 @@ public class CharStripperFactory {
             while (stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin))) {
                 stripBegin++;
             }
-            int stripEnd = 0;
+            int stripEnd = line.length() - 1;
             while (stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd))) {
                 stripEnd--;
             }

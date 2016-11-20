@@ -493,7 +493,7 @@ public class CompilerTest {
         if (useAssert) {
             assertEquals(desiredExecutionOutput, result.toString());
         } else if (!desiredExecutionOutput.equals(result.toString())) {
-            throw new IllegalStateException(desiredExecutionOutput + " " + result.toString());
+            throw new IllegalStateException(desiredExecutionOutput + "--" + result.toString());
         }
     }
 }

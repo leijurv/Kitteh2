@@ -5,8 +5,7 @@
  */
 package compiler.parse;
 import compiler.preprocess.LineBasedTransform;
-import compiler.token.TokenChar;
-import compiler.token.TokenString;
+import compiler.token.TokenType;
 
 /**
  *
@@ -49,7 +48,7 @@ public class StringFinder extends LineBasedTransform {
                                 }
                                 String after = line.substring(i + 1, line.length());
                                 l.source().set(j, before);
-                                l.source().add(j + 1, strType == '"' ? new TokenString(strContents) : new TokenChar(strContents.charAt(0)));
+                                l.source().add(j + 1, strType == '"' ? TokenType.STRING.create(strContents) : TokenType.CHAR.create(strContents.charAt(0)));
                                 l.source().add(j + 2, after);
                                 break;
                             }

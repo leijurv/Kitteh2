@@ -21,6 +21,7 @@ import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
+import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
@@ -37,63 +38,72 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionParser {
+    public static boolean is(Object o, TokenType type) {
+        return o instanceof Token && ((Token) o).tokenType == type;
+    }
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
         //System.out.println("EXPARSE " + o + " " + desiredType);
         int currentlyInParentheses = 0;
         for (int i = 0; i < o.size(); i++) {
-            Object ob = o.get(i);
-            if (ob instanceof TokenStartParen) {
-                currentlyInParentheses++;
+            if (!(o.get(i) instanceof Token)) {
+                continue;
             }
-            if (ob instanceof TokenEndParen) {
-                currentlyInParentheses--;
-            }
-            if (ob instanceof TokenNum && currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
-                String val = ((TokenNum) ob).val;
-                Number num;
-                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
-                if (val.contains(".")) {
-                    //System.out.println("Parsing " + val + " as double: " + toUse);
-                    num = Double.parseDouble(val);
-                } else {
-                    //System.out.println("Parsing " + val + " as non float: " + toUse);
-                    num = Integer.parseInt(val);
-                }
-                o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
-            }
-            if (ob instanceof TokenString) {
-                o.set(i, new ExpressionConstStr(((TokenString) ob).val));
-            }
-            if (ob instanceof TokenChar) {
-                o.set(i, new ExpressionConstChar(((TokenChar) ob).val));
-            }
-            if (ob instanceof TokenVariable) {
-                if (i != o.size() - 1 && o.get(i + 1) instanceof TokenStartParen) {
-                    //this is a pattern like f(
-                    //indicates function call
-                    //let's just like not
-                    continue;
-                }
-                if (i != 0 && o.get(i - 1) instanceof TokenPeriod) {
-                    //struct field access like a.field1
-                    //field1 isn't a real variable with a type on its own
-                    //don't turn it to an expressionvariable
-                    continue;
-                }
-                String name = ((TokenVariable) ob).val;
-                if (context.getStruct(name) != null) {
-                    continue;
-                }
-                Expression ex = new ExpressionVariable(name, context);
-                ex.getType();
-                o.set(i, ex);
-            }
-            if (ob instanceof TokenKeyword) {
-                TokenKeyword tk = (TokenKeyword) ob;
-                ExpressionConst ec = tk.getKeyword().getConstVal();
-                if (ec != null) {
-                    o.set(i, (Expression) ec);
-                }
+            Token ob = (Token) o.get(i);
+            switch (ob.tokenType) {
+                case STARTPAREN:
+                    currentlyInParentheses++;
+                    break;
+                case ENDPAREN:
+                    currentlyInParentheses--;
+                    break;
+                case NUM:
+                    if (currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
+                        String val = (String) ob.data;
+                        Number num;
+                        TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
+                        if (val.contains(".")) {
+                            //System.out.println("Parsing " + val + " as double: " + toUse);
+                            num = Double.parseDouble(val);
+                        } else {
+                            //System.out.println("Parsing " + val + " as non float: " + toUse);
+                            num = Integer.parseInt(val);
+                        }
+                        o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
+                    }
+                    break;
+                case STRING:
+                    o.set(i, new ExpressionConstStr((String) ob.data));
+                    break;
+                case CHAR:
+                    o.set(i, new ExpressionConstChar((Character) ob.data));
+                    break;
+                case VARIABLE:
+                    if (i != o.size() - 1 && is(o.get(i - 1), TokenType.PERIOD)) {
+                        //this is a pattern like f(
+                        //indicates function call
+                        //let's just like not
+                        continue;
+                    }
+                    if (i != 0 && is(o.get(i - 1), TokenType.PERIOD)) {
+                        //struct field access like a.field1
+                        //field1 isn't a real variable with a type on its own
+                        //don't turn it to an expressionvariable
+                        continue;
+                    }
+                    String name = (String) ob.data;
+                    if (context.getStruct(name) != null) {
+                        continue;
+                    }
+                    Expression ex = new ExpressionVariable(name, context);
+                    ex.getType();
+                    o.set(i, ex);
+                    break;
+                case KEYWORD:
+                    ExpressionConst ec = ((Keyword) ob.data).getConstVal();
+                    if (ec != null) {
+                        o.set(i, (Expression) ec);
+                    }
+                    break;
             }
         }
         if (o.size() == 1) {

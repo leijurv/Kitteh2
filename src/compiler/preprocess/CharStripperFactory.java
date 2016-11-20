@@ -6,6 +6,8 @@
 package compiler.preprocess;
 import compiler.parse.Line;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.xml.bind.TypeConstraintException;
 
@@ -32,24 +34,16 @@ public class CharStripperFactory {
      *
      * @return
      */
-    private Character[] stripBegin() {
-        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripBegin()).mapToObj(i -> chars.get(i)).toArray(Character[]::new);
+    private HashSet<Character> stripBegin() {
+        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripBegin()).mapToObj(i -> chars.get(i)).collect(Collectors.toCollection(HashSet::new));
     }
-    private Character[] stripEnd() {
-        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripEnd()).mapToObj(i -> chars.get(i)).toArray(Character[]::new);
-    }
-    private boolean shouldStrip(Character[] chars, char test) {
-        for (char c : chars) {
-            if (test == c) {
-                return true;
-            }
-        }
-        return false;
+    private HashSet<Character> stripEnd() {
+        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripEnd()).mapToObj(i -> chars.get(i)).collect(Collectors.toCollection(HashSet::new));
     }
 
     private class StripChars extends LineBasedTransform {
-        Character[] begin = stripBegin();
-        Character[] end = stripEnd();
+        HashSet<Character> begin = stripBegin();
+        HashSet<Character> end = stripEnd();
         @Override
         public Line transform(Line lineObj) {
             String line = lineObj.raw();
@@ -57,11 +51,11 @@ public class CharStripperFactory {
                 return lineObj;
             }
             int stripBegin = 0;
-            while (stripBegin < line.length() && shouldStrip(begin, line.charAt(stripBegin))) {
+            while (stripBegin < line.length() && begin.contains(line.charAt(stripBegin))) {
                 stripBegin++;
             }
             int stripEnd = line.length() - 1;
-            while (stripEnd >= 0 && shouldStrip(end, line.charAt(stripEnd))) {
+            while (stripEnd >= 0 && end.contains(line.charAt(stripEnd))) {
                 stripEnd--;
             }
             if (stripBegin > stripEnd) {

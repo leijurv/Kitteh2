@@ -20,6 +20,8 @@ import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.expression.Settable;
 import compiler.token.Token;
+import compiler.token.TokenType;
+import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypePointer;
@@ -43,6 +45,9 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  * @author leijurv
  */
 public class Parser {
+    public static boolean is(Object o, TokenType type) {
+        return o instanceof Token && ((Token) o).tokenType == type;
+    }
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {
@@ -74,10 +79,10 @@ public class Parser {
                     throw new IllegalStateException("come on it's like you're TRYING to break the parser. don't have { on a line on its own");
                 }
                 Token startToken = lineTokens.get(0);
-                if (!(startToken instanceof TokenKeyword)) {
+                if (!is(startToken, KEYWORD)) {
                     throw new IllegalStateException("Line " + l + " is bad. It begins a block with {, but it doesn't begin with a TokenKeyword");
                 }
-                Keyword beginningKeyword = ((TokenKeyword) startToken).getKeyword();
+                Keyword beginningKeyword = (Keyword) startToken.data;
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
@@ -86,14 +91,17 @@ public class Parser {
                     case FUNC:
                         //ok this is going to be fun
                         //func main(int i) int {
-                        TokenVariable functionName = (TokenVariable) params.get(0);
+                        if (params.get(0).tokenType != VARIABLE) {
+                            throw new RuntimeException();
+                        }
+                        String functionName = (String) ((Token) params.get(0)).data;
                         //System.out.println("FunctionName: " + functionName);
-                        if (!(params.get(1) instanceof TokenStartParen)) {
+                        if (!is(params.get(1), STARTPAREN)) {
                             throw new AnnotationTypeMismatchException(null, "");
                         }
                         int endParen = -1;
                         for (int j = 2; j < params.size(); j++) {
-                            if (params.get(j) instanceof TokenEndParen) {
+                            if (params.get(j) == ENDPAREN) {
                                 endParen = j;
                                 break;
                             }
@@ -111,13 +119,16 @@ public class Parser {
                         } else {
                             throw new IllegalStateException("no multiple returns yet. sorry!");
                         }
-                        ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), TokenComma.class).stream().map(tokenList -> {
+                        ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
                             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
                             Type type = typeFromTokens(typeDefinition, context);
                             if (type == null) {
                                 throw new IllegalStateException(typeDefinition + "");
                             }
-                            TokenVariable tv = (TokenVariable) (tokenList.get(tokenList.size() - 1));
+                            if (tokenList.get(tokenList.size() - 1).tokenType != VARIABLE) {
+                                throw new RuntimeException();
+                            }
+                            String name = (String) tokenList.get(tokenList.size() - 1).data;
                             return new Pair<>(tv.val, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
                         if (!context.isTopLevel()) {//make sure this is top level
@@ -208,11 +219,11 @@ public class Parser {
             throw new RuntimeException("Exception while parsing line " + l.num(), e);
         }
     }
-    public static List<List<Token>> splitList(List<Token> list, Class splitOn) {
+    public static List<List<Token>> splitList(List<Token> list, TokenType splitOn) {
         List<List<Token>> result = new ArrayList<>();
         List<Token> temp = new ArrayList<>();
         for (Token t : list) {
-            if (t.getClass() == splitOn) {
+            if (t.tokenType == splitOn) {
                 result.add(temp);
                 temp = new ArrayList<>();
             } else {

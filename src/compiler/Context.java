@@ -100,9 +100,12 @@ public class Context {
             if (getTotalStackSize() != 0) {
                 throw new SecurityException();
             }
+            if (gc != null) {
+                throw new SecurityException();
+            }
             return true;
         }
-        if (getTotalStackSize() == 0) {
+        if (gc == null) {
             throw new SecurityException();
         }
         return false;

@@ -71,6 +71,9 @@ public class Parser {
         Line l = (Line) lexed.get(i);
         try {
             if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {//this line begins a block
+                if (context.isTopLevel()) {
+                    throw new IllegalStateException("No globals except for function definitions and structs");
+                }
                 return parseLine(l.getTokens(), context);
             } else {
                 ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);

@@ -44,9 +44,6 @@ public enum TokenType implements Token<Void> {
         }
         return new TokenCustom(this, arg, cla, toStr);
     }
-    public Token create() {
-        return create(null);
-    }
     @Override
     public TokenType tokenType() {
         return this;

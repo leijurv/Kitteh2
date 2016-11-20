@@ -41,7 +41,7 @@ public class LexerTest {
     @Test
     public void testLex() {
         System.out.println("lex");
-        testLexing("wew()", VARIABLE.create("wew"), STARTPAREN.create(), ENDPAREN.create());
+        testLexing("wew()", VARIABLE.create("wew"), STARTPAREN, ENDPAREN);
         testLexing("420", NUM.create("420"));
         testLexing("a420", VARIABLE.create("a420"));
         testLexing("for 4", KEYWORD.create(Keyword.FOR), NUM.create("4"));

@@ -42,7 +42,7 @@ public enum TokenType {
         if (!filter.test(arg)) {
             throw new DOMException(DOMException.VALIDATION_ERR, "Keeper scooted on the windshield.");
         }
-        return new Token(this, arg, cla, toStr);
+        return new TokenCustom(this, arg, cla, toStr);
     }
     public Token create() {
         return create(null);

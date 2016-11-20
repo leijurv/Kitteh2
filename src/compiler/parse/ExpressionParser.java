@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
  */
 public class ExpressionParser {
     public static boolean is(Object o, TokenType type) {
-        return o instanceof Token && ((Token) o).tokenType == type;
+        return o instanceof Token && ((Token) o).tokenType() == type;
     }
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
         //System.out.println("EXPARSE " + o + " " + desiredType);
@@ -50,7 +50,7 @@ public class ExpressionParser {
                 continue;
             }
             Token ob = (Token) o.get(i);
-            switch (ob.tokenType) {
+            switch (ob.tokenType()) {
                 case STARTPAREN:
                     currentlyInParentheses++;
                     break;
@@ -59,7 +59,7 @@ public class ExpressionParser {
                     break;
                 case NUM:
                     if (currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
-                        String val = (String) ob.data;
+                        String val = (String) ob.data();
                         Number num;
                         TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
                         if (val.contains(".")) {
@@ -73,10 +73,10 @@ public class ExpressionParser {
                     }
                     break;
                 case STRING:
-                    o.set(i, new ExpressionConstStr((String) ob.data));
+                    o.set(i, new ExpressionConstStr((String) ob.data()));
                     break;
                 case CHAR:
-                    o.set(i, new ExpressionConstChar((Character) ob.data));
+                    o.set(i, new ExpressionConstChar((Character) ob.data()));
                     break;
                 case VARIABLE:
                     if (i != o.size() - 1 && is(o.get(i + 1), STARTPAREN)) {
@@ -91,7 +91,7 @@ public class ExpressionParser {
                         //don't turn it to an expressionvariable
                         continue;
                     }
-                    String name = (String) ob.data;
+                    String name = (String) ob.data();
                     if (context.getStruct(name) != null) {
                         continue;
                     }
@@ -100,7 +100,7 @@ public class ExpressionParser {
                     o.set(i, ex);
                     break;
                 case KEYWORD:
-                    ExpressionConst ec = ((Keyword) ob.data).getConstVal();
+                    ExpressionConst ec = ((Keyword) ob.data()).getConstVal();
                     if (ec != null) {
                         o.set(i, (Expression) ec);
                     }
@@ -144,7 +144,7 @@ public class ExpressionParser {
                     throw new IllegalStateException("mismatched ( and )");
                 }
                 if (i != 0 && is(o.get(i - 1), KEYWORD)) {
-                    if (((Keyword) ((Token) o.get(i - 1)).data).toString().equals(Keyword.SIZEOF.toString())) {
+                    if (((Keyword) ((Token) o.get(i - 1)).data()).toString().equals(Keyword.SIZEOF.toString())) {
                         if (inParen.size() != 1) {
                             throw new RuntimeException();
                         }
@@ -172,7 +172,7 @@ public class ExpressionParser {
                 if (i != 0 && (is(o.get(i - 1), VARIABLE) || is(o.get(i - 1), KEYWORD))) {
                     String funcName;
                     if (is(o.get(i - 1), VARIABLE)) {
-                        funcName = (String) ((Token) o.get(i - 1)).data;
+                        funcName = (String) ((Token) o.get(i - 1)).data();
                     } else {
                         funcName = o.get(i - 1).toString();//some functions that you call are also keywords
                     }
@@ -239,7 +239,7 @@ public class ExpressionParser {
                 if (!is(o.get(i + 1), VARIABLE)) {
                     throw new RuntimeException();
                 }
-                String fieldName = (String) ((Token) o.remove(i + 1)).data;
+                String fieldName = (String) ((Token) o.remove(i + 1)).data();
                 o.remove(i);
                 Expression prev = (Expression) o.remove(i - 1);
                 o.add(i - 1, new ExpressionStructFieldAccess(prev, fieldName));
@@ -275,7 +275,7 @@ public class ExpressionParser {
             }
         }
         for (int i = 0; i < o.size(); i++) {
-            if (is(o.get(i), OPERATOR) && ((Token) o.get(i)).data == Operator.MULTIPLY) {
+            if (is(o.get(i), OPERATOR) && ((Token) o.get(i)).data() == Operator.MULTIPLY) {
                 if (i != 0) {
                     if (o.get(i - 1) instanceof Expression) {
                         continue;
@@ -294,12 +294,12 @@ public class ExpressionParser {
         }
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
-                if (is(o.get(i), OPERATOR) && op.contains((Operator) ((Token) o.get(i)).data)) {
+                if (is(o.get(i), OPERATOR) && op.contains((Operator) ((Token) o.get(i)).data())) {
                     if (i == 0 || i == o.size() - 1) {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
-                    Operator tokOp = (Operator) ((Token) o.remove(i)).data;
+                    Operator tokOp = (Operator) ((Token) o.remove(i)).data();
                     Expression leftSide = (Expression) o.remove(i - 1);
                     o.add(i - 1, new ExpressionOperator(leftSide, tokOp, rightSide));
                     return parseImpl(o, desiredType, context);

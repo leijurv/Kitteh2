@@ -46,7 +46,7 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  */
 public class Parser {
     public static boolean is(Object o, TokenType type) {
-        return o instanceof Token && ((Token) o).tokenType == type;
+        return o instanceof Token && ((Token) o).tokenType() == type;
     }
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
@@ -82,7 +82,7 @@ public class Parser {
                 if (!is(startToken, KEYWORD)) {
                     throw new IllegalStateException("Line " + l + " is bad. It begins a block with {, but it doesn't begin with a TokenKeyword");
                 }
-                Keyword beginningKeyword = (Keyword) startToken.data;
+                Keyword beginningKeyword = (Keyword) startToken.data();
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
@@ -91,17 +91,17 @@ public class Parser {
                     case FUNC:
                         //ok this is going to be fun
                         //func main(int i) int {
-                        if (params.get(0).tokenType != VARIABLE) {
+                        if (params.get(0).tokenType() != VARIABLE) {
                             throw new RuntimeException();
                         }
-                        String functionName = (String) ((Token) params.get(0)).data;
+                        String functionName = (String) ((Token) params.get(0)).data();
                         //System.out.println("FunctionName: " + functionName);
                         if (!is(params.get(1), STARTPAREN)) {
                             throw new AnnotationTypeMismatchException(null, "");
                         }
                         int endParen = -1;
                         for (int j = 2; j < params.size(); j++) {
-                            if (params.get(j).tokenType == ENDPAREN) {
+                            if (params.get(j).tokenType() == ENDPAREN) {
                                 endParen = j;
                                 break;
                             }
@@ -125,10 +125,10 @@ public class Parser {
                             if (type == null) {
                                 throw new IllegalStateException(typeDefinition + "");
                             }
-                            if (tokenList.get(tokenList.size() - 1).tokenType != VARIABLE) {
+                            if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
                                 throw new RuntimeException();
                             }
-                            String name = (String) tokenList.get(tokenList.size() - 1).data;
+                            String name = (String) tokenList.get(tokenList.size() - 1).data();
                             return new Pair<>(name, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
                         if (!context.isTopLevel()) {//make sure this is top level
@@ -186,10 +186,10 @@ public class Parser {
                         if (params.size() != 1) {
                             throw new KeyAlreadyExistsException();
                         }
-                        if (params.get(0).tokenType != VARIABLE) {
+                        if (params.get(0).tokenType() != VARIABLE) {
                             throw new NumberFormatException();
                         }
-                        String structName = (String) params.get(0).data;
+                        String structName = (String) params.get(0).data();
                         ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
                         ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
                         for (int j = 0; j < rawBlock.size(); j++) {
@@ -197,10 +197,10 @@ public class Parser {
                             thisLine.lex();
                             ArrayList<Token> tokens = thisLine.getTokens();
                             //System.out.println(tokens);
-                            if (tokens.get(tokens.size() - 1).tokenType != VARIABLE) {
+                            if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                                 throw new RuntimeException();
                             }
-                            fieldNames.add((String) ((Token) tokens.get(tokens.size() - 1)).data);
+                            fieldNames.add((String) ((Token) tokens.get(tokens.size() - 1)).data());
                             Type tft = typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
                             if (tft == null) {
                                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
@@ -226,7 +226,7 @@ public class Parser {
         List<List<Token>> result = new ArrayList<>();
         List<Token> temp = new ArrayList<>();
         for (Token t : list) {
-            if (t.tokenType == splitOn) {
+            if (t.tokenType() == splitOn) {
                 result.add(temp);
                 temp = new ArrayList<>();
             } else {
@@ -240,7 +240,7 @@ public class Parser {
     }
     public static int firstSemicolon(List<Token> params) {
         for (int i = 0; i < params.size(); i++) {
-            if (params.get(i).tokenType == SEMICOLON) {
+            if (params.get(i).tokenType() == SEMICOLON) {
                 return i;
             }
         }
@@ -248,7 +248,7 @@ public class Parser {
     }
     public static int lastSemicolon(List<Token> params) {
         for (int i = params.size() - 1; i >= 0; i--) {
-            if (params.get(i).tokenType == SEMICOLON) {
+            if (params.get(i).tokenType() == SEMICOLON) {
                 return i;
             }
         }
@@ -261,8 +261,8 @@ public class Parser {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }
-        if (tokens.get(0).tokenType == KEYWORD) {
-            Keyword k = (Keyword) tokens.get(0).data;
+        if (tokens.get(0).tokenType() == KEYWORD) {
+            Keyword k = (Keyword) tokens.get(0).data();
             if (k.canBeginBlock) {
                 throw new ProviderMismatchException(k + "");
             }
@@ -295,12 +295,12 @@ public class Parser {
                     return new CommandReturn(context, ex);
             }
         }
-        if (tokens.stream().anyMatch(token -> token.tokenType == SEMICOLON)) {
+        if (tokens.stream().anyMatch(token -> token.tokenType() == SEMICOLON)) {
             throw new IllegalStateException("I don't like semicolons");
         }
         int eqLoc = -1;
         for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).tokenType == SETEQUAL) {
+            if (tokens.get(i).tokenType() == SETEQUAL) {
                 if (eqLoc != -1) {
                     throw new IllegalStateException("More than one '=' in " + tokens);
                 }
@@ -315,10 +315,10 @@ public class Parser {
             Type type = typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
-                if (tokens.get(tokens.size() - 1).tokenType != VARIABLE) {
+                if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                     throw new IllegalStateException("You can't set the value of " + tokens.get(tokens.size() - 1) + " lol");
                 }
-                String ts = (String) tokens.get(tokens.size() - 1).data;
+                String ts = (String) tokens.get(tokens.size() - 1).data();
                 if (context.varDefined(ts)) {
                     throw new IllegalStateException("Babe, " + ts + " is already there");
                 }
@@ -340,12 +340,12 @@ public class Parser {
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
         if (eqLoc == 1) {
             //ok we just doing something like i=5
-            if (tokens.get(0).tokenType != VARIABLE) {
+            if (tokens.get(0).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
-            String ts = (String) tokens.get(0).data;
+            String ts = (String) tokens.get(0).data();
             Type type = context.getType(ts);
-            boolean inferType = (Boolean) tokens.get(eqLoc).data;
+            boolean inferType = (Boolean) tokens.get(eqLoc).data();
             if (inferType ^ (type == null)) {//look at that arousing use of xor
                 throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));
             }
@@ -358,16 +358,16 @@ public class Parser {
             }
             return new CommandSetVar(ts, ex, context);
         }
-        if ((Boolean) tokens.get(eqLoc).data) {
+        if ((Boolean) tokens.get(eqLoc).data()) {
             throw new ClosedDirectoryStreamException();
         }
         //if the first token is a type, we are doing something like int i=5
         Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);
         if (type != null) {
-            if (tokens.get(eqLoc - 1).tokenType != VARIABLE) {
+            if (tokens.get(eqLoc - 1).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
             }
-            String ts = (String) tokens.get(eqLoc - 1).data;
+            String ts = (String) tokens.get(eqLoc - 1).data();
             if (context.varDefined(ts)) {
                 throw new IllegalStateException("Babe, " + ts + " is already there");
             }
@@ -393,14 +393,14 @@ public class Parser {
         }
         Token first = tokens.get(0);
         Type tp;
-        if (first.tokenType == KEYWORD) {
-            Keyword keyword = (Keyword) first.data;
+        if (first.tokenType() == KEYWORD) {
+            Keyword keyword = (Keyword) first.data();
             if (!keyword.isType()) {
                 return null;
             }
             tp = keyword.type;
-        } else if (first.tokenType == VARIABLE) {
-            String name = (String) first.data;
+        } else if (first.tokenType() == VARIABLE) {
+            String name = (String) first.data();
             if (name.equals(selfRef)) {
                 tp = new TypeStruct(null);
             } else {
@@ -414,10 +414,10 @@ public class Parser {
             return null;
         }
         for (int i = 1; i < tokens.size(); i++) {
-            if (tokens.get(i).tokenType != OPERATOR) {
+            if (tokens.get(i).tokenType() != OPERATOR) {
                 return null;
             }
-            if (tokens.get(i).data != Operator.MULTIPLY) {
+            if (tokens.get(i).data() != Operator.MULTIPLY) {
                 return null;
             }
             tp = new <Type>TypePointer<Type>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer

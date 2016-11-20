@@ -18,28 +18,37 @@ import compiler.type.TypeInt8;
  * @author leijurv
  */
 public enum Keyword {
-    FOR("PURR", true, null, null),
-    PRINT("MEOW", false, null, null),
+    FOR("PURR", true),
+    PRINT("MEOW", false),
     //PRINTLN("MEOWLN", false, null, null),
-    IF("BLINK", true, null, null),
-    TRUE("YES", false, new ExpressionConstBool(true), null),
-    FALSE("NO", false, new ExpressionConstBool(false), null),
-    BREAK("TRIP", false, null, null),
-    CONTINUE("CATINUE", false, null, null),
-    RETURN("POUNCE", false, null, null),
-    FUNC("CHASE", true, null, null),
-    STRUCT("IDKWHATEVER", true, null, null),
-    SIZEOF("BIGNESS", false, null, null),
-    BOOL("BOWL", false, null, new TypeBoolean()),
-    BYTE("BITE", false, null, new TypeInt8()),
-    SHORT("CHOMP", false, null, new TypeInt16()),
-    INT("MEOWNT", false, null, new TypeInt32()),
-    LONG("LAWNG", false, null, new TypeInt64());
+    IF("BLINK", true),
+    TRUE("YES", new ExpressionConstBool(true)),
+    FALSE("NO", new ExpressionConstBool(false)),
+    BREAK("TRIP", false),
+    CONTINUE("CATINUE", false),
+    RETURN("POUNCE", false),
+    FUNC("CHASE", true),
+    STRUCT("IDKWHATEVER", true),
+    SIZEOF("BIGNESS", false),
+    BOOL("BOWL", new TypeBoolean()),
+    BYTE("BITE", new TypeInt8()),
+    SHORT("CHOMP", new TypeInt16()),
+    INT("MEOWNT", new TypeInt32()),
+    LONG("LAWNG", new TypeInt64());
     public static final boolean CAT_MODE = false;
     public final String catVersion;
     public final boolean canBeginBlock;
     private final ExpressionConst constVal;
     public final Type type;
+    private Keyword(String catVersion, Type typeVal) {
+        this(catVersion, false, null, typeVal);
+    }
+    private Keyword(String catVersion, ExpressionConst constVal) {
+        this(catVersion, false, constVal, null);
+    }
+    private Keyword(String catVersion, boolean canBeginBlock) {
+        this(catVersion, canBeginBlock, null, null);
+    }
     private Keyword(String catVersion, boolean canBeginBlock, ExpressionConst constVal, Type typeVal) {
         this.catVersion = catVersion;
         this.canBeginBlock = canBeginBlock;

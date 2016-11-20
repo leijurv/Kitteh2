@@ -5,8 +5,8 @@ public final class Token<T> {
     public final TokenType tokenType;
     public final T data;
     public final Class<T> dataType;
-    public final Function<Object, String> toStr;
-    Token(TokenType tokenType, Object data, Class<T> cl, Function<Object, String> toString) {
+    public final Function<T, String> toStr;
+    Token(TokenType tokenType, Object data, Class<T> cl, Function<T, String> toString) {
         this.tokenType = tokenType;
         this.data = cl == null ? null : cl.cast(data);
         this.dataType = cl;

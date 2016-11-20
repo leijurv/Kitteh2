@@ -27,6 +27,9 @@ public class TokenMapping {
         MAPPINGS.put('[', STARTBRAKT.create());
         MAPPINGS.put(']', ENDBRKT.create());
         MAPPINGS.put('.', PERIOD.create());
+        MAPPINGS.put('≠', OPERATOR.create(Operator.NOT_EQUAL));
+        MAPPINGS.put('≥', OPERATOR.create(Operator.GREATER_OR_EQUAL));
+        MAPPINGS.put('≤', OPERATOR.create(Operator.LESS_OR_EQUAL));
     }
     public static boolean charMapsToToken(char ch) {
         return MAPPINGS.containsKey(ch);

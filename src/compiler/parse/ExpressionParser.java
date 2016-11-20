@@ -174,7 +174,7 @@ public class ExpressionParser {
                     if (is(o.get(i - 1), VARIABLE)) {
                         funcName = (String) ((Token) o.get(i - 1)).data;
                     } else {
-                        funcName = o.toString();//some functions that you call are also keywords
+                        funcName = o.get(i - 1).toString();//some functions that you call are also keywords
                     }
                     ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
                     //System.out.println("Expecting inputs: " + desiredTypes);

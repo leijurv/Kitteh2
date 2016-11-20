@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.tac.optimize.TACOptimizer;
+import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -394,14 +396,48 @@ public class CompilerTest {
         verifyCompilation(program, false, null);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
-        verifyCompilation(program, shouldCompile, desiredExecutionOutput, false);
+        verifyCompilation(program, shouldCompile, desiredExecutionOutput, false, OptimizationSettings.NONE, true);
+        if (!shouldCompile) {
+            return;
+            //if it shouldn't compile, and the test was successful (i e it actually didn't compile)
+            //we don't need to go on to check other things, it failed without even applying any optimizations
+        }
+        //ok so it works with none
         try {
-            verifyCompilation(program, shouldCompile, desiredExecutionOutput, true);
+            verifyCompilation(program, shouldCompile, desiredExecutionOutput, true, OptimizationSettings.ALL, false);
         } catch (Exception e) {
-            throw new IllegalStateException(e + "CAUSED BY OPTIMIZATION", e);
+            detective(program, desiredExecutionOutput, e);
+            e.printStackTrace();
+            throw new IllegalStateException("Detective failed" + e);//shouldn't get to here
         }
     }
-    public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, boolean optimize) throws IOException, InterruptedException {
+    public Object detective(String program, String desiredExecutionOutput, Exception withAll) {//setting the return type to non-void ensures that it cannot exit without throwing SOME exception
+        //no exception with false,NONE
+        //exception with true,ALL
+        try {
+            verifyCompilation(program, true, desiredExecutionOutput, true, OptimizationSettings.NONE, false);
+        } catch (Exception e) {
+            //exception isn't caused by any optimization settings
+            e.printStackTrace();
+            throw new IllegalStateException("Exception caused by setting staticValues to true with optimizationsettings staying at NONE " + e);
+        }
+        //no exception with *,NONE
+        //try enabling individual optimizations
+        for (int i = 0; i < TACOptimizer.opt.size(); i++) {
+            OptimizationSettings set = new OptimizationSettings(false);
+            set.setEnabled(i, true);
+            try {
+                verifyCompilation(program, true, desiredExecutionOutput, true, set, false);
+            } catch (Exception e) {
+                //if enabling one on its own can trigger it, let's just throw that
+                e.printStackTrace();
+                throw new IllegalStateException("Caused by optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
+            }
+        }
+        withAll.printStackTrace();
+        throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually " + withAll);
+    }
+    public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, boolean staticValues, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
         if (!new File("/usr/bin/gcc").exists()) {
             assertNull("GCC must exist");
         }
@@ -410,7 +446,7 @@ public class CompilerTest {
         }
         String compiled;
         try {
-            compiled = Compiler.compile(program, optimize);
+            compiled = Compiler.compile(program, staticValues, settings);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {
@@ -454,6 +490,10 @@ public class CompilerTest {
             result.append((char) j);
         }
         System.out.println("Execution output \"" + result + "\"");
-        assertEquals(desiredExecutionOutput, result.toString());
+        if (useAssert) {
+            assertEquals(desiredExecutionOutput, result.toString());
+        } else if (!desiredExecutionOutput.equals(result.toString())) {
+            throw new IllegalStateException(desiredExecutionOutput + " " + result.toString());
+        }
     }
 }

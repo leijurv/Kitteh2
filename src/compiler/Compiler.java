@@ -9,6 +9,7 @@ import compiler.command.CommandDefineFunction;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
+import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
@@ -37,11 +38,11 @@ public class Compiler {
         System.out.println("First stream: " + streamTime());//almost always several hundred ms
         System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());
-        String asm = compile(new String(program), OPTIMIZE);
+        String asm = compile(new String(program), OPTIMIZE, new OptimizationSettings(OPTIMIZE));
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
-    public static String compile(String program, boolean optimize) {
+    public static String compile(String program, boolean staticValues, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         ArrayList<Object> lol = Preprocessor.preprocess(program).stream().map(x -> (Object) x).collect(Collectors.toCollection(ArrayList::new));
         System.out.println("> DONE PREPROCESSING: " + lol);
@@ -53,7 +54,7 @@ public class Compiler {
         gc.parseRekursively();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
-        if (optimize) {
+        if (staticValues) {
             for (Command com : commands) {
                 com.staticValues();
             }
@@ -62,7 +63,7 @@ public class Compiler {
         long e = System.currentTimeMillis();
         List<Pair<String, ArrayList<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
-                .map(com -> new Pair<>(com.getHeader().name, com.totac(optimize)))
+                .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
         /*

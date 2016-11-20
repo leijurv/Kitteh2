@@ -12,6 +12,7 @@ import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer;
+import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
@@ -68,7 +69,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.staticValues();
         }
     }
-    public ArrayList<TACStatement> totac(boolean optimize) {
+    public ArrayList<TACStatement> totac(OptimizationSettings settings) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.printFull = true;
@@ -76,7 +77,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        ArrayList<TACStatement> result = optimize ? TACOptimizer.optimize(emit) : emit.getResult();
+        ArrayList<TACStatement> result = TACOptimizer.optimize(emit, settings);
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }

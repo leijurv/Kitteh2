@@ -79,7 +79,7 @@ public class ExpressionParser {
                     o.set(i, new ExpressionConstChar((Character) ob.data));
                     break;
                 case VARIABLE:
-                    if (i != o.size() - 1 && is(o.get(i - 1), STARTPAREN)) {
+                    if (i != o.size() - 1 && is(o.get(i + 1), STARTPAREN)) {
                         //this is a pattern like f(
                         //indicates function call
                         //let's just like not

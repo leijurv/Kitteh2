@@ -8,7 +8,7 @@ public final class Token<T> {
     public final Function<Object, String> toStr;
     Token(TokenType tokenType, Object data, Class<T> cl, Function<Object, String> toString) {
         this.tokenType = tokenType;
-        this.data = cl.cast(data);
+        this.data = cl == null ? null : cl.cast(data);
         this.dataType = cl;
         this.toStr = toString;
     }

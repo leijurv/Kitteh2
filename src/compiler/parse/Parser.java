@@ -101,7 +101,7 @@ public class Parser {
                         }
                         int endParen = -1;
                         for (int j = 2; j < params.size(); j++) {
-                            if (params.get(j) == ENDPAREN) {
+                            if (params.get(j).tokenType == ENDPAREN) {
                                 endParen = j;
                                 break;
                             }
@@ -129,7 +129,7 @@ public class Parser {
                                 throw new RuntimeException();
                             }
                             String name = (String) tokenList.get(tokenList.size() - 1).data;
-                            return new Pair<>(tv.val, type);
+                            return new Pair<>(name, type);
                         }).collect(Collectors.toCollection(ArrayList::new));
                         if (!context.isTopLevel()) {//make sure this is top level
                             throw new InvalidParameterException();
@@ -141,11 +141,11 @@ public class Parser {
                             subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
                             pos += arg.getValue().getSizeBytes();
                         }
-                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName.val, rawBlock);
+                        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
                         return def;
                     case FOR:
                         //System.out.println("Parsing for loop with params " + params);
-                        int numSemis = (int) params.stream().filter(token -> token instanceof TokenSemicolon).count();//I really like streams lol
+                        int numSemis = (int) params.stream().filter(token -> is(token, SEMICOLON)).count();//I really like streams lol
                         switch (numSemis) {
                             case 0: { // for{   OR  for i<5{
                                 Context sub = context.subContext();
@@ -186,10 +186,10 @@ public class Parser {
                         if (params.size() != 1) {
                             throw new KeyAlreadyExistsException();
                         }
-                        if (!(params.get(0) instanceof TokenVariable)) {
+                        if (params.get(0).tokenType != VARIABLE) {
                             throw new NumberFormatException();
                         }
-                        String structName = ((TokenVariable) params.get(0)).val;
+                        String structName = (String) params.get(0).data;
                         ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
                         ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
                         for (int j = 0; j < rawBlock.size(); j++) {
@@ -197,7 +197,10 @@ public class Parser {
                             thisLine.lex();
                             ArrayList<Token> tokens = thisLine.getTokens();
                             //System.out.println(tokens);
-                            fieldNames.add(((TokenVariable) tokens.get(tokens.size() - 1)).val);
+                            if (tokens.get(tokens.size() - 1).tokenType != VARIABLE) {
+                                throw new RuntimeException();
+                            }
+                            fieldNames.add((String) ((Token) tokens.get(tokens.size() - 1)).data);
                             Type tft = typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
                             if (tft == null) {
                                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
@@ -237,7 +240,7 @@ public class Parser {
     }
     public static int firstSemicolon(List<Token> params) {
         for (int i = 0; i < params.size(); i++) {
-            if (params.get(i) instanceof TokenSemicolon) {
+            if (params.get(i).tokenType == SEMICOLON) {
                 return i;
             }
         }
@@ -245,7 +248,7 @@ public class Parser {
     }
     public static int lastSemicolon(List<Token> params) {
         for (int i = params.size() - 1; i >= 0; i--) {
-            if (params.get(i) instanceof TokenSemicolon) {
+            if (params.get(i).tokenType == SEMICOLON) {
                 return i;
             }
         }
@@ -258,12 +261,12 @@ public class Parser {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }
-        if (tokens.get(0) instanceof TokenKeyword) {
-            TokenKeyword lol = (TokenKeyword) tokens.get(0);
-            if (lol.getKeyword().canBeginBlock) {
-                throw new ProviderMismatchException(lol.getKeyword() + "");
+        if (tokens.get(0).tokenType == KEYWORD) {
+            Keyword k = (Keyword) tokens.get(0).data;
+            if (k.canBeginBlock) {
+                throw new ProviderMismatchException(k + "");
             }
-            switch (lol.getKeyword()) {
+            switch (k) {
                 case BREAK:
                     if (tokens.size() != 1) {
                         throw new IllegalStateException("Break should be on a line on its own");
@@ -292,12 +295,12 @@ public class Parser {
                     return new CommandReturn(context, ex);
             }
         }
-        if (tokens.stream().anyMatch(token -> token instanceof TokenSemicolon)) {
+        if (tokens.stream().anyMatch(token -> token.tokenType == SEMICOLON)) {
             throw new IllegalStateException("I don't like semicolons");
         }
         int eqLoc = -1;
         for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i) instanceof TokenSetEqual) {
+            if (tokens.get(i).tokenType == SETEQUAL) {
                 if (eqLoc != -1) {
                     throw new IllegalStateException("More than one '=' in " + tokens);
                 }
@@ -312,14 +315,14 @@ public class Parser {
             Type type = typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
-                if (!(tokens.get(tokens.size() - 1) instanceof TokenVariable)) {
+                if (tokens.get(tokens.size() - 1).tokenType != VARIABLE) {
                     throw new IllegalStateException("You can't set the value of " + tokens.get(tokens.size() - 1) + " lol");
                 }
-                TokenVariable toSet = (TokenVariable) tokens.get(tokens.size() - 1);
-                if (context.varDefined(toSet.val)) {
-                    throw new IllegalStateException("Babe, " + toSet.val + " is already there");
+                String ts = (String) tokens.get(tokens.size() - 1).data;
+                if (context.varDefined(ts)) {
+                    throw new IllegalStateException("Babe, " + ts + " is already there");
                 }
-                context.setType(toSet.val, type);
+                context.setType(ts, type);
                 //ok we doing something like long i=5
                 return null;
             }
@@ -337,41 +340,41 @@ public class Parser {
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
         if (eqLoc == 1) {
             //ok we just doing something like i=5
-            if (!(tokens.get(0) instanceof TokenVariable)) {
+            if (tokens.get(0).tokenType != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
-            TokenVariable toSet = (TokenVariable) tokens.get(0);
-            Type type = context.getType(toSet.val);
-            boolean inferType = ((TokenSetEqual) tokens.get(eqLoc)).inferType;
+            String ts = (String) tokens.get(0).data;
+            Type type = context.getType(ts);
+            boolean inferType = (Boolean) tokens.get(eqLoc).data;
             if (inferType ^ (type == null)) {//look at that arousing use of xor
-                throw new IllegalStateException("ur using it wrong " + inferType + " " + type);
+                throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));
             }
             Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context);//if type is null, that's fine because then there's no expected type, so we infer
             if (type != null && !ex.getType().equals(type)) {//if type was already set, we passed it to the expressionparser, so the result should be the same type
                 throw new IllegalStateException(type + " " + ex.getType());
             }
             if (type == null) {
-                context.setType(toSet.val, ex.getType());
+                context.setType(ts, ex.getType());
             }
-            return new CommandSetVar(toSet.val, ex, context);
+            return new CommandSetVar(ts, ex, context);
         }
-        if (((TokenSetEqual) tokens.get(eqLoc)).inferType) {
+        if ((Boolean) tokens.get(eqLoc).data) {
             throw new ClosedDirectoryStreamException();
         }
         //if the first token is a type, we are doing something like int i=5
         Type type = typeFromTokens(tokens.subList(0, eqLoc - 1), context);
         if (type != null) {
-            if (!(tokens.get(eqLoc - 1) instanceof TokenVariable)) {
+            if (tokens.get(eqLoc - 1).tokenType != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
             }
-            TokenVariable toSet = (TokenVariable) tokens.get(eqLoc - 1);
-            if (context.varDefined(toSet.val)) {
-                throw new IllegalStateException("Babe, " + toSet.val + " is already there");
+            String ts = (String) tokens.get(eqLoc - 1).data;
+            if (context.varDefined(ts)) {
+                throw new IllegalStateException("Babe, " + ts + " is already there");
             }
             Expression rightSide = ExpressionParser.parse(after, Optional.of(type), context);
-            context.setType(toSet.val, rightSide.getType());
+            context.setType(ts, rightSide.getType());
             //ok we doing something like long i=5
-            return new CommandSetVar(toSet.val, rightSide, context);
+            return new CommandSetVar(ts, rightSide, context);
         }
         //---------------------------------------------------------------------------------------------------------------
         Expression exp = ExpressionParser.parse(tokens.subList(0, eqLoc), Optional.empty(), context);
@@ -390,14 +393,14 @@ public class Parser {
         }
         Token first = tokens.get(0);
         Type tp;
-        if (first instanceof TokenKeyword) {
-            Keyword keyword = ((TokenKeyword) first).getKeyword();
+        if (first.tokenType == KEYWORD) {
+            Keyword keyword = (Keyword) first.data;
             if (!keyword.isType()) {
                 return null;
             }
             tp = keyword.type;
-        } else if (first instanceof TokenVariable) {
-            String name = ((TokenVariable) first).val;
+        } else if (first.tokenType == VARIABLE) {
+            String name = (String) first.data;
             if (name.equals(selfRef)) {
                 tp = new TypeStruct(null);
             } else {
@@ -411,10 +414,10 @@ public class Parser {
             return null;
         }
         for (int i = 1; i < tokens.size(); i++) {
-            if (!(tokens.get(i) instanceof TokenOperator)) {
+            if (tokens.get(i).tokenType != OPERATOR) {
                 return null;
             }
-            if (((TokenOperator) tokens.get(i)).op != Operator.MULTIPLY) {
+            if (tokens.get(i).data != Operator.MULTIPLY) {
                 return null;
             }
             tp = new <Type>TypePointer<Type>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer

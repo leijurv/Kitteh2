@@ -21,19 +21,8 @@ import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
-import compiler.token.TokenChar;
-import compiler.token.TokenComma;
-import compiler.token.TokenEndBrkt;
-import compiler.token.TokenEndParen;
-import compiler.token.TokenKeyword;
-import compiler.token.TokenNot;
-import compiler.token.TokenNum;
-import compiler.token.TokenOperator;
-import compiler.token.TokenPeriod;
-import compiler.token.TokenStartBrakt;
-import compiler.token.TokenStartParen;
-import compiler.token.TokenString;
-import compiler.token.TokenVariable;
+import compiler.token.TokenType;
+import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeInt32;
@@ -50,70 +39,79 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionParser {
+    public static boolean is(Object o, TokenType type) {
+        return o instanceof Token && ((Token) o).tokenType() == type;
+    }
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
         //System.out.println("EXPARSE " + o + " " + desiredType);
         int currentlyInParentheses = 0;
         for (int i = 0; i < o.size(); i++) {
-            Object ob = o.get(i);
-            if (ob instanceof TokenStartParen) {
-                currentlyInParentheses++;
+            if (!(o.get(i) instanceof Token)) {
+                continue;
             }
-            if (ob instanceof TokenEndParen) {
-                currentlyInParentheses--;
-            }
-            if (ob instanceof TokenNum && currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
-                String val = ((TokenNum) ob).val;
-                Number num;
-                TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
-                if (val.contains(".")) {
-                    //System.out.println("Parsing " + val + " as double: " + toUse);
-                    num = Double.parseDouble(val);
-                } else {
-                    //System.out.println("Parsing " + val + " as non float: " + toUse);
-                    num = Integer.parseInt(val);
-                }
-                o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
-            }
-            if (ob instanceof TokenString) {
-                o.set(i, new ExpressionConstStr(((TokenString) ob).val));
-            }
-            if (ob instanceof TokenChar) {
-                o.set(i, new ExpressionConstChar(((TokenChar) ob).val));
-            }
-            if (ob instanceof TokenVariable) {
-                if (i != o.size() - 1 && o.get(i + 1) instanceof TokenStartParen) {
-                    //this is a pattern like f(
-                    //indicates function call
-                    //let's just like not
-                    continue;
-                }
-                if (i != 0 && o.get(i - 1) instanceof TokenPeriod) {
-                    //struct field access like a.field1
-                    //field1 isn't a real variable with a type on its own
-                    //don't turn it to an expressionvariable
-                    continue;
-                }
-                String name = ((TokenVariable) ob).val;
-                if (context.getStruct(name) != null) {
-                    continue;
-                }
-                Expression ex = new ExpressionVariable(name, context);
-                ex.getType();
-                o.set(i, ex);
-            }
-            if (ob instanceof TokenKeyword) {
-                TokenKeyword tk = (TokenKeyword) ob;
-                ExpressionConst ec = tk.getKeyword().getConstVal();
-                if (ec != null) {
-                    o.set(i, (Expression) ec);
-                }
+            Token ob = (Token) o.get(i);
+            switch (ob.tokenType()) {
+                case STARTPAREN:
+                    currentlyInParentheses++;
+                    break;
+                case ENDPAREN:
+                    currentlyInParentheses--;
+                    break;
+                case NUM:
+                    if (currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
+                        String val = (String) ob.data();
+                        Number num;
+                        TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
+                        if (val.contains(".")) {
+                            //System.out.println("Parsing " + val + " as double: " + toUse);
+                            num = Double.parseDouble(val);
+                        } else {
+                            //System.out.println("Parsing " + val + " as non float: " + toUse);
+                            num = Integer.parseInt(val);
+                        }
+                        o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
+                    }
+                    break;
+                case STRING:
+                    o.set(i, new ExpressionConstStr((String) ob.data()));
+                    break;
+                case CHAR:
+                    o.set(i, new ExpressionConstChar((Character) ob.data()));
+                    break;
+                case VARIABLE:
+                    if (i != o.size() - 1 && is(o.get(i + 1), STARTPAREN)) {
+                        //this is a pattern like f(
+                        //indicates function call
+                        //let's just like not
+                        continue;
+                    }
+                    if (i != 0 && is(o.get(i - 1), PERIOD)) {
+                        //struct field access like a.field1
+                        //field1 isn't a real variable with a type on its own
+                        //don't turn it to an expressionvariable
+                        continue;
+                    }
+                    String name = (String) ob.data();
+                    if (context.getStruct(name) != null) {
+                        continue;
+                    }
+                    Expression ex = new ExpressionVariable(name, context);
+                    ex.getType();
+                    o.set(i, ex);
+                    break;
+                case KEYWORD:
+                    ExpressionConst ec = ((Keyword) ob.data()).getConstVal();
+                    if (ec != null) {
+                        o.set(i, (Expression) ec);
+                    }
+                    break;
             }
         }
         if (o.size() == 1) {
             return (Expression) o.get(0);
         }
         for (int i = 0; i < o.size(); i++) {//recursively call parseImpl on the contents of parentheses
-            if (o.get(i) instanceof TokenStartParen) {
+            if (is(o.get(i), STARTPAREN)) {
                 ArrayList<ArrayList<Object>> inParen = new ArrayList<>();
                 ArrayList<Object> temp = new ArrayList<>();
                 int numParens = 1;
@@ -123,7 +121,7 @@ public class ExpressionParser {
                 while (i < copy.size()) {
                     Object b = copy.remove(i);
                     numToRemoveAti++;
-                    if (b instanceof TokenEndParen) {
+                    if (is(b, ENDPAREN)) {
                         numParens--;
                         if (numParens == 0) {
                             if (!temp.isEmpty()) {
@@ -132,22 +130,21 @@ public class ExpressionParser {
                             break;
                         }
                     }
-                    if (b instanceof TokenComma && numParens == 1) {
+                    if (is(b, COMMA) && numParens == 1) {
                         inParen.add(temp);
                         temp = new ArrayList<>();
                     } else {
                         temp.add(b);
                     }
-                    if (b instanceof TokenStartParen) {
+                    if (is(b, STARTPAREN)) {
                         numParens++;
                     }
                 }
                 if (numParens != 0) {
                     throw new IllegalStateException("mismatched ( and )");
                 }
-                if (i != 0 && o.get(i - 1) instanceof TokenKeyword) {
-                    TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
-                    if (tk.getKeyword().toString().equals(Keyword.SIZEOF.toString())) {
+                if (i != 0 && is(o.get(i - 1), KEYWORD)) {
+                    if (((Keyword) ((Token) o.get(i - 1)).data()).toString().equals(Keyword.SIZEOF.toString())) {
                         if (inParen.size() != 1) {
                             throw new RuntimeException();
                         }
@@ -172,13 +169,12 @@ public class ExpressionParser {
                     }
                 }
                 //System.out.println("Doing replace " + o + " " + inParen);
-                if (i != 0 && (o.get(i - 1) instanceof TokenVariable || o.get(i - 1) instanceof TokenKeyword)) {
+                if (i != 0 && (is(o.get(i - 1), VARIABLE) || is(o.get(i - 1), KEYWORD))) {
                     String funcName;
-                    if (o.get(i - 1) instanceof TokenVariable) {
-                        funcName = ((TokenVariable) o.get(i - 1)).val;
+                    if (is(o.get(i - 1), VARIABLE)) {
+                        funcName = (String) ((Token) o.get(i - 1)).data();
                     } else {
-                        TokenKeyword tk = ((TokenKeyword) o.get(i - 1));
-                        funcName = tk.toString();//some functions that you call are also keywords
+                        funcName = o.get(i - 1).toString();//some functions that you call are also keywords
                     }
                     ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
                     //System.out.println("Expecting inputs: " + desiredTypes);
@@ -201,18 +197,18 @@ public class ExpressionParser {
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
         //getting array item (like arr[ind])
         for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) instanceof TokenStartBrakt) {
+            if (is(o.get(i), STARTBRAKT)) {
                 o.remove(i);
                 int sq = 1;
                 int j = i;
                 ArrayList<Object> inBrkts = new ArrayList<>();
                 while (j < o.size()) {
                     Object ob = o.remove(j);
-                    if (ob instanceof TokenStartBrakt) {
+                    if (is(ob, STARTBRAKT)) {
                         sq++;
                         continue;
                     }
-                    if (ob instanceof TokenEndBrkt) {
+                    if (is(ob, ENDBRKT)) {
                         sq--;
                         if (sq == 0) {
                             break;
@@ -239,9 +235,11 @@ public class ExpressionParser {
                 o.add(i - 1, element);
                 return parseImpl(o, desiredType, context);
             }
-            if (o.get(i) instanceof TokenPeriod) {
-                TokenVariable next = (TokenVariable) o.remove(i + 1);
-                String fieldName = next.val;
+            if (is(o.get(i), PERIOD)) {
+                if (!is(o.get(i + 1), VARIABLE)) {
+                    throw new RuntimeException();
+                }
+                String fieldName = (String) ((Token) o.remove(i + 1)).data();
                 o.remove(i);
                 Expression prev = (Expression) o.remove(i - 1);
                 o.add(i - 1, new ExpressionStructFieldAccess(prev, fieldName));
@@ -257,15 +255,15 @@ public class ExpressionParser {
         //casting comes after increments: (long)a++
         //TODO should casting come before or after pointer dereferences?
         for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) instanceof TokenStartParen) {
+            if (is(o.get(i), STARTPAREN)) {
                 o.remove(i);
                 ArrayList<Token> inBrkts = new ArrayList<>();
                 while (i < o.size()) {
                     Object ob = o.remove(i);
-                    if (ob instanceof TokenStartParen) {
+                    if (is(ob, STARTPAREN)) {
                         throw new IllegalStateException("Start paren in cast??");
                     }
-                    if (ob instanceof TokenEndParen) {
+                    if (is(ob, ENDPAREN)) {
                         break;
                     }
                     inBrkts.add((Token) ob);
@@ -277,7 +275,7 @@ public class ExpressionParser {
             }
         }
         for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) instanceof TokenOperator && ((TokenOperator) o.get(i)).op == Operator.MULTIPLY) {
+            if (is(o.get(i), OPERATOR) && ((Token) o.get(i)).data() == Operator.MULTIPLY) {
                 if (i != 0) {
                     if (o.get(i - 1) instanceof Expression) {
                         continue;
@@ -289,21 +287,21 @@ public class ExpressionParser {
             }
         }
         for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) instanceof TokenNot) {
+            if (is(o.get(i), NOT)) {
                 o.set(i, new ExpressionInvert((ExpressionConditionalJumpable) o.remove(i + 1)));
                 return parseImpl(o, desiredType, context);
             }
         }
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
-                if (o.get(i) instanceof TokenOperator && op.contains(((TokenOperator) o.get(i)).op)) {
+                if (is(o.get(i), OPERATOR) && op.contains((Operator) ((Token) o.get(i)).data())) {
                     if (i == 0 || i == o.size() - 1) {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
-                    TokenOperator tokOp = (TokenOperator) o.remove(i);
+                    Operator tokOp = (Operator) ((Token) o.remove(i)).data();
                     Expression leftSide = (Expression) o.remove(i - 1);
-                    o.add(i - 1, new ExpressionOperator(leftSide, tokOp.op, rightSide));
+                    o.add(i - 1, new ExpressionOperator(leftSide, tokOp, rightSide));
                     return parseImpl(o, desiredType, context);
                 }
             }

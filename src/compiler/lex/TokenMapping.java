@@ -6,14 +6,7 @@
 package compiler.lex;
 import compiler.Operator;
 import compiler.token.Token;
-import compiler.token.TokenComma;
-import compiler.token.TokenEndBrkt;
-import compiler.token.TokenEndParen;
-import compiler.token.TokenOperator;
-import compiler.token.TokenPeriod;
-import compiler.token.TokenSemicolon;
-import compiler.token.TokenStartBrakt;
-import compiler.token.TokenStartParen;
+import static compiler.token.TokenType.*;
 import java.util.HashMap;
 import javax.xml.ws.WebServiceException;
 
@@ -24,19 +17,19 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<Character, Token> MAPPINGS = new HashMap<>();
     static {
-        MAPPINGS.put('(', new TokenStartParen());
-        MAPPINGS.put(')', new TokenEndParen());
-        MAPPINGS.put(',', new TokenComma());
-        MAPPINGS.put('*', new TokenOperator(Operator.MULTIPLY));
-        MAPPINGS.put('/', new TokenOperator(Operator.DIVIDE));
-        MAPPINGS.put('%', new TokenOperator(Operator.MOD));
-        MAPPINGS.put(';', new TokenSemicolon());
-        MAPPINGS.put('[', new TokenStartBrakt());
-        MAPPINGS.put(']', new TokenEndBrkt());
-        MAPPINGS.put('.', new TokenPeriod());
-        MAPPINGS.put('≠', new TokenOperator(Operator.NOT_EQUAL));
-        MAPPINGS.put('≥', new TokenOperator(Operator.GREATER_OR_EQUAL));
-        MAPPINGS.put('≤', new TokenOperator(Operator.LESS_OR_EQUAL));
+        MAPPINGS.put('(', STARTPAREN);
+        MAPPINGS.put(')', ENDPAREN);
+        MAPPINGS.put(',', COMMA);
+        MAPPINGS.put('*', OPERATOR.create(Operator.MULTIPLY));
+        MAPPINGS.put('/', OPERATOR.create(Operator.DIVIDE));
+        MAPPINGS.put('%', OPERATOR.create(Operator.MOD));
+        MAPPINGS.put(';', SEMICOLON);
+        MAPPINGS.put('[', STARTBRAKT);
+        MAPPINGS.put(']', ENDBRKT);
+        MAPPINGS.put('.', PERIOD);
+        MAPPINGS.put('≠', OPERATOR.create(Operator.NOT_EQUAL));
+        MAPPINGS.put('≥', OPERATOR.create(Operator.GREATER_OR_EQUAL));
+        MAPPINGS.put('≤', OPERATOR.create(Operator.LESS_OR_EQUAL));
     }
     public static boolean charMapsToToken(char ch) {
         return MAPPINGS.containsKey(ch);

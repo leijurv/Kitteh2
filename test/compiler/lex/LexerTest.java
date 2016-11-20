@@ -6,11 +6,7 @@
 package compiler.lex;
 import compiler.Keyword;
 import compiler.token.Token;
-import compiler.token.TokenEndParen;
-import compiler.token.TokenKeyword;
-import compiler.token.TokenNum;
-import compiler.token.TokenStartParen;
-import compiler.token.TokenVariable;
+import static compiler.token.TokenType.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.After;
@@ -45,10 +41,10 @@ public class LexerTest {
     @Test
     public void testLex() {
         System.out.println("lex");
-        testLexing("wew()", new TokenVariable("wew"), new TokenStartParen(), new TokenEndParen());
-        testLexing("420", new TokenNum("420"));
-        testLexing("a420", new TokenVariable("a420"));
-        testLexing("for 4", new TokenKeyword(Keyword.FOR), new TokenNum("4"));
+        testLexing("wew()", VARIABLE.create("wew"), STARTPAREN, ENDPAREN);
+        testLexing("420", NUM.create("420"));
+        testLexing("a420", VARIABLE.create("a420"));
+        testLexing("for 4", KEYWORD.create(Keyword.FOR), NUM.create("4"));
     }
     public void testLexing(String input, Token... expected) {
         ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(expected));

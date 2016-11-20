@@ -7,14 +7,7 @@ package compiler.lex;
 import compiler.Keyword;
 import compiler.Operator;
 import compiler.token.Token;
-import compiler.token.TokenDecrement;
-import compiler.token.TokenIncrement;
-import compiler.token.TokenKeyword;
-import compiler.token.TokenNot;
-import compiler.token.TokenNum;
-import compiler.token.TokenOperator;
-import compiler.token.TokenSetEqual;
-import compiler.token.TokenVariable;
+import static compiler.token.TokenType.*;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.ArrayList;
 
@@ -39,10 +32,10 @@ public class Lexer extends AbstractLexer {
                 String lexeme = readAlphanumerical();
                 Keyword key = Keyword.strToKeyword(lexeme);
                 if (key != null) {
-                    emit(new TokenKeyword(key));
+                    emit(KEYWORD.create(key));
                     continue;
                 }
-                emit(new TokenVariable(lexeme));
+                emit(VARIABLE.create(lexeme));
                 continue;
             }
             if (num) {
@@ -50,7 +43,7 @@ public class Lexer extends AbstractLexer {
                 //it's nontrivial because a - and then a number can mean something else (like i-5) or really negative (like i= -5)
                 //negative numbers are in the parser not the lexer I think... =/
                 String lexeme = readNumerical();
-                emit(new TokenNum(lexeme));
+                emit(NUM.create(lexeme));
                 continue;
             }
             pop();
@@ -65,71 +58,71 @@ public class Lexer extends AbstractLexer {
                 case ':':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenSetEqual(true));
+                        emit(SETEQUAL.create(true));
                         break;
                     }
                     throw new IllegalStateException("Literally the only usage of : is if it has a = after it");
                 case '+'://TODO https://en.wikipedia.org/wiki/Augmented_assignment
                     if (peek() == '+') {
                         pop();
-                        emit(new TokenIncrement());
+                        emit(INCREMENT);
                         break;
                     }
-                    emit(new TokenOperator(Operator.PLUS));
+                    emit(OPERATOR.create(Operator.PLUS));
                     break;
                 case '-':
                     if (peek() == '-') {
                         pop();
-                        emit(new TokenDecrement());
+                        emit(DECREMENT);
                         break;
                     }
-                    emit(new TokenOperator(Operator.MINUS));
+                    emit(OPERATOR.create(Operator.MINUS));
                     break;
                 case '|':
                     if (peek() == '|') {
                         pop();
-                        emit(new TokenOperator(Operator.OR));
+                        emit(OPERATOR.create(Operator.OR));
                         break;
                     }
                     throw new IllegalStateException("What do you think this is, C? We don't have |");
                 case '&':
                     if (peek() == '&') {
                         pop();
-                        emit(new TokenOperator(Operator.AND));
+                        emit(OPERATOR.create(Operator.AND));
                         continue;//lol I could do eiter continue or break and it'll have the same end result. live life on the edge
                     }
                     throw new IllegalStateException("What do you think this is, C? We don't have &");
                 case '=':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.EQUAL));
+                        emit(OPERATOR.create(Operator.EQUAL));
                         break;
                     }
-                    emit(new TokenSetEqual(false));
+                    emit(SETEQUAL.create(false));
                     break;
                 case '<':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.LESS_OR_EQUAL));
+                        emit(OPERATOR.create(Operator.LESS_OR_EQUAL));
                         break;
                     }
-                    emit(new TokenOperator(Operator.LESS));
+                    emit(OPERATOR.create(Operator.LESS));
                     break;
                 case '>':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.GREATER_OR_EQUAL));
+                        emit(OPERATOR.create(Operator.GREATER_OR_EQUAL));
                         break;
                     }
-                    emit(new TokenOperator(Operator.GREATER));
+                    emit(OPERATOR.create(Operator.GREATER));
                     break;
                 case '!':
                     if (peek() == '=') {
                         pop();
-                        emit(new TokenOperator(Operator.NOT_EQUAL));
+                        emit(OPERATOR.create(Operator.NOT_EQUAL));
                         break;
                     }
-                    emit(new TokenNot());
+                    emit(NOT);
                     break;
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);

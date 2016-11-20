@@ -6,6 +6,7 @@
 package compiler;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
+import compiler.parse.Line;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
@@ -44,10 +45,10 @@ public class Compiler {
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
     public static String compile(String program, boolean staticValues, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
-        ArrayList<Object> lol = Preprocessor.preprocess(program).stream().map(x -> (Object) x).collect(Collectors.toCollection(ArrayList::new));
-        System.out.println("> DONE PREPROCESSING: " + lol);
+        List<Line> lines = Preprocessor.preprocess(program);
+        System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(lol, new Context());
+        ArrayList<Command> commands = Processor.parse(lines);
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
         FunctionsContext gc = new FunctionsContext(commands);
@@ -66,15 +67,6 @@ public class Compiler {
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
-        /*
-        for (Pair<String, ArrayList<TACStatement>> pair : wew) {
-            Context.VarInfo.printFull = true;
-            System.out.println("TAC FOR " + pair.getKey());
-            for (int i = 0; i < pair.getValue().size(); i++) {
-                System.out.println(i + ":     " + pair.getValue().get(i));
-            }
-            System.out.println();
-        }*/
         Context.printFull = false;
         for (Pair<String, ArrayList<TACStatement>> pair : wew) {
             System.out.println("TAC FOR " + pair.getKey());

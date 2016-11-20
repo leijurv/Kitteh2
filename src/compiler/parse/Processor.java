@@ -8,6 +8,8 @@ import compiler.Context;
 import compiler.command.Command;
 import compiler.lex.LexLuthor;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -39,5 +41,16 @@ public class Processor {
         long d = System.currentTimeMillis();
         System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c) + " -- total " + (d - a));
         return res;
+    }
+    /**
+     * Top level parsing, only parses the function headers and returns a list of
+     * CommandDefineFunctions. Should be assembled into a FunctionsContext then
+     * parsedRekursively
+     *
+     * @param obj
+     * @return
+     */
+    public static ArrayList<Command> parse(List<Line> obj) {
+        return parse(obj.stream().collect(Collectors.toCollection(ArrayList::new)), new Context());
     }
 }

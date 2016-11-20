@@ -35,7 +35,7 @@ public enum TokenType {
     }
     <T> TokenType(Predicate<Object> filter, Class<T> cla, Function<T, String> toStr) {
         this.filter = filter;
-        this.toStr = obj -> toStr.apply(cla.cast(obj));
+        this.toStr = obj -> toStr.apply(cla == null ? null : cla.cast(obj));
         this.cla = cla;
     }
     public Token create(Object arg) {

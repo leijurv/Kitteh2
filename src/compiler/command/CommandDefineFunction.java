@@ -81,6 +81,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }
+    public static String generateX86(Pair<String, ArrayList<TACStatement>> pair) {
+        return generateX86(pair.getKey(), pair.getValue());
+    }
     public static String generateX86(String name, ArrayList<TACStatement> result) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN X86 GENERATION FOR " + name);

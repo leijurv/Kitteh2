@@ -87,7 +87,7 @@ public class Compiler {
         StringBuilder resp = new StringBuilder();
         resp.append(HEADER);
         resp.append('\n');
-        resp.append(wew.parallelStream().map(pair -> CommandDefineFunction.generateX86(pair.getKey(), pair.getValue())).collect(Collectors.joining()));
+        resp.append(wew.parallelStream().map(CommandDefineFunction::generateX86).collect(Collectors.joining()));
         resp.append(FOOTER);
         resp.append('\n');
         long h = System.currentTimeMillis();

@@ -65,7 +65,7 @@ public class Lexer extends AbstractLexer {
                 case '+'://TODO https://en.wikipedia.org/wiki/Augmented_assignment
                     if (peek() == '+') {
                         pop();
-                        emit(INCREMENT.create());
+                        emit(INCREMENT);
                         break;
                     }
                     emit(OPERATOR.create(Operator.PLUS));
@@ -73,7 +73,7 @@ public class Lexer extends AbstractLexer {
                 case '-':
                     if (peek() == '-') {
                         pop();
-                        emit(DECREMENT.create());
+                        emit(DECREMENT);
                         break;
                     }
                     emit(OPERATOR.create(Operator.MINUS));
@@ -122,7 +122,7 @@ public class Lexer extends AbstractLexer {
                         emit(OPERATOR.create(Operator.NOT_EQUAL));
                         break;
                     }
-                    emit(NOT.create());
+                    emit(NOT);
                     break;
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);

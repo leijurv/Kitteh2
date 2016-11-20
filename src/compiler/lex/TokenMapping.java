@@ -17,16 +17,16 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<Character, Token> MAPPINGS = new HashMap<>();
     static {
-        MAPPINGS.put('(', STARTPAREN.create());
-        MAPPINGS.put(')', ENDPAREN.create());
-        MAPPINGS.put(',', COMMA.create());
+        MAPPINGS.put('(', STARTPAREN);
+        MAPPINGS.put(')', ENDPAREN);
+        MAPPINGS.put(',', COMMA);
         MAPPINGS.put('*', OPERATOR.create(Operator.MULTIPLY));
         MAPPINGS.put('/', OPERATOR.create(Operator.DIVIDE));
         MAPPINGS.put('%', OPERATOR.create(Operator.MOD));
-        MAPPINGS.put(';', SEMICOLON.create());
-        MAPPINGS.put('[', STARTBRAKT.create());
-        MAPPINGS.put(']', ENDBRKT.create());
-        MAPPINGS.put('.', PERIOD.create());
+        MAPPINGS.put(';', SEMICOLON);
+        MAPPINGS.put('[', STARTBRAKT);
+        MAPPINGS.put(']', ENDBRKT);
+        MAPPINGS.put('.', PERIOD);
         MAPPINGS.put('≠', OPERATOR.create(Operator.NOT_EQUAL));
         MAPPINGS.put('≥', OPERATOR.create(Operator.GREATER_OR_EQUAL));
         MAPPINGS.put('≤', OPERATOR.create(Operator.LESS_OR_EQUAL));

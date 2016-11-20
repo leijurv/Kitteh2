@@ -34,6 +34,9 @@ public class TokenMapping {
         MAPPINGS.put('[', new TokenStartBrakt());
         MAPPINGS.put(']', new TokenEndBrkt());
         MAPPINGS.put('.', new TokenPeriod());
+        MAPPINGS.put('≠', new TokenOperator(Operator.NOT_EQUAL));
+        MAPPINGS.put('≥', new TokenOperator(Operator.GREATER_OR_EQUAL));
+        MAPPINGS.put('≤', new TokenOperator(Operator.LESS_OR_EQUAL));
     }
     public static boolean charMapsToToken(char ch) {
         return MAPPINGS.containsKey(ch);

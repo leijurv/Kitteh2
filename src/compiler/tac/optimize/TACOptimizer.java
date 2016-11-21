@@ -32,13 +32,12 @@ public class TACOptimizer {
         do {
             prev = new ArrayList<>(input);
             for (Class<? extends TACOptimization> optim : opt) {
-                if (!settings.run(optim)) {
-                    continue;
-                }
-                try {
-                    input = optim.newInstance().go(input);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException("idk man", e);
+                if (settings.run(optim)) {
+                    try {
+                        input = optim.newInstance().go(input);
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        throw new RuntimeException("idk man", e);
+                    }
                 }
             }
             System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());

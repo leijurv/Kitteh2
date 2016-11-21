@@ -9,6 +9,7 @@ import java.util.function.Function;
 /**
  *
  * @author leijurv
+ * @param <T>
  */
 public final class TokenCustom<T> implements Token<T> {
     public final TokenType tokenType;

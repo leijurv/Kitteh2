@@ -38,6 +38,7 @@ public enum TokenType implements Token<Void> {
         this.toStr = obj -> toStr.apply(cla == null ? null : cla.cast(obj));
         this.cla = cla;
     }
+    @SuppressWarnings("unchecked")
     public Token create(Object arg) {
         if (!filter.test(arg)) {
             throw new DOMException(DOMException.VALIDATION_ERR, "Keeper scooted on the windshield.");

@@ -9,4 +9,7 @@ public interface Token<T> {
     public boolean equals(Object o);
     @Override
     public int hashCode();
+    public static boolean is(Object o, TokenType type) {
+        return o instanceof Token && ((Token) o).tokenType() == type;
+    }
 }

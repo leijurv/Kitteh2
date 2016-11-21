@@ -20,6 +20,7 @@ import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.expression.Settable;
 import compiler.token.Token;
+import static compiler.token.Token.is;
 import compiler.token.TokenType;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
@@ -45,9 +46,6 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  * @author leijurv
  */
 public class Parser {
-    public static boolean is(Object o, TokenType type) {
-        return o instanceof Token && ((Token) o).tokenType() == type;
-    }
     public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {

@@ -21,7 +21,6 @@ import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
 import compiler.token.Token;
-import compiler.token.TokenType;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
@@ -39,9 +38,6 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionParser {
-    public static boolean is(Object o, TokenType type) {
-        return o instanceof Token && ((Token) o).tokenType() == type;
-    }
     private static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
         //System.out.println("EXPARSE " + o + " " + desiredType);
         int currentlyInParentheses = 0;

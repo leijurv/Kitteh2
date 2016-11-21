@@ -102,6 +102,9 @@ public class ExpressionParser {
                         o.set(i, (Expression) ec);
                     }
                     break;
+                case INCREMENT:
+                case DECREMENT:
+                    throw new IllegalStateException("No " + ob + " in an expressios, only as a line on its own");
             }
         }
         if (o.size() == 1) {

@@ -39,7 +39,7 @@ public class CommandIf extends CommandBlock {
     }
     @Override
     protected int calculateTACLength() {
-        int sum = contents.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int sum = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         return sum + ((ExpressionConditionalJumpable) condition).condLength();
     }
     @Override
@@ -47,7 +47,7 @@ public class CommandIf extends CommandBlock {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
         List<String> varsMod = getAllVarsModified();
-        List<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toList());
+        List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
         for (Command com : contents) {
             com.staticValues();
         }

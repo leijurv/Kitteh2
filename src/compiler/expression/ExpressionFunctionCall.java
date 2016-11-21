@@ -33,7 +33,7 @@ public class ExpressionFunctionCall extends Expression {
         if (expected.size() != args.size()) {
             throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
         }
-        ArrayList<Type> got = args.stream().map(arg -> arg.getType()).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Type> got = args.stream().map(Expression::getType).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
             if (calling.name.equals("KEYWORD" + Keyword.PRINT.toString())) {
                 if (got.get(0) instanceof TypeNumerical) {
@@ -63,7 +63,7 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public int calculateTACLength() {
-        int sum = args.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int sum = args.parallelStream().mapToInt(Expression::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         return sum + 1;
     }
     @Override

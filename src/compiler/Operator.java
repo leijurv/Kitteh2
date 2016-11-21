@@ -58,7 +58,7 @@ public enum Operator {//extends Token maybe? might make things easier... idk
         //so, a-b+c might be parsed as a-(b+c)
         //having it be a 2d array fixes that
         Map<Integer, List<Operator>> precToOp = Stream.of(values()).collect(Collectors.groupingBy(op -> op.precedence));
-        return Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(prec -> precToOp.get(prec)).collect(Collectors.toCollection(ArrayList::new));
+        return Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(precToOp::get).collect(Collectors.toCollection(ArrayList::new));
         //ArrayList<Operator> ops = new ArrayList<>(Arrays.asList(values()));
         //reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
         //return ops;

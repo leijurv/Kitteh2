@@ -9,6 +9,7 @@ import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.X86Register;
 import compiler.command.CommandDefineFunction.FunctionHeader;
+import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import java.nio.channels.CancelledKeyException;
@@ -56,11 +57,11 @@ public class TACFunctionCall extends TACStatement {
             throw new ArithmeticException();
         }
         params.clear();
-        params.addAll(paramNames.stream().map(name -> context.getRequired(name)).collect(Collectors.toList()));
+        params.addAll(paramNames.stream().map(context::getRequired).collect(Collectors.toList()));
     }
     @Override
     public void printx86(X86Emitter emit) {
-        int argsSize = header.inputs().stream().mapToInt(type -> type.getSizeBytes()).sum();
+        int argsSize = header.inputs().stream().mapToInt(Type::getSizeBytes).sum();
         int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
         toSubtract /= 16;
         toSubtract++;

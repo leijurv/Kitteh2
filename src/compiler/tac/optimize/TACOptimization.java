@@ -7,6 +7,7 @@ package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public abstract class TACOptimization {
     private ArrayList<TACStatement> statements;
     private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
-        ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(stmt -> stmt.jumpTo()).distinct().collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> result = statements.stream().filter(stmt -> stmt instanceof TACJump).map(stmt -> (TACJump) stmt).map(TACJump::jumpTo).distinct().collect(Collectors.toCollection(ArrayList::new));
         result.sort(null);
         return result;
     }
@@ -48,7 +49,7 @@ public abstract class TACOptimization {
             newJumpDests.add(pos);
             //newJumpDests.add(pos += current.size());
         }
-        ArrayList<TACStatement> result = blocks.stream().flatMap(x -> x.stream()).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<TACStatement> result = blocks.stream().flatMap(Collection::stream).collect(Collectors.toCollection(ArrayList::new));
         for (int i = 0; i < result.size(); i++) {
             if (result.get(i) instanceof TACJump) {
                 TACJump jump = (TACJump) result.get(i);

@@ -35,7 +35,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
-        this.header = new FunctionHeader(name, returnType, arguments.stream().map(arg -> arg.getValue()).collect(Collectors.toCollection(ArrayList::new)));
+        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getValue).collect(Collectors.toCollection(ArrayList::new)));
     }
     @Override
     public String toString() {

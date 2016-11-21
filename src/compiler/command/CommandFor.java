@@ -71,7 +71,7 @@ public class CommandFor extends CommandBlock {
     }
     @Override
     protected int calculateTACLength() {
-        int bodyLen = contents.parallelStream().mapToInt(com -> com.getTACLength()).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int bodyLen = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
         int init = initialization != null ? initialization.getTACLength() : 0;
         int cond = condition != null ? ((ExpressionConditionalJumpable) condition).condLength() : 0;
         int aft = afterthought != null ? afterthought.getTACLength() : 0;
@@ -86,7 +86,7 @@ public class CommandFor extends CommandBlock {
             //it's fine to run static values on the initilization
         }
         List<String> varsMod = getAllVarsModified();
-        List<ExpressionConst> preKnown = varsMod.stream().map(a -> context.knownValue(a)).collect(Collectors.toList());
+        List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
         System.out.println("CLEARING " + varsMod);
         for (String s : varsMod) {
             context.clearKnownValue(s);

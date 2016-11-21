@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.type;
+import compiler.Context.VarInfo;
 import compiler.Struct;
 
 /**
@@ -17,6 +18,6 @@ public class TypeStruct extends Type {
     }
     @Override
     public int getSizeBytes() {
-        return struct.getFields().stream().mapToInt(field -> field.getType().getSizeBytes()).sum();
+        return struct.getFields().stream().map(VarInfo::getType).mapToInt(Type::getSizeBytes).sum();
     }
 }

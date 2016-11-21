@@ -18,6 +18,9 @@ import compiler.command.CommandIf;
 import compiler.command.CommandReturn;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConstNum;
+import compiler.expression.ExpressionOperator;
+import compiler.expression.ExpressionVariable;
 import compiler.expression.Settable;
 import compiler.token.Token;
 import static compiler.token.Token.is;
@@ -25,6 +28,7 @@ import compiler.token.TokenType;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
@@ -323,6 +327,23 @@ public class Parser {
                 context.setType(ts, type);
                 //ok we doing something like long i=5
                 return null;
+            }
+            if (is(tokens.get(tokens.size() - 1), INCREMENT) || is(tokens.get(tokens.size() - 1), DECREMENT)) {
+                if (tokens.size() != 2 || !is(tokens.get(0), VARIABLE)) {
+                    throw new IllegalStateException("Currently you can only do single variables ++ or --");
+                }
+                String varName = (String) tokens.get(0).data();
+                Type typ = context.get(varName).getType();
+                if (typ instanceof TypePointer) {
+                    throw new IllegalStateException("no?");
+                }
+                if (typ instanceof TypeBoolean) {
+                    throw new IllegalStateException("no!");
+                }
+                if (typ instanceof TypeStruct) {
+                    throw new IllegalStateException("NO!");
+                }
+                return new CommandSetVar(varName, new ExpressionOperator(new ExpressionVariable(varName, context), tokens.get(tokens.size() - 1).tokenType() == INCREMENT ? Operator.PLUS : Operator.MINUS, new ExpressionConstNum(1, (TypeNumerical) context.get(varName).getType())), context);
             }
             //this isn't setting a variable, so it's an expression I think
             Expression ex = ExpressionParser.parse(tokens, Optional.empty(), context);

@@ -8,7 +8,8 @@ import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
-import compiler.type.TypeString;
+import compiler.type.TypeInt8;
+import compiler.type.TypePointer;
 
 /**
  *
@@ -21,7 +22,7 @@ public class ExpressionConstStr extends Expression implements ExpressionConst {
     }
     @Override
     protected Type calcType() {
-        return new TypeString();
+        return new <TypeInt8>TypePointer<TypeInt8>(new TypeInt8());
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {

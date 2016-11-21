@@ -22,7 +22,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
          ((Line) o).lex();
          }
          }*/
-        Optional<RuntimeException> e = lines.parallelStream().filter(line -> line instanceof Line).map(line -> (Line) line).map(line -> {
+        Optional<RuntimeException> e = lines.parallelStream().filter(Line.class::isInstance).map(Line.class::cast).map(line -> {
             try {
                 line.lex();
             } catch (Exception ex) {

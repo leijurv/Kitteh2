@@ -29,7 +29,7 @@ public abstract class LineBasedTransform implements Transform<List<Line>> {
             maybeLines.set(i, processed);
         });
     }
-    private final Line runLine(Line line) {
+    private Line runLine(Line line) {
         try {
             return transform(line);
         } catch (Exception e) {

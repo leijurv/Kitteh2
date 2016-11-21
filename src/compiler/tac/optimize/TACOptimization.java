@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public abstract class TACOptimization {
     private ArrayList<TACStatement> statements;
     private static ArrayList<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
-        ArrayList<Integer> result = statements.stream().filter(TACJump.class::isInstance).map(stmt -> (TACJump) stmt).map(TACJump::jumpTo).distinct().collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> result = statements.stream().filter(TACJump.class::isInstance).map(TACJump.class::cast).map(TACJump::jumpTo).distinct().collect(Collectors.toCollection(ArrayList::new));
         result.sort(null);
         return result;
     }

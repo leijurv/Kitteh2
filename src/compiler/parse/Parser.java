@@ -143,7 +143,7 @@ public class Parser {
                         return def;
                     case FOR:
                         //System.out.println("Parsing for loop with params " + params);
-                        int numSemis = (int) params.stream().filter(token -> is(token, SEMICOLON)).count();//I really like streams lol
+                        int numSemis = (int) params.stream().filter(SEMICOLON::is).count();//I really like streams lol
                         switch (numSemis) {
                             case 0: { // for{   OR  for i<5{
                                 Context sub = context.subContext();

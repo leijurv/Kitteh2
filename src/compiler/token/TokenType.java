@@ -52,4 +52,7 @@ public enum TokenType implements Token<Void> {
     public Void data() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    public boolean is(Token t) {
+        return t.tokenType() == this;
+    }
 }

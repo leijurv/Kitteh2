@@ -53,8 +53,7 @@ public class Compiler {
         ArrayList<Command> commands = Processor.parse(lines);
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
-        FunctionsContext gc = new FunctionsContext(commands);
-        gc.parseRekursively();
+        FunctionsContext.parseRekursively(commands);
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
         if (settings.staticValues()) {

@@ -21,7 +21,7 @@ public class FunctionsContext {
     public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
-    public FunctionsContext(ArrayList<Command> definitions) {
+    private FunctionsContext(ArrayList<Command> definitions) {
         functionDefinitions = new ArrayList<>(definitions.size());
         for (Command com : definitions) {
             CommandDefineFunction cdf = (CommandDefineFunction) com;
@@ -37,7 +37,7 @@ public class FunctionsContext {
             throw new NoSuchMechanismException("You need a main function");
         }
     }
-    public void parseRekursively() {
+    private void parseRekursivelie() {
         Stream<CommandDefineFunction> stream = functionDefinitions.stream();
         if (PARALLEL_FUNCTION_PARSING) {
             stream = stream.parallel();
@@ -61,5 +61,8 @@ public class FunctionsContext {
             throw new ConcurrentModificationException("you tryna call a nonexistent function " + name);
         }
         return tr;
+    }
+    public static void parseRekursively(ArrayList<Command> commands) {
+        new FunctionsContext(commands).parseRekursivelie();
     }
 }

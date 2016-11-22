@@ -6,8 +6,8 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import compiler.X86Emitter;
-import compiler.X86Register;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;

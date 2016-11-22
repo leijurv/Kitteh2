@@ -6,8 +6,8 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Struct;
-import compiler.X86Emitter;
-import compiler.X86Register;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
 import java.nio.file.InvalidPathException;

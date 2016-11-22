@@ -5,7 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context;
-import compiler.X86Emitter;
+import compiler.x86.X86Emitter;
 import java.util.List;
 
 /**

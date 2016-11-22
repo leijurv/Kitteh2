@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.X86Emitter;
+import compiler.x86.X86Emitter;
 import java.util.Arrays;
 import java.util.List;
 

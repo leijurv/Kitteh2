@@ -5,7 +5,7 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.X86Register;
+import compiler.x86.X86Register;
 import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;

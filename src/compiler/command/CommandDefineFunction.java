@@ -6,7 +6,7 @@
 package compiler.command;
 import compiler.Context;
 import compiler.Keyword;
-import compiler.X86Emitter;
+import compiler.x86.X86Emitter;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;

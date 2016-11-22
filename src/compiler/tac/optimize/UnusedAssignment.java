@@ -5,7 +5,7 @@
  */
 package compiler.tac.optimize;
 import compiler.Context;
-import compiler.X86Register;
+import compiler.x86.X86Register;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACReturn;

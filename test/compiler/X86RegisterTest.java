@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.x86.X86Register;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;

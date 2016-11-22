@@ -5,8 +5,8 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.X86Emitter;
-import compiler.X86Register;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;

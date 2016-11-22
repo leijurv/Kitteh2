@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
-import compiler.X86Register;
+import compiler.x86.X86Register;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;

@@ -5,7 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.X86Emitter;
+import compiler.x86.X86Emitter;
 import compiler.type.TypeBoolean;
 import java.util.Arrays;
 import java.util.List;

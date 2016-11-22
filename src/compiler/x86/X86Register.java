@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler;
+package compiler.x86;
 import compiler.type.TypeNumerical;
 import java.nio.channels.IllegalSelectorException;
 

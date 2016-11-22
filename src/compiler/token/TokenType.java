@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import org.w3c.dom.DOMException;
 
-public enum TokenType implements Token<Void> {
+public enum TokenType implements Token<Void>, Predicate<Token> {
     CHAR(Character.class, arg -> "'" + arg + "'"),
     COMMA(","),
     DECREMENT("--"),
@@ -53,7 +53,8 @@ public enum TokenType implements Token<Void> {
     public Void data() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    public boolean is(Token t) {
+    @Override
+    public boolean test(Token t) {
         return t.tokenType() == this;
     }
 }

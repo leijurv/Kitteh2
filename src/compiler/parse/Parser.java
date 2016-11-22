@@ -147,7 +147,7 @@ public class Parser {
                         return def;
                     case FOR:
                         //System.out.println("Parsing for loop with params " + params);
-                        int numSemis = (int) params.stream().filter(SEMICOLON::is).count();//I really like streams lol
+                        int numSemis = (int) params.stream().filter(SEMICOLON).count();//I really like streams lol
                         switch (numSemis) {
                             case 0: { // for{   OR  for i<5{
                                 Context sub = context.subContext();
@@ -281,7 +281,7 @@ public class Parser {
                     return new CommandReturn(context, ex);
             }
         }
-        if (tokens.stream().anyMatch(token -> token.tokenType() == SEMICOLON)) {
+        if (tokens.stream().anyMatch(SEMICOLON)) {
             throw new IllegalStateException("I don't like semicolons");
         }
         int eqLoc = -1;

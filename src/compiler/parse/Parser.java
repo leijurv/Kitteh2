@@ -220,7 +220,7 @@ public class Parser {
                 }
             }
             return null;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             throw new RuntimeException("Exception while parsing line " + l.num(), e);
         }
     }

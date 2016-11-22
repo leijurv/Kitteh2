@@ -21,6 +21,8 @@ public class IREmitter {//extends ArrayList XDDD
     public IREmitter() {
         this.result = new ArrayList<>();
         this.currentContext = null;
+        this.breakTo = null;
+        this.continueTo = null;
     }
     public boolean canBreak() {
         return breakTo != null;

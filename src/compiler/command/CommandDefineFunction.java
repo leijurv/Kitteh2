@@ -5,7 +5,6 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.FunctionsContext;
 import compiler.Keyword;
 import compiler.X86Emitter;
 import compiler.parse.Processor;

@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler;
-import compiler.command.Command;
-import compiler.command.CommandDefineFunction;
+package compiler.command;
+import compiler.Keyword;
+import compiler.Operator;
 import compiler.command.CommandDefineFunction.FunctionHeader;
-import compiler.preprocess.StripLocation;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class FunctionsContext {
             FunctionHeader header = cdf.getHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
-                throw new EnumConstantNotPresentException(StripLocation.class, "   error: Two functions with same name: " + name);
+                throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
             }
             functionMap.put(name, header);
         }

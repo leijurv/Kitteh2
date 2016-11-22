@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.command.FunctionsContext;
 import compiler.command.CommandDefineFunction;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;

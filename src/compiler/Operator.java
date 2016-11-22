@@ -113,6 +113,16 @@ public enum Operator {//extends Token maybe? might make things easier... idk
             throw new FileSystemAlreadyExistsException("");
         }
         onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
+        if (a instanceof ExpressionConstNum) {
+            if ((int) ((ExpressionConstNum) a).getVal().longValue() != ((ExpressionConstNum) a).getVal().intValue()) {
+                //if the long version, when casted to int, is different than the int version
+                //some form of overflow is happening?
+                throw new RuntimeException();
+            }
+            if ((int) ((ExpressionConstNum) b).getVal().longValue() != ((ExpressionConstNum) b).getVal().intValue()) {
+                throw new RuntimeException();
+            }
+        }
         switch (this) {
             case PLUS:
                 return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() + ((ExpressionConstNum) b).getVal().intValue());

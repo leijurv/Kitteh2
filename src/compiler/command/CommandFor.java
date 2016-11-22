@@ -57,12 +57,20 @@ public class CommandFor extends CommandBlock {
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         }
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
+        int previousBreakTo = emit.canBreak() ? emit.breakTo() : -1;
+        int previousContinueTo = emit.canContinue() ? emit.continueTo() : -1;
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
         emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought
         for (Command com : contents) {//TODOIFIWANTTOKILLMYSELF make this parallel
             com.generateTAC(emit);
         }
         emit.clearBreakContinue();
+        if (previousBreakTo != -1) {
+            emit.setBreak(previousBreakTo);
+        }
+        if (previousContinueTo != -1) {
+            emit.setContinue(previousContinueTo);
+        }
         if (afterthought != null) {
             afterthought.generateTAC(emit);
         }

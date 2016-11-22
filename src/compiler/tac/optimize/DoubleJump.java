@@ -19,6 +19,11 @@ public class DoubleJump extends TACOptimization {
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i) instanceof TACJump) {
                 TACJump first = (TACJump) stmts.get(i);
+                if (first.jumpTo() >= stmts.size()) {
+                    for (int j = 0; j < stmts.size(); j++) {
+                        System.out.println(j + ":  " + stmts.get(j));
+                    }
+                }
                 TACStatement dest = stmts.get(first.jumpTo());
                 if (dest instanceof TACJump) {
                     TACJump second = (TACJump) dest;

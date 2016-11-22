@@ -162,8 +162,8 @@ public class Parser {
                             }
                             case 2: {//for i:=0; i<1000; i++{
                                 //I wish I could do params.split(TokenSemicolon)
-                                int firstSemi = firstSemicolon(params);
-                                int secondSemi = lastSemicolon(params);
+                                int firstSemi = params.indexOf(SEMICOLON);
+                                int secondSemi = params.lastIndexOf(SEMICOLON);
                                 ArrayList<Token> first = new ArrayList<>(params.subList(0, firstSemi));
                                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
@@ -239,22 +239,6 @@ public class Parser {
             result.add(temp);
         }
         return result;
-    }
-    public static int firstSemicolon(List<Token> params) {
-        for (int i = 0; i < params.size(); i++) {
-            if (params.get(i).tokenType() == SEMICOLON) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    public static int lastSemicolon(List<Token> params) {
-        for (int i = params.size() - 1; i >= 0; i--) {
-            if (params.get(i).tokenType() == SEMICOLON) {
-                return i;
-            }
-        }
-        return -1;
     }
     public static Command parseLine(Line line, Context context) {
         return parseLine(line.getTokens(), context);

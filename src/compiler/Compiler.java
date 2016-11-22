@@ -4,14 +4,15 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.command.FunctionsContext;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
+import compiler.command.FunctionsContext;
 import compiler.parse.Line;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
+import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
@@ -63,13 +64,13 @@ public class Compiler {
         }
         System.out.println("> DONE STATIC VALUES: " + commands);
         long e = System.currentTimeMillis();
-        List<Pair<String, ArrayList<TACStatement>>> wew = commands.parallelStream()
+        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> (CommandDefineFunction) com)
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
         Context.printFull = false;
-        for (Pair<String, ArrayList<TACStatement>> pair : wew) {
+        for (Pair<String, List<TACStatement>> pair : wew) {
             System.out.println("TAC FOR " + pair.getKey());
             for (int i = 0; i < pair.getValue().size(); i++) {
                 System.out.println(i + ":     " + pair.getValue().get(i));
@@ -77,23 +78,11 @@ public class Compiler {
             System.out.println();
         }
         long g = System.currentTimeMillis();
-        StringBuilder resp = new StringBuilder();
-        resp.append(HEADER);
-        resp.append('\n');
-        resp.append(wew.parallelStream().map(CommandDefineFunction::generateX86).collect(Collectors.joining()));
-        resp.append(FOOTER);
-        resp.append('\n');
+        String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
         String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
         System.out.println(loll);
         System.err.println(loll);
-        return resp.toString();
+        return asm;
     }
-    private static final String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
-            + "    .macosx_version_min 10, 10";
-    private static final String FOOTER = "\n"
-            + ".section	__TEXT,__cstring,cstring_literals\n"
-            + "lldformatstring:\n"
-            + "	.asciz	\"%lld\\n\"\n"
-            + ".subsections_via_symbols";
 }

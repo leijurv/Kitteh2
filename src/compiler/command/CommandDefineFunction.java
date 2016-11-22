@@ -6,7 +6,6 @@
 package compiler.command;
 import compiler.Context;
 import compiler.Keyword;
-import compiler.x86.X86Emitter;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
@@ -16,8 +15,10 @@ import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
+import compiler.x86.X86Emitter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 
@@ -68,7 +69,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.staticValues();
         }
     }
-    public ArrayList<TACStatement> totac(OptimizationSettings settings) {
+    public List<TACStatement> totac(OptimizationSettings settings) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.printFull = true;
@@ -80,10 +81,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }
-    public static String generateX86(Pair<String, ArrayList<TACStatement>> pair) {
+    public static String generateX86(Pair<String, List<TACStatement>> pair) {
         return generateX86(pair.getKey(), pair.getValue());
     }
-    public static String generateX86(String name, ArrayList<TACStatement> result) {
+    public static String generateX86(String name, List<TACStatement> result) {
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);

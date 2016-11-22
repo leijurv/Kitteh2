@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.command.FunctionsContext;
 import compiler.command.CommandDefineFunction;
+import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -30,7 +30,6 @@ public class Context {
         private final Type type;
         private ExpressionConst knownValue;
         private final int stackLocation;
-        //TODO maybe a pointer to the Context / TempVarInfo that instantiated this
         public VarInfo(String name, Type type, int stackLocation) {
             this.name = name;
             this.type = type;
@@ -57,6 +56,9 @@ public class Context {
         }
         public String x86() {
             return (stackLocation) + ("(%rbp)");
+        }
+        public Context getContext() {
+            return Context.this;
         }
     }
     private final HashMap<String, VarInfo>[] values;

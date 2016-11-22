@@ -12,14 +12,12 @@ import java.util.function.Function;
  * @param <T>
  */
 public final class TokenCustom<T> implements Token<T> {
-    public final TokenType tokenType;
-    public final T data;
-    public final Class<T> dataType;
-    public final Function<T, String> toStr;
+    final TokenType tokenType;
+    final T data;
+    final Function<T, String> toStr;
     TokenCustom(TokenType tokenType, Object data, Class<T> cl, Function<T, String> toString) {
         this.tokenType = tokenType;
         this.data = cl == null ? null : cl.cast(data);
-        this.dataType = cl;
         this.toStr = toString;
     }
     @Override

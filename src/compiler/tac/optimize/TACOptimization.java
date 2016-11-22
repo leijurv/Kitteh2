@@ -34,6 +34,7 @@ public abstract class TACOptimization {
             int start = i == -1 ? 0 : origJumpDests.get(i);
             int end = i + 1 == origJumpDests.size() ? statements.size() : origJumpDests.get(i + 1);
             if (start == end) {
+                blocks.add(new ArrayList<>());
                 continue;
             }
             //System.out.println(start + " to " + end);

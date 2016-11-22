@@ -123,13 +123,13 @@ public class CompilerTest {
                 + "}\n"
                 + "func main(){\n"
                 + "	int count=1\n"
-                + "	for i:=3; i<10000000; i=i+2{\n"
+                + "	for i:=3; i<1000000; i=i+2{\n"
                 + "		if isPrime(i)≠0{\n"
                 + "			count=count+1\n"
                 + "		}\n"
                 + "	}\n"
                 + "	print(count)\n"
-                + "}", true, "664579\n");
+                + "}", true, "78498\n");
     }
     @Test
     public void testVariousStructs() throws Exception {

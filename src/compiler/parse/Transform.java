@@ -10,5 +10,5 @@ package compiler.parse;
  * @author leijurv
  */
 public interface Transform<E> {
-    public void apply(E lines);
+    void apply(E lines);
 }

@@ -12,5 +12,5 @@ import compiler.command.Command;
  * @author leijurv
  */
 public interface Settable {
-    public Command setValue(Expression rvalue, Context context);
+    Command setValue(Expression rvalue, Context context);
 }

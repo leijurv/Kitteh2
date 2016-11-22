@@ -63,8 +63,7 @@ public class Compiler {
         }
         System.out.println("> DONE STATIC VALUES: " + commands);
         long e = System.currentTimeMillis();
-        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
-                .map(com -> (CommandDefineFunction) com)
+        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream().map(CommandDefineFunction.class::cast)
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();

@@ -396,7 +396,7 @@ public class CompilerTest {
         verifyCompilation(program, false, null);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
-        verifyCompilation(program, shouldCompile, desiredExecutionOutput, false, OptimizationSettings.NONE, true);
+        verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
         if (!shouldCompile) {
             return;
             //if it shouldn't compile, and the test was successful (i e it actually didn't compile)
@@ -404,7 +404,7 @@ public class CompilerTest {
         }
         //ok so it works with none
         try {
-            verifyCompilation(program, shouldCompile, desiredExecutionOutput, true, OptimizationSettings.ALL, false);
+            verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.ALL, false);
         } catch (Exception e) {
             detective(program, desiredExecutionOutput, e);
             e.printStackTrace();
@@ -415,7 +415,7 @@ public class CompilerTest {
         //no exception with false,NONE
         //exception with true,ALL
         try {
-            verifyCompilation(program, true, desiredExecutionOutput, true, OptimizationSettings.NONE, false);
+            verifyCompilation(program, true, desiredExecutionOutput, new OptimizationSettings(false, true), false);
         } catch (Exception e) {
             //exception isn't caused by any optimization settings
             e.printStackTrace();
@@ -424,10 +424,10 @@ public class CompilerTest {
         //no exception with *,NONE
         //try enabling individual optimizations
         for (int i = 0; i < TACOptimizer.opt.size(); i++) {
-            OptimizationSettings set = new OptimizationSettings(false);
+            OptimizationSettings set = new OptimizationSettings(false, true);
             set.setEnabled(i, true);
             try {
-                verifyCompilation(program, true, desiredExecutionOutput, true, set, false);
+                verifyCompilation(program, true, desiredExecutionOutput, set, false);
             } catch (Exception e) {
                 //if enabling one on its own can trigger it, let's just throw that
                 e.printStackTrace();
@@ -437,7 +437,7 @@ public class CompilerTest {
         withAll.printStackTrace();
         throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually " + withAll);
     }
-    public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, boolean staticValues, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+    public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
         if (!new File("/usr/bin/gcc").exists()) {
             assertNull("GCC must exist");
         }
@@ -446,7 +446,7 @@ public class CompilerTest {
         }
         String compiled;
         try {
-            compiled = Compiler.compile(program, staticValues, settings);
+            compiled = Compiler.compile(program, settings);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {

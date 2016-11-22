@@ -41,11 +41,11 @@ public class Compiler {
         System.out.println("First stream: " + streamTime());//almost always several hundred ms
         System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());
-        String asm = compile(new String(program), OPTIMIZE, new OptimizationSettings(OPTIMIZE));
+        String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
-    public static String compile(String program, boolean staticValues, OptimizationSettings settings) {
+    public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
@@ -57,7 +57,7 @@ public class Compiler {
         gc.parseRekursively();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
-        if (staticValues) {
+        if (settings.staticValues()) {
             for (Command com : commands) {
                 com.staticValues();
             }

@@ -16,7 +16,6 @@ import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
 import compiler.util.Pair;
-import compiler.x86.X86Emitter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,35 +80,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }
-    public static String generateX86(Pair<String, List<TACStatement>> pair) {
-        return generateX86(pair.getKey(), pair.getValue());
-    }
-    public static String generateX86(String name, List<TACStatement> result) {
-        long start = System.currentTimeMillis();
-        System.out.println("> BEGIN X86 GENERATION FOR " + name);
-        X86Emitter emitter = new X86Emitter(name);
-        for (int i = 0; i < result.size(); i++) {
-            emitter.addStatement(emitter.lineToLabel(i) + ":");
-            emitter.addStatement("#   " + result.get(i));
-            result.get(i).printx86(emitter);
-            emitter.addStatement("");//nice blank line makes it more readable =)
-        }
-        StringBuilder resp = new StringBuilder();
-        resp.append("	.globl	_").append(name).append("\n	.align	4, 0x90\n");
-        resp.append("_").append(name).append(":\n");
-        resp.append(FUNC_HEADER).append('\n');
-        resp.append(emitter.toX86()).append('\n');
-        resp.append(FUNC_FOOTER).append('\n');
-        System.out.println("> END X86 GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
-        return resp.toString();
-    }
-    private static final String FUNC_HEADER = "	.cfi_startproc\n"
-            + "	pushq	%rbp\n"
-            + "	.cfi_def_cfa_offset 16\n"
-            + "	.cfi_offset %rbp, -16\n"
-            + "	movq	%rsp, %rbp\n"
-            + "	.cfi_def_cfa_register %rbp";
-    private static final String FUNC_FOOTER = "	.cfi_endproc";
 
     public static class FunctionHeader {
         private FunctionHeader(String name, Type returnType, ArrayList<Type> arguments) {

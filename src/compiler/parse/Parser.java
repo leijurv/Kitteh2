@@ -396,25 +396,28 @@ public class Parser {
         }
         Token first = tokens.get(0);
         Type tp;
-        if (first.tokenType() == KEYWORD) {
-            Keyword keyword = (Keyword) first.data();
-            if (!keyword.isType()) {
-                return null;
-            }
-            tp = keyword.type;
-        } else if (first.tokenType() == VARIABLE) {
-            String name = (String) first.data();
-            if (name.equals(selfRef)) {
-                tp = new TypeStruct(null);
-            } else {
-                Struct struct = context.getStruct(name);
-                if (struct == null) {
+        switch (first.tokenType()) {
+            case KEYWORD:
+                Keyword keyword = (Keyword) first.data();
+                if (!keyword.isType()) {
                     return null;
                 }
-                tp = new TypeStruct(struct);
-            }
-        } else {
-            return null;
+                tp = keyword.type;
+                break;
+            case VARIABLE:
+                String name = (String) first.data();
+                if (name.equals(selfRef)) {
+                    tp = new TypeStruct(null);
+                } else {
+                    Struct struct = context.getStruct(name);
+                    if (struct == null) {
+                        return null;
+                    }
+                    tp = new TypeStruct(struct);
+                }
+                break;
+            default:
+                return null;
         }
         for (int i = 1; i < tokens.size(); i++) {
             if (tokens.get(i).tokenType() != OPERATOR) {

@@ -6,9 +6,9 @@
 package compiler.x86;
 import compiler.command.CommandDefineFunction;
 import compiler.tac.TACStatement;
+import compiler.util.Pair;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 
 /**
  *

@@ -12,6 +12,7 @@ import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
+import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javafx.util.Pair;
 
 /**
  *

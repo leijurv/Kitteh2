@@ -32,6 +32,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
+import compiler.util.Pair;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.ProviderMismatchException;
@@ -41,7 +42,6 @@ import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 import javax.management.openmbean.InvalidKeyException;
 import javax.management.openmbean.KeyAlreadyExistsException;
 

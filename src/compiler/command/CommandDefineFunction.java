@@ -15,12 +15,12 @@ import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
+import compiler.util.Pair;
 import compiler.x86.X86Emitter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import javafx.util.Pair;
 
 /**
  *

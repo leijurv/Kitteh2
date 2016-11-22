@@ -144,7 +144,7 @@ public class ExpressionParser {
                     throw new IllegalStateException("mismatched ( and )");
                 }
                 if (i != 0 && is(o.get(i - 1), KEYWORD)) {
-                    if (((Keyword) ((Token) o.get(i - 1)).data()).toString().equals(Keyword.SIZEOF.toString())) {
+                    if (((Keyword) ((Token) o.get(i - 1)).data()) == Keyword.SIZEOF) {
                         if (inParen.size() != 1) {
                             throw new RuntimeException();
                         }

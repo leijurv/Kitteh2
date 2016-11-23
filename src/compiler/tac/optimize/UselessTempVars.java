@@ -43,7 +43,10 @@ public class UselessTempVars extends TACOptimization {
             }
             TACConst curr = (TACConst) block.get(ind);
             String valSet = curr.destName;
-            if (!isTempVariable(valSet)) {//this should ignore struct field writes because they don't follow the pattern of "tmp" then an integer
+            if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+                continue;
+            }
+            if (!isTempVariable(valSet)) {
                 continue;
             }
             for (int usageLocation = ind + 1; usageLocation < block.size(); usageLocation++) {

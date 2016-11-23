@@ -5,13 +5,13 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.x86.X86Register;
 import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TACReturn;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeNumerical;
+import compiler.x86.X86Register;
 
 /**
  *
@@ -44,6 +44,7 @@ public class CommandReturn extends Command {
     public void staticValues() {
         if (toReturn != null) {
             toReturn = toReturn.insertKnownValues(context);
+            toReturn = toReturn.calculateConstants();
         }
     }
 }

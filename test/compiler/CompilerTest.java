@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -633,6 +634,10 @@ public class CompilerTest {
         String[] compilationCommand = {"gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
         System.out.println(Arrays.asList(compilationCommand));
         Process gcc = new ProcessBuilder(compilationCommand).start();
+        if (!gcc.waitFor(10, TimeUnit.SECONDS)) {
+            gcc.destroyForcibly();
+            assertEquals("GCC timed out????", false, true);
+        }
         System.out.println("GCC return value: " + gcc.waitFor());
         if (gcc.waitFor() != 0) {
             int j;
@@ -649,7 +654,10 @@ public class CompilerTest {
         assertEquals(0, gcc.waitFor());
         assertEquals(true, executable.exists());
         Process ex = new ProcessBuilder(executable.getAbsolutePath()).redirectError(Redirect.INHERIT).start();
-        ex.waitFor();
+        if (!ex.waitFor(2, TimeUnit.SECONDS)) {
+            ex.destroyForcibly();
+            assertEquals("Subprocess timed out", false, true);
+        }
         int j;
         StringBuilder result = new StringBuilder();
         while ((j = ex.getInputStream().read()) >= 0) {

@@ -15,6 +15,7 @@ import compiler.tac.TACConst;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import java.awt.image.RasterFormatException;
@@ -80,7 +81,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
             //(*deref).field=rvalue
             Expression deref = ((ExpressionPointerDeref) input).deReferencing;
             //*(deref + offsetOfThisFieldWithinStruct) = rvalue
-            Expression fieldLoc = new ExpressionOperator(deref, Operator.PLUS, new ExpressionConstNum(offsetOfThisFieldWithinStruct));
+            Expression fieldLoc = new ExpressionOperator(deref, Operator.PLUS, new ExpressionConstNum(offsetOfThisFieldWithinStruct, new TypeInt64()));
             fieldLoc = new ExpressionCast(fieldLoc, new TypePointer<>(struct.getFieldByName(field).getType()));
             //*(fieldLoc) = rvalue
             // System.out.println("bcdua " + struct + " " + field + " " + fieldLoc + " " + deref + " " + rvalue);

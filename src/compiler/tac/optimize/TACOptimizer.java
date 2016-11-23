@@ -24,7 +24,9 @@ public class TACOptimizer {
             UnusedVariables.class,
             DeadCode.class,
             UnusedAssignment.class,
-            DoubleJump.class));
+            DoubleJump.class,
+            CommonSubexpression.class
+    ));
     public static ArrayList<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         ArrayList<TACStatement> input = emitted.getResult();
         ArrayList<TACStatement> prev;
@@ -38,6 +40,12 @@ public class TACOptimizer {
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new RuntimeException("idk man", e);
                     }
+                    /*compiler.Context.printFull = false;//for debugging purposes
+                    System.out.println(optim);
+                    for (int i = 0; i < input.size(); i++) {
+                        System.out.println(i + ":   " + input.get(i));
+                    }
+                    System.out.println();*/
                 }
             }
             System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());

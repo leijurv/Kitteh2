@@ -5,14 +5,14 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.x86.X86Emitter;
-import compiler.x86.X86Register;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.ClosedWatchServiceException;
@@ -66,7 +66,7 @@ public class TACConst extends TACStatement {
     }
     public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
         if (dest != null && source != null && !dest.getType().equals(source.getType())) {
-            throw new UnsupportedCharsetException(source + " " + dest);
+            throw new UnsupportedCharsetException(source + " " + dest + " " + source.getType() + " " + dest.getType());
         }
         String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
         if (dest != null && dest.getType() instanceof TypeStruct) {

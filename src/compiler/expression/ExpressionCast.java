@@ -38,6 +38,9 @@ public class ExpressionCast extends Expression {
     @Override
     public Expression calculateConstants() {
         input = input.calculateConstants();
+        if (input.getType().equals(castTo)) {
+            return input;
+        }
         return this;
     }
     @Override

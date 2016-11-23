@@ -18,6 +18,9 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     private final ExpressionConditionalJumpable inp;
     public ExpressionInvert(ExpressionConditionalJumpable inp) {
         this.inp = inp;
+        if (!(inp.getType() instanceof TypeBoolean)) {
+            throw new RuntimeException("Can only invert a boolean");
+        }
     }
     @Override
     protected Type calcType() {
@@ -45,6 +48,13 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     }
     @Override
     public Expression calculateConstants() {
+        if (inp instanceof ExpressionInvert) {//!(!(x)) gets converted to x
+            return ((ExpressionInvert) inp).inp;
+        }
+        if (inp instanceof ExpressionOperator) {//!(a<b) gets converted to a>=b
+            ExpressionOperator eo = (ExpressionOperator) inp;
+            return new ExpressionOperator(eo.getA(), eo.getOP().invert(), eo.getB());
+        }
         return new ExpressionInvert((ExpressionConditionalJumpable) inp.calculateConstants());
     }
 }

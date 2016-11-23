@@ -35,6 +35,15 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         //System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
         return result;
     }
+    public Operator getOP() {
+        return op;
+    }
+    public Expression getA() {
+        return a;
+    }
+    public Expression getB() {
+        return b;
+    }
     @Override
     public String toString() {
         return "(" + a + ")" + op + "(" + b + ")";

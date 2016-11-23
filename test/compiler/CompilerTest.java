@@ -485,6 +485,37 @@ public class CompilerTest {
                 + "-5844053835210817536\n"
                 + "8789267254022766592\n");
     }
+    @Test
+    public void testModPow() throws Exception {
+        verifyCompilation("func mp(long base,long exp,long mod) long{\n"
+                + "	if exp==(long)0{\n"
+                + "		return 1\n"
+                + "	}\n"
+                + "	if exp==(long)1{\n"
+                + "		return base\n"
+                + "	}\n"
+                + "	if exp%(long)2==(long)0{\n"
+                + "		a:=mp(base,exp/2,mod)\n"
+                + "		return (a*a)%mod\n"
+                + "	}\n"
+                + "	return (base*mp(base,exp-1,mod))%mod\n"
+                + "}\n"
+                + "func main(){\n"
+                + "	print(mp(93845,24897,3460987))\n"
+                + "	for long i=1; i<(long)3233; i++{\n"
+                + "		if i≠mp(mp(i,17,3233),2753,3233){\n"
+                + "			print(i)\n"
+                + "			print(mp(i,17,3233))\n"
+                + "			print(mp(mp(i,17,3233),2753,3233))\n"
+                + "		}\n"
+                + "		if i≠mp(mp(i,2753,3233),17,3233){\n"
+                + "			print(i)\n"
+                + "			print(mp(i,2753,3233))\n"
+                + "			print(mp(mp(i,2753,3233),17,3233))\n"
+                + "		}\n"
+                + "	}\n"
+                + "}", true, "140025\n");
+    }
     public void shouldntCompile(String program) throws IOException, InterruptedException {
         verifyCompilation(program, false, null);
     }

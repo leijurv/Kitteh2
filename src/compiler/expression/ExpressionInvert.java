@@ -49,11 +49,11 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     @Override
     public Expression calculateConstants() {
         if (inp instanceof ExpressionInvert) {//!(!(x)) gets converted to x
-            return ((ExpressionInvert) inp).inp;
+            return ((ExpressionInvert) inp).inp.calculateConstants();
         }
         if (inp instanceof ExpressionOperator) {//!(a<b) gets converted to a>=b
             ExpressionOperator eo = (ExpressionOperator) inp;
-            return new ExpressionOperator(eo.getA(), eo.getOP().invert(), eo.getB());
+            return new ExpressionOperator(eo.getA(), eo.getOP().invert(), eo.getB()).calculateConstants();
         }
         return new ExpressionInvert((ExpressionConditionalJumpable) inp.calculateConstants());
     }

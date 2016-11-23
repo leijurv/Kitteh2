@@ -24,6 +24,7 @@ import java.util.List;
  * @author leijurv
  */
 public class UselessTempVars extends TACOptimization {
+    public static final boolean AGGRESSIVE = true;
     public static boolean isTempVariable(String s) {
         if (!s.startsWith(TempVarUsage.TEMP_VARIABLE_PREFIX)) {//all temp vars start with t. variables starting with a t are not supported in kitteh
             return false;
@@ -46,13 +47,19 @@ public class UselessTempVars extends TACOptimization {
             if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
-            if (!isTempVariable(valSet)) {
-                continue;
+            int st = ind + 1;
+            boolean tempVar = isTempVariable(valSet);
+            if (!tempVar) {
+                if (!AGGRESSIVE) {
+                    continue;
+                }
+                block.add(ind, null);//<horrible hack>
+                st++;
             }
-            for (int usageLocation = ind + 1; usageLocation < block.size(); usageLocation++) {
+            for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
-                if (curr.dest.getType() instanceof TypeStruct) {
-                    if (usageLocation > ind + 1) {//todo figure out why this inner IF is really necesary to make the tests succeed
+                if (curr.dest != null && curr.dest.getType() instanceof TypeStruct) {
+                    if (usageLocation > st) {//todo figure out why this inner IF is really necesary to make the tests succeed
                         break;
                     }
                 }
@@ -133,7 +140,14 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACJumpBoolVar) {
                     TACJumpBoolVar t = (TACJumpBoolVar) next;
                     if (t.varName.equals(valSet)) {
-                        throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements");//but if i change things in the future this could happen and isn't a serious error
+                        if (tempVar) {
+                            throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + t + " " + curr);//but if i change things in the future this could happen and isn't a serious error
+                        }
+                        t.var = curr.source;
+                        t.varName = curr.sourceName;
+                        block.remove(ind);
+                        ind = Math.max(-1, ind - 2);
+                        break;
                     }
                 }
                 if (next instanceof TACJumpCmp) {
@@ -159,6 +173,9 @@ public class UselessTempVars extends TACOptimization {
                     break;
                 }
                 if (next.modifiedVariables().contains(valSet)) {
+                    if (!tempVar) {//if it's not a temp var, this isn't actually a problem, just stahp
+                        break;
+                    }
                     //something is wrong
                     //something like:
                     //tmp0=1
@@ -168,7 +185,21 @@ public class UselessTempVars extends TACOptimization {
                     //again, this might be caused by a different optimization leaving dangling temp variables
                     throw new RuntimeException("Another optimization did something weird");
                 }
+                if (next.modifiedVariables().contains(curr.sourceName)) {
+                    if (tempVar) {
+                        //tmp0=b
+                        // ... (tmp0 not used)
+                        //b modified
+                        throw new RuntimeException("this apparently doesn't happen but i can think of scenarios where it might");
+                    }
+                    //no longer would be a valid replacement
+                    break;
+                }
                 if (next instanceof TACJump) {
+                    if (!tempVar) {
+                        //perfectly valid to set a non-temp-var then jump
+                        break;
+                    }
                     //if it gets to here, it means something is wrong
                     //it means that a temp variable is set, then goes unused up to a jump
                     //and since no temp variables are used again after a jump
@@ -176,6 +207,9 @@ public class UselessTempVars extends TACOptimization {
                     //it could indicate a bug in a different optimization btw
                     throw new RuntimeException("Another optimization did something weird");
                 }
+            }
+            while (block.contains(null)) {//</horrible hack>
+                block.remove(null);
             }
         }
     }

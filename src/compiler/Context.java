@@ -9,6 +9,7 @@ import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.util.MutInt;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
@@ -68,11 +69,13 @@ public class Context {
     private TempVarUsage currentTempVarUsage = null;
     private CommandDefineFunction currentFunction = null;
     public FunctionsContext gc;
+    public final MutInt varIndex;
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[]{" so I can't fix this warning
     public Context() {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
         this.structs = new HashMap<>();
+        this.varIndex = null;
     }
     public void defineStruct(Struct struct) {
         if (structs.containsKey(struct.name)) {
@@ -134,19 +137,20 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction) {
+    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;
         this.gc = gc;
         this.currentFunction = currentFunction;
+        this.varIndex = sub;
     }
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction);
+        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex);
         return subContext;
     }
     /*public Context superContext() {

@@ -11,7 +11,7 @@ import compiler.parse.Line;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
-import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
+import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;

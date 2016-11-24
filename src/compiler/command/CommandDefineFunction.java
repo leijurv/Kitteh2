@@ -10,7 +10,7 @@ import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimizer;
-import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
+import compiler.tac.optimize.OptimizationSettings;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;

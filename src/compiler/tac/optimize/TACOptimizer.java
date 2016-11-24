@@ -53,23 +53,4 @@ public class TACOptimizer {
         return input;
     }
 
-    public static class OptimizationSettings {
-        private final boolean[] enabled = new boolean[opt.size()];
-        private final boolean staticValues;
-        public OptimizationSettings(boolean tac, boolean staticValues) {
-            Arrays.fill(enabled, tac);
-            this.staticValues = staticValues;
-        }
-        public boolean staticValues() {
-            return staticValues;
-        }
-        public void setEnabled(int i, boolean b) {
-            enabled[i] = b;
-        }
-        public boolean run(Class<? extends TACOptimization> o) {
-            return enabled[opt.indexOf(o)];
-        }
-        public static final OptimizationSettings ALL = new OptimizationSettings(true, true);
-        public static final OptimizationSettings NONE = new OptimizationSettings(false, false);
-    }
 }

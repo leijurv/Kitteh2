@@ -5,7 +5,7 @@
  */
 package compiler;
 import compiler.tac.optimize.TACOptimizer;
-import compiler.tac.optimize.TACOptimizer.OptimizationSettings;
+import compiler.tac.optimize.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

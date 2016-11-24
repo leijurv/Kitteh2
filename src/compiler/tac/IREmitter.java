@@ -73,6 +73,7 @@ public class IREmitter {//extends ArrayList XDDD
             TACReturn ret = new TACReturn();
             ret.setContext(result.get(0).context);
             result.add(ret);
+            return getResult();
         }
         return result;
     }

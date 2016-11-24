@@ -563,16 +563,19 @@ public class CompilerTest {
         verifyCompilation(program, false, null);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
-        verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
-        if (!shouldCompile) {
-            return;
-            //if it shouldn't compile, and the test was successful (i e it actually didn't compile)
-            //we don't need to go on to check other things, it failed without even applying any optimizations
-        }
-        //ok so it works with none
         try {
+            //first check with all optimizations
+            //if it works with correct output with all optimizations, then we are gud
             verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.ALL, false);
         } catch (Exception e) {
+            verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
+            //don't try/catch the no-optimization, because if that fails then that's the error we want to throw
+            if (!shouldCompile) {
+                return;
+                //if it shouldn't compile, and the test was successful (i e it actually didn't compile)
+                //we don't need to go on to check other things, it failed without even applying any optimizations
+            }
+            //ok so it works with none
             detective(program, desiredExecutionOutput, e);
             e.printStackTrace();
             throw new IllegalStateException("Detective failed" + e);//shouldn't get to here

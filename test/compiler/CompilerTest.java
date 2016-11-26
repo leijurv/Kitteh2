@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.tac.optimize.TACOptimizer;
 import compiler.tac.optimize.OptimizationSettings;
+import compiler.tac.optimize.TACOptimizer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -558,6 +558,25 @@ public class CompilerTest {
                 + "407\n"
                 + "29\n"
                 + "1829\n");
+    }
+    @Test
+    public void testOverwriting() throws Exception {
+        String header = "func main(){\nprint(test(1,2,3,4))\n}\nfunc test(int a,int b,int c,int j)int{\n";
+        String footer = "	return a + (b + c * j + a) + j * (c * j)\n"
+                + "}";
+        String[] body = {"	print( b + c * j + a)\n",
+            "	print(a+b)\n",
+            "	print(c*j)\n"};
+        String[] outputs = {"15\n", "3\n", "12\n"};
+        for (int a = 0; a <= 1; a++) {
+            for (int b = 0; b <= 1; b++) {
+                for (int c = 0; c <= 1; c++) {
+                    String program = header + (a == 1 ? body[0] : "") + (b == 1 ? body[1] : "") + (c == 1 ? body[2] : "") + footer;
+                    String out = (a == 1 ? outputs[0] : "") + (b == 1 ? outputs[1] : "") + (c == 1 ? outputs[2] : "") + "64\n";
+                    verifyCompilation(program, true, out);
+                }
+            }
+        }
     }
     public void shouldntCompile(String program) throws IOException, InterruptedException {
         verifyCompilation(program, false, null);

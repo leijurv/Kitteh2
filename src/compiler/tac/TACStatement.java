@@ -5,8 +5,10 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.x86.X86Emitter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -14,8 +16,10 @@ import java.util.List;
  */
 public abstract class TACStatement {
     public Context context;
+    public TempVarUsage tvu;
     public final void setContext(Context context) {
         this.context = context;
+        this.tvu = context.getTempVarUsage();//copy this because it's gonna be reset later
         onContextKnown();
     }
     abstract protected void onContextKnown();
@@ -38,4 +42,16 @@ public abstract class TACStatement {
     }
     public abstract List<String> requiredVariables();
     public abstract List<String> modifiedVariables();
+    public final List<VarInfo> modifiedVariableInfos() {
+        return modifiedVariables().stream().filter(x -> !x.startsWith("%")).map(this::get).collect(Collectors.toList());
+    }
+    private VarInfo get(String name) {
+        if (context.get(name) != null) {
+            return context.get(name);
+        }
+        if (tvu != null && tvu.getInfo(name) != null) {
+            return tvu.getInfo(name);
+        }
+        throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);
+    }
 }

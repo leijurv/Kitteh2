@@ -26,6 +26,7 @@ public class RedundantCalculations extends TACOptimization {
                         repl.dest = ts.result;
                         repl.source = ts.second;
                         repl.context = ts.context;
+                        repl.tvu = ts.tvu;
                         block.set(i, repl);
                         continue;
                     }
@@ -34,6 +35,7 @@ public class RedundantCalculations extends TACOptimization {
                         repl.dest = ts.result;
                         repl.source = ts.first;
                         repl.context = ts.context;
+                        repl.tvu = ts.tvu;
                         block.set(i, repl);
                         continue;
                     }
@@ -44,6 +46,7 @@ public class RedundantCalculations extends TACOptimization {
                         repl.dest = ts.result;
                         repl.source = ts.second;
                         repl.context = ts.context;
+                        repl.tvu = ts.tvu;
                         block.set(i, repl);
                         continue;
                     }
@@ -52,6 +55,7 @@ public class RedundantCalculations extends TACOptimization {
                         repl.dest = ts.result;
                         repl.source = ts.first;
                         repl.context = ts.context;
+                        repl.tvu = ts.tvu;
                         block.set(i, repl);
                         continue;
                     }

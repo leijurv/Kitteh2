@@ -1,6 +1,7 @@
 package compiler.token;
 import compiler.Keyword;
 import compiler.Operator;
+import compiler.tac.TempVarUsage;
 import compiler.tac.optimize.UselessTempVars;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -23,7 +24,7 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
     STARTBRAKT("["),
     STARTPAREN("("),
     STRING(String.class, arg -> '"' + arg + '"'),
-    VARIABLE(arg -> !UselessTempVars.isTempVariable((String) arg), String.class, x -> "$" + x);
+    VARIABLE(arg -> !UselessTempVars.isTempVariable((String) arg) && !((String) arg).contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX), String.class, x -> "$" + x);
     private final Predicate<Object> filter;
     private final Function<Object, String> toStr;
     private final Class cla;

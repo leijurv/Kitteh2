@@ -46,14 +46,13 @@ public class CommonSubexpression extends TACOptimization {
                         }
                         return false;
                     })) {
-                        System.out.println(mod + " overwrites " + result);
                         break;
                     }
                     if (block.get(j) instanceof TACStandard) {
                         TACStandard o = (TACStandard) block.get(j);
                         if (o.op == ts.op && o.firstName.equals(ts.firstName) && o.secondName.equals(ts.secondName)) {
                             compiler.Context.printFull = true;
-                            System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
+                            //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
                             TACConst repl = new TACConst(o.resultName, ts.resultName);
                             repl.context = o.context;
                             repl.tvu = o.tvu;

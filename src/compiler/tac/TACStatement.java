@@ -49,7 +49,10 @@ public abstract class TACStatement {
         if (context.get(name) != null) {
             return context.get(name);
         }
-        if (tvu != null && tvu.getInfo(name) != null) {
+        if (tvu == null) {
+            throw new RuntimeException("Some optimization didn't copy over tvu...");
+        }
+        if (tvu.getInfo(name) != null) {
             return tvu.getInfo(name);
         }
         throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);

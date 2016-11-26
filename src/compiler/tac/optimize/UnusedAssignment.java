@@ -5,12 +5,12 @@
  */
 package compiler.tac.optimize;
 import compiler.Context;
-import compiler.x86.X86Register;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
+import compiler.x86.X86Register;
 import java.util.List;
 
 /**
@@ -24,7 +24,7 @@ public class UnusedAssignment extends TACOptimization {
             if (block.get(i) instanceof TACFunctionCall) {
                 continue;
             }
-            Context.printFull = true;
+            Context.printFull = true;//TODO this is really bad, especially since optimizations are applied in a multithreaded manner
             if (block.get(i).toString().contains("Struct")) {
                 continue;
             }

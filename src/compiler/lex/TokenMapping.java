@@ -15,26 +15,34 @@ import javax.xml.ws.WebServiceException;
  * @author leijurv
  */
 public class TokenMapping {
-    private static final HashMap<Character, Token> MAPPINGS = new HashMap<>();
+    private static final HashMap<String, Token> MAPPINGS = new HashMap<>();
     static {
-        MAPPINGS.put('(', STARTPAREN);
-        MAPPINGS.put(')', ENDPAREN);
-        MAPPINGS.put(',', COMMA);
-        MAPPINGS.put('*', OPERATOR.create(Operator.MULTIPLY));
-        MAPPINGS.put('/', OPERATOR.create(Operator.DIVIDE));
-        MAPPINGS.put('%', OPERATOR.create(Operator.MOD));
-        MAPPINGS.put(';', SEMICOLON);
-        MAPPINGS.put('[', STARTBRAKT);
-        MAPPINGS.put(']', ENDBRKT);
-        MAPPINGS.put('.', PERIOD);
-        MAPPINGS.put('≠', OPERATOR.create(Operator.NOT_EQUAL));
-        MAPPINGS.put('≥', OPERATOR.create(Operator.GREATER_OR_EQUAL));
-        MAPPINGS.put('≤', OPERATOR.create(Operator.LESS_OR_EQUAL));
+        MAPPINGSput(STARTPAREN, '(');
+        MAPPINGSput(ENDPAREN, ')');
+        MAPPINGSput(COMMA, ',');
+        MAPPINGSput(OPERATOR.create(Operator.MULTIPLY), '*');
+        MAPPINGSput(OPERATOR.create(Operator.DIVIDE), '/');
+        MAPPINGSput(OPERATOR.create(Operator.MOD), '%');
+        MAPPINGSput(SEMICOLON, ';');
+        MAPPINGSput(STARTBRAKT, '[');
+        MAPPINGSput(ENDBRKT, ']');
+        MAPPINGSput(PERIOD, '.');
+        MAPPINGSput(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
+        MAPPINGSput(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
+        MAPPINGSput(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
     }
-    public static boolean charMapsToToken(char ch) {
-        return MAPPINGS.containsKey(ch);
+    public static void MAPPINGSput(Token t, char c) {
+        MAPPINGS.put(c + "", t);
     }
-    public static Token getStaticToken(char ch) {
+    public static void MAPPINGSput(Token t, String... strs) {
+    }
+    public static boolean mapsToToken(char ch) {
+        return MAPPINGS.containsKey(ch + "");
+    }
+    public static boolean mapsToToken(String s) {
+        return MAPPINGS.containsKey(s);
+    }
+    public static Token getStaticToken(String ch) {
         Token t = MAPPINGS.get(ch);
         if (t == null) {
             throw new WebServiceException();//lol

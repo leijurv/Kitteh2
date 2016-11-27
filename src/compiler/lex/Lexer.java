@@ -47,8 +47,12 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             pop();
-            if (TokenMapping.charMapsToToken(ch)) {
-                emit(TokenMapping.getStaticToken(ch));
+            if (TokenMapping.mapsToToken(ch)) {
+                emit(TokenMapping.getStaticToken(ch + ""));
+                continue;
+            }
+            if (TokenMapping.mapsToToken(ch + "" + peek())) {
+                emit(TokenMapping.getStaticToken(ch + "" + pop()));
                 continue;
             }
             switch (ch) {

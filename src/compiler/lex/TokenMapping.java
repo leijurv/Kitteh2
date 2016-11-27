@@ -21,7 +21,6 @@ public class TokenMapping {
         put(OPERATOR.create(Operator.NOT_EQUAL), "≠");
         put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥");
         put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤");
-        put(OPERATOR.create(Operator.AND), "&&");
         put(SETEQUAL.create(false), "=");
         put(SETEQUAL.create(true), ":=");
         for (Operator op : Operator.values()) {

@@ -104,30 +104,6 @@ public class Lexer extends AbstractLexer {
                     }
                     emit(SETEQUAL.create(false));
                     break;
-                case '<':
-                    if (peek() == '=') {
-                        pop();
-                        emit(OPERATOR.create(Operator.LESS_OR_EQUAL));
-                        break;
-                    }
-                    emit(OPERATOR.create(Operator.LESS));
-                    break;
-                case '>':
-                    if (peek() == '=') {
-                        pop();
-                        emit(OPERATOR.create(Operator.GREATER_OR_EQUAL));
-                        break;
-                    }
-                    emit(OPERATOR.create(Operator.GREATER));
-                    break;
-                case '!':
-                    if (peek() == '=') {
-                        pop();
-                        emit(OPERATOR.create(Operator.NOT_EQUAL));
-                        break;
-                    }
-                    emit(NOT);
-                    break;
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);
             }

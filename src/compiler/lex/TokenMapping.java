@@ -32,8 +32,12 @@ public class TokenMapping {
         put(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
         put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
         put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
+        put(OPERATOR.create(Operator.GREATER), ">");
+        put(OPERATOR.create(Operator.LESS), "<");
         put(OPERATOR.create(Operator.EQUAL), "==");
-        put(SETEQUAL, "=");
+        put(SETEQUAL.create(false), "=");
+        put(DECREMENT, "--");
+        put(INCREMENT, "++");
     }
     public static void put(Token t, String... strs) {
         for (String str : strs) {

@@ -5,7 +5,6 @@
  */
 package compiler.lex;
 import compiler.Keyword;
-import compiler.Operator;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import java.nio.file.FileSystemAlreadyExistsException;
@@ -59,27 +58,6 @@ public class Lexer extends AbstractLexer {
                 case ' '://spaces don't do anything i think
                 case '{'://lol idk man
                     break;
-                case ':':
-                    if (peek() == '=') {
-                        pop();
-                        emit(SETEQUAL.create(true));
-                        break;
-                    }
-                    throw new IllegalStateException("Literally the only usage of : is if it has a = after it");
-                case '|':
-                    if (peek() == '|') {
-                        pop();
-                        emit(OPERATOR.create(Operator.OR));
-                        break;
-                    }
-                    throw new IllegalStateException("What do you think this is, C? We don't have |");
-                case '&':
-                    if (peek() == '&') {
-                        pop();
-                        emit(OPERATOR.create(Operator.AND));
-                        continue;//lol I could do eiter continue or break and it'll have the same end result. live life on the edge
-                    }
-                    throw new IllegalStateException("What do you think this is, C? We don't have &");
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);
             }

@@ -35,7 +35,10 @@ public class TokenMapping {
         put(OPERATOR.create(Operator.GREATER), ">");
         put(OPERATOR.create(Operator.LESS), "<");
         put(OPERATOR.create(Operator.EQUAL), "==");
+        put(OPERATOR.create(Operator.OR), "||");
+        put(OPERATOR.create(Operator.AND), "&&");
         put(SETEQUAL.create(false), "=");
+        put(SETEQUAL.create(true), ":=");
         put(DECREMENT, "--");
         put(INCREMENT, "++");
     }

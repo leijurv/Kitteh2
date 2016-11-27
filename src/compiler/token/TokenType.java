@@ -58,4 +58,11 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
     public boolean test(Token t) {
         return t.tokenType() == this;
     }
+    public boolean primitive() {
+        return cla == null;
+    }
+    @Override
+    public String toString() {
+        return toStr.apply(null);
+    }
 }

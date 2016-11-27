@@ -6,6 +6,7 @@
 package compiler.lex;
 import compiler.Operator;
 import compiler.token.Token;
+import compiler.token.TokenType;
 import static compiler.token.TokenType.*;
 import java.util.HashMap;
 import javax.xml.ws.WebServiceException;
@@ -17,23 +18,19 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<String, Token> MAPPINGS = new HashMap<>();
     static {
-        put(STARTPAREN, "(");
-        put(ENDPAREN, ")");
-        put(COMMA, ",");
-        put(SEMICOLON, ";");
-        put(STARTBRAKT, "[");
-        put(ENDBRKT, "]");
-        put(PERIOD, ".");
         put(OPERATOR.create(Operator.NOT_EQUAL), "≠");
         put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥");
         put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤");
         put(OPERATOR.create(Operator.AND), "&&");
         put(SETEQUAL.create(false), "=");
         put(SETEQUAL.create(true), ":=");
-        put(DECREMENT, "--");
-        put(INCREMENT, "++");
         for (Operator op : Operator.values()) {
             put(OPERATOR.create(op), op.toString());
+        }
+        for (TokenType tt : TokenType.values()) {
+            if (tt.primitive()) {
+                put(tt, tt.toString());
+            }
         }
     }
     public static void put(Token t, String... strs) {

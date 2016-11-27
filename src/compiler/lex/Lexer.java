@@ -66,22 +66,6 @@ public class Lexer extends AbstractLexer {
                         break;
                     }
                     throw new IllegalStateException("Literally the only usage of : is if it has a = after it");
-                case '+'://TODO https://en.wikipedia.org/wiki/Augmented_assignment
-                    if (peek() == '+') {
-                        pop();
-                        emit(INCREMENT);
-                        break;
-                    }
-                    emit(OPERATOR.create(Operator.PLUS));
-                    break;
-                case '-':
-                    if (peek() == '-') {
-                        pop();
-                        emit(DECREMENT);
-                        break;
-                    }
-                    emit(OPERATOR.create(Operator.MINUS));
-                    break;
                 case '|':
                     if (peek() == '|') {
                         pop();
@@ -96,14 +80,6 @@ public class Lexer extends AbstractLexer {
                         continue;//lol I could do eiter continue or break and it'll have the same end result. live life on the edge
                     }
                     throw new IllegalStateException("What do you think this is, C? We don't have &");
-                case '=':
-                    if (peek() == '=') {
-                        pop();
-                        emit(OPERATOR.create(Operator.EQUAL));
-                        break;
-                    }
-                    emit(SETEQUAL.create(false));
-                    break;
                 default:
                     throw new FileSystemAlreadyExistsException("Unexpected " + ch);
             }

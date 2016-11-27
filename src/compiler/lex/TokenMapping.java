@@ -23,6 +23,8 @@ public class TokenMapping {
         put(OPERATOR.create(Operator.MULTIPLY), "*");
         put(OPERATOR.create(Operator.DIVIDE), "/");
         put(OPERATOR.create(Operator.MOD), "%");
+        put(OPERATOR.create(Operator.PLUS), "+");
+        put(OPERATOR.create(Operator.MINUS), "-");
         put(SEMICOLON, ";");
         put(STARTBRAKT, "[");
         put(ENDBRKT, "]");
@@ -30,6 +32,8 @@ public class TokenMapping {
         put(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
         put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
         put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
+        put(OPERATOR.create(Operator.EQUAL), "==");
+        put(SETEQUAL, "=");
     }
     public static void put(Token t, String... strs) {
         for (String str : strs) {

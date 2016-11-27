@@ -17,30 +17,24 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<String, Token> MAPPINGS = new HashMap<>();
     static {
-        put(STARTPAREN, '(');
-        put(ENDPAREN, ')');
-        put(COMMA, ',');
-        put(OPERATOR.create(Operator.MULTIPLY), '*');
-        put(OPERATOR.create(Operator.DIVIDE), '/');
-        put(OPERATOR.create(Operator.MOD), '%');
-        put(SEMICOLON, ';');
-        put(STARTBRAKT, '[');
-        put(ENDBRKT, ']');
-        put(PERIOD, '.');
+        put(STARTPAREN, "(");
+        put(ENDPAREN, ")");
+        put(COMMA, ",");
+        put(OPERATOR.create(Operator.MULTIPLY), "*");
+        put(OPERATOR.create(Operator.DIVIDE), "/");
+        put(OPERATOR.create(Operator.MOD), "%");
+        put(SEMICOLON, ";");
+        put(STARTBRAKT, "[");
+        put(ENDBRKT, "]");
+        put(PERIOD, ".");
         put(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
         put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
         put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
-    }
-    public static void put(Token t, char c) {
-        MAPPINGS.put(c + "", t);
     }
     public static void put(Token t, String... strs) {
         for (String str : strs) {
             MAPPINGS.put(str, t);
         }
-    }
-    public static boolean mapsToToken(char ch) {
-        return MAPPINGS.containsKey(ch + "");
     }
     public static boolean mapsToToken(String s) {
         return MAPPINGS.containsKey(s);

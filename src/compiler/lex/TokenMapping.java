@@ -20,27 +20,21 @@ public class TokenMapping {
         put(STARTPAREN, "(");
         put(ENDPAREN, ")");
         put(COMMA, ",");
-        put(OPERATOR.create(Operator.MULTIPLY), "*");
-        put(OPERATOR.create(Operator.DIVIDE), "/");
-        put(OPERATOR.create(Operator.MOD), "%");
-        put(OPERATOR.create(Operator.PLUS), "+");
-        put(OPERATOR.create(Operator.MINUS), "-");
         put(SEMICOLON, ";");
         put(STARTBRAKT, "[");
         put(ENDBRKT, "]");
         put(PERIOD, ".");
-        put(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
-        put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
-        put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
-        put(OPERATOR.create(Operator.GREATER), ">");
-        put(OPERATOR.create(Operator.LESS), "<");
-        put(OPERATOR.create(Operator.EQUAL), "==");
-        put(OPERATOR.create(Operator.OR), "||");
+        put(OPERATOR.create(Operator.NOT_EQUAL), "≠");
+        put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥");
+        put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤");
         put(OPERATOR.create(Operator.AND), "&&");
         put(SETEQUAL.create(false), "=");
         put(SETEQUAL.create(true), ":=");
         put(DECREMENT, "--");
         put(INCREMENT, "++");
+        for (Operator op : Operator.values()) {
+            put(OPERATOR.create(op), op.toString());
+        }
     }
     public static void put(Token t, String... strs) {
         for (String str : strs) {

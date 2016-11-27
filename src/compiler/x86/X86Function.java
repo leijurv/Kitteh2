@@ -21,16 +21,15 @@ public class X86Function {
             + "	.cfi_def_cfa_register %rbp\n";
     private static final String FUNC_FOOTER = "\n	.cfi_endproc\n";
     public static String generateX86(Pair<String, List<TACStatement>> pair) {
-        return generateX86(pair.getKey(), pair.getValue());
-    }
-    public static String generateX86(String name, List<TACStatement> result) {
+        String name = pair.getKey();
+        List<TACStatement> stmts = pair.getValue();
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
-        for (int i = 0; i < result.size(); i++) {
+        for (int i = 0; i < stmts.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
-            emitter.addStatement("#   " + result.get(i));
-            result.get(i).printx86(emitter);
+            emitter.addStatement("#   " + stmts.get(i));
+            stmts.get(i).printx86(emitter);
             emitter.addStatement(""); //nice blank line makes it more readable =)
         }
         StringBuilder resp = new StringBuilder();

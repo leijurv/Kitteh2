@@ -17,24 +17,27 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<String, Token> MAPPINGS = new HashMap<>();
     static {
-        MAPPINGSput(STARTPAREN, '(');
-        MAPPINGSput(ENDPAREN, ')');
-        MAPPINGSput(COMMA, ',');
-        MAPPINGSput(OPERATOR.create(Operator.MULTIPLY), '*');
-        MAPPINGSput(OPERATOR.create(Operator.DIVIDE), '/');
-        MAPPINGSput(OPERATOR.create(Operator.MOD), '%');
-        MAPPINGSput(SEMICOLON, ';');
-        MAPPINGSput(STARTBRAKT, '[');
-        MAPPINGSput(ENDBRKT, ']');
-        MAPPINGSput(PERIOD, '.');
-        MAPPINGSput(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
-        MAPPINGSput(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
-        MAPPINGSput(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
+        put(STARTPAREN, '(');
+        put(ENDPAREN, ')');
+        put(COMMA, ',');
+        put(OPERATOR.create(Operator.MULTIPLY), '*');
+        put(OPERATOR.create(Operator.DIVIDE), '/');
+        put(OPERATOR.create(Operator.MOD), '%');
+        put(SEMICOLON, ';');
+        put(STARTBRAKT, '[');
+        put(ENDBRKT, ']');
+        put(PERIOD, '.');
+        put(OPERATOR.create(Operator.NOT_EQUAL), "≠", "!=");
+        put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥", ">=");
+        put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤", "<=");
     }
-    public static void MAPPINGSput(Token t, char c) {
+    public static void put(Token t, char c) {
         MAPPINGS.put(c + "", t);
     }
-    public static void MAPPINGSput(Token t, String... strs) {
+    public static void put(Token t, String... strs) {
+        for (String str : strs) {
+            MAPPINGS.put(str, t);
+        }
     }
     public static boolean mapsToToken(char ch) {
         return MAPPINGS.containsKey(ch + "");

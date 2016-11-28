@@ -82,6 +82,6 @@ public class StringEmitterTest {
         instance.pop();
         instance.pop();
         instance.pop();
-        assertEquals(instance.substring(start), "an");
+        assertEquals(instance.substringSince(start), "an");
     }
 }

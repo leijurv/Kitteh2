@@ -73,7 +73,7 @@ public class Lexer extends AbstractLexer {
                 break;//don't pop the first character after this alphanumerical is over
             }
         }
-        return substring(start);//instead of popping and appending to a stringbuilder (which would be like O(n^2) or something), we keep track of the beginning then at the end take a substring to get the whole range
+        return substringSince(start);//instead of popping and appending to a stringbuilder (which would be like O(n^2) or something), we keep track of the beginning then at the end take a substring to get the whole range
     }
     private String readNumerical() {
         int start = pos();
@@ -89,12 +89,12 @@ public class Lexer extends AbstractLexer {
                 }
                 pop();
             } else if (alphabetical(ch)) {
-                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substring(start) + ch);
+                throw new IllegalStateException("This isn't ok. You're probably trying to make a variable name start with a number. However you did it, you have a number then a letter: " + substringSince(start) + ch);
             } else {
                 break;
             }
         }
-        return substring(start);
+        return substringSince(start);
     }
     private static boolean alphabetical(char c) {
         return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');

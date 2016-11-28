@@ -16,13 +16,13 @@ public class StringEmitter {
         this.str = str;
         this.pos = 0;
     }
-    public char peek() {
+    public final char peek() {
         if (pos >= str.length()) {
             throw new IllegalStateException("Unexpected end of line");
         }
         return str.charAt(pos);
     }
-    public char pop() {
+    public final char pop() {
         if (pos >= str.length()) {
             throw new IllegalStateException("Unexpected end of line");
         }
@@ -30,13 +30,13 @@ public class StringEmitter {
         pos++;
         return c;
     }
-    public boolean has() {
+    public final boolean has() {
         return pos < str.length();
     }
-    public int pos() {
+    public final int pos() {
         return pos;
     }
-    public String substring(int start) {
+    public final String substringSince(int start) {
         return str.substring(start, pos);//inclusive on right
     }
 }

@@ -6,6 +6,7 @@
 package compiler;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.tac.optimize.TACOptimizer;
+import compiler.tac.optimize.UselessTempVars;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -623,8 +624,24 @@ public class CompilerTest {
                 throw new IllegalStateException("Caused by optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
             }
         }
+        int uselessTemp = TACOptimizer.opt.indexOf(UselessTempVars.class);
+        for (int i = 0; i < TACOptimizer.opt.size(); i++) {
+            if (i == uselessTemp) {
+                continue;
+            }
+            OptimizationSettings set = new OptimizationSettings(false, true);
+            set.setEnabled(i, true);
+            set.setEnabled(uselessTemp, true);
+            try {
+                verifyCompilation(program, true, desiredExecutionOutput, set, false);
+            } catch (Exception e) {
+                //if enabling one with uselesstempvars can trigger it, let's just throw that
+                e.printStackTrace();
+                throw new IllegalStateException("Caused by uselesstempvars AND optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
+            }
+        }
         withAll.printStackTrace();
-        throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually " + withAll);
+        throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselesstempvars" + withAll);
     }
     public void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
         if (!new File("/usr/bin/gcc").exists()) {

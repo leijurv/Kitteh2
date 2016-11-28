@@ -52,6 +52,8 @@ public class StripCommentsTest {
         test("ca//\"t", "ca");
         test("ca'\"//'", "ca'\"//'");
         test("ca''//'", "ca''");
+        test("ab//cd/*xyz\nue", "ab\nue");
+        test("ab//wew*/cat\nrc", "ab\nrc");
     }
     public void test(String a, String b) {
         String[] split = b.split("\n", -1);

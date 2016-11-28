@@ -40,21 +40,31 @@ public class StripComments {
                 }
                 lineNumber++;//doesn't matter if we are in a comment, a string, or whatever, a newline in the raw input means a newline.
             }
-            if (!inComment && (ch == '"' || ch == '\'') && prevChar != '\\' && !(inString && ch != strType)) {
+            if (!inComment //strings don't mean anything in comments
+                    && (ch == '"' || ch == '\'') //needs to be one of the string characters
+                    && prevChar != '\\' //a backslash beforehand means escaping so it can't be a backslash
+                    && !(inString && ch != strType)) {//if we are already in a string of the other type, don't count it. e.g. '"' is ok
                 inString = !inString;
                 strType = ch;
                 lineNumberOfBegin = lineNumber;
             }
-            if (!inString) {
+            if (!inString) {//comments in strings don't count. "//" doesn't actually begin a comment
                 switch (ch) {
                     case '*':
                         if (prevChar == '/') {
                             //     /*
+                            if (inComment && commentEndsWithNewLine) {
+                                //this is something like: //  /*
+                                //that shouldn't begin a multi line comment
+                                continue;
+                            }
                             if (!inComment) {
-                                transformed = new StringBuilder(transformed.toString().substring(0, transformed.toString().length() - 1));//since this is a /* we need to cut off the /
+                                transformed.deleteCharAt(transformed.length() - 1);
+                                //since this is a /* we need to cut off the /
+                                lineNumberOfBegin = lineNumber;//only set lineNumberOfBegin if we weren't already in a comment
+                                //for example /* ... 3 lines later... /* should list the comment as starting on that first line not the fourth
                             }
                             inComment = true;
-                            lineNumberOfBegin = lineNumber;
                             commentEndsWithNewLine = false;
                         }
                         break;
@@ -63,13 +73,18 @@ public class StripComments {
                             if (!inComment) {
                                 throw new IllegalStateException("Ending comment with */ where no comment was started");
                             }
-                            inComment = false;
                             prevChar = '/';
+                            if (commentEndsWithNewLine) {
+                                //this is somehing like: //abc*/xyz
+                                //but a */ can't end a comment began with a //
+                                continue;
+                            }
+                            inComment = false;
                             continue;//you can't break within a forswitch (it breaks the switch not the for), but you CAN continue
                         }
                         if (prevChar == '/' && !inComment)/*  // */ {
                             //rest of line
-                            transformed = new StringBuilder(transformed.toString().substring(0, transformed.toString().length() - 1));
+                            transformed.deleteCharAt(transformed.length() - 1);
                             inComment = true;
                             lineNumberOfBegin = lineNumber;
                             commentEndsWithNewLine = true;

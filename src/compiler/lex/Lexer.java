@@ -24,20 +24,18 @@ public class Lexer extends AbstractLexer {
     @Override
     protected void runLex() {
         while (has()) {
-            char ch = peek();
-            boolean alpha = alphabetical(ch);
-            boolean num = numerical(ch);
-            if (alpha) {
+            char ch = peek();//don't pop yet, readAlphanumerical and readNumerical might need to do their thing
+            if (alphabetical(ch)) {
                 String lexeme = readAlphanumerical();
                 Keyword key = Keyword.strToKeyword(lexeme);
                 if (key != null) {
                     emit(KEYWORD.create(key));
                     continue;
                 }
-                emit(VARIABLE.create(lexeme));
+                emit(VARIABLE.create(lexeme));//if it's not a keyword, assume that it's a variable
                 continue;
             }
-            if (num) {
+            if (numerical(ch)) {
                 //TODO negative numbers
                 //it's nontrivial because a - and then a number can mean something else (like i-5) or really negative (like i= -5)
                 //negative numbers are in the parser not the lexer I think... =/
@@ -45,23 +43,24 @@ public class Lexer extends AbstractLexer {
                 emit(NUM.create(lexeme));
                 continue;
             }
-            pop();
+            pop();//pop "ch" because at this point we know we're going to use it
             if (has() && TokenMapping.mapsToToken(ch + "" + peek())) {
+                //if this character and the next character (if present) forms a token, pop the second character and emit the compound token
                 emit(TokenMapping.getStaticToken(ch + "" + pop()));
                 continue;
             }
             if (TokenMapping.mapsToToken(ch + "")) {
-                emit(TokenMapping.getStaticToken(ch + ""));
+                //if this and the next don't form a compound token, check if this one on its own does
+                emit(TokenMapping.getStaticToken(ch + ""));//if so, emit that token
                 continue;
             }
-            switch (ch) {
-                case ' '://spaces don't do anything i think
-                case '{'://lol idk man
-                    break;
-                default:
-                    throw new FileSystemAlreadyExistsException("Unexpected " + ch);
+            if (ch == ' ') {//spaces don't do anything i think
+                continue;//TODO allow any of the blank stripped chars (like tab) in the middle of a line, not just space
             }
-            //lol don't put anything here
+            if (ch == '{') {//lol idk man
+                continue;
+            }
+            throw new FileSystemAlreadyExistsException("Unexpected " + ch);
         }
     }
     private String readAlphanumerical() {
@@ -71,10 +70,10 @@ public class Lexer extends AbstractLexer {
             if (alphabetical(ch) || numerical(ch)) {
                 pop();
             } else {
-                break;
+                break;//don't pop the first character after this alphanumerical is over
             }
         }
-        return substring(start);
+        return substring(start);//instead of popping and appending to a stringbuilder (which would be like O(n^2) or something), we keep track of the beginning then at the end take a substring to get the whole range
     }
     private String readNumerical() {
         int start = pos();

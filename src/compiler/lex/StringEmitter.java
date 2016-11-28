@@ -18,8 +18,7 @@ public class StringEmitter {
     }
     public char peek() {
         if (pos >= str.length()) {
-            return 0;
-            //throw new IllegalStateException("Unexpected end of line");
+            throw new IllegalStateException("Unexpected end of line");
         }
         return str.charAt(pos);
     }

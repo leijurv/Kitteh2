@@ -9,7 +9,7 @@ package compiler.lex;
  *
  * @author leijurv
  */
-public class StringEmitter {
+class StringEmitter {
     private final String str;
     private int pos;
     public StringEmitter(String str) {

@@ -58,7 +58,18 @@ public class ExpressionParser {
                     if (currentlyInParentheses == 0) {//at any parenthetical level except the top, desiredType may be different, may as well parse down there
                         String val = (String) ob.data();
                         Number num;
-                        TypeNumerical toUse = (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical && !(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) ? (TypeNumerical) desiredType.get() : new TypeInt32();
+                        TypeNumerical toUse;
+                        if (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) {
+                            if (!(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) {
+                                toUse = (TypeNumerical) desiredType.get();
+                            } else {
+                                toUse = new TypeInt32();//something like bool x = 5 < y
+                                //TODO infer type of 5 to match in the case of x := 5 < (long)y
+                            }
+                        } else {
+                            //eh, let it be an int
+                            toUse = new TypeInt32();
+                        }
                         if (val.contains(".")) {
                             //System.out.println("Parsing " + val + " as double: " + toUse);
                             num = Double.parseDouble(val);
@@ -66,7 +77,7 @@ public class ExpressionParser {
                             //System.out.println("Parsing " + val + " as non float: " + toUse);
                             num = Integer.parseInt(val);
                         }
-                        o.set(i, new ExpressionConstNum(num, toUse));//TODO this is mal
+                        o.set(i, new ExpressionConstNum(num, toUse));
                     }
                     break;
                 case STRING:

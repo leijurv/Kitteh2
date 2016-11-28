@@ -69,12 +69,12 @@ public class Parser {
     public Command runLine(ArrayList<Object> lexed, Context context, int i) {
         Line l = (Line) lexed.get(i);
         try {
-            if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {//this line begins a block
-                if (context.isTopLevel()) {
+            if (i == lexed.size() - 1 || !(lexed.get(i + 1) instanceof ArrayList)) {
+                if (context.isTopLevel()) {//nothing top level that isn't a block
                     throw new IllegalStateException("No globals except for function definitions and structs");
                 }
                 return parseLine(l.getTokens(), context);
-            } else {
+            } else {//this line begins a block
                 ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
                 ArrayList<Token> lineTokens = l.getTokens();
                 if (lineTokens.isEmpty()) {
@@ -229,9 +229,7 @@ public class Parser {
                 temp.add(t);
             }
         }
-        if (!temp.isEmpty()) {
-            result.add(temp);
-        }
+        result.add(temp);
         return result;
     }
     public static Command parseLine(Line line, Context context) {

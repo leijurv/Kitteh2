@@ -98,16 +98,10 @@ public class Parser {
                         }
                         String functionName = (String) ((Token) params.get(0)).data();
                         //System.out.println("FunctionName: " + functionName);
-                        if (!is(params.get(1), STARTPAREN)) {
+                        if (params.get(1) != STARTPAREN) {
                             throw new AnnotationTypeMismatchException(null, "");
                         }
-                        int endParen = -1;
-                        for (int j = 2; j < params.size(); j++) {
-                            if (params.get(j).tokenType() == ENDPAREN) {
-                                endParen = j;
-                                break;
-                            }
-                        }
+                        int endParen = params.indexOf(ENDPAREN);
                         if (endParen == -1) {
                             throw new InvalidKeyException();
                         }
@@ -312,7 +306,7 @@ public class Parser {
                 //ok we doing something like long i=5
                 return null;
             }
-            if (is(tokens.get(tokens.size() - 1), INCREMENT) || is(tokens.get(tokens.size() - 1), DECREMENT)) {
+            if (tokens.get(tokens.size() - 1) == INCREMENT || tokens.get(tokens.size() - 1) == DECREMENT) {
                 if (tokens.size() != 2 || !is(tokens.get(0), VARIABLE)) {
                     throw new IllegalStateException("Currently you can only do single variables ++ or --");
                 }
@@ -379,7 +373,6 @@ public class Parser {
             //ok we doing something like long i=5
             return new CommandSetVar(ts, rightSide, context);
         }
-        //---------------------------------------------------------------------------------------------------------------
         Expression exp = ExpressionParser.parse(tokens.subList(0, eqLoc), Optional.empty(), context);
         //System.out.println("GETValue of " + exp);
         Expression right = ExpressionParser.parse(after, Optional.of(exp.getType()), context);

@@ -25,34 +25,32 @@ public class StringFinder extends LineBasedTransform {
             char strType = 1;
             for (int i = 0; i < line.length(); i++) {
                 char ch = line.charAt(i);
-                if (ch == '"' || ch == '\'') {
-                    if (prevChar != '\\') {//It's not a string thingy if the prev char was a \
-                        if (!(inString && ch != strType)) {//if a string was started with ", and we see a ', don't end the string
-                            inString = !inString;
-                            if (inString) {
-                                strType = ch;
-                                stringBegin = i;
-                            } else {
-                                //ok so a string is over
-                                String strContents = line.substring(stringBegin + 1, i);//cut off the quote marks
-                                String before = line.substring(0, stringBegin);
-                                if (strType != '"') {
-                                    if (strType != '\'') {
-                                        throw new IllegalStateException("lol what");
-                                    }
-                                    if (strContents.length() != 1) {
-                                        System.out.println(line);
-                                        throw new IllegalStateException("lol your single quotes can only hold single things: " + strContents);
-                                    }
-                                    //strContents = ((String) strContents).charAt(0);//if single quotes, use a Character not a String
-                                }
-                                String after = line.substring(i + 1, line.length());
-                                l.source().set(j, before);
-                                l.source().add(j + 1, strType == '"' ? TokenType.STRING.create(strContents) : TokenType.CHAR.create(strContents.charAt(0)));
-                                l.source().add(j + 2, after);
-                                break;
+                if ((ch == '"' || ch == '\'')//must actually be either of the string characters
+                        && prevChar != '\\' //It's not a string thingy if the prev char was a \
+                        && !(inString && ch != strType)) {//if a string was started with ", and we see a ', don't end the string
+                    inString = !inString;
+                    if (inString) {
+                        strType = ch;
+                        stringBegin = i;
+                    } else {
+                        //ok so a string is over
+                        String strContents = line.substring(stringBegin + 1, i);//cut off the quote marks
+                        String before = line.substring(0, stringBegin);
+                        if (strType != '"') {
+                            if (strType != '\'') {
+                                throw new IllegalStateException("lol what");
                             }
+                            if (strContents.length() != 1) {
+                                System.out.println(line);
+                                throw new IllegalStateException("lol your single quotes can only hold single things: " + strContents);
+                            }
+                            //strContents = ((String) strContents).charAt(0);//if single quotes, use a Character not a String
                         }
+                        String after = line.substring(i + 1, line.length());
+                        l.source().set(j, before);
+                        l.source().add(j + 1, strType == '"' ? TokenType.STRING.create(strContents) : TokenType.CHAR.create(strContents.charAt(0)));
+                        l.source().add(j + 2, after);
+                        break;
                     }
                 }
                 prevChar = ch;

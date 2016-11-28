@@ -109,20 +109,18 @@ public class CommandFor extends CommandBlock {
         for (Command com : contents) {
             com.staticValues();
         }
-        if (condition != null) {
-            if (condition instanceof ExpressionConstBool) {
-                boolean wew = ((ExpressionConstBool) condition).getVal();
-                if (!wew) {
-                    //for false{
-                    for (int i = 0; i < varsMod.size(); i++) {
-                        if (preKnown.get(i) == null) {
-                            context.clearKnownValue(varsMod.get(i));
-                        } else {
-                            context.setKnownValue(varsMod.get(i), preKnown.get(i));
-                        }
+        if (condition != null && condition instanceof ExpressionConstBool) {
+            boolean wew = ((ExpressionConstBool) condition).getVal();
+            if (!wew) {
+                //for false{
+                for (int i = 0; i < varsMod.size(); i++) {
+                    if (preKnown.get(i) == null) {
+                        context.clearKnownValue(varsMod.get(i));
+                    } else {
+                        context.setKnownValue(varsMod.get(i), preKnown.get(i));
                     }
-                    return;//return before we clear all modified vars, because this for loop won't even run once.
                 }
+                return;//return before we clear all modified vars, because this for loop won't even run once.
             }
         }
         for (String s : varsMod) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed

@@ -58,10 +58,11 @@ public class UselessTempVars extends TACOptimization {
             }
             for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
-                if (curr.dest != null && curr.dest.getType() instanceof TypeStruct) {
-                    if (usageLocation > st) {//todo figure out why this inner IF is really necesary to make the tests succeed
-                        break;
-                    }
+                if (curr.dest != null && curr.dest.getType() instanceof TypeStruct && usageLocation > st) {
+                    //break;
+                    //this break used to be necesary to make the tests suceed, but I just commented it out and it doesn't make anything fail
+                    //go figure
+                    //leaving it here but commented out if it comes up in the future
                 }
                 if (next instanceof TACStandard) {
                     TACStandard n = (TACStandard) next;

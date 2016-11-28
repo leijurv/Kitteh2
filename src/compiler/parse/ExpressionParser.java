@@ -155,21 +155,19 @@ public class ExpressionParser {
                 if (numParens != 0) {
                     throw new IllegalStateException("mismatched ( and )");
                 }
-                if (i != 0 && is(o.get(i - 1), KEYWORD)) {
-                    if (o.get(i - 1) == Keyword.SIZEOF) {
-                        if (inParen.size() != 1) {
-                            throw new RuntimeException();
-                        }
-                        Type type = typeFromObjs(inParen.get(0), context);
-                        if (type == null) {
-                            throw new RuntimeException();
-                        }
-                        for (int j = 0; j < numToRemoveAti; j++) {
-                            o.remove(i);
-                        }
-                        o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
-                        return parseImpl(o, desiredType, context);
+                if (i != 0 && o.get(i - 1) == Keyword.SIZEOF) {
+                    if (inParen.size() != 1) {
+                        throw new RuntimeException();
                     }
+                    Type type = typeFromObjs(inParen.get(0), context);
+                    if (type == null) {
+                        throw new RuntimeException();
+                    }
+                    for (int j = 0; j < numToRemoveAti; j++) {
+                        o.remove(i);
+                    }
+                    o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
+                    return parseImpl(o, desiredType, context);
                 }
                 if (inParen.size() == 1 && typeFromObjs(inParen.get(0), context) != null) {
                     //this is a cast, skip the rest and don't modify these parentheses
@@ -288,10 +286,8 @@ public class ExpressionParser {
         }
         for (int i = 0; i < o.size(); i++) {
             if (o.get(i) == Operator.MULTIPLY) {
-                if (i != 0) {
-                    if (o.get(i - 1) instanceof Expression) {
-                        continue;
-                    }
+                if (i != 0 && o.get(i - 1) instanceof Expression) {
+                    continue;
                 }
                 Expression point = (Expression) o.remove(i + 1);
                 o.set(i, new ExpressionPointerDeref(point));
@@ -337,10 +333,8 @@ public class ExpressionParser {
         } catch (IllegalStateException e) {
             throw new IllegalStateException("Exception while getting type of " + o, e);
         }
-        if (desiredType.isPresent()) {
-            if (!desiredType.get().equals(r.getType())) {
-                throw new IllegalStateException(o + " should have been type " + desiredType.get() + " but was actually type " + r.getType());
-            }
+        if (desiredType.isPresent() && !desiredType.get().equals(r.getType())) {
+            throw new IllegalStateException(o + " should have been type " + desiredType.get() + " but was actually type " + r.getType());
         }
         return r;
     }

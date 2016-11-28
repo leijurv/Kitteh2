@@ -204,6 +204,6 @@ public enum Operator implements Token<Operator> {//extends Token maybe? might ma
     }
     @Override
     public Operator data() {
-        return this;
+        throw new UnsupportedOperationException("");
     }
 }

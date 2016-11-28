@@ -98,6 +98,6 @@ public enum Keyword implements Token<Keyword> {
     }
     @Override
     public Keyword data() {
-        return this;
+        throw new UnsupportedOperationException("");
     }
 }

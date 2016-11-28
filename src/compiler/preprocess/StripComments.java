@@ -34,7 +34,7 @@ public class StripComments {
         for (int i = 0; i < line.length(); i++) {
             char ch = line.charAt(i);
             if (ch == '\n') {
-                if (!inComment || commentEndsWithNewLine) {
+                if (!inString && (!inComment || commentEndsWithNewLine)) {
                     result.add(new Line(transformed.toString(), lineNumber));
                     transformed = new StringBuilder();
                 }
@@ -95,8 +95,14 @@ public class StripComments {
             if (inComment && commentEndsWithNewLine && ch == '\n') {
                 inComment = false;
             }
-            if (!inComment && ch != '\n') {
-                transformed.append(ch);
+            if (!inComment) {
+                if (ch == '\n') {
+                    if (inString) {
+                        transformed.append(ch);
+                    }
+                } else {
+                    transformed.append(ch);
+                }
             }
             prevChar = ch;
         }

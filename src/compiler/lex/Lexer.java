@@ -29,7 +29,7 @@ public class Lexer extends AbstractLexer {
                 String lexeme = readAlphanumerical();
                 Keyword key = Keyword.strToKeyword(lexeme);
                 if (key != null) {
-                    emit(KEYWORD.create(key));
+                    emit(key);
                     continue;
                 }
                 emit(VARIABLE.create(lexeme));//if it's not a keyword, assume that it's a variable

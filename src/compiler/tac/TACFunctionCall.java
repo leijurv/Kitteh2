@@ -6,12 +6,12 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Keyword;
-import compiler.x86.X86Emitter;
-import compiler.x86.X86Register;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +74,7 @@ public class TACFunctionCall extends TACStatement {
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/
         }
-        if (header.name.equals("KEYWORD" + Keyword.PRINT)) {
+        if (header.name.equals(Keyword.PRINT.toString())) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
             if (params.size() != 1 || !(header.inputs().get(0) instanceof TypeNumerical)) {
                 throw new CancelledKeyException();

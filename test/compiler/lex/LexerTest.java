@@ -44,7 +44,7 @@ public class LexerTest {
         testLexing("wew()", VARIABLE.create("wew"), STARTPAREN, ENDPAREN);
         testLexing("420", NUM.create("420"));
         testLexing("a420", VARIABLE.create("a420"));
-        testLexing("for 4", KEYWORD.create(Keyword.FOR), NUM.create("4"));
+        testLexing("for 4", Keyword.FOR, NUM.create("4"));
     }
     public void testLexing(String input, Token... expected) {
         ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(expected));

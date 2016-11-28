@@ -35,7 +35,7 @@ public class ExpressionFunctionCall extends Expression {
         }
         ArrayList<Type> got = args.stream().map(Expression::getType).collect(Collectors.toCollection(ArrayList::new));
         if (!got.equals(expected)) {
-            if (calling.name.equals("KEYWORD" + Keyword.PRINT.toString())) {
+            if (calling.name.equals(Keyword.PRINT.toString())) {
                 if (got.get(0) instanceof TypeNumerical) {
                     //good enough
                     return;

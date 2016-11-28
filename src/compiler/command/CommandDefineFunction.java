@@ -9,8 +9,8 @@ import compiler.Keyword;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
-import compiler.tac.optimize.TACOptimizer;
 import compiler.tac.optimize.OptimizationSettings;
+import compiler.tac.optimize.TACOptimizer;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
@@ -101,6 +101,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             return "func " + name + arguments + " " + returnType;
         }
     }
-    public static final FunctionHeader PRINTINT = new FunctionHeader("KEYWORD" + Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    public static final FunctionHeader PRINTINT = new FunctionHeader(Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
     public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
 }

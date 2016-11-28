@@ -6,6 +6,8 @@
 package compiler;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
+import compiler.token.Token;
+import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeInt16;
@@ -17,7 +19,7 @@ import compiler.type.TypeInt8;
  *
  * @author leijurv
  */
-public enum Keyword {
+public enum Keyword implements Token<Keyword> {
     FOR("PURR", true),
     PRINT("MEOW", false),
     //PRINTLN("MEOWLN", false, null, null),
@@ -89,5 +91,13 @@ public enum Keyword {
             }
         }
         return null;
+    }
+    @Override
+    public TokenType tokenType() {
+        return TokenType.KEYWORD;
+    }
+    @Override
+    public Keyword data() {
+        return this;
     }
 }

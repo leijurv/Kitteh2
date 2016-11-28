@@ -50,7 +50,7 @@ public class FunctionsContext {
         });
     }
     public FunctionHeader getHeader(String name) {
-        if (name.equals("KEYWORD" + Keyword.PRINT.toString())) {
+        if (name.equals(Keyword.PRINT.toString())) {
             return CommandDefineFunction.PRINTINT;
         }
         if (name.equals("malloc")) {

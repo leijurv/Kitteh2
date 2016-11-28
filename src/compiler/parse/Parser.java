@@ -229,7 +229,9 @@ public class Parser {
                 temp.add(t);
             }
         }
-        result.add(temp);
+        if (!list.isEmpty()) {
+            result.add(temp);
+        }
         return result;
     }
     public static Command parseLine(Line line, Context context) {

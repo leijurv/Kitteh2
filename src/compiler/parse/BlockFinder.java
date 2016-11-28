@@ -11,15 +11,25 @@ import java.util.ArrayList;
  * @author leijurv
  */
 public class BlockFinder implements Transform<ArrayList<Object>> {
-    public static void assertBlockBeginSane(Line line) {
-        String str = line.raw();
-        for (int i = 0; i < str.length() - 1; i++) {
-            if (str.charAt(i) == '}' || str.charAt(i) == '{') {
+    public static void assertLineSane(Line line, boolean shouldEndWithBracket, boolean startBracket) {
+        ArrayList<Object> strs = line.source();
+        //only the last string can contain { or }, so check all but the last
+        //if it shouldn't end with a bracket, also check the last
+        int max = strs.size() - (shouldEndWithBracket ? 1 : 0);
+        for (int j = 0; j < max; j++) {
+            if (!(strs.get(j) instanceof String)) {
+                continue;
+            }
+            String str = (String) strs.get(j);
+            if (str.contains("{") || str.contains("}")) {
                 throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
             }
         }
-        if (!str.endsWith("{")) {
-            throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+        if (shouldEndWithBracket) {
+            String str = (String) strs.get(strs.size() - 1);
+            if (!str.endsWith(startBracket ? "{" : "}")) {
+                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+            }
         }
     }
     @Override
@@ -30,30 +40,29 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
             if (!(lines.get(i) instanceof Line)) {
                 continue;
             }
-            String str = ((Line) lines.get(i)).raw();
-            if (str.contains("{")) {
-                assertBlockBeginSane((Line) lines.get(i));
+            Line line = ((Line) lines.get(i));
+            if (line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("{"))) {
+                assertLineSane(line, true, true);
                 numBrkts++;
                 if (numBrkts == 1) {
                     firstBracket = i;
                 }
-            }
-            if (str.contains("}")) {
+            } else if (line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("}"))) {
+                assertLineSane(line, true, false);
                 numBrkts--;
                 if (numBrkts == 0) {
                     ArrayList<Object> before = new ArrayList<>(lines.subList(0, firstBracket + 1));
-                    ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));//this cuts off the { I think?
+                    ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));
                     ArrayList<Object> after = new ArrayList<>(lines.subList(i + 1, lines.size()));
-                    /*System.out.println("Before " + before);
-                     System.out.println("During " + during);
-                     System.out.println("After " + after);*/
                     lines.clear();
                     lines.addAll(before);
-                    lines.add(during);//idk about this =/
+                    lines.add(during);
                     apply(after);
                     lines.addAll(after);
                     return;
                 }
+            } else {
+                assertLineSane(line, false, false);
             }
         }
         if (numBrkts == 0) {

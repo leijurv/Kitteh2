@@ -287,7 +287,7 @@ public class ExpressionParser {
             }
         }
         for (int i = 0; i < o.size(); i++) {
-            if (is(o.get(i), OPERATOR) && ((Token) o.get(i)).data() == Operator.MULTIPLY) {
+            if (o.get(i) == Operator.MULTIPLY) {
                 if (i != 0) {
                     if (o.get(i - 1) instanceof Expression) {
                         continue;
@@ -306,7 +306,7 @@ public class ExpressionParser {
         }
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
-                if (is(o.get(i), OPERATOR) && op.contains((Operator) ((Token) o.get(i)).data())) {
+                if (op.contains(o.get(i))) {
                     if (i == 0 || i == o.size() - 1) {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }

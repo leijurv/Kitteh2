@@ -84,7 +84,7 @@ public class Parser {
                 if (!is(startToken, KEYWORD)) {
                     throw new IllegalStateException("Line " + l + " is bad. It begins a block with {, but it doesn't begin with a TokenKeyword");
                 }
-                Keyword beginningKeyword = (Keyword) startToken.data();
+                Keyword beginningKeyword = (Keyword) startToken;
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
@@ -242,7 +242,7 @@ public class Parser {
             throw new IllegalStateException("what");
         }
         if (tokens.get(0).tokenType() == KEYWORD) {
-            Keyword k = (Keyword) tokens.get(0).data();
+            Keyword k = (Keyword) tokens.get(0);
             if (k.canBeginBlock) {
                 throw new ProviderMismatchException(k + "");
             }
@@ -391,7 +391,7 @@ public class Parser {
         Type tp;
         switch (first.tokenType()) {
             case KEYWORD:
-                Keyword keyword = (Keyword) first.data();
+                Keyword keyword = (Keyword) first;
                 if (!keyword.isType()) {
                     return null;
                 }
@@ -413,10 +413,7 @@ public class Parser {
                 return null;
         }
         for (int i = 1; i < tokens.size(); i++) {
-            if (tokens.get(i).tokenType() != OPERATOR) {
-                return null;
-            }
-            if (tokens.get(i).data() != Operator.MULTIPLY) {
+            if (tokens.get(i) != Operator.MULTIPLY) {
                 return null;
             }
             tp = new <Type>TypePointer<Type>(tp);//if there are N *s, it's a N - nested pointer, so for every *, wrap the type in another TypePointer

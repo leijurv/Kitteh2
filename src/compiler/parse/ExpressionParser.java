@@ -108,7 +108,7 @@ public class ExpressionParser {
                     o.set(i, ex);
                     break;
                 case KEYWORD:
-                    ExpressionConst ec = ((Keyword) ob.data()).getConstVal();
+                    ExpressionConst ec = ((Keyword) ob).getConstVal();
                     if (ec != null) {
                         o.set(i, (Expression) ec);
                     }
@@ -156,7 +156,7 @@ public class ExpressionParser {
                     throw new IllegalStateException("mismatched ( and )");
                 }
                 if (i != 0 && is(o.get(i - 1), KEYWORD)) {
-                    if (((Keyword) ((Token) o.get(i - 1)).data()) == Keyword.SIZEOF) {
+                    if (o.get(i - 1) == Keyword.SIZEOF) {
                         if (inParen.size() != 1) {
                             throw new RuntimeException();
                         }
@@ -311,7 +311,7 @@ public class ExpressionParser {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
-                    Operator tokOp = (Operator) ((Token) o.remove(i)).data();
+                    Operator tokOp = (Operator) o.remove(i);
                     Expression leftSide = (Expression) o.remove(i - 1);
                     o.add(i - 1, new ExpressionOperator(leftSide, tokOp, rightSide));
                     return parseImpl(o, desiredType, context);

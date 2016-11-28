@@ -48,6 +48,9 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
     }
     @Override
     public TokenType tokenType() {
+        if (!primitive()) {
+            throw new UnsupportedOperationException("No");
+        }
         return this;
     }
     @Override

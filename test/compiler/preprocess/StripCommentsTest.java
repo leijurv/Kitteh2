@@ -54,11 +54,12 @@ public class StripCommentsTest {
         test("ca''//'", "ca''");
     }
     public void test(String a, String b) {
+        String[] split = b.split("\n", -1);
         StripComments st = new StripComments();
         List<Line> result = st.transform(a);
-        assertEquals(result.toString(), b.split("\n", -1).length, result.size());
-        for (int i = 0; i < b.split("\n", -1).length; i++) {
-            assertEquals(b.split("\n", -1)[i], result.get(i).raw());
+        assertEquals(result.toString(), split.length, result.size());
+        for (int i = 0; i < split.length; i++) {
+            assertEquals(split[i], result.get(i).raw());
         }
     }
 }

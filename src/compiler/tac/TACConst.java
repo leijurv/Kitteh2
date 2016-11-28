@@ -57,7 +57,7 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        if (!params[0].getType().equals(params[1].getType())) {
+        if (params[0] != null && params[1] != null && !params[0].getType().equals(params[1].getType())) {
             throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
         }
     }

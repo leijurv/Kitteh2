@@ -7,6 +7,7 @@ package compiler.tac;
 import compiler.Context;
 import compiler.Context.VarInfo;
 import compiler.x86.X86Emitter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +18,39 @@ import java.util.stream.Collectors;
 public abstract class TACStatement {
     public Context context;
     public TempVarUsage tvu;
+    public String[] paramNames;
+    public VarInfo[] params;
+    public TACStatement() {
+        paramNames = new String[0];
+        params = new VarInfo[0];
+    }
+    public TACStatement(String... paramNames) {
+        this.paramNames = paramNames;
+        params = new VarInfo[paramNames.length];
+    }
     public final void setContext(Context context) {
         this.context = context;
         this.tvu = context.getTempVarUsage();//copy this because it's gonna be reset later
+        setVars();
         onContextKnown();
+    }
+    public void setVars() {
+        for (int i = 0; i < paramNames.length; i++) {
+            params[i] = get(paramNames[i]);
+        }
+    }
+    public final void replace(String toReplace, String replaceWith, VarInfo infoWith) {
+        if (infoWith == null) {
+            System.out.println("REPLACE " + toReplace + " " + replaceWith + " " + infoWith);
+        }
+        for (int i = 0; i < paramNames.length; i++) {
+            if (paramNames[i].equals(toReplace)) {
+                paramNames[i] = replaceWith;
+                params[i] = infoWith;
+                return;
+            }
+        }
+        throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames));
     }
     abstract protected void onContextKnown();
     @Override
@@ -45,7 +75,7 @@ public abstract class TACStatement {
     public final List<VarInfo> modifiedVariableInfos() {
         return modifiedVariables().stream().filter(x -> !x.startsWith("%")).map(this::get).collect(Collectors.toList());
     }
-    private VarInfo get(String name) {
+    protected VarInfo get(String name) {
         if (context.get(name) != null) {
             return context.get(name);
         }

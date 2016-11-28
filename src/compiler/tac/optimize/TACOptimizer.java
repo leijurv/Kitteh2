@@ -52,5 +52,4 @@ public class TACOptimizer {
         } while (!prev.equals(input));
         return input;
     }
-
 }

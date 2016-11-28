@@ -6,10 +6,11 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Struct;
+import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
-import compiler.type.TypeNumerical;
-import compiler.type.TypeStruct;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
@@ -19,34 +20,32 @@ import java.util.List;
  * @author leijurv
  */
 public class TACPointerDeref extends TACStatement {
-    public String sourceName;
-    public VarInfo source;
-    public final String destName;
-    public VarInfo dest;
     public TACPointerDeref(String deref, String dest) {
-        this.sourceName = deref;
-        this.destName = dest;
+        super(deref, dest);
     }
     @Override
     protected void onContextKnown() {
-        source = context.getRequired(sourceName);
-        dest = context.getRequired(destName);
+        if (!((TypePointer) params[0].getType()).pointingTo().equals(params[1].getType())) {
+            throw new RuntimeException();
+        }
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(sourceName);//actually i'd say that only sourceName is required
+        return Arrays.asList(paramNames[0]);//actually i'd say that only sourceName is required
     }
     @Override
     public List<String> modifiedVariables() {
-        return Arrays.asList(destName);
+        return Arrays.asList(paramNames[1]);
     }
     @Override
     public String toString0() {
         //return "Dereference " + source + " into " + dest;
-        return dest + " = *" + source;
+        return params[1] + " = *" + params[0];
     }
     @Override
     public void printx86(X86Emitter emit) {
+        VarInfo source = params[0];
+        VarInfo dest = params[1];
         emit.addStatement("movq " + source.x86() + ", %rax");
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();

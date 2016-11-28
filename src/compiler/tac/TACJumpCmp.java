@@ -6,9 +6,9 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
-import compiler.type.TypeNumerical;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,35 +17,29 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpCmp extends TACJump {
-    public VarInfo first;
-    public VarInfo second;
-    public String firstName;
-    public String secondName;
     Operator op;
     public TACJumpCmp(String first, String second, Operator op, int jumpTo) {
-        super(jumpTo);
+        super(jumpTo, first, second);
         this.op = op;
-        this.firstName = first;
-        this.secondName = second;
     }
     @Override
     public String toString0() {
-        return "jump to " + jumpTo + " if " + (first == null ? "CONST " + firstName : first) + " " + op + " " + (second == null ? "CONST " + secondName : second);
+        return "jump to " + jumpTo + " if " + (params[0] == null ? "CONST " + paramNames[0] : params[0]) + " " + op + " " + (params[1] == null ? "CONST " + paramNames[1] : params[1]);
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(firstName, secondName);
+        return Arrays.asList(paramNames);
     }
     @Override
     public void onContextKnown() {
-        first = context.getRequired(firstName);
-        second = context.getRequired(secondName);
-        if (!first.getType().equals(second.getType())) {
-            throw new IllegalStateException("apples to oranges " + first + " " + second);
+        if (!params[0].getType().equals(params[1].getType())) {
+            throw new IllegalStateException("apples to oranges " + params[0] + " " + params[1]);
         }
     }
     @Override
     public void printx86(X86Emitter emit) {
+        VarInfo first = params[0];
+        VarInfo second = params[1];
         if (first != null && second != null && !first.getType().equals(second.getType())) {
             throw new IllegalStateException("an apple and an orange snuck in");
         }
@@ -53,8 +47,8 @@ public class TACJumpCmp extends TACJump {
             throw new IllegalStateException("hey i need at least either the apple or the orange");
         }
         TypeNumerical type = first == null ? (TypeNumerical) second.getType() : (TypeNumerical) first.getType();
-        emit.addStatement("mov" + type.x86typesuffix() + " " + (first == null ? "$" + firstName : first.x86()) + ", " + X86Register.C.getRegister(type));
-        emit.addStatement("mov" + type.x86typesuffix() + " " + (second == null ? "$" + secondName : second.x86()) + ", " + X86Register.A.getRegister(type));
+        emit.addStatement("mov" + type.x86typesuffix() + " " + (first == null ? "$" + paramNames[0] : first.x86()) + ", " + X86Register.C.getRegister(type));
+        emit.addStatement("mov" + type.x86typesuffix() + " " + (second == null ? "$" + paramNames[1] : second.x86()) + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
         emit.addStatement(op.tox86jump() + " " + emit.lineToLabel(jumpTo));
     }

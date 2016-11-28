@@ -6,12 +6,12 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import compiler.x86.X86Emitter;
-import compiler.x86.X86Register;
 import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
 import java.util.Arrays;
@@ -22,17 +22,9 @@ import java.util.List;
  * @author leijurv
  */
 public class TACStandard extends TACStatement {
-    public VarInfo result;
-    public VarInfo first;
-    public VarInfo second;
-    public String resultName;
-    public String firstName;
-    public String secondName;
     public final Operator op;
     public TACStandard(String resultName, String firstName, String secondName, Operator op) {
-        this.resultName = resultName;
-        this.firstName = firstName;
-        this.secondName = secondName;
+        super(firstName, secondName, resultName);
         try {
             Integer.parseInt(firstName);
             Integer.parseInt(secondName);
@@ -43,26 +35,28 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(firstName, secondName);
+        return Arrays.asList(paramNames[0], paramNames[1]);
     }
     @Override
     public List<String> modifiedVariables() {
-        return Arrays.asList(resultName);
+        return Arrays.asList(paramNames[2]);
     }
     @Override
     public String toString0() {
+        String firstName = paramNames[0];
+        String secondName = paramNames[1];
+        VarInfo first = params[0];
+        VarInfo second = params[1];
+        VarInfo result = params[2];
         return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
     }
     @Override
-    public void onContextKnown() {//TODO clean this up somehow, because this pattern is duplicated in all the TACs. maybe a hashmap in the superclass. idk
-        result = context.getRequired(resultName);
-        first = context.getRequired(firstName);
-        second = context.getRequired(secondName);
-        if (!result.getType().equals(op.onApplication(first.getType(), second.getType()))) {
+    public void onContextKnown() {
+        if (!params[2].getType().equals(op.onApplication(params[0].getType(), params[1].getType()))) {
             throw new IllegalThreadStateException();
         }
-        if (!first.getType().equals(second.getType())) {
-            if (first.getType() instanceof TypePointer) {
+        if (!params[0].getType().equals(params[1].getType())) {
+            if (params[0].getType() instanceof TypePointer) {
                 return;
             }
             throw new IllegalStateException(this + "");
@@ -70,6 +64,11 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        String firstName = paramNames[0];//i literally can't be bothered
+        String secondName = paramNames[1];
+        VarInfo first = params[0];
+        VarInfo second = params[1];
+        VarInfo result = params[2];
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
             type = typeFromRegister(firstName);

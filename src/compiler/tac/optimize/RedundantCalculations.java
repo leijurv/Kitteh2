@@ -21,41 +21,37 @@ public class RedundantCalculations extends TACOptimization {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) (block.get(i));
                 if (ts.op == Operator.PLUS) {
-                    if (ts.firstName.equals("0")) {
-                        TACConst repl = new TACConst(ts.resultName, ts.secondName);
-                        repl.dest = ts.result;
-                        repl.source = ts.second;
+                    if (ts.paramNames[0].equals("0")) {
+                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
                         repl.context = ts.context;
                         repl.tvu = ts.tvu;
+                        repl.setVars();
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.secondName.equals("0")) {
-                        TACConst repl = new TACConst(ts.resultName, ts.firstName);
-                        repl.dest = ts.result;
-                        repl.source = ts.first;
+                    if (ts.paramNames[1].equals("0")) {
+                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
                         repl.context = ts.context;
                         repl.tvu = ts.tvu;
+                        repl.setVars();
                         block.set(i, repl);
                         continue;
                     }
                 }
                 if (ts.op == Operator.MULTIPLY) {
-                    if (ts.firstName.equals("1")) {
-                        TACConst repl = new TACConst(ts.resultName, ts.secondName);
-                        repl.dest = ts.result;
-                        repl.source = ts.second;
+                    if (ts.paramNames[0].equals("1")) {
+                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
                         repl.context = ts.context;
                         repl.tvu = ts.tvu;
+                        repl.setVars();
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.secondName.equals("1")) {
-                        TACConst repl = new TACConst(ts.resultName, ts.firstName);
-                        repl.dest = ts.result;
-                        repl.source = ts.first;
+                    if (ts.paramNames[1].equals("1")) {
+                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
                         repl.context = ts.context;
                         repl.tvu = ts.tvu;
+                        repl.setVars();
                         block.set(i, repl);
                         continue;
                     }

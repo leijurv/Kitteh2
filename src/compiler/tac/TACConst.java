@@ -26,43 +26,44 @@ import javax.management.openmbean.InvalidOpenTypeException;
  * @author leijurv
  */
 public class TACConst extends TACStatement {
-    public String destName;
-    public VarInfo dest;
-    public String sourceName;
-    public VarInfo source;
     public TACConst(String var, String val) {
-        this.destName = var;
-        this.sourceName = val;
+        super(val, var);
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(sourceName);
+        return Arrays.asList(paramNames[0]);
     }
     @Override
     public List<String> modifiedVariables() {
-        return Arrays.asList(destName);
+        return Arrays.asList(paramNames[1]);
     }
     @Override
     public String toString0() {
-        return (dest == null ? destName : dest) + " = " + (source != null ? source : "CONST " + sourceName);
+        return (params[1] == null ? paramNames[1] : params[1]) + " = " + (params[0] != null ? params[0] : "CONST " + paramNames[0]);
     }
     @Override
-    public void onContextKnown() {
-        dest = destName.startsWith(X86Register.REGISTER_PREFIX) ? null : context.getRequired(destName);
+    public void setVars() {
+        params[1] = paramNames[1].startsWith(X86Register.REGISTER_PREFIX) ? null : get(paramNames[1]);
         try {//im tired ok? i know this is mal
-            Double.parseDouble(sourceName);
+            Double.parseDouble(paramNames[0]);
         } catch (NumberFormatException ex) {
-            if (!sourceName.startsWith("\"")) {
-                source = context.get(sourceName);
-                if (source == null) {
+            if (!paramNames[0].startsWith("\"")) {
+                params[0] = get(paramNames[0]);
+                if (params[0] == null) {
                     throw new IllegalStateException("I honestly can't think of a way that this could happen. but idk it might");
                 }
             }
         }
     }
     @Override
+    public void onContextKnown() {
+        if (!params[0].getType().equals(params[1].getType())) {
+            throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
+        }
+    }
+    @Override
     public void printx86(X86Emitter emit) {
-        move(destName, dest, source, sourceName, emit);
+        move(paramNames[1], params[1], params[0], paramNames[0], emit);
     }
     public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
         if (dest != null && source != null && !dest.getType().equals(source.getType())) {

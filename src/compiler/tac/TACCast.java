@@ -5,9 +5,9 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
-import compiler.type.TypeNumerical;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,34 +16,27 @@ import java.util.List;
  * @author leijurv
  */
 public class TACCast extends TACStatement {
-    public String inputName;
-    public VarInfo input;
-    public String destName;
-    public VarInfo dest;
     public TACCast(String inputName, String dest) {
-        this.inputName = inputName;
-        this.destName = dest;
+        super(inputName, dest);
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(inputName);
+        return Arrays.asList(paramNames[0]);
     }
     @Override
     public List<String> modifiedVariables() {
-        return Arrays.asList(destName);
+        return Arrays.asList(paramNames[1]);
     }
     @Override
     protected void onContextKnown() {
-        input = context.getRequired(inputName);
-        dest = context.getRequired(destName);
     }
     @Override
     public String toString0() {
-        return dest + " = (" + dest.getType() + ") " + input;
+        return params[1] + " = (" + params[1].getType() + ") " + params[0];
     }
     @Override
     public void printx86(X86Emitter emit) {
-        cast(input, dest, emit);
+        cast(params[0], params[1], emit);
     }
     public static void cast(VarInfo input, VarInfo dest, X86Emitter emit) {
         TypeNumerical inp = (TypeNumerical) input.getType();

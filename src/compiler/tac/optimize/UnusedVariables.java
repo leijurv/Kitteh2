@@ -4,11 +4,11 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
-import compiler.x86.X86Register;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Register;
 import java.util.List;
 
 /**
@@ -27,14 +27,15 @@ public class UnusedVariables extends TACOptimization {
             TACStatement ts = block.get(i);
             int pos = blockBegin + i;
             if (ts instanceof TACConst) {
-                String dest = ((TACConst) ts).destName;
+                String dest = ((TACConst) ts).paramNames[1];
                 if (dest.startsWith(X86Register.REGISTER_PREFIX)) {
                     continue;
                 }
                 if (dest.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;//if you comment out this line, the tests fail.
                 }
-                if (((TACConst) ts).dest.getType() instanceof TypeStruct) {
+                System.out.println(dest + " " + ((TACConst) ts).params[1]);
+                if (((TACConst) ts).params[1].getType() instanceof TypeStruct) {
                     continue;
                 }
                 if (!isUsedAtOrAfter(pos, dest)) {

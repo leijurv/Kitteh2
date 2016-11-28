@@ -17,6 +17,10 @@ public class TACJump extends TACStatement {
     public TACJump(int jumpTo) {
         this.jumpTo = jumpTo;
     }
+    public TACJump(int jumpTo, String... paramNames) {
+        super(paramNames);
+        this.jumpTo = jumpTo;
+    }
     @Override
     protected void onContextKnown() {
         if (getClass() != TACJump.class) {

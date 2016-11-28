@@ -4,9 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.Context.VarInfo;
-import compiler.x86.X86Emitter;
 import compiler.type.TypeBoolean;
+import compiler.x86.X86Emitter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,32 +14,28 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpBoolVar extends TACJump {
-    public String varName;
-    public VarInfo var;
     boolean invert;
     public TACJumpBoolVar(String varName, int jumpTo, boolean invert) {
-        super(jumpTo);
-        this.varName = varName;
+        super(jumpTo, varName);
         this.invert = invert;
     }
     @Override
     protected void onContextKnown() {
-        var = context.getRequired(varName);
-        if (!(var.getType() instanceof TypeBoolean)) {
+        if (!(params[0].getType() instanceof TypeBoolean)) {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }
     }
     @Override
     public List<String> requiredVariables() {
-        return Arrays.asList(varName);
+        return Arrays.asList(paramNames[0]);
     }
     @Override
     public String toString0() {
-        return "jump to " + jumpTo + " if " + (invert ? "not " : "") + var;
+        return "jump to " + jumpTo + " if " + (invert ? "not " : "") + params[0];
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("cmpb $0, " + var.x86());
+        emit.addStatement("cmpb $0, " + params[0].x86());
         if (invert) {
             emit.addStatement("je " + emit.lineToLabel(jumpTo));
         } else {

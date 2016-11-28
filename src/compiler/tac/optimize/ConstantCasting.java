@@ -19,23 +19,22 @@ public class ConstantCasting extends TACOptimization {
         for (int i = 0; i < block.size() - 1; i++) {
             if (block.get(i) instanceof TACConst) {
                 TACConst con = (TACConst) block.get(i);
-                if (con.source == null) {
+                if (con.params[0] == null) {
                     try {
-                        Integer.parseInt(con.sourceName);
+                        Integer.parseInt(con.paramNames[0]);
                     } catch (NumberFormatException e) {
                         continue;
                     }
                 } else {
                     continue;
                 }
-                if (!UselessTempVars.isTempVariable(con.destName)) {
+                if (!UselessTempVars.isTempVariable(con.paramNames[1])) {
                     continue;
                 }
                 if (block.get(i + 1) instanceof TACCast) {
                     TACCast cast = (TACCast) block.get(i + 1);
-                    if (cast.inputName.equals(con.destName) && cast.input.equals(con.dest)) {
-                        con.dest = cast.dest;
-                        con.destName = cast.destName;
+                    if (cast.paramNames[0].equals(con.paramNames[1]) && cast.params[0].equals(con.params[1])) {
+                        con.replace(con.paramNames[1], cast.paramNames[1], cast.params[1]);
                         block.remove(i + 1);
                         i--;
                     }

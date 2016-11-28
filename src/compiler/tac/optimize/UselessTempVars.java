@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
@@ -43,7 +44,7 @@ public class UselessTempVars extends TACOptimization {
                 continue;
             }
             TACConst curr = (TACConst) block.get(ind);
-            String valSet = curr.destName;
+            String valSet = curr.paramNames[1];
             if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
@@ -56,36 +57,27 @@ public class UselessTempVars extends TACOptimization {
                 block.add(ind, null);//<horrible hack>
                 st++;
             }
+            String currSourceName = curr.paramNames[0];
+            VarInfo currSource = curr.params[0];
             for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
-                if (curr.dest != null && curr.dest.getType() instanceof TypeStruct && usageLocation > st) {
+                if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct && usageLocation > st) {
                     //break;
                     //this break used to be necesary to make the tests suceed, but I just commented it out and it doesn't make anything fail
                     //go figure
                     //leaving it here but commented out if it comes up in the future
                 }
                 if (next instanceof TACStandard) {
-                    TACStandard n = (TACStandard) next;
-                    if (n.secondName.equals(valSet)) {
-                        n.secondName = curr.sourceName;
-                        n.second = curr.source;
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                    if (n.firstName.equals(valSet)) {
-                        n.firstName = curr.sourceName;
-                        n.first = curr.source;
+                    if (next.modifiedVariables().contains(valSet)) {
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
                     }
                 }
                 if (next instanceof TACConst) {
-                    TACConst c = (TACConst) next;
-                    if (c.sourceName.equals(valSet)) {
-                        c.sourceName = curr.sourceName;
-                        c.source = curr.source;
+                    if (next.modifiedVariables().contains(valSet)) {
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
@@ -94,10 +86,10 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACFunctionCall) {
                     TACFunctionCall c = (TACFunctionCall) next;
                     boolean shouldBreak = false;
-                    for (int i = 0; i < c.paramNames.size(); i++) {
-                        if (c.paramNames.get(i).equals(valSet)) {
-                            c.paramNames.set(i, curr.sourceName);
-                            c.params.set(i, curr.source);
+                    for (int i = 0; i < c.paramNames.length; i++) {
+                        if (c.paramNames[i].equals(valSet)) {
+                            c.paramNames[i] = currSourceName;
+                            c.params[i] = currSource;
                             block.remove(ind);
                             ind = Math.max(-1, ind - 2);
                             shouldBreak = true;
@@ -109,43 +101,37 @@ public class UselessTempVars extends TACOptimization {
                     }
                 }
                 if (next instanceof TACPointerRef) {
-                    TACPointerRef t = (TACPointerRef) next;
-                    if (t.sourceName.equals(valSet)) {
-                        t.source = curr.source;
-                        t.sourceName = curr.sourceName;
+                    if (next.modifiedVariables().contains(valSet)) {
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
                     }
                 }
                 if (next instanceof TACPointerDeref) {
-                    TACPointerDeref t = (TACPointerDeref) next;
-                    if (t.sourceName.equals(valSet)) {
-                        t.source = curr.source;
-                        t.sourceName = curr.sourceName;
+                    if (next.modifiedVariables().contains(valSet)) {
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
                     }
                 }
                 if (next instanceof TACCast) {
-                    TACCast t = (TACCast) next;
-                    if (t.inputName.equals(valSet) && curr.source != null) {
-                        t.input = curr.source;
-                        t.inputName = curr.sourceName;
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
+                    if (currSource != null) {
+                        if (next.modifiedVariables().contains(valSet)) {
+                            next.replace(valSet, currSourceName, currSource);
+                            block.remove(ind);
+                            ind = Math.max(-1, ind - 2);
+                            break;
+                        }
                     }
                 }
                 if (next instanceof TACJumpBoolVar) {
-                    TACJumpBoolVar t = (TACJumpBoolVar) next;
-                    if (t.varName.equals(valSet)) {
+                    if (next.modifiedVariables().contains(valSet)) {
                         if (tempVar) {
-                            throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + t + " " + curr);//but if i change things in the future this could happen and isn't a serious error
+                            throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                         }
-                        t.var = curr.source;
-                        t.varName = curr.sourceName;
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
@@ -153,16 +139,8 @@ public class UselessTempVars extends TACOptimization {
                 }
                 if (next instanceof TACJumpCmp) {
                     TACJumpCmp t = (TACJumpCmp) next;
-                    if (t.firstName.equals(valSet)) {
-                        t.firstName = curr.sourceName;
-                        t.first = curr.source;
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                    if (t.secondName.equals(valSet)) {
-                        t.secondName = curr.sourceName;
-                        t.second = curr.source;
+                    if (next.modifiedVariables().contains(valSet)) {
+                        next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
                         break;
@@ -186,7 +164,7 @@ public class UselessTempVars extends TACOptimization {
                     //again, this might be caused by a different optimization leaving dangling temp variables
                     throw new RuntimeException("Another optimization did something weird");
                 }
-                if (next.modifiedVariables().contains(curr.sourceName)) {
+                if (next.modifiedVariables().contains(currSourceName)) {
                     if (tempVar) {
                         //tmp0=b
                         // ... (tmp0 not used)

@@ -87,13 +87,13 @@ public class ExpressionParser {
                     o.set(i, new ExpressionConstChar((Character) ob.data()));
                     break;
                 case VARIABLE:
-                    if (i != o.size() - 1 && is(o.get(i + 1), STARTPAREN)) {
+                    if (i != o.size() - 1 && o.get(i + 1) == STARTPAREN) {
                         //this is a pattern like f(
                         //indicates function call
                         //let's just like not
                         continue;
                     }
-                    if (i != 0 && is(o.get(i - 1), PERIOD)) {
+                    if (i != 0 && o.get(i - 1) == PERIOD) {
                         //struct field access like a.field1
                         //field1 isn't a real variable with a type on its own
                         //don't turn it to an expressionvariable
@@ -122,7 +122,7 @@ public class ExpressionParser {
             return (Expression) o.get(0);
         }
         for (int i = 0; i < o.size(); i++) {//recursively call parseImpl on the contents of parentheses
-            if (is(o.get(i), STARTPAREN)) {
+            if (o.get(i) == STARTPAREN) {
                 ArrayList<ArrayList<Object>> inParen = new ArrayList<>();
                 ArrayList<Object> temp = new ArrayList<>();
                 int numParens = 1;
@@ -132,22 +132,23 @@ public class ExpressionParser {
                 while (i < copy.size()) {
                     Object b = copy.remove(i);
                     numToRemoveAti++;
-                    if (is(b, ENDPAREN)) {
+                    if (b == ENDPAREN) {
                         numParens--;
                         if (numParens == 0) {
-                            if (!temp.isEmpty()) {
-                                inParen.add(temp);
+                            if (temp.isEmpty()) {
+                                throw new IllegalStateException("Dangling comma");
                             }
+                            inParen.add(temp);
                             break;
                         }
                     }
-                    if (is(b, COMMA) && numParens == 1) {
+                    if (b == COMMA && numParens == 1) {
                         inParen.add(temp);
                         temp = new ArrayList<>();
                     } else {
                         temp.add(b);
                     }
-                    if (is(b, STARTPAREN)) {
+                    if (b == STARTPAREN) {
                         numParens++;
                     }
                 }
@@ -208,18 +209,18 @@ public class ExpressionParser {
         //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
         //getting array item (like arr[ind])
         for (int i = 0; i < o.size(); i++) {
-            if (is(o.get(i), STARTBRAKT)) {
+            if (o.get(i) == STARTBRAKT) {
                 o.remove(i);
                 int sq = 1;
                 int j = i;
                 ArrayList<Object> inBrkts = new ArrayList<>();
                 while (j < o.size()) {
                     Object ob = o.remove(j);
-                    if (is(ob, STARTBRAKT)) {
+                    if (ob == STARTBRAKT) {
                         sq++;
                         continue;
                     }
-                    if (is(ob, ENDBRKT)) {
+                    if (ob == ENDBRKT) {
                         sq--;
                         if (sq == 0) {
                             break;
@@ -246,7 +247,7 @@ public class ExpressionParser {
                 o.add(i - 1, element);
                 return parseImpl(o, desiredType, context);
             }
-            if (is(o.get(i), PERIOD)) {
+            if (o.get(i) == PERIOD) {
                 if (!is(o.get(i + 1), VARIABLE)) {
                     throw new RuntimeException();
                 }
@@ -266,15 +267,15 @@ public class ExpressionParser {
         //casting comes after increments: (long)a++
         //TODO should casting come before or after pointer dereferences?
         for (int i = 0; i < o.size(); i++) {
-            if (is(o.get(i), STARTPAREN)) {
+            if (o.get(i) == STARTPAREN) {
                 o.remove(i);
                 ArrayList<Token> inBrkts = new ArrayList<>();
                 while (i < o.size()) {
                     Object ob = o.remove(i);
-                    if (is(ob, STARTPAREN)) {
+                    if (ob == STARTPAREN) {
                         throw new IllegalStateException("Start paren in cast??");
                     }
-                    if (is(ob, ENDPAREN)) {
+                    if (ob == ENDPAREN) {
                         break;
                     }
                     inBrkts.add((Token) ob);
@@ -298,7 +299,7 @@ public class ExpressionParser {
             }
         }
         for (int i = 0; i < o.size(); i++) {
-            if (is(o.get(i), NOT)) {
+            if (o.get(i) == NOT) {
                 o.set(i, new ExpressionInvert((ExpressionConditionalJumpable) o.remove(i + 1)));
                 return parseImpl(o, desiredType, context);
             }

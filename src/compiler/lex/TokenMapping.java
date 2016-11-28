@@ -32,10 +32,8 @@ public class TokenMapping {
             }
         }
     }
-    public static void put(Token t, String... strs) {
-        for (String str : strs) {
-            MAPPINGS.put(str, t);
-        }
+    public static void put(Token t, String str) {
+        MAPPINGS.put(str, t);
     }
     public static boolean mapsToToken(String s) {
         return MAPPINGS.containsKey(s);

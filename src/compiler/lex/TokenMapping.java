@@ -18,22 +18,22 @@ import javax.xml.ws.WebServiceException;
 public class TokenMapping {
     private static final HashMap<String, Token> MAPPINGS = new HashMap<>();
     static {
-        put(OPERATOR.create(Operator.NOT_EQUAL), "≠");
-        put(OPERATOR.create(Operator.GREATER_OR_EQUAL), "≥");
-        put(OPERATOR.create(Operator.LESS_OR_EQUAL), "≤");
-        put(SETEQUAL.create(false), "=");
-        put(SETEQUAL.create(true), ":=");
+        MAPPINGS.put("≠", OPERATOR.create(Operator.NOT_EQUAL));
+        MAPPINGS.put("≥", OPERATOR.create(Operator.GREATER_OR_EQUAL));
+        MAPPINGS.put("≤", OPERATOR.create(Operator.LESS_OR_EQUAL));
+        put(SETEQUAL.create(false));
+        put(SETEQUAL.create(true));
         for (Operator op : Operator.values()) {
-            put(OPERATOR.create(op), op.toString());
+            put(OPERATOR.create(op));
         }
         for (TokenType tt : TokenType.values()) {
             if (tt.primitive()) {
-                put(tt, tt.toString());
+                put(tt);
             }
         }
     }
-    public static void put(Token t, String str) {
-        MAPPINGS.put(str, t);
+    public static void put(Token t) {
+        MAPPINGS.put(t.toString(), t);
     }
     public static boolean mapsToToken(String s) {
         return MAPPINGS.containsKey(s);

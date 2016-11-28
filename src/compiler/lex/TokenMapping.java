@@ -21,13 +21,13 @@ public class TokenMapping {
     private static final Map<String, Token> MAPPINGS;
     static {
         HashMap<String, Token> map = new HashMap<>();
-        map.put("≠", OPERATOR.create(Operator.NOT_EQUAL));
-        map.put("≥", OPERATOR.create(Operator.GREATER_OR_EQUAL));
-        map.put("≤", OPERATOR.create(Operator.LESS_OR_EQUAL));
+        map.put("≠", Operator.NOT_EQUAL);
+        map.put("≥", Operator.GREATER_OR_EQUAL);
+        map.put("≤", Operator.LESS_OR_EQUAL);
         put(SETEQUAL.create(false), map);
         put(SETEQUAL.create(true), map);
         for (Operator op : Operator.values()) {
-            put(OPERATOR.create(op), map);
+            put(op, map);
         }
         for (TokenType tt : TokenType.values()) {
             if (tt.primitive()) {

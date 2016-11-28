@@ -8,6 +8,8 @@ import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
 import compiler.expression.ExpressionConstNum;
+import compiler.token.Token;
+import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeInt64;
@@ -27,7 +29,7 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public enum Operator {//extends Token maybe? might make things easier... idk
+public enum Operator implements Token<Operator> {//extends Token maybe? might make things easier... idk
     PLUS("+", 50),
     MINUS("-", 50),
     MULTIPLY("*", 100),
@@ -195,5 +197,13 @@ public enum Operator {//extends Token maybe? might make things easier... idk
             default:
                 throw new UnsupportedAddressTypeException();
         }
+    }
+    @Override
+    public TokenType tokenType() {
+        return TokenType.OPERATOR;
+    }
+    @Override
+    public Operator data() {
+        return this;
     }
 }

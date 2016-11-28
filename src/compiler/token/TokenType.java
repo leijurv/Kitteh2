@@ -17,7 +17,7 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
     KEYWORD(Keyword.class, arg -> "KEYWORD" + arg),
     NOT("!"),
     NUM(String.class, x -> "#" + x),
-    OPERATOR(Operator.class, Operator::toString),
+    OPERATOR(arg -> false, Operator.class, Operator::toString),
     PERIOD("."),
     SEMICOLON(";"),
     SETEQUAL(Boolean.class, arg -> arg ? ":=" : "="),

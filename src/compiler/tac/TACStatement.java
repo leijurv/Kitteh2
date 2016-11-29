@@ -40,9 +40,6 @@ public abstract class TACStatement {
         }
     }
     public final void replace(String toReplace, String replaceWith, VarInfo infoWith) {
-        if (infoWith == null) {
-            System.out.println("REPLACE " + toReplace + " " + replaceWith + " " + infoWith);
-        }
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {
                 paramNames[i] = replaceWith;

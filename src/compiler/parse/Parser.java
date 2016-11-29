@@ -76,7 +76,7 @@ public class Parser {
                 return parseLine(l.getTokens(), context);
             } else {//this line begins a block
                 ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
-                ArrayList<Token> lineTokens = l.getTokens();
+                List<Token> lineTokens = l.getTokens();
                 if (lineTokens.isEmpty()) {
                     throw new IllegalStateException("come on it's like you're TRYING to break the parser. don't have { on a line on its own");
                 }
@@ -191,7 +191,7 @@ public class Parser {
                         for (int j = 0; j < rawBlock.size(); j++) {
                             Line thisLine = (Line) rawBlock.get(j);
                             thisLine.lex();
-                            ArrayList<Token> tokens = thisLine.getTokens();
+                            List<Token> tokens = thisLine.getTokens();
                             //System.out.println(tokens);
                             if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                                 throw new RuntimeException();
@@ -240,7 +240,7 @@ public class Parser {
     public static Command parseLine(Line line, Context context) {
         return parseLine(line.getTokens(), context);
     }
-    public static Command parseLine(ArrayList<Token> tokens, Context context) {
+    public static Command parseLine(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }

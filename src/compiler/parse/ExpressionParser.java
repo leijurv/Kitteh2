@@ -9,17 +9,17 @@ import compiler.Keyword;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
-import compiler.expression.ExpressionConditionalJumpable;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionFunctionCall;
-import compiler.expression.ExpressionInvert;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
+import compiler.parse.expression.ExpressionParseStep;
+import compiler.parse.expression.Not;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -294,9 +294,8 @@ public class ExpressionParser {
                 return parseImpl(o, desiredType, context);
             }
         }
-        for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) == NOT) {
-                o.set(i, new ExpressionInvert((ExpressionConditionalJumpable) o.remove(i + 1)));
+        for (ExpressionParseStep step : steps) {
+            if (step.apply(o, desiredType, context)) {
                 return parseImpl(o, desiredType, context);
             }
         }
@@ -316,6 +315,7 @@ public class ExpressionParser {
         }
         throw new IllegalStateException("Unable to parse " + o);
     }
+    private static final ExpressionParseStep[] steps = {new Not()};
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
         try {

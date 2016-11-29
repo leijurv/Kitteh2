@@ -7,13 +7,8 @@ package compiler.tac.optimize;
 import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
-import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACJumpBoolVar;
-import compiler.tac.TACJumpCmp;
-import compiler.tac.TACPointerDeref;
-import compiler.tac.TACPointerRef;
-import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeStruct;
@@ -59,6 +54,13 @@ public class UselessTempVars extends TACOptimization {
             }
             String currSourceName = curr.paramNames[0];
             VarInfo currSource = curr.params[0];
+            if (currSourceName.equals(valSet)) {
+                //replacement wouldn't... even do anything
+                while (block.contains(null)) {
+                    block.remove(null);
+                }
+                continue;
+            }
             for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
                 if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct && usageLocation > st) {
@@ -67,79 +69,12 @@ public class UselessTempVars extends TACOptimization {
                     //go figure
                     //leaving it here but commented out if it comes up in the future
                 }
-                if (next instanceof TACStandard) {
-                    if (next.modifiedVariables().contains(valSet)) {
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
+                if (next instanceof TACJumpBoolVar && next.requiredVariables().contains(valSet) && tempVar) {
+                    throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }
-                if (next instanceof TACConst) {
-                    if (next.modifiedVariables().contains(valSet)) {
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                }
-                if (next instanceof TACFunctionCall) {
-                    TACFunctionCall c = (TACFunctionCall) next;
-                    boolean shouldBreak = false;
-                    for (int i = 0; i < c.paramNames.length; i++) {
-                        if (c.paramNames[i].equals(valSet)) {
-                            c.paramNames[i] = currSourceName;
-                            c.params[i] = currSource;
-                            block.remove(ind);
-                            ind = Math.max(-1, ind - 2);
-                            shouldBreak = true;
-                            break;
-                        }
-                    }
-                    if (shouldBreak) {
-                        break;
-                    }
-                }
-                if (next instanceof TACPointerRef) {
-                    if (next.modifiedVariables().contains(valSet)) {
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                }
-                if (next instanceof TACPointerDeref) {
-                    if (next.modifiedVariables().contains(valSet)) {
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                }
-                if (next instanceof TACCast) {
-                    if (currSource != null) {
-                        if (next.modifiedVariables().contains(valSet)) {
-                            next.replace(valSet, currSourceName, currSource);
-                            block.remove(ind);
-                            ind = Math.max(-1, ind - 2);
-                            break;
-                        }
-                    }
-                }
-                if (next instanceof TACJumpBoolVar) {
-                    if (next.modifiedVariables().contains(valSet)) {
-                        if (tempVar) {
-                            throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
-                        }
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
-                }
-                if (next instanceof TACJumpCmp) {
-                    TACJumpCmp t = (TACJumpCmp) next;
-                    if (next.modifiedVariables().contains(valSet)) {
+                boolean exemption = next instanceof TACCast && currSource == null;
+                if (!exemption) {
+                    if (next.requiredVariables().contains(valSet)) {
                         next.replace(valSet, currSourceName, currSource);
                         block.remove(ind);
                         ind = Math.max(-1, ind - 2);
@@ -149,6 +84,9 @@ public class UselessTempVars extends TACOptimization {
                 if (next.requiredVariables().contains(valSet)) {
                     //this temp variable is used in a context that does not allow for optimized insertion
                     //since temp variables are only used once, we can't insert it into an expression after its usage
+                    if (!exemption) {
+                        throw new RuntimeException(next + " " + curr);
+                    }
                     break;
                 }
                 if (next.modifiedVariables().contains(valSet)) {

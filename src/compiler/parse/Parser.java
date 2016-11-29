@@ -215,7 +215,7 @@ public class Parser {
             }
             return null;
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("Exception while parsing line")) {
+            if (e.getMessage() != null && e.getMessage().contains("Exception while parsing line")) {
                 throw e;
             }
             throw new RuntimeException("Exception while parsing line " + l.num(), e);
@@ -344,7 +344,7 @@ public class Parser {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
             String ts = (String) tokens.get(0).data();
-            Type type = context.get(ts).getType();
+            Type type = context.get(ts) == null ? null : context.get(ts).getType();
             boolean inferType = (Boolean) tokens.get(eqLoc).data();
             if (inferType ^ (type == null)) {//look at that arousing use of xor
                 throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));

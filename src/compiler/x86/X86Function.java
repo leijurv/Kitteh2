@@ -33,8 +33,11 @@ public class X86Function {
             emitter.addStatement(""); //nice blank line makes it more readable =)
         }
         StringBuilder resp = new StringBuilder();
-        resp.append("\t.globl\t_").append(name).append("\n\t.align\t4, 0x90\n");
-        resp.append("_").append(name).append(":\n");
+        if (X86Format.MAC) {
+            name = "_" + name;
+        }
+        resp.append("\t.globl\t").append(name).append("\n\t.align\t4, 0x90\n");
+        resp.append(name).append(":\n");
         resp.append(FUNC_HEADER);
         resp.append(emitter.toX86());
         resp.append(FUNC_FOOTER);

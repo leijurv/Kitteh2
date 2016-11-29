@@ -11,6 +11,7 @@ import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Format;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
@@ -88,7 +89,7 @@ public class TACFunctionCall extends TACStatement {
             if (type instanceof TypePointer) {
                 emit.addStatement("movq %rdx, %rdi");//comment out this line if you want print(ptr) to print out the pointer address instead of the asciz string at that pointer
             }
-            emit.addStatement("callq _printf");//I understand this one at least XD
+            emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;
         }
@@ -105,7 +106,7 @@ public class TACFunctionCall extends TACStatement {
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();
         }
-        emit.addStatement("callq _" + header.name);
+        emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + header.name);
         if (result != null) {
             TypeNumerical ret = (TypeNumerical) result.getType();
             emit.addStatement("mov" + ret.x86typesuffix() + " " + X86Register.A.getRegister(ret) + ", " + result.x86());

@@ -14,13 +14,20 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class X86Format {
-    private static final String HEADER = "    .section    __TEXT,__text,regular,pure_instructions\n"
+    public static final boolean MAC = System.getProperty("os.name").toLowerCase().contains("mac");
+    private static final String HEADER_MAC = "    .section    __TEXT,__text,regular,pure_instructions\n"
             + "    .macosx_version_min 10, 10\n";
-    private static final String FOOTER = "\n"
+    private static final String FOOTER_MAC = "\n"
             + ".section	__TEXT,__cstring,cstring_literals\n"
             + "lldformatstring:\n"
             + "	.asciz	\"%lld\\n\"\n"
             + ".subsections_via_symbols\n";
+    private static final String HEADER_LINUX = ".text\n";
+    private static final String FOOTER_LINUX = "\n.section .rodata\n"
+            + "lldformatstring:\n"
+            + "	.asciz	\"%lld\\n\"\n";
+    private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
+    private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
     public static String assembleFinalFile(List<Pair<String, List<TACStatement>>> functions) {
         return functions.parallelStream().map(X86Function::generateX86).collect(Collectors.joining("\n", HEADER, FOOTER));
     }

@@ -278,7 +278,7 @@ public class ExpressionParser {
                     }
                     inBrkts.add((Token) ob);
                 }
-                Type type = Parser.typeFromTokens(inBrkts, context);
+                Type type = Util.typeFromTokens(inBrkts, context);
                 Expression casting = (Expression) o.remove(i);
                 o.add(i, new ExpressionCast(casting, type));
                 return parseImpl(o, desiredType, context);
@@ -324,7 +324,7 @@ public class ExpressionParser {
             }
             tmp.add((Token) obj);
         }
-        return Parser.typeFromTokens(tmp, context);
+        return Util.typeFromTokens(tmp, context);
     }
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);

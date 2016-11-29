@@ -77,4 +77,14 @@ public class Util {
         }
         return result;
     }
+    static Type typeFromObjs(ArrayList<Object> o, Context context) {
+        ArrayList<Token> tmp = new ArrayList<>(o.size());
+        for (Object obj : o) {
+            if (!(obj instanceof Token)) {
+                return null;
+            }
+            tmp.add((Token) obj);
+        }
+        return Util.typeFromTokens(tmp, context);
+    }
 }

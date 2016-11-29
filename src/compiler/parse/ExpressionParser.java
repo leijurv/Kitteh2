@@ -159,7 +159,7 @@ public class ExpressionParser {
                     if (inParen.size() != 1) {
                         throw new RuntimeException();
                     }
-                    Type type = typeFromObjs(inParen.get(0), context);
+                    Type type = Util.typeFromObjs(inParen.get(0), context);
                     if (type == null) {
                         throw new RuntimeException();
                     }
@@ -169,7 +169,7 @@ public class ExpressionParser {
                     o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
                     return parseImpl(o, desiredType, context);
                 }
-                if (inParen.size() == 1 && typeFromObjs(inParen.get(0), context) != null) {
+                if (inParen.size() == 1 && Util.typeFromObjs(inParen.get(0), context) != null) {
                     //this is a cast, skip the rest and don't modify these parentheses
                     continue;
                 } else {
@@ -315,16 +315,6 @@ public class ExpressionParser {
             }
         }
         throw new IllegalStateException("Unable to parse " + o);
-    }
-    public static Type typeFromObjs(ArrayList<Object> o, Context context) {
-        ArrayList<Token> tmp = new ArrayList<>(o.size());
-        for (Object obj : o) {
-            if (!(obj instanceof Token)) {
-                return null;
-            }
-            tmp.add((Token) obj);
-        }
-        return Util.typeFromTokens(tmp, context);
     }
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);

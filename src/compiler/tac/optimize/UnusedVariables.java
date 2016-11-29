@@ -34,7 +34,6 @@ public class UnusedVariables extends TACOptimization {
                 if (dest.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;//if you comment out this line, the tests fail.
                 }
-                System.out.println(dest + " " + ((TACConst) ts).params[1]);
                 if (((TACConst) ts).params[1].getType() instanceof TypeStruct) {
                     continue;
                 }

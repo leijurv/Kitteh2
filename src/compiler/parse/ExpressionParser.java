@@ -200,7 +200,7 @@ public class ExpressionParser {
                 if (inParen.size() != 1) {
                     throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
                 }
-                o.add(i, parseImpl(inParen.get(0), Optional.empty(), context));
+                o.add(i, parseImpl(inParen.get(0), desiredType, context));
                 return parseImpl(o, desiredType, context);
             }
         }

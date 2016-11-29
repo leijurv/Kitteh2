@@ -215,6 +215,9 @@ public class Parser {
             }
             return null;
         } catch (RuntimeException e) {
+            if (e.getMessage().contains("Exception while parsing line")) {
+                throw e;
+            }
             throw new RuntimeException("Exception while parsing line " + l.num(), e);
         }
     }

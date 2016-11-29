@@ -4,7 +4,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install ant; fi
 os:
   - osx
-  - linux
 matrix:
   include:
     - os: linux

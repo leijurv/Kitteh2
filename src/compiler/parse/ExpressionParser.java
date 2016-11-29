@@ -283,7 +283,7 @@ public class ExpressionParser {
         }
         throw new IllegalStateException("Unable to parse " + o);
     }
-    private static final ExpressionParseStep[] steps = {new Not(), new PointerDeref(), new Casting()};
+    private static final ExpressionParseStep[] steps = {new Casting(), new PointerDeref(), new Not()};
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
         try {

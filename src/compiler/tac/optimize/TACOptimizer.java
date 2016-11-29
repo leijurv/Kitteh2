@@ -25,7 +25,8 @@ public class TACOptimizer {
             DeadCode.class,
             UnusedAssignment.class,
             DoubleJump.class,
-            CommonSubexpression.class
+            CommonSubexpression.class,
+            SelfSet.class
     ));
     public static ArrayList<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         ArrayList<TACStatement> input = emitted.getResult();

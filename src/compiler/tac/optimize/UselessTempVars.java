@@ -73,13 +73,11 @@ public class UselessTempVars extends TACOptimization {
                     throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }
                 boolean exemption = next instanceof TACCast && currSource == null;
-                if (!exemption) {
-                    if (next.requiredVariables().contains(valSet)) {
-                        next.replace(valSet, currSourceName, currSource);
-                        block.remove(ind);
-                        ind = Math.max(-1, ind - 2);
-                        break;
-                    }
+                if (!exemption && next.requiredVariables().contains(valSet)) {
+                    next.replace(valSet, currSourceName, currSource);
+                    block.remove(ind);
+                    ind = Math.max(-1, ind - 2);
+                    break;
                 }
                 if (next.requiredVariables().contains(valSet)) {
                     //this temp variable is used in a context that does not allow for optimized insertion

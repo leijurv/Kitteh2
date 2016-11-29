@@ -344,7 +344,7 @@ public class Parser {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
             String ts = (String) tokens.get(0).data();
-            Type type = context.getType(ts);
+            Type type = context.get(ts).getType();
             boolean inferType = (Boolean) tokens.get(eqLoc).data();
             if (inferType ^ (type == null)) {//look at that arousing use of xor
                 throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));

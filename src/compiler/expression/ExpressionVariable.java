@@ -20,7 +20,7 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
     private final Type type;
     public ExpressionVariable(String name, Context context) {
         this.name = name;
-        this.type = context.getType(name);
+        this.type = context.get(name).getType();
         if (type == null) {
             throw new IllegalStateException("pls " + name + " " + context);
         }

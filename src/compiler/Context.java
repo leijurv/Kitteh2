@@ -153,17 +153,6 @@ public class Context {
         Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex);
         return subContext;
     }
-    /*public Context superContext() {
-     if (values.length <= 1) {
-     throw new IllegalStateException("Already top context");
-     }
-     HashMap<String, VarInfo>[] temp = new HashMap[values.length - 1];
-     System.arraycopy(values, 0, temp, 0, temp.length);
-     return new Context(temp);
-     }
-     public Context topContext() {
-     return new Context(new HashMap[]{values[0]});
-     }*/
     private void defineLocal(String name, VarInfo value) {
         values[values.length - 1].put(name, value);
     }
@@ -199,10 +188,6 @@ public class Context {
         stackSize -= type.getSizeBytes();
         defineLocal(name, new VarInfo(name, type, stackSize));//Otherwise define it as local
     }
-    public Type getType(String name) {
-        VarInfo info = get(name);
-        return info == null ? null : info.type;//deviously pass off the inevitable nullpointerexception
-    }
     public void setKnownValue(String name, ExpressionConst val) {
         get(name).knownValue = val;
     }
@@ -210,9 +195,6 @@ public class Context {
         if (get(name) != null) {
             setKnownValue(name, null);
         }
-    }
-    public int getStackLocation(String name) {
-        return get(name).stackLocation;
     }
     public VarInfo getRequired(String name) {
         VarInfo info = get(name);

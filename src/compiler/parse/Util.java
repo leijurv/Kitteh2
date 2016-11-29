@@ -21,10 +21,10 @@ import java.util.List;
  * @author leijurv
  */
 public class Util {
-    static Type typeFromTokens(List<Token> tokens, Context context) {
+    public static Type typeFromTokens(List<Token> tokens, Context context) {
         return typeFromTokens(tokens, context, null);
     }
-    static Type typeFromTokens(List<Token> tokens, Context context, String selfRef) {
+    public static Type typeFromTokens(List<Token> tokens, Context context, String selfRef) {
         if (tokens.isEmpty()) {
             return null;
         }

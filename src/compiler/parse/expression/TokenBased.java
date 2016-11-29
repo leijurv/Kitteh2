@@ -6,7 +6,6 @@
 package compiler.parse.expression;
 import compiler.Context;
 import compiler.token.Token;
-import compiler.token.TokenType;
 import compiler.type.Type;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -18,8 +17,8 @@ import java.util.function.Predicate;
  */
 public abstract class TokenBased implements ExpressionParseStep {
     final Predicate<Object> filter;
-    TokenBased(TokenType type) {
-        filter = o -> o instanceof Token && type.test((Token) o);
+    <T> TokenBased(Token<T> type) {
+        filter = o -> o instanceof Token && o.equals(type);
     }
     @Override
     public final boolean apply(ArrayList<Object> o, Optional<Type> desiredType, Context context) {

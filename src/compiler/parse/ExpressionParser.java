@@ -8,7 +8,6 @@ import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
 import compiler.expression.Expression;
-import compiler.expression.ExpressionCast;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
@@ -18,8 +17,7 @@ import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
 import compiler.expression.ExpressionVariable;
-import compiler.parse.expression.ExpressionParseStep;
-import compiler.parse.expression.Not;
+import compiler.parse.expression.*;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -264,36 +262,6 @@ public class ExpressionParser {
         //casting comes after array accesses: (long)a[1]
         //casting comes after increments: (long)a++
         //TODO should casting come before or after pointer dereferences?
-        for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) == STARTPAREN) {
-                o.remove(i);
-                ArrayList<Token> inBrkts = new ArrayList<>();
-                while (i < o.size()) {
-                    Object ob = o.remove(i);
-                    if (ob == STARTPAREN) {
-                        throw new IllegalStateException("Start paren in cast??");
-                    }
-                    if (ob == ENDPAREN) {
-                        break;
-                    }
-                    inBrkts.add((Token) ob);
-                }
-                Type type = Util.typeFromTokens(inBrkts, context);
-                Expression casting = (Expression) o.remove(i);
-                o.add(i, new ExpressionCast(casting, type));
-                return parseImpl(o, desiredType, context);
-            }
-        }
-        for (int i = 0; i < o.size(); i++) {
-            if (o.get(i) == Operator.MULTIPLY) {
-                if (i != 0 && o.get(i - 1) instanceof Expression) {
-                    continue;
-                }
-                Expression point = (Expression) o.remove(i + 1);
-                o.set(i, new ExpressionPointerDeref(point));
-                return parseImpl(o, desiredType, context);
-            }
-        }
         for (ExpressionParseStep step : steps) {
             if (step.apply(o, desiredType, context)) {
                 return parseImpl(o, desiredType, context);
@@ -315,7 +283,7 @@ public class ExpressionParser {
         }
         throw new IllegalStateException("Unable to parse " + o);
     }
-    private static final ExpressionParseStep[] steps = {new Not()};
+    private static final ExpressionParseStep[] steps = {new Not(), new PointerDeref(), new Casting()};
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
         try {

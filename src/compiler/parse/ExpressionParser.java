@@ -18,8 +18,7 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
-    public static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//the comments are todos, in order that they should be inserted (I got the order from kittehv1, assuming I
-        //System.out.println("EXPARSE " + o + " " + desiredType);
+    public static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         new FirstPass().apply(o, desiredType, context);
         if (o.size() == 1) {
             return (Expression) o.get(0);

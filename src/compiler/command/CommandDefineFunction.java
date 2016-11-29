@@ -30,11 +30,11 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     private ArrayList<Command> contents;
     private final ArrayList<Object> rawContents;
     private final FunctionHeader header;
-    public CommandDefineFunction(Context context, Type returnType, ArrayList<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
+    public CommandDefineFunction(Context context, Type returnType, List<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
-        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getValue).collect(Collectors.toCollection(ArrayList::new)));
+        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getValue).collect(Collectors.toList()));
     }
     @Override
     public String toString() {
@@ -76,24 +76,24 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        ArrayList<TACStatement> result = TACOptimizer.optimize(emit, settings);
+        List<TACStatement> result = TACOptimizer.optimize(emit, settings);
         System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return result;
     }
 
     public static class FunctionHeader {
-        private FunctionHeader(String name, Type returnType, ArrayList<Type> arguments) {
+        private FunctionHeader(String name, Type returnType, List<Type> arguments) {
             this.name = name;
             this.returnType = returnType;
             this.arguments = arguments;
         }
         public final String name;
         private final Type returnType;
-        private final ArrayList<Type> arguments;
+        private final List<Type> arguments;
         public Type getReturnType() {
             return returnType;
         }
-        public ArrayList<Type> inputs() {
+        public List<Type> inputs() {
             return arguments;
         }
         @Override

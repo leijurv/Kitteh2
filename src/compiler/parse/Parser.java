@@ -115,7 +115,7 @@ public class Parser {
                         } else {
                             throw new IllegalStateException("no multiple returns yet. sorry!");
                         }
-                        ArrayList<Pair<String, Type>> args = splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
+                        List<Pair<String, Type>> args = splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
                             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
                             Type type = typeFromTokens(typeDefinition, context);
                             if (type == null) {
@@ -126,7 +126,7 @@ public class Parser {
                             }
                             String name = (String) tokenList.get(tokenList.size() - 1).data();
                             return new Pair<>(name, type);
-                        }).collect(Collectors.toCollection(ArrayList::new));
+                        }).collect(Collectors.toList());
                         if (!context.isTopLevel()) {//make sure this is top level
                             throw new InvalidParameterException();
                         }

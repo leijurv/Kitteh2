@@ -12,7 +12,7 @@ import compiler.tac.TACFunctionCall;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeNumerical;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -21,19 +21,19 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class ExpressionFunctionCall extends Expression {
-    private final ArrayList<Expression> args;
+    private final List<Expression> args;
     private final FunctionHeader calling;
-    public ExpressionFunctionCall(Context context, String funcName, ArrayList<Expression> args) {
+    public ExpressionFunctionCall(Context context, String funcName, List<Expression> args) {
         this.args = args;
         this.calling = context.gc.getHeader(funcName);
         verifyTypes();
     }
     private void verifyTypes() {
-        ArrayList<Type> expected = calling.inputs();
+        List<Type> expected = calling.inputs();
         if (expected.size() != args.size()) {
             throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
         }
-        ArrayList<Type> got = args.stream().map(Expression::getType).collect(Collectors.toCollection(ArrayList::new));
+        List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
         if (!got.equals(expected)) {
             if (calling.name.equals(Keyword.PRINT.toString()) && got.get(0) instanceof TypeNumerical) {
                 //good enough
@@ -52,11 +52,11 @@ public class ExpressionFunctionCall extends Expression {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        ArrayList<String> argNames = args.stream().map((exp) -> {
+        List<String> argNames = args.stream().map((exp) -> {
             String tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
-        }).collect(Collectors.toCollection(ArrayList::new));
+        }).collect(Collectors.toList());
         emit.emit(new TACFunctionCall(resultLocation, calling, argNames));
     }
     @Override

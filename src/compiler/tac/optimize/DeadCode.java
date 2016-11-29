@@ -6,7 +6,6 @@
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +16,7 @@ public class DeadCode extends TACOptimization {
     int rangeBegin = -1;
     int rangeEnd = -1;
     @Override
-    public void reset(ArrayList<TACStatement> statements) {
+    public void reset(List<TACStatement> statements) {
         super.reset(statements);
         rangeBegin = -1;
         rangeEnd = -1;

@@ -6,7 +6,6 @@
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ import java.util.List;
  */
 public class DoubleJump extends TACOptimization {
     @Override
-    public ArrayList<TACStatement> go(ArrayList<TACStatement> stmts) {//don't use the framework of keeping track of jump destinations, because that would be self destructive. also we won't add or remove statements
+    public List<TACStatement> go(List<TACStatement> stmts) {//don't use the framework of keeping track of jump destinations, because that would be self destructive. also we won't add or remove statements
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i) instanceof TACJump) {
                 TACJump first = (TACJump) stmts.get(i);

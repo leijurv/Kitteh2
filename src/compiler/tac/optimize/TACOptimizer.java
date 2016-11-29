@@ -28,9 +28,9 @@ public class TACOptimizer {
             CommonSubexpression.class,
             SelfSet.class
     ));
-    public static ArrayList<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
-        ArrayList<TACStatement> input = emitted.getResult();
-        ArrayList<TACStatement> prev;
+    public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
+        List<TACStatement> input = emitted.getResult();
+        List<TACStatement> prev;
         int num = 0;
         do {
             prev = new ArrayList<>(input);

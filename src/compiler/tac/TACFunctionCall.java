@@ -13,7 +13,6 @@ import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +26,7 @@ public class TACFunctionCall extends TACStatement {
     String resultName;
     FunctionHeader header;
     VarInfo result;
-    public TACFunctionCall(String result, FunctionHeader header, ArrayList<String> paramNames) {
+    public TACFunctionCall(String result, FunctionHeader header, List<String> paramNames) {
         super(paramNames.toArray(new String[]{}));
         this.resultName = result;
         this.header = header;
@@ -42,7 +41,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        ArrayList<String> p = IntStream.range(0, paramNames.length).mapToObj(i -> params[i] == null ? paramNames[i] : params[i].toString()).collect(Collectors.toCollection(ArrayList::new));
+        List<String> p = IntStream.range(0, paramNames.length).mapToObj(i -> params[i] == null ? paramNames[i] : params[i].toString()).collect(Collectors.toList());
         return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + p + ")";
     }
     @Override

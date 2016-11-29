@@ -186,14 +186,14 @@ public class ExpressionParser {
                     } else {
                         funcName = o.get(i - 1).toString();//some functions that you call are also keywords
                     }
-                    ArrayList<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+                    List<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
                     //System.out.println("Expecting inputs: " + desiredTypes);
                     //tfw parallel expression parsing
                     //tfw this is a GOOD idea /s
                     if (inParen.size() != desiredTypes.size()) {
                         throw new SecurityException("mismatched arg count");
                     }
-                    ArrayList<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toCollection(ArrayList::new));
+                    List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
                     o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
                     return parseImpl(o, desiredType, context);
                 }

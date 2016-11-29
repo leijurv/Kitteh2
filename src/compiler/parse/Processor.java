@@ -25,7 +25,7 @@ public class Processor {
      * @param context
      * @return
      */
-    public static ArrayList<Command> parse(ArrayList<Object> tempO, Context context) {
+    public static ArrayList<Command> parse(List<Object> tempO, Context context) {
         long a = System.currentTimeMillis();
         ArrayList<Object> o = new ArrayList<>(tempO.size());
         o.addAll(tempO);
@@ -51,6 +51,6 @@ public class Processor {
      * @return
      */
     public static ArrayList<Command> parse(List<Line> obj) {
-        return parse(obj.stream().collect(Collectors.toCollection(ArrayList::new)), new Context());
+        return parse(obj.stream().collect(Collectors.toList()), new Context());
     }
 }

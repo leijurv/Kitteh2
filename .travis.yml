@@ -5,5 +5,8 @@ before_install:
 os:
   - osx
   - linux
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - os: linux
+      jdk:
+        - oraclejdk8

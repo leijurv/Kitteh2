@@ -43,6 +43,15 @@ public class UselessTempVars extends TACOptimization {
             if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
+            String currSourceName = curr.paramNames[0];
+            if (currSourceName.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+                continue;
+            }
+            VarInfo currSource = curr.params[0];
+            if (currSourceName.equals(valSet)) {
+                //replacement wouldn't... even do anything
+                continue;
+            }
             int st = ind + 1;
             boolean tempVar = isTempVariable(valSet);
             if (!tempVar) {
@@ -52,18 +61,9 @@ public class UselessTempVars extends TACOptimization {
                 block.add(ind, null);//<horrible hack>
                 st++;
             }
-            String currSourceName = curr.paramNames[0];
-            VarInfo currSource = curr.params[0];
-            if (currSourceName.equals(valSet)) {
-                //replacement wouldn't... even do anything
-                while (block.contains(null)) {
-                    block.remove(null);
-                }
-                continue;
-            }
             for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
-                if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct && usageLocation > st) {
+                if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct) {
                     //break;
                     //this break used to be necesary to make the tests suceed, but I just commented it out and it doesn't make anything fail
                     //go figure
@@ -74,6 +74,7 @@ public class UselessTempVars extends TACOptimization {
                 }
                 boolean exemption = next instanceof TACCast && currSource == null;
                 if (!exemption && next.requiredVariables().contains(valSet)) {
+                    //System.out.println("REPLACING " + next + " " + valSet + " " + curr.params[1] + " " + currSourceName + " " + currSource);
                     next.replace(valSet, currSourceName, currSource);
                     block.remove(ind);
                     ind = Math.max(-1, ind - 2);

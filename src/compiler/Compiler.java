@@ -35,8 +35,8 @@ public class Compiler {
         long b = System.currentTimeMillis();
         return b - a;
     }
-    protected static String DEFAULT_IN_FILE = "~/Documents/test.k";
-    protected static String DEFAULT_OUT_FILE = "~/Documents/blar.s";
+    protected static String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
+    protected static String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
     /**
      * @param args the command line arguments
      */

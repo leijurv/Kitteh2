@@ -115,12 +115,16 @@ class BlockBeginParser {
         //i can't put a break or a return here because it's unreachable atm
     }
     static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
-        //TODO else
+        return parseIf(params, context, rawBlock, null);
+    }
+    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
         //System.out.println("Parsed " + params + " to " + condition);
-        Context sub = context.subContext();
-        ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
-        return new CommandIf(condition, blockCommands, sub);
+        Context ifTrue = context.subContext();
+        Context ifFalse = elseBlock == null ? null : context.subContext();
+        ArrayList<Command> blockCommands = Processor.parse(rawBlock, ifTrue);
+        ArrayList<Command> els = elseBlock == null ? null : Processor.parse(elseBlock, ifFalse);
+        return new CommandIf(condition, blockCommands, ifTrue, els, ifFalse);
     }
     static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {

@@ -41,25 +41,38 @@ class BlockFinder implements Transform<ArrayList<Object>> {
                 continue;
             }
             Line line = ((Line) lines.get(i));
-            if (line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("{"))) {
+            boolean start = line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("{"));
+            boolean end = line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("}"));
+            if (start && !end) {
                 assertLineSane(line, true, true);
                 numBrkts++;
                 if (numBrkts == 1) {
                     firstBracket = i;
                 }
-            } else if (line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("}"))) {
-                assertLineSane(line, true, false);
+            } else if (end) {
+                if (!start) {
+                    assertLineSane(line, true, false);
+                }
                 numBrkts--;
                 if (numBrkts == 0) {
                     ArrayList<Object> before = new ArrayList<>(lines.subList(0, firstBracket + 1));
                     ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));
-                    ArrayList<Object> after = new ArrayList<>(lines.subList(i + 1, lines.size()));
+                    if (start) {
+                        if (((String) line.source().get(0)).charAt(0) != '}') {
+                            throw new RuntimeException(line + "");
+                        }
+                        line.source().set(0, ((String) line.source().get(0)).substring(1));
+                    }
+                    ArrayList<Object> after = new ArrayList<>(lines.subList(i + (start ? 0 : 1), lines.size()));
                     lines.clear();
                     lines.addAll(before);
                     lines.add(during);
                     apply(after);
                     lines.addAll(after);
                     return;
+                }
+                if (start) {
+                    numBrkts++;
                 }
             } else {
                 assertLineSane(line, false, false);

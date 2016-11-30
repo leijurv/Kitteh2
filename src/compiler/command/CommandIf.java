@@ -10,10 +10,13 @@ import compiler.expression.ExpressionConditionalJumpable;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
 import compiler.tac.IREmitter;
+import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -21,33 +24,66 @@ import java.util.stream.Collectors;
  */
 public class CommandIf extends CommandBlock {
     private Expression condition;
-    public CommandIf(Expression condition, ArrayList<Command> contents, Context context) {
-        super(context, contents);
+    private ArrayList<Command> elseBlock;
+    private Context ifFalse;
+    public CommandIf(Expression condition, ArrayList<Command> contents, Context ifTrue, ArrayList<Command> elseBlock, Context ifFalse) {
+        super(ifTrue, contents);
         this.condition = condition;
+        this.elseBlock = elseBlock;
+        this.ifFalse = ifFalse;
     }
     @Override
     public String toString() {
-        return "if(" + condition + "){" + contents + "}";
+        if (elseBlock == null) {
+            return "if(" + condition + "){" + contents + "}";
+        } else {
+            return "if(" + condition + "){" + contents + "}else{" + elseBlock + "}";
+        }
     }
     @Override
     public void generateTAC0(IREmitter emit) {
-        int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
-        ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
-        for (Command com : contents) {
-            com.generateTAC(emit);
+        if (elseBlock == null) {
+            int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
+            ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
+            for (Command com : contents) {
+                com.generateTAC(emit);
+            }
+        } else {
+            //condition, jump to 1 if false
+            //iftrue
+            //jump to 2
+            //1:
+            //iffalse
+            //2:
+            int jumpToIfFalse = emit.lineNumberOfNextStatement() + contents.parallelStream().mapToInt(Command::getTACLength).sum() + ((ExpressionConditionalJumpable) condition).condLength() + 1;
+            ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToIfFalse, true);//invert is true
+            for (Command com : contents) {
+                com.generateTAC(emit);
+            }
+            int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.parallelStream().mapToInt(Command::getTACLength).sum();
+            new TempVarUsage(ifFalse);
+            emit.updateContext(ifFalse);
+            emit.emit(new TACJump(jumpTo));
+            for (Command com : elseBlock) {
+                com.generateTAC(emit);
+            }
         }
     }
     @Override
     protected int calculateTACLength() {
-        int sum = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
-        return sum + ((ExpressionConditionalJumpable) condition).condLength();
+        if (elseBlock == null) {
+            int sum = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+            return sum + ((ExpressionConditionalJumpable) condition).condLength();
+        } else {
+            return contents.parallelStream().mapToInt(Command::getTACLength).sum() + elseBlock.parallelStream().mapToInt(Command::getTACLength).sum() + 1 + ((ExpressionConditionalJumpable) condition).condLength();
+        }
     }
     @Override
     public void staticValues() {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
-        List<String> varsMod = getAllVarsModified();
-        List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
+        List<String> trueMod = super.getAllVarsModified();
+        List<ExpressionConst> preKnownTrue = trueMod.stream().map(context::knownValue).collect(Collectors.toList());
         for (Command com : contents) {
             com.staticValues();
         }
@@ -57,19 +93,60 @@ public class CommandIf extends CommandBlock {
                 //set all known values back to what they were before
                 //because this is "if(false){"
                 //so whatever known values are inside should be ignored because it'll never be run
-                for (int i = 0; i < varsMod.size(); i++) {
-                    if (preKnown.get(i) == null) {
-                        context.clearKnownValue(varsMod.get(i));
+                for (int i = 0; i < trueMod.size(); i++) {
+                    if (preKnownTrue.get(i) == null) {
+                        context.clearKnownValue(trueMod.get(i));
                     } else {
-                        context.setKnownValue(varsMod.get(i), preKnown.get(i));
+                        context.setKnownValue(trueMod.get(i), preKnownTrue.get(i));
                     }
                 }
             }
-            return;//if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
+            //if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if false -> we just reset the known values to what they were before because it is guaranteed to not run
+        } else {
+            for (String s : trueMod) {
+                context.clearKnownValue(s);
+            }
         }
-        for (String s : varsMod) {
+        if (elseBlock == null) {
+            return;
+        }
+        List<String> elseMod = varsModElse();
+        List<ExpressionConst> preKnownFalse = elseMod.stream().map(ifFalse::knownValue).collect(Collectors.toList());
+        for (Command com : elseBlock) {
+            com.staticValues();
+        }
+        System.out.println(elseMod + " " + preKnownFalse);
+        if (condition instanceof ExpressionConstBool) {
+            boolean isTrue = ((ExpressionConstBool) condition).getVal();
+            if (isTrue) {
+                System.out.println("RESETTING");
+                //set all known values back to what they were before
+                //because this is "if(false){"
+                //so whatever known values are inside should be ignored because it'll never be run
+                for (int i = 0; i < elseMod.size(); i++) {
+                    if (preKnownFalse.get(i) == null) {
+                        context.clearKnownValue(elseMod.get(i));
+                    } else {
+                        context.setKnownValue(elseMod.get(i), preKnownFalse.get(i));
+                    }
+                }
+            }
+            return;//if false -> don't clear known values because they are still useful because this if statement is guaranteed to run
+            //if true -> we just reset the known values to what they were before because it is guaranteed to not run
+        }
+        for (String s : elseMod) {
             context.clearKnownValue(s);
         }
+    }
+    @Override
+    public List<String> getAllVarsModified() {
+        if (elseBlock == null) {
+            return super.getAllVarsModified();
+        }
+        return Stream.of(elseBlock, contents).flatMap(Collection::stream).map(Command::getAllVarsModified).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+    public List<String> varsModElse() {
+        return elseBlock.stream().map(Command::getAllVarsModified).flatMap(Collection::stream).collect(Collectors.toList());
     }
 }

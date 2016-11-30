@@ -9,7 +9,8 @@ import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -56,9 +57,7 @@ public class CommandSetVar extends Command {
         }
     }
     @Override
-    public ArrayList<String> getAllVarsModified() {
-        ArrayList<String> res = new ArrayList<>();
-        res.add(var);
-        return res;
+    public List<String> getAllVarsModified() {
+        return Arrays.asList(var);
     }
 }

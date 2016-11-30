@@ -38,10 +38,8 @@ public class Struct {
         if (type == null) {
             throw new RuntimeException();
         }
-        if (type instanceof TypeStruct) {
-            if (((TypeStruct) type).struct == null) {
-                return new TypeStruct(this);
-            }
+        if (type instanceof TypeStruct && ((TypeStruct) type).struct == null) {
+            return new TypeStruct(this);
         }
         if (type instanceof TypePointer) {
             Type pointingTo = ((TypePointer) type).pointingTo();

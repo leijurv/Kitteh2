@@ -19,7 +19,7 @@ import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionVariable;
 import compiler.expression.Settable;
 import compiler.token.Token;
-import compiler.token.TokenType;
+import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
@@ -41,7 +41,7 @@ class LineParser {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }
-        if (tokens.get(0).tokenType() == TokenType.KEYWORD) {
+        if (tokens.get(0).tokenType() == KEYWORD) {
             Keyword k = (Keyword) tokens.get(0);
             if (k.canBeginBlock) {
                 throw new ProviderMismatchException(k + "");
@@ -75,12 +75,12 @@ class LineParser {
                     return new CommandReturn(context, ex);
             }
         }
-        if (tokens.stream().anyMatch(TokenType.SEMICOLON)) {
+        if (tokens.stream().anyMatch(SEMICOLON)) {
             throw new IllegalStateException("I don't like semicolons");
         }
         int eqLoc = -1;
         for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).tokenType() == TokenType.SETEQUAL) {
+            if (tokens.get(i).tokenType() == SETEQUAL) {
                 if (eqLoc != -1) {
                     throw new IllegalStateException("More than one '=' in " + tokens);
                 }
@@ -95,7 +95,7 @@ class LineParser {
             Type type = Util.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
-                if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
+                if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                     throw new IllegalStateException("You can't set the value of " + tokens.get(tokens.size() - 1) + " lol");
                 }
                 String ts = (String) tokens.get(tokens.size() - 1).data();
@@ -106,8 +106,8 @@ class LineParser {
                 //ok we doing something like long i=5
                 return null;
             }
-            if (tokens.get(tokens.size() - 1) == TokenType.INCREMENT || tokens.get(tokens.size() - 1) == TokenType.DECREMENT) {
-                if (tokens.size() != 2 || !Token.is(tokens.get(0), TokenType.VARIABLE)) {
+            if (tokens.get(tokens.size() - 1) == INCREMENT || tokens.get(tokens.size() - 1) == DECREMENT) {
+                if (tokens.size() != 2 || !Token.is(tokens.get(0), VARIABLE)) {
                     throw new IllegalStateException("Currently you can only do single variables ++ or --");
                 }
                 String varName = (String) tokens.get(0).data();
@@ -121,7 +121,7 @@ class LineParser {
                 if (typ instanceof TypeStruct) {
                     throw new IllegalStateException("NO!");
                 }
-                return new CommandSetVar(varName, new ExpressionOperator(new ExpressionVariable(varName, context), tokens.get(tokens.size() - 1).tokenType() == TokenType.INCREMENT ? Operator.PLUS : Operator.MINUS, new ExpressionConstNum(1, (TypeNumerical) context.get(varName).getType())), context);
+                return new CommandSetVar(varName, new ExpressionOperator(new ExpressionVariable(varName, context), tokens.get(tokens.size() - 1).tokenType() == INCREMENT ? Operator.PLUS : Operator.MINUS, new ExpressionConstNum(1, (TypeNumerical) context.get(varName).getType())), context);
             }
             //this isn't setting a variable, so it's an expression I think
             Expression ex = ExpressionParser.parse(tokens, Optional.empty(), context);
@@ -137,7 +137,7 @@ class LineParser {
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
         if (eqLoc == 1) {
             //ok we just doing something like i=5
-            if (tokens.get(0).tokenType() != TokenType.VARIABLE) {
+            if (tokens.get(0).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(0) + " lol");
             }
             String ts = (String) tokens.get(0).data();
@@ -163,7 +163,7 @@ class LineParser {
         //if the first token is a type, we are doing something like int i=5
         Type type = Util.typeFromTokens(tokens.subList(0, eqLoc - 1), context);
         if (type != null) {
-            if (tokens.get(eqLoc - 1).tokenType() != TokenType.VARIABLE) {
+            if (tokens.get(eqLoc - 1).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");
             }
             String ts = (String) tokens.get(eqLoc - 1).data();

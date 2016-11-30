@@ -12,7 +12,7 @@ import compiler.command.CommandFor;
 import compiler.command.CommandIf;
 import compiler.expression.Expression;
 import compiler.token.Token;
-import compiler.token.TokenType;
+import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeVoid;
@@ -34,15 +34,15 @@ public class BlockBeginParser {
     public static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //ok this is going to be fun
         //func main(int i) int {
-        if (params.get(0).tokenType() != TokenType.VARIABLE) {
+        if (params.get(0).tokenType() != VARIABLE) {
             throw new RuntimeException();
         }
         String functionName = (String) ((Token) params.get(0)).data();
         //System.out.println("FunctionName: " + functionName);
-        if (params.get(1) != TokenType.STARTPAREN) {
+        if (params.get(1) != STARTPAREN) {
             throw new AnnotationTypeMismatchException(null, "");
         }
-        int endParen = params.indexOf(TokenType.ENDPAREN);
+        int endParen = params.indexOf(ENDPAREN);
         if (endParen == -1) {
             throw new InvalidKeyException();
         }
@@ -56,13 +56,13 @@ public class BlockBeginParser {
         } else {
             throw new IllegalStateException("no multiple returns yet. sorry!");
         }
-        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), TokenType.COMMA).stream().map((List<Token> tokenList) -> {
+        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map((List<Token> tokenList) -> {
             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
             Type type = Util.typeFromTokens(typeDefinition, context);
             if (type == null) {
                 throw new IllegalStateException(typeDefinition + "");
             }
-            if (tokenList.get(tokenList.size() - 1).tokenType() != TokenType.VARIABLE) {
+            if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();
             }
             String name = (String) tokenList.get(tokenList.size() - 1).data();
@@ -84,7 +84,7 @@ public class BlockBeginParser {
     }
     public static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);
-        int numSemis = (int) params.stream().filter(TokenType.SEMICOLON).count(); //I really like streams lol
+        int numSemis = (int) params.stream().filter(SEMICOLON).count(); //I really like streams lol
         switch (numSemis) {
             case 0: {
                 // for{   OR  for i<5{
@@ -103,8 +103,8 @@ public class BlockBeginParser {
             case 2: {
                 //for i:=0; i<1000; i++{
                 //I wish I could do params.split(TokenSemicolon)
-                int firstSemi = params.indexOf(TokenType.SEMICOLON);
-                int secondSemi = params.lastIndexOf(TokenType.SEMICOLON);
+                int firstSemi = params.indexOf(SEMICOLON);
+                int secondSemi = params.lastIndexOf(SEMICOLON);
                 ArrayList<Token> first = new ArrayList<>(params.subList(0, firstSemi));
                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
@@ -132,7 +132,7 @@ public class BlockBeginParser {
         if (params.size() != 1) {
             throw new KeyAlreadyExistsException();
         }
-        if (params.get(0).tokenType() != TokenType.VARIABLE) {
+        if (params.get(0).tokenType() != VARIABLE) {
             throw new NumberFormatException();
         }
         String structName = (String) params.get(0).data();
@@ -143,7 +143,7 @@ public class BlockBeginParser {
             thisLine.lex();
             List<Token> tokens = thisLine.getTokens();
             //System.out.println(tokens);
-            if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
+            if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();
             }
             fieldNames.add((String) ((Token) tokens.get(tokens.size() - 1)).data());

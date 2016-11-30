@@ -41,6 +41,9 @@ public class Compiler {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        http://github.com/leijurv/Kitteh2
+        System.out.println("First stream: " + streamTime());//almost always several hundred ms
+        System.out.println("Second stream: " + streamTime());//almost always zero
         String inFile = DEFAULT_IN_FILE;
         String outFile = DEFAULT_OUT_FILE;
         for (int i = 0; i < args.length; i++) {
@@ -64,9 +67,6 @@ public class Compiler {
                     break;
             }
         }
-        http://github.com/leijurv/Kitteh2
-        System.out.println("First stream: " + streamTime());//almost always several hundred ms
-        System.out.println("Second stream: " + streamTime());//almost always zero
         byte[] program = Files.readAllBytes(new File(inFile).toPath());
         String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());

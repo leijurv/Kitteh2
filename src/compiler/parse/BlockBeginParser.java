@@ -55,13 +55,13 @@ class BlockBeginParser {
         } else if (returnType.isEmpty()) {
             retType = new TypeVoid();
         } else {
-            throw new IllegalStateException("no multiple returns yet. sorry!");
+            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
         }
-        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map((List<Token> tokenList) -> {
+        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
             Type type = Util.typeFromTokens(typeDefinition, context);
             if (type == null) {
-                throw new IllegalStateException(typeDefinition + "");
+                throw new IllegalStateException(typeDefinition + " not a valid type");
             }
             if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();

@@ -25,7 +25,7 @@ public class Struct {
         this.fields = new HashMap<>();
         fixFieldTypes(fieldTypes);
         for (int i = 0; i < fieldTypes.size(); i++) {
-            fields.put(fieldNames.get(i), context.new VarInfo(fieldNames.get(i), fieldTypes.get(i), pos));
+            fields.put(fieldNames.get(i), context.new VarInfo(fieldNames.get(i), fieldTypes.get(i), pos, true));
             pos += fieldTypes.get(i).getSizeBytes();
         }
     }

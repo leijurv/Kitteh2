@@ -31,10 +31,15 @@ public class Context {
         private final Type type;
         private ExpressionConst knownValue;
         private final int stackLocation;
+        private final boolean secret;
         public VarInfo(String name, Type type, int stackLocation) {
+            this(name, type, stackLocation, false);
+        }
+        public VarInfo(String name, Type type, int stackLocation, boolean secret) {
             this.name = name;
             this.type = type;
             this.stackLocation = stackLocation;
+            this.secret = secret;
         }
         @Override
         public String toString() {
@@ -56,9 +61,15 @@ public class Context {
             return name;
         }
         public String x86() {
+            if (secret) {
+                throw new RuntimeException();
+            }
             return (stackLocation) + ("(%rbp)");
         }
         public Context getContext() {
+            if (secret) {
+                throw new RuntimeException();
+            }
             return Context.this;
         }
     }

@@ -36,7 +36,12 @@ public class Struct {
     }
     private Type fixType(Type type) {
         if (type == null) {
-            return new TypeStruct(this);
+            throw new RuntimeException();
+        }
+        if (type instanceof TypeStruct) {
+            if (((TypeStruct) type).struct == null) {
+                return new TypeStruct(this);
+            }
         }
         if (type instanceof TypePointer) {
             Type pointingTo = ((TypePointer) type).pointingTo();
@@ -49,5 +54,9 @@ public class Struct {
     }
     public Collection<VarInfo> getFields() {
         return fields.values();
+    }
+    @Override
+    public String toString() {
+        return name;
     }
 }

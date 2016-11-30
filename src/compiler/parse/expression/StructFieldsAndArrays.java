@@ -75,6 +75,10 @@ class StructFieldsAndArrays extends TokenBased {
             String fieldName = (String) ((Token) o.remove(i + 1)).data();
             o.remove(i);
             Expression prev = (Expression) o.remove(i - 1);
+            if (prev.getType() instanceof TypePointer) {
+                //System.out.println(prev + " " + prev.getType() + " " + new ExpressionPointerDeref(prev) + " " + new ExpressionPointerDeref(prev).getType());
+                prev = new ExpressionPointerDeref(prev);//allow things like a.b=1 if a is a pointer to a struct
+            }
             o.add(i - 1, new ExpressionStructFieldAccess(prev, fieldName));
             return true;
         }

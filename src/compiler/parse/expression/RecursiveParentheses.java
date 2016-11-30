@@ -44,9 +44,12 @@ class RecursiveParentheses extends TokenBased {
                 numParens--;
                 if (numParens == 0) {
                     if (temp.isEmpty()) {
-                        throw new IllegalStateException("Dangling comma");
+                        if (numToRemoveAti != 2) {
+                            throw new IllegalStateException("Dangling comma");
+                        }
+                    } else {
+                        inParen.add(temp);
                     }
-                    inParen.add(temp);
                     break;
                 }
             }
@@ -99,7 +102,7 @@ class RecursiveParentheses extends TokenBased {
             //tfw parallel expression parsing
             //tfw this is a GOOD idea /s
             if (inParen.size() != desiredTypes.size()) {
-                throw new SecurityException("mismatched arg count");
+                throw new SecurityException("mismatched arg count " + inParen + " " + desiredTypes);
             }
             List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));

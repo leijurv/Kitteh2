@@ -20,4 +20,8 @@ public class TypeStruct extends Type {
     public int getSizeBytes() {
         return struct.getFields().stream().map(VarInfo::getType).mapToInt(Type::getSizeBytes).sum();
     }
+    @Override
+    public String toString() {
+        return "Struct" + struct;
+    }
 }

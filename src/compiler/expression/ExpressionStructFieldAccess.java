@@ -20,7 +20,6 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
-import java.nio.channels.ShutdownChannelGroupException;
 import java.nio.file.ReadOnlyFileSystemException;
 
 /**
@@ -35,8 +34,11 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
         this.struct = ((TypeStruct) input.getType()).struct;
         this.input = input;
         this.field = field;
+        if (struct == null) {
+            throw new RuntimeException(input + " " + input.getType() + " " + field);
+        }
         if (struct.getFieldByName(field) == null) {
-            throw new ShutdownChannelGroupException();
+            throw new RuntimeException("Accessing field " + field + " from struct " + struct);
         }
     }
     @Override

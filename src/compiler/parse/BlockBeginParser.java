@@ -74,14 +74,7 @@ class BlockBeginParser {
             throw new InvalidParameterException();
         }
         Context subContext = context.subContext();
-        int pos = 16; //args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
-        http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
-        for (Pair<String, Type> arg : args) {
-            subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
-            pos += arg.getValue().getSizeBytes();
-        }
-        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
-        return def;
+        return new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
     }
     static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);

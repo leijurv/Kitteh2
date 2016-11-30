@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public enum Operator implements Token<Operator> {//extends Token maybe? might make things easier... idk
+public enum Operator implements Token<Operator> {
     PLUS("+", 50),
     MINUS("-", 50),
     MULTIPLY("*", 100),

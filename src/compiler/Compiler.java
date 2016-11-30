@@ -16,14 +16,11 @@ import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.BufferUnderflowException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.w3c.dom.ls.LSException;
 
 /**
  *
@@ -36,41 +33,16 @@ public class Compiler {
         long b = System.currentTimeMillis();
         return b - a;
     }
-    protected static String DEFAULT_IN_FILE = "~/Documents/test.k";
-    protected static String DEFAULT_OUT_FILE = "~/Documents/blar.s";
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
-        String inFile = DEFAULT_IN_FILE;
-        String outFile = DEFAULT_OUT_FILE;
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "-i":
-                    if (i + 1 == args.length) {
-                        throw new IllformedLocaleException("You gotta give a file");
-                    }
-                    inFile = args[++i];
-                    break;
-                case "-o":
-                    if (i + 1 == args.length) {
-                        throw new LSException((short) "urmum".hashCode(), "You gotta give a file");
-                    }
-                    outFile = args[++i];
-                case "-I":
-                    inFile = "/dev/stdin";
-                    break;
-                case "-O":
-                    outFile = "/dev/stdout";
-                    break;
-            }
-        }
         http://github.com/leijurv/Kitteh2
         System.out.println("First stream: " + streamTime());//almost always several hundred ms
         System.out.println("Second stream: " + streamTime());//almost always zero
-        byte[] program = Files.readAllBytes(new File(inFile).toPath());
+        byte[] program = Files.readAllBytes(new File("/Users/leijurv/Documents/test.k").toPath());
         String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
-        new FileOutputStream(outFile).write(asm.getBytes());
+        new FileOutputStream("/Users/leijurv/Documents/blar.s").write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
     public static String compile(String program, OptimizationSettings settings) {

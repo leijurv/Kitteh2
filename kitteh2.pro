@@ -3,7 +3,7 @@
 
 -libraryjars '/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/rt.jar'
 
--optimizationpasses 9000
+-optimizationpasses 1000
 -verbose
 
 
@@ -102,15 +102,15 @@
 -assumenosideeffects public class java.lang.* extends java.lang.Number {
     public static java.lang.String toString(byte);
     public static java.lang.Byte valueOf(byte);
-    public static byte parseByte(java.lang.String);
-    public static byte parseByte(java.lang.String,int);
+#    public static byte parseByte(java.lang.String);
+#    public static byte parseByte(java.lang.String,int);
     public static java.lang.Byte valueOf(java.lang.String,int);
     public static java.lang.Byte valueOf(java.lang.String);
     public static java.lang.Byte decode(java.lang.String);
     public int compareTo(java.lang.Byte);
     public static java.lang.String toString(short);
-    public static short parseShort(java.lang.String);
-    public static short parseShort(java.lang.String,int);
+#    public static short parseShort(java.lang.String);
+#    public static short parseShort(java.lang.String,int);
     public static java.lang.Short valueOf(java.lang.String,int);
     public static java.lang.Short valueOf(java.lang.String);
     public static java.lang.Short valueOf(short);
@@ -122,8 +122,8 @@
     public static java.lang.String toOctalString(int);
     public static java.lang.String toBinaryString(int);
     public static java.lang.String toString(int);
-    public static int parseInt(java.lang.String,int);
-    public static int parseInt(java.lang.String);
+#    public static int parseInt(java.lang.String,int);
+#    public static int parseInt(java.lang.String);
     public static java.lang.Integer valueOf(java.lang.String,int);
     public static java.lang.Integer valueOf(java.lang.String);
     public static java.lang.Integer valueOf(int);
@@ -147,8 +147,8 @@
     public static java.lang.String toOctalString(long);
     public static java.lang.String toBinaryString(long);
     public static java.lang.String toString(long);
-    public static long parseLong(java.lang.String,int);
-    public static long parseLong(java.lang.String);
+#    public static long parseLong(java.lang.String,int);
+#    public static long parseLong(java.lang.String);
     public static java.lang.Long valueOf(java.lang.String,int);
     public static java.lang.Long valueOf(java.lang.String);
     public static java.lang.Long valueOf(long);
@@ -171,7 +171,7 @@
     public static java.lang.String toHexString(float);
     public static java.lang.Float valueOf(java.lang.String);
     public static java.lang.Float valueOf(float);
-    public static float parseFloat(java.lang.String);
+#    public static float parseFloat(java.lang.String);
     public static boolean isNaN(float);
     public static boolean isInfinite(float);
     public static int floatToIntBits(float);
@@ -185,7 +185,7 @@
     public static java.lang.String toHexString(double);
     public static java.lang.Double valueOf(java.lang.String);
     public static java.lang.Double valueOf(double);
-    public static double parseDouble(java.lang.String);
+#    public static double parseDouble(java.lang.String);
     public static boolean isNaN(double);
     public static boolean isInfinite(double);
     public static long doubleToLongBits(double);

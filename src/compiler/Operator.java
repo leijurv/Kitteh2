@@ -42,7 +42,7 @@ public enum Operator implements Token<Operator> {//extends Token maybe? might ma
     LESS_OR_EQUAL("<=", 10),
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     AND("&&", 5);
-    public static final List<List<Operator>> ORDER = orderOfOperations();//sorry this can't be the first line
+    public static final List<List<Operator>> ORDER;//sorry this can't be the first line
     private final String str;
     private final int precedence;
     private Operator(String str, int precedence) {
@@ -53,13 +53,13 @@ public enum Operator implements Token<Operator> {//extends Token maybe? might ma
     public String toString() {
         return str;
     }
-    private static List<List<Operator>> orderOfOperations() {
+    static {
         //Having it just be an array would put equal things next to each other, but not at the same place
         //For example, + might be sorted before - even though they have the same precedence
         //so, a-b+c might be parsed as a-(b+c)
         //having it be a 2d array fixes that
         Map<Integer, List<Operator>> precToOp = Stream.of(values()).collect(Collectors.groupingBy(op -> op.precedence));
-        return Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(precToOp::get).collect(Collectors.toList());
+        ORDER = Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(precToOp::get).collect(Collectors.toList());
         //ArrayList<Operator> ops = new ArrayList<>(Arrays.asList(values()));
         //reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
         //return ops;

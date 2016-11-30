@@ -40,6 +40,9 @@ public abstract class TACStatement {
         }
     }
     public final void replace(String toReplace, String replaceWith, VarInfo infoWith) {
+        if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
+        }
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {
                 paramNames[i] = replaceWith;

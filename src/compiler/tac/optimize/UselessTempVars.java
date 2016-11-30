@@ -74,7 +74,6 @@ public class UselessTempVars extends TACOptimization {
                 }
                 boolean exemption = next instanceof TACCast && currSource == null;
                 if (!exemption && next.requiredVariables().contains(valSet)) {
-                    //System.out.println("REPLACING " + next + " " + valSet + " " + curr.params[1] + " " + currSourceName + " " + currSource);
                     next.replace(valSet, currSourceName, currSource);
                     block.remove(ind);
                     ind = Math.max(-1, ind - 2);

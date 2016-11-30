@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cat .executable > dist/kitteh2
+chmod +x dist/kitteh2
+cat dist/Kitteh2.jar >> dist/kitteh2

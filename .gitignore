@@ -14,3 +14,6 @@ hs_err_pid*
 /build/
 /dist/
 /Obfuscated/
+
+# Mac stuff
+*.DS_Store

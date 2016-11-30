@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -581,7 +583,7 @@ public class CompilerTest {
     }
     @Test
     public void tsetLinkedSort() throws Exception {
-        verifyCompilation("struct node{\n"
+        String program = "struct node{\n"
                 + "	bool hasNext\n"
                 + "	long value\n"
                 + "	node* next\n"
@@ -645,7 +647,7 @@ public class CompilerTest {
                 + "}\n"
                 + "func main(){\n"
                 + "	seed:=(int*)malloc(sizeof(int))\n"
-                + "	*seed=1234\n"
+                + "	*seed=12359\n"
                 + "	num:=10\n"
                 + "	toSort:=(long*)malloc(num*sizeof(long))\n"
                 + "	for i:=0; i<num; i++{\n"
@@ -658,26 +660,19 @@ public class CompilerTest {
                 + "	for i:=0; i<num; i++{\n"
                 + "		print(toSort[i])\n"
                 + "	}\n"
-                + "}", true, "39\n"
-                + "82\n"
-                + "4\n"
-                + "53\n"
-                + "41\n"
-                + "56\n"
-                + "29\n"
-                + "21\n"
-                + "28\n"
-                + "14\n"
-                + "4\n"
-                + "14\n"
-                + "21\n"
-                + "28\n"
-                + "29\n"
-                + "39\n"
-                + "41\n"
-                + "53\n"
-                + "56\n"
-                + "82\n");
+                + "}";
+        String wew = "14\n"
+                + "20\n"
+                + "26\n"
+                + "83\n"
+                + "50\n"
+                + "79\n"
+                + "66\n"
+                + "0\n"
+                + "93\n"
+                + "16\n";
+        String sorted = Stream.of(wew.split("\n")).mapToInt(Integer::parseInt).sorted().mapToObj(x -> x + "").collect(Collectors.joining("\n"));
+        verifyCompilation(program, true, wew + sorted + "\n");
     }
     public void shouldntCompile(String program) throws IOException, InterruptedException {
         verifyCompilation(program, false, null);

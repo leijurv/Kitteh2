@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class X86Function {
+class X86Function {
     private static final String FUNC_HEADER = "	.cfi_startproc\n"
             + "	pushq	%rbp\n"
             + "	.cfi_def_cfa_offset 16\n"

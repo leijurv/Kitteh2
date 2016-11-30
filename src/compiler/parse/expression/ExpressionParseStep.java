@@ -13,6 +13,6 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public interface ExpressionParseStep {
+interface ExpressionParseStep {
     boolean apply(ArrayList<Object> o, Optional<Type> desiredType, Context context);
 }

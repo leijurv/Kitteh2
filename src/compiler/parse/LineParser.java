@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.parse.expression.ExpressionParser;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;

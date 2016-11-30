@@ -11,7 +11,7 @@ import compiler.token.TokenType;
  *
  * @author leijurv
  */
-public class StringFinder extends LineBasedTransform {
+class StringFinder extends LineBasedTransform {
     @Override
     public Line transform(Line l) {
         for (int j = 0; j < l.source().size(); j++) {

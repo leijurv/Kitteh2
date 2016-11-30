@@ -16,7 +16,7 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public class Not extends TokenBased {
+class Not extends TokenBased {
     public Not() {
         super(TokenType.NOT);
     }

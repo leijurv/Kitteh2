@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceException;
  *
  * @author leijurv
  */
-public class TokenMapping {
+class TokenMapping {
     private static final Map<String, Token> MAPPINGS;
     static {
         HashMap<String, Token> map = new HashMap<>();
@@ -37,10 +37,11 @@ public class TokenMapping {
         MAPPINGS = Collections.unmodifiableMap(map);
         verifySane();
     }
-    public static void verifySane() {
+    static void verifySane() {
         for (String s : MAPPINGS.keySet()) {
             switch (s.length()) {
                 case 1:
+                    break;
                 case 2:
                     continue;
                 default:
@@ -48,13 +49,13 @@ public class TokenMapping {
             }
         }
     }
-    public static void put(Token t, Map<String, Token> map) {
+    static void put(Token t, Map<String, Token> map) {
         map.put(t.toString(), t);
     }
-    public static boolean mapsToToken(String s) {
+    static boolean mapsToToken(String s) {
         return MAPPINGS.containsKey(s);
     }
-    public static Token getStaticToken(String ch) {
+    static Token getStaticToken(String ch) {
         Token t = MAPPINGS.get(ch);
         if (t == null) {
             throw new WebServiceException();//lol

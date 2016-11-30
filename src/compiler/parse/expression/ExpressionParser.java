@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.parse;
+package compiler.parse.expression;
 import compiler.Context;
 import compiler.expression.Expression;
-import compiler.parse.expression.*;
 import compiler.token.Token;
 import compiler.type.Type;
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
-    public static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         new FirstPass().apply(o, desiredType, context);
         if (o.size() == 1) {
             return (Expression) o.get(0);

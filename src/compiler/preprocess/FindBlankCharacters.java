@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  *
  * @author leijurv
  */
-public class FindBlankCharacters {
+class FindBlankCharacters {
     public static List<Character> findBlankChars(String input) {
         return input.chars().parallel().distinct().mapToObj(ch -> (char) ch).filter(ch -> {
             BufferedImage wew = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);

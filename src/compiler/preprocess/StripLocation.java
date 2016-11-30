@@ -10,7 +10,7 @@ package compiler.preprocess;
  *
  * @author leijurv
  */
-public enum StripLocation {
+enum StripLocation {
     BEGIN {
         @Override
         public boolean stripBegin() {

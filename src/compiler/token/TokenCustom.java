@@ -11,7 +11,7 @@ import java.util.function.Function;
  * @author leijurv
  * @param <T>
  */
-public final class TokenCustom<T> implements Token<T> {
+final class TokenCustom<T> implements Token<T> {
     final TokenType tokenType;
     final T data;
     final Function<T, String> toStr;

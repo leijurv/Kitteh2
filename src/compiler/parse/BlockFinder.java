@@ -10,8 +10,8 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public class BlockFinder implements Transform<ArrayList<Object>> {
-    public static void assertLineSane(Line line, boolean shouldEndWithBracket, boolean startBracket) {
+class BlockFinder implements Transform<ArrayList<Object>> {
+    private static void assertLineSane(Line line, boolean shouldEndWithBracket, boolean startBracket) {
         ArrayList<Object> strs = line.source();
         //only the last string can contain { or }, so check all but the last
         //if it shouldn't end with a bracket, also check the last

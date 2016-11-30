@@ -26,7 +26,7 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public class FirstPass implements ExpressionParseStep {
+class FirstPass implements ExpressionParseStep {
     @Override
     public boolean apply(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         int currentlyInParentheses = 0;

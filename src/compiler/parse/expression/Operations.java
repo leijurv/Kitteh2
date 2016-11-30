@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public class Operations implements ExpressionParseStep {
+class Operations implements ExpressionParseStep {
     @Override
     public boolean apply(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         for (List<Operator> op : Operator.ORDER) {//order of operations

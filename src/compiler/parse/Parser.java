@@ -17,8 +17,8 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class Parser {
-    public ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
+class Parser {
+    ArrayList<Command> parse(ArrayList<Object> lexed, Context context) {
         ArrayList<Command> result = new ArrayList<>();
         for (int i = 0; i < lexed.size(); i++) {
             Object o = lexed.get(i);
@@ -34,7 +34,7 @@ public class Parser {
         return result;
     }
     @SuppressWarnings("unchecked")//ArrayList<Object> rawBlock = (ArrayList<Object>) lexed.remove(i + 1);
-    public Command runLine(ArrayList<Object> lexed, Context context, int i) {
+    Command runLine(ArrayList<Object> lexed, Context context, int i) {
         Line l = (Line) lexed.get(i);
         try {
             if (i != lexed.size() - 1 && lexed.get(i + 1) instanceof ArrayList) {//this line begins a block

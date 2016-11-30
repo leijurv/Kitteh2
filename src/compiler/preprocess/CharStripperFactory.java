@@ -15,7 +15,7 @@ import javax.xml.bind.TypeConstraintException;
  *
  * @author leijurv
  */
-public class CharStripperFactory {
+class CharStripperFactory {
     private final ArrayList<Character> chars = new ArrayList<>();
     private final ArrayList<StripLocation> locations = new ArrayList<>();
     public CharStripperFactory addChar(char c, StripLocation loc) {

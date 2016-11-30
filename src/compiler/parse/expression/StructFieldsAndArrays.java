@@ -11,7 +11,6 @@ import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
 import compiler.expression.ExpressionStructFieldAccess;
-import compiler.parse.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -25,7 +24,7 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public class StructFieldsAndArrays extends TokenBased {
+class StructFieldsAndArrays extends TokenBased {
     public StructFieldsAndArrays() {
         super(o -> o instanceof Token && (o == STARTBRAKT || o == PERIOD));
     }

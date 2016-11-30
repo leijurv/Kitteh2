@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class StripComments {
+class StripComments {
     int lineNumber;
     public List<Line> transform(String line) {
         lineNumber = 1;

@@ -9,7 +9,6 @@ import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionFunctionCall;
-import static compiler.parse.ExpressionParser.parseImpl;
 import compiler.parse.Util;
 import compiler.token.Token;
 import static compiler.token.Token.is;
@@ -26,7 +25,7 @@ import java.util.stream.IntStream;
  *
  * @author leijurv
  */
-public class RecursiveParentheses extends TokenBased {
+class RecursiveParentheses extends TokenBased {
     public RecursiveParentheses() {
         super(STARTPAREN);
     }
@@ -102,14 +101,14 @@ public class RecursiveParentheses extends TokenBased {
             if (inParen.size() != desiredTypes.size()) {
                 throw new SecurityException("mismatched arg count");
             }
-            List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
+            List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
             return true;
         }
         if (inParen.size() != 1) {
             throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
         }
-        o.add(i, parseImpl(inParen.get(0), desiredType, context));
+        o.add(i, ExpressionParser.parseImpl(inParen.get(0), desiredType, context));
         return true;
     }
 }

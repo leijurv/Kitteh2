@@ -18,7 +18,7 @@ import java.util.Optional;
  *
  * @author leijurv
  */
-public class Casting extends TokenBased {
+class Casting extends TokenBased {
     public Casting() {
         super(STARTPAREN);
     }

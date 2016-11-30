@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class BlankLineRemover implements Transform<List<Line>> {
+class BlankLineRemover implements Transform<List<Line>> {
     @Override
     public void apply(List<Line> lines) {
         for (int i = 0; i < lines.size(); i++) {

@@ -11,6 +11,7 @@ import compiler.command.CommandDefineFunction;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
 import compiler.expression.Expression;
+import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
@@ -30,14 +31,14 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  *
  * @author leijurv
  */
-public class BlockBeginParser {
-    public static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+class BlockBeginParser {
+    static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //ok this is going to be fun
         //func main(int i) int {
         if (params.get(0).tokenType() != VARIABLE) {
             throw new RuntimeException();
         }
-        String functionName = (String) ((Token) params.get(0)).data();
+        String functionName = (String) params.get(0).data();
         //System.out.println("FunctionName: " + functionName);
         if (params.get(1) != STARTPAREN) {
             throw new AnnotationTypeMismatchException(null, "");
@@ -82,7 +83,7 @@ public class BlockBeginParser {
         CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
         return def;
     }
-    public static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);
         int numSemis = (int) params.stream().filter(SEMICOLON).count(); //I really like streams lol
         switch (numSemis) {
@@ -120,7 +121,7 @@ public class BlockBeginParser {
         }
         //i can't put a break or a return here because it's unreachable atm
     }
-    public static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //TODO else
         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
         //System.out.println("Parsed " + params + " to " + condition);
@@ -128,7 +129,7 @@ public class BlockBeginParser {
         ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
         return new CommandIf(condition, blockCommands, sub);
     }
-    public static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {
             throw new KeyAlreadyExistsException();
         }
@@ -146,7 +147,7 @@ public class BlockBeginParser {
             if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();
             }
-            fieldNames.add((String) ((Token) tokens.get(tokens.size() - 1)).data());
+            fieldNames.add((String) tokens.get(tokens.size() - 1).data());
             Type tft = Util.typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
             if (tft == null) {
                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));

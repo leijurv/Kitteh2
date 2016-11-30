@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  *
  * @author leijurv
  */
-public abstract class TokenBased implements ExpressionParseStep {
+abstract class TokenBased implements ExpressionParseStep {
     private final Predicate<Object> filter;
     <T> TokenBased(Token<T> type) {
         this.filter = o -> o instanceof Token && o.equals(type);

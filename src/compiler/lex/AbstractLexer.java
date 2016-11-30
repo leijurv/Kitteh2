@@ -12,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author leijurv
  */
-public abstract class AbstractLexer extends StringEmitter {
+abstract class AbstractLexer extends StringEmitter {
     private final ArrayList<Token> temp;
     protected AbstractLexer(String line) {
         super(line);

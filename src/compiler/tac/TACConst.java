@@ -71,7 +71,7 @@ public class TACConst extends TACStatement {
         X86Param dest = params[1];
         if (dest == null) {//special case for %eax, %rax, return register
             TypeNumerical type = typeFromRegister(paramNames[1]);
-            dest = X86Register.A.get(type);
+            dest = X86Register.A.getRegister(type);
             if (!dest.x86().equals(paramNames[1])) {
                 throw new IllegalStateException(dest.x86() + " " + paramNames[1]);
             }

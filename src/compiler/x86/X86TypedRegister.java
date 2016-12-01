@@ -20,7 +20,7 @@ public class X86TypedRegister implements X86Param {
     }
     @Override
     public String x86() {
-        return register.getRegister(type);
+        return register.getRegister1(type);
     }
     @Override
     public String getName() {

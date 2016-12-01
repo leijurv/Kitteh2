@@ -86,7 +86,7 @@ public class TACFunctionCall extends TACStatement {
             if (wew == null) {
                 wew = new X86Const(paramNames[0], type);//probably a const number
             }
-            TACConst.move(X86Register.D.get(type), wew, emit);
+            TACConst.move(X86Register.D.getRegister(type), wew, emit);
             if (type.getSizeBytes() == 8) {
                 emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
             } else {

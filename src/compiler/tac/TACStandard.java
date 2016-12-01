@@ -13,6 +13,7 @@ import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
 import java.util.Arrays;
@@ -81,11 +82,11 @@ public class TACStandard extends TACStatement {
         } else {
             type = (TypeNumerical) first.getType();
         }
-        String a = X86Register.A.getRegister(type);
-        String c = X86Register.C.getRegister(type);
-        String d = X86Register.D.getRegister(type);
+        X86TypedRegister a = X86Register.A.getRegister(type);
+        X86TypedRegister c = X86Register.C.getRegister(type);
+        X86TypedRegister d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
-        TACConst.move(X86Register.A.get(type), first, emit);
+        TACConst.move(X86Register.A.getRegister(type), first, emit);
         if (type instanceof TypePointer && (second instanceof VarInfo)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
@@ -98,13 +99,13 @@ public class TACStandard extends TACStatement {
             //we put the pointer in A
             //and the integer in B
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
-                TACConst.move(X86Register.C.get(type), second, emit);
+                TACConst.move(X86Register.C.getRegister(type), second, emit);
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
             try {
-                TACConst.move(X86Register.C.get((TypeNumerical) second.getType()), second, emit);
+                TACConst.move(X86Register.C.getRegister((TypeNumerical) second.getType()), second, emit);
             } catch (Exception e) {
                 throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }

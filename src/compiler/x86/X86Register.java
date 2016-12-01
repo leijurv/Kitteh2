@@ -13,13 +13,13 @@ import java.nio.channels.IllegalSelectorException;
  */
 public enum X86Register {
     A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
-    public X86TypedRegister get(TypeNumerical version) {
+    public X86TypedRegister getRegister(TypeNumerical version) {
         return new X86TypedRegister(this, version);
     }
-    public String getRegister(TypeNumerical version) {
-        return getRegister(version, false);
+    String getRegister1(TypeNumerical version) {
+        return getRegister1(version, false);
     }
-    public String getRegister(TypeNumerical version, boolean allowSpills) {
+    public String getRegister1(TypeNumerical version, boolean allowSpills) {
         //technically shouldn't be modified without restoring on return: B, R12, R13, R14, R15
         /*
          Registers %rbp, %rbx and

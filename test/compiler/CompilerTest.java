@@ -437,7 +437,7 @@ public class CompilerTest {
                 + "	if otherthingy{\n"
                 + "		return 1\n"
                 + "	}else{\n"
-                + "	return i*factorial(i-1)\n}\n"
+                + "	return i*factorial(i-1)\n}\nreturn 0-5021\n"
                 + "}", true, "1\n"
                 + "1\n"
                 + "2\n"

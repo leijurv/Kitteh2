@@ -86,7 +86,7 @@ public class TACStandard extends TACStatement {
         X86TypedRegister c = X86Register.C.getRegister(type);
         X86TypedRegister d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
-        TACConst.move(X86Register.A.getRegister(type), first, emit);
+        TACConst.move(a, first, emit);
         if (type instanceof TypePointer && (second instanceof VarInfo)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer

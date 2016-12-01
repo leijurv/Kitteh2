@@ -23,11 +23,11 @@ public abstract class TACStatement {
     public X86Param[] params;
     public TACStatement() {
         paramNames = new String[0];
-        params = new VarInfo[0];
+        params = new X86Param[0];
     }
     public TACStatement(String... paramNames) {
         this.paramNames = paramNames;
-        params = new VarInfo[paramNames.length];
+        params = new X86Param[paramNames.length];
     }
     public final void setContext(Context context) {
         this.context = context;
@@ -43,6 +43,9 @@ public abstract class TACStatement {
     public final void replace(String toReplace, String replaceWith, X86Param infoWith) {
         if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
             throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
+        }
+        if (infoWith == null) {
+            throw new IllegalStateException(this + " " + toReplace + " " + replaceWith + " " + infoWith);
         }
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {

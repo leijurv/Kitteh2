@@ -47,8 +47,10 @@ public class TACConst extends TACStatement {
     @Override
     public void setVars() {
         params[1] = paramNames[1].startsWith(X86Register.REGISTER_PREFIX) ? null : get(paramNames[1]);
+        TypeNumerical des = params[1] == null ? typeFromRegister(paramNames[1]) : (params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType());
         try {//im tired ok? i know this is mal
             Double.parseDouble(paramNames[0]);
+            params[0] = new X86Const(paramNames[0], des);
         } catch (NumberFormatException ex) {
             if (!paramNames[0].startsWith("\"")) {
                 params[0] = get(paramNames[0]);

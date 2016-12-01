@@ -15,6 +15,9 @@ public class X86Const implements X86Param {
     private final String value;
     private final TypeNumerical type;
     public X86Const(String value, TypeNumerical type) {
+        if (value == null || type == null) {
+            throw new IllegalArgumentException(value + " " + type);
+        }
         this.value = value;
         this.type = type;
     }

@@ -41,13 +41,10 @@ public class TACJumpCmp extends TACJump {
     public void printx86(X86Emitter emit) {
         X86Param first = params[0];
         X86Param second = params[1];
-        if (first != null && second != null && !first.getType().equals(second.getType())) {
+        if (!first.getType().equals(second.getType())) {
             throw new IllegalStateException("an apple and an orange snuck in");
         }
-        if (first == null && second == null) {
-            throw new IllegalStateException("hey i need at least either the apple or the orange");
-        }
-        TypeNumerical type = first == null ? (TypeNumerical) second.getType() : (TypeNumerical) first.getType();
+        TypeNumerical type = (TypeNumerical) first.getType();
         emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
         emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));

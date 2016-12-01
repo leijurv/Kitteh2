@@ -66,7 +66,19 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        //move(paramNames[1], params[1], params[0], paramNames[0], emit);
+        X86Param dest = params[1];
+        if (dest == null) {
+            TypeNumerical type = typeFromRegister(paramNames[1]);
+            dest = X86Register.A.get(type);
+            if (!dest.x86().equals(paramNames[1])) {
+                throw new IllegalStateException(dest.x86() + " " + paramNames[1]);
+            }
+        }
+        X86Param source = params[0];
+        if (source == null) {
+            source = new X86Const(paramNames[0], (TypeNumerical) dest.getType());
+        }
+        move(dest, source, emit);
     }
     public static void move(X86Param dest, X86Param source, X86Emitter emit) {
         if (dest instanceof VarInfo && source instanceof VarInfo && !dest.getType().equals(source.getType())) {

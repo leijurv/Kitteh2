@@ -9,8 +9,7 @@ import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *
@@ -57,7 +56,7 @@ public class CommandSetVar extends Command {
         }
     }
     @Override
-    public List<String> getAllVarsModified() {
-        return Arrays.asList(var);
+    public Stream<String> getAllVarsModified() {
+        return Stream.of(var);
     }
 }

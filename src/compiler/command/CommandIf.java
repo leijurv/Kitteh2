@@ -82,7 +82,7 @@ public class CommandIf extends CommandBlock {
     public void staticValues() {
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
-        List<String> trueMod = super.getAllVarsModified();
+        List<String> trueMod = super.getAllVarsModified().collect(Collectors.toList());
         List<ExpressionConst> preKnownTrue = trueMod.stream().map(context::knownValue).collect(Collectors.toList());
         for (Command com : contents) {
             com.staticValues();
@@ -140,13 +140,13 @@ public class CommandIf extends CommandBlock {
         }
     }
     @Override
-    public List<String> getAllVarsModified() {
+    public Stream<String> getAllVarsModified() {
         if (elseBlock == null) {
             return super.getAllVarsModified();
         }
-        return Stream.of(elseBlock, contents).flatMap(Collection::stream).map(Command::getAllVarsModified).flatMap(Collection::stream).collect(Collectors.toList());
+        return Stream.of(elseBlock, contents).flatMap(Collection::stream).flatMap(Command::getAllVarsModified);
     }
     public List<String> varsModElse() {
-        return elseBlock.stream().map(Command::getAllVarsModified).flatMap(Collection::stream).collect(Collectors.toList());
+        return elseBlock.stream().flatMap(Command::getAllVarsModified).collect(Collectors.toList());
     }
 }

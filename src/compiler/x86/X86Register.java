@@ -13,6 +13,9 @@ import java.nio.channels.IllegalSelectorException;
  */
 public enum X86Register {
     A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
+    public X86TypedRegister get(TypeNumerical version) {
+        return new X86TypedRegister(this, version);
+    }
     public String getRegister(TypeNumerical version) {
         return getRegister(version, false);
     }

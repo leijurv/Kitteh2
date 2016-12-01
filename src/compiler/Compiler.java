@@ -71,7 +71,7 @@ public class Compiler {
         String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());
     }
-    public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
+    public static final boolean OPTIMIZE = false;//if it's being bad, see if changing this to false fixes it
     public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);

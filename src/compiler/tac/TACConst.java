@@ -11,8 +11,11 @@ import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.channels.IllegalBlockingModeException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.ClosedWatchServiceException;
@@ -63,29 +66,26 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        move(paramNames[1], params[1], params[0], paramNames[0], emit);
+        //move(paramNames[1], params[1], params[0], paramNames[0], emit);
     }
-    public static void move(String destName, VarInfo dest, VarInfo source, String sourceName, X86Emitter emit) {
-        if (dest != null && source != null && !dest.getType().equals(source.getType())) {
+    public static void move(X86Param dest, X86Param source, X86Emitter emit) {
+        if (dest instanceof VarInfo && source instanceof VarInfo && !dest.getType().equals(source.getType())) {
             throw new UnsupportedCharsetException(source + " " + dest + " " + source.getType() + " " + dest.getType());
         }
-        String destination = destName.startsWith(X86Register.REGISTER_PREFIX) ? destName : dest.x86();
-        if (dest != null && dest.getType() instanceof TypeStruct) {
+        if (dest.getType() instanceof TypeStruct) {
             //oh god
-            TACPointerDeref.moveStruct(source.getStackLocation(), "%rbp", dest.getStackLocation(), ((TypeStruct) dest.getType()).struct, emit);
+            TACPointerDeref.moveStruct(((VarInfo) source).getStackLocation(), "%rbp", ((VarInfo) dest).getStackLocation(), ((TypeStruct) dest.getType()).struct, emit);
             return;
         }
-        TypeNumerical type = destName.startsWith(X86Register.REGISTER_PREFIX) ? typeFromRegister(destName) : (TypeNumerical) dest.getType();
-        if (source != null && type.getSizeBytes() != source.getType().getSizeBytes()) {
-            throw new InvalidOpenTypeException(source + " " + sourceName + " " + dest + " " + destName + " " + type + " " + source.getType());
+        TypeNumerical type = (TypeNumerical) dest.getType();
+        if (type.getSizeBytes() != source.getType().getSizeBytes()) {
+            throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
         }
-        if (source == null) {
-            emit.addStatement("mov" + type.x86typesuffix() + " $" + sourceName + ", " + destination);
-        } else if (destName.startsWith(X86Register.REGISTER_PREFIX)) {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + destName);
+        if (source instanceof X86Const || dest instanceof X86TypedRegister) {
+            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + dest.x86());
         } else {
             emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.C.getRegister(type));
-            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.C.getRegister(type) + ", " + destination);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.C.getRegister(type) + ", " + dest.x86());
         }
     }
     public static TypeNumerical typeFromRegister(String reg) {

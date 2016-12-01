@@ -10,7 +10,9 @@ import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
@@ -66,8 +68,8 @@ public class TACStandard extends TACStatement {
     public void printx86(X86Emitter emit) {
         String firstName = paramNames[0];//i literally can't be bothered
         String secondName = paramNames[1];
-        VarInfo first = params[0];
-        VarInfo second = params[1];
+        X86Param first = params[0];
+        X86Param second = params[1];
         VarInfo result = params[2];
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
@@ -82,30 +84,36 @@ public class TACStandard extends TACStatement {
         } else {
             type = (TypeNumerical) first.getType();
         }
+        if (first == null) {
+            first = new X86Const(firstName, type);
+        }
+        if (second == null) {
+            second = new X86Const(secondName, type);
+        }
         String a = X86Register.A.getRegister(type);
         String c = X86Register.C.getRegister(type);
         String d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
-        TACConst.move(a, null, first, firstName, emit);
-        if (type instanceof TypePointer && second != null) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
+        TACConst.move(X86Register.A.get(type), first, emit);
+        if (type instanceof TypePointer && (second instanceof VarInfo)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
             if (!(second.getType() instanceof TypeNumerical)) {
                 throw new ClosedSelectorException();
             }
             if (!second.getType().getClass().toString().contains("TypeInt")) {//look bud i'm not perfect
-                throw new IllegalStateException(second.getType().toString());
+                throw new IllegalStateException(this + " " + second.getType().toString() + " " + second.getClass());
             }
             //we put the pointer in A
             //and the integer in B
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
-                TACConst.move(c, null, second, secondName, emit);
+                TACConst.move(X86Register.C.get(type), second, emit);
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
             try {
-                TACConst.move(c, null, second, secondName, emit);
+                TACConst.move(X86Register.C.get((TypeNumerical) second.getType()), second, emit);
             } catch (Exception e) {
                 throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }

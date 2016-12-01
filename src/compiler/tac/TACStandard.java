@@ -45,10 +45,7 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public String toString0() {
-        X86Param first = params[0];
-        X86Param second = params[1];
-        X86Param result = params[2];
-        return result + " = " + first + " " + op + " " + second;
+        return params[2] + " = " + params[0] + " " + op + " " + params[1];
     }
     @Override
     public void onContextKnown() {
@@ -72,14 +69,14 @@ public class TACStandard extends TACStatement {
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
             type = X86Register.typeFromRegister(firstName);
-        } else if (first == null) {
+        } /*else if (first == null) {
             if (second == null) {
                 throw new RuntimeException("that optimization related exception again " + this);
                 //type = (TypeNumerical) result.getType(); //this is a workaround for when i'm lazy
             } else {
                 type = (TypeNumerical) second.getType();
             }
-        } else {
+        }*/ else {
             type = (TypeNumerical) first.getType();
         }
         X86TypedRegister a = X86Register.A.getRegister(type);

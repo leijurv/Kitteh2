@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Operator;
 import compiler.type.TypeNumerical;
+import compiler.x86.X86Comparison;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -50,6 +51,6 @@ public class TACJumpCmp extends TACJump {
         emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
         emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
-        emit.addStatement(op.tox86jump() + " " + emit.lineToLabel(jumpTo));
+        emit.addStatement(X86Comparison.tox86jump(op) + " " + emit.lineToLabel(jumpTo));
     }
 }

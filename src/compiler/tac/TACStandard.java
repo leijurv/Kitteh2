@@ -10,6 +10,7 @@ import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Comparison;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -140,7 +141,7 @@ public class TACStandard extends TACStatement {
             case GREATER_OR_EQUAL:
             case LESS_OR_EQUAL:
                 emit.addStatement("cmp" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.addStatement(op.tox86set() + " %cl");
+                emit.addStatement(X86Comparison.tox86set(op) + " %cl");
                 emit.addStatement("movb %cl, " + result.x86());
                 break;
             default:

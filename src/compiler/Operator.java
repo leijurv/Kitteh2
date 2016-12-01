@@ -15,7 +15,6 @@ import compiler.type.TypeBoolean;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import java.nio.channels.UnresolvedAddressException;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.Comparator;
@@ -153,30 +152,6 @@ public enum Operator implements Token<Operator> {
                 return new ExpressionConstBool(((ExpressionConstBool) a).getVal() || ((ExpressionConstBool) b).getVal());
             default:
                 throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
-        }
-    }
-    public String tox86jump() {
-        return "j" + tox86comp();
-    }
-    public String tox86set() {
-        return "set" + tox86comp();
-    }
-    public String tox86comp() {
-        switch (this) {
-            case LESS:
-                return "l";
-            case EQUAL:
-                return "e";
-            case GREATER:
-                return "g";
-            case NOT_EQUAL:
-                return "ne";
-            case LESS_OR_EQUAL:
-                return "le";
-            case GREATER_OR_EQUAL:
-                return "ge";
-            default:
-                throw new UnresolvedAddressException();
         }
     }
     public Operator invert() {

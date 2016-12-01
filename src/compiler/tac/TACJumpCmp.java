@@ -4,10 +4,11 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.type.TypeNumerical;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +39,8 @@ public class TACJumpCmp extends TACJump {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        VarInfo first = params[0];
-        VarInfo second = params[1];
+        X86Param first = params[0];
+        X86Param second = params[1];
         if (first != null && second != null && !first.getType().equals(second.getType())) {
             throw new IllegalStateException("an apple and an orange snuck in");
         }
@@ -47,8 +48,14 @@ public class TACJumpCmp extends TACJump {
             throw new IllegalStateException("hey i need at least either the apple or the orange");
         }
         TypeNumerical type = first == null ? (TypeNumerical) second.getType() : (TypeNumerical) first.getType();
-        emit.addStatement("mov" + type.x86typesuffix() + " " + (first == null ? "$" + paramNames[0] : first.x86()) + ", " + X86Register.C.getRegister(type));
-        emit.addStatement("mov" + type.x86typesuffix() + " " + (second == null ? "$" + paramNames[1] : second.x86()) + ", " + X86Register.A.getRegister(type));
+        if (first == null) {
+            first = new X86Const(paramNames[0], type);
+        }
+        if (second == null) {
+            second = new X86Const(paramNames[1], type);
+        }
+        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
+        emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
         emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
         emit.addStatement(op.tox86jump() + " " + emit.lineToLabel(jumpTo));
     }

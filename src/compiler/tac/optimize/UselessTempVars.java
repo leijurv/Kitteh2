@@ -12,6 +12,7 @@ import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Param;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class UselessTempVars extends TACOptimization {
             if (currSourceName.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
-            VarInfo currSource = curr.params[0];
+            X86Param currSource = curr.params[0];
             if (currSourceName.equals(valSet)) {
                 //replacement wouldn't... even do anything
                 continue;
@@ -72,7 +73,7 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACJumpBoolVar && next.requiredVariables().contains(valSet) && tempVar) {
                     throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }
-                boolean exemption = next instanceof TACCast && currSource == null;
+                boolean exemption = next instanceof TACCast && (currSource == null || !(currSource instanceof VarInfo));
                 if (!exemption && next.requiredVariables().contains(valSet)) {
                     next.replace(valSet, currSourceName, currSource);
                     block.remove(ind);

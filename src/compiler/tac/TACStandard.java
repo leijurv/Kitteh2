@@ -47,9 +47,9 @@ public class TACStandard extends TACStatement {
     public String toString0() {
         String firstName = paramNames[0];
         String secondName = paramNames[1];
-        VarInfo first = params[0];
-        VarInfo second = params[1];
-        VarInfo result = params[2];
+        X86Param first = params[0];
+        X86Param second = params[1];
+        X86Param result = params[2];
         return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
     }
     @Override
@@ -70,7 +70,7 @@ public class TACStandard extends TACStatement {
         String secondName = paramNames[1];
         X86Param first = params[0];
         X86Param second = params[1];
-        VarInfo result = params[2];
+        X86Param result = params[2];
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
             type = typeFromRegister(firstName);

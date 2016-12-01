@@ -6,7 +6,6 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
@@ -72,7 +71,7 @@ public class TACStandard extends TACStatement {
         X86Param result = params[2];
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
-            type = typeFromRegister(firstName);
+            type = X86Register.typeFromRegister(firstName);
         } else if (first == null) {
             if (second == null) {
                 throw new RuntimeException("that optimization related exception again " + this);

@@ -5,10 +5,6 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.type.TypeInt16;
-import compiler.type.TypeInt32;
-import compiler.type.TypeInt64;
-import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Const;
@@ -16,11 +12,8 @@ import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
-import java.nio.channels.IllegalBlockingModeException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.nio.file.ClosedWatchServiceException;
 import java.util.Arrays;
-import java.util.FormatterClosedException;
 import java.util.List;
 import javax.management.openmbean.InvalidOpenTypeException;
 
@@ -47,7 +40,7 @@ public class TACConst extends TACStatement {
     @Override
     public void setVars() {
         params[1] = paramNames[1].startsWith(X86Register.REGISTER_PREFIX) ? null : get(paramNames[1]);
-        TypeNumerical des = params[1] == null ? typeFromRegister(paramNames[1]) : (params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType());
+        TypeNumerical des = params[1] == null ? X86Register.typeFromRegister(paramNames[1]) : (params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType());
         try {//im tired ok? i know this is mal
             Double.parseDouble(paramNames[0]);
             params[0] = new X86Const(paramNames[0], des);
@@ -70,7 +63,7 @@ public class TACConst extends TACStatement {
     public void printx86(X86Emitter emit) {
         X86Param dest = params[1];
         if (dest == null) {//special case for %eax, %rax, return register
-            TypeNumerical type = typeFromRegister(paramNames[1]);
+            TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
             dest = X86Register.A.getRegister(type);
             if (!dest.x86().equals(paramNames[1])) {
                 throw new IllegalStateException(dest.x86() + " " + paramNames[1]);
@@ -97,33 +90,6 @@ public class TACConst extends TACStatement {
         } else {
             emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.C.getRegister(type));
             emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.C.getRegister(type) + ", " + dest.x86());
-        }
-    }
-    public static TypeNumerical typeFromRegister(String reg) {
-        if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
-            return typeFromRegister(reg.substring(1));
-        }
-        switch (reg.length()) {
-            case 2:
-                switch (reg.charAt(1)) {
-                    case 'l':
-                        return new TypeInt8();
-                    case 'x':
-                        return new TypeInt16();
-                    default:
-                        throw new IllegalBlockingModeException();
-                }
-            case 3:
-                switch (reg.charAt(0)) {
-                    case 'e':
-                        return new TypeInt32();
-                    case 'r':
-                        return new TypeInt64();
-                    default:
-                        throw new FormatterClosedException();
-                }
-            default:
-                throw new ClosedWatchServiceException();
         }
     }
 }

@@ -68,7 +68,7 @@ public class TACFunctionCall extends TACStatement {
         emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
-            emit.addStatement("movl " + (params[0] == null ? "$" + paramNames[0] : params[0].x86()) + ", %edi");
+            emit.addStatement("movl " + params[0].x86() + ", %edi");
             /*emit.addStatement("callq _malloc");
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/

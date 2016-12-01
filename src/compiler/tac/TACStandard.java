@@ -10,7 +10,6 @@ import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -45,12 +44,10 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public String toString0() {
-        String firstName = paramNames[0];
-        String secondName = paramNames[1];
         X86Param first = params[0];
         X86Param second = params[1];
         X86Param result = params[2];
-        return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
+        return result + " = " + first + " " + op + " " + second;
     }
     @Override
     public void onContextKnown() {
@@ -83,12 +80,6 @@ public class TACStandard extends TACStatement {
             }
         } else {
             type = (TypeNumerical) first.getType();
-        }
-        if (first == null) {
-            first = new X86Const(firstName, type);
-        }
-        if (second == null) {
-            second = new X86Const(secondName, type);
         }
         String a = X86Register.A.getRegister(type);
         String c = X86Register.C.getRegister(type);

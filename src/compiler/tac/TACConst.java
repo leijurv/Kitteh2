@@ -42,7 +42,7 @@ public class TACConst extends TACStatement {
     }
     @Override
     public String toString0() {
-        return (params[1] == null ? paramNames[1] : params[1]) + " = " + (params[0] != null ? params[0] : "CONST " + paramNames[0]);
+        return params[1] + " = " + params[0];
     }
     @Override
     public void setVars() {
@@ -69,7 +69,7 @@ public class TACConst extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         X86Param dest = params[1];
-        if (dest == null) {
+        if (dest == null) {//special case for %eax, %rax, return register
             TypeNumerical type = typeFromRegister(paramNames[1]);
             dest = X86Register.A.get(type);
             if (!dest.x86().equals(paramNames[1])) {
@@ -77,9 +77,6 @@ public class TACConst extends TACStatement {
             }
         }
         X86Param source = params[0];
-        if (source == null) {
-            source = new X86Const(paramNames[0], (TypeNumerical) dest.getType());
-        }
         move(dest, source, emit);
     }
     public static void move(X86Param dest, X86Param source, X86Emitter emit) {

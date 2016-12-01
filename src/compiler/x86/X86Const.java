@@ -33,4 +33,8 @@ public class X86Const implements X86Param {
     public Type getType() {
         return type;
     }
+    @Override
+    public String toString() {
+        return "CONST" + type + " " + value;
+    }
 }

@@ -38,6 +38,9 @@ public abstract class TACStatement {
     public void setVars() {
         for (int i = 0; i < paramNames.length; i++) {
             params[i] = get(paramNames[i]);
+            if (params[i] == null) {
+                throw new NullPointerException(paramNames[i]);
+            }
         }
     }
     public final void replace(String toReplace, String replaceWith, X86Param infoWith) {

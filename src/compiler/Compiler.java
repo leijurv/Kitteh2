@@ -100,7 +100,7 @@ public class Compiler {
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImport = imp.getKey();
+                String toImport = imp.getValue();
                 if (!new File(dir, toImport + ".k").exists()) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
                 }

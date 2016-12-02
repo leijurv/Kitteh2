@@ -89,7 +89,7 @@ class Parser {
                         if (l.getTokens().size() != 3) {
                             throw new IllegalStateException(l.getTokens() + "");
                         }
-                        context.imports.put(data, alias);
+                        context.imports.put(alias, data);
                     } else {
                         context.imports.put(data, data);
                     }

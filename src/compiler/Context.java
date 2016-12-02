@@ -15,7 +15,6 @@ import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
@@ -99,24 +98,23 @@ public class Context {
         imports.put(packageName, packageName);
     }
     public String reverseAlias(String alias) {
-        for (Entry<String, String> imp : imports.entrySet()) {
-            if (imp.getValue().equals(alias)) {
-                return imp.getKey();
-            }
+        String wew = imports.get(alias);
+        if (wew == null) {
+            throw new RuntimeException(imports + " " + alias);
         }
-        throw new RuntimeException(imports + " " + alias);
+        return wew;
     }
     public void addImport(String fileName, String alias) {
         if (fileName.equals(packageName) || alias.equals(packageName)) {
             throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
         }
-        if (imports.values().contains(alias)) {
+        if (imports.containsKey(alias)) {
             throw new IllegalStateException("Already imported under alias " + alias);
         }
-        if (imports.containsKey(fileName)) {
+        if (imports.values().contains(fileName)) {
             throw new IllegalStateException("Already imported " + fileName);
         }
-        imports.put(fileName, alias);
+        imports.put(alias, fileName);
     }
     public void defineStruct(Struct struct) {
         if (structs.containsKey(struct.name)) {

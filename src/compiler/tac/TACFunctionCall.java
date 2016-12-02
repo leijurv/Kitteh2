@@ -18,8 +18,6 @@ import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -44,8 +42,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        List<String> p = IntStream.range(0, paramNames.length).mapToObj(i -> params[i] == null ? paramNames[i] : params[i].toString()).collect(Collectors.toList());
-        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + p + ")";
+        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
     public void setVars() {

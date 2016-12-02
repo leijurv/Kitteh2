@@ -15,6 +15,7 @@ import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
@@ -95,8 +96,20 @@ public class Context {
         this.varIndex = null;
         this.imports = new HashMap<>();
         this.packageName = packageName;
+        imports.put(packageName, packageName);
+    }
+    public String reverseAlias(String alias) {
+        for (Entry<String, String> imp : imports.entrySet()) {
+            if (imp.getValue().equals(alias)) {
+                return imp.getKey();
+            }
+        }
+        throw new RuntimeException(imports + " " + alias);
     }
     public void addImport(String fileName, String alias) {
+        if (fileName.equals(packageName) || alias.equals(packageName)) {
+            throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
+        }
         if (imports.values().contains(alias)) {
             throw new IllegalStateException("Already imported under alias " + alias);
         }
@@ -165,14 +178,14 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName) {
+    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;
         this.gc = gc;
         this.currentFunction = currentFunction;
         this.varIndex = sub;
-        this.imports = null;
+        this.imports = imports;
         this.packageName = packageName;
     }
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
@@ -180,7 +193,7 @@ public class Context {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName);
+        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
         return subContext;
     }
     private void defineLocal(String name, VarInfo value) {

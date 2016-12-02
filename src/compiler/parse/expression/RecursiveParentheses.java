@@ -100,8 +100,8 @@ class RecursiveParentheses extends TokenBased {
             String pkg = null;
             if (i != 1 && o.get(i - 2) == ACCESS) {
                 String accessing = (String) ((Token) o.get(i - 3)).data();
-                System.out.println("Accessing " + accessing + "::" + funcName);
-                pkg = accessing;
+                pkg = context.reverseAlias(accessing);
+                System.out.println("Accessing " + accessing + " alias for " + pkg + " ::" + funcName);
             }
             List<Type> desiredTypes = context.gc.getHeader(pkg, funcName).inputs();
             //System.out.println("Expecting inputs: " + desiredTypes);

@@ -84,7 +84,15 @@ class Parser {
                         throw new IllegalStateException("Imports are top level");
                     }
                     String data = (String) l.getTokens().get(1).data();
-                    context.imports.put(data, "");
+                    if (l.getTokens().size() > 2) {
+                        String alias = (String) l.getTokens().get(2).data();
+                        if (l.getTokens().size() != 3) {
+                            throw new IllegalStateException(l.getTokens() + "");
+                        }
+                        context.imports.put(data, alias);
+                    } else {
+                        context.imports.put(data, data);
+                    }
                     return null;
                 }
                 if (context.isTopLevel()) {//nothing top level that isn't a block

@@ -12,6 +12,8 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
+import compiler.x86.X86FunctionArg;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
@@ -96,13 +98,11 @@ public class TACFunctionCall extends TACStatement {
         int stackLocation = 0;
         for (int i = 0; i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
-            String dest = stackLocation + "(%rsp)";
-            if (params[i] == null) {
-                emit.addStatement("mov" + type.x86typesuffix() + " $" + paramNames[i] + ", " + dest);
-            } else {
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + X86Register.D.getRegister(type));
-                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.D.getRegister(type) + ", " + dest);
+            if (!type.equals(params[i].getType())) {
+                throw new RuntimeException();
             }
+            X86Param dest = new X86FunctionArg(stackLocation, type);
+            TACConst.move(dest, params[i], emit);
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();
         }

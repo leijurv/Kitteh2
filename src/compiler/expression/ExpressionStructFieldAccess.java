@@ -58,7 +58,8 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
         int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
         int fieldLocationOnStack = structLocationOnStack + offsetOfThisFieldWithinStruct;
         //System.out.println(structLocationOnStack + " " + offsetOfThisFieldWithinStruct + " " + fieldLocationOnStack + " " + struct.getFieldByName(field));
-        String fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType());
+        String info = struct.toString() + "-" + temp + "." + field;
+        String fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType(), info);
         return fieldLabel;
     }
     @Override
@@ -110,7 +111,8 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
                     TempVarUsage cancer = new TempVarUsage(context);
                     String tam = cancer.getTempVar(insert.getType());
                     insert.generateTAC(emit, cancer, tam);
-                    String thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType());
+                    String info = struct.toString() + "-" + tam + "." + field;
+                    String thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType(), info);
                     emit.emit(new TACConst(thisField, tam));
                 }
                 @Override

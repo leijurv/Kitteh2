@@ -41,8 +41,8 @@ public class TempVarUsage {
         ctx.updateMinAdditionalSizeTemp(sizeSoFar);//make sure the context knows how much temp var bytes we gobblin up
         return name;//yes
     }
-    public String registerLabelManually(int stackLocation, Type type) {//used for structs
-        String name = TEMP_VARIABLE_PREFIX + TEMP_STRUCT_FIELD_INFIX + ctx.varIndex.val++;
+    public String registerLabelManually(int stackLocation, Type type, String info) {//used for structs
+        String name = TEMP_VARIABLE_PREFIX + "_" + info + "_" + TEMP_STRUCT_FIELD_INFIX + ctx.varIndex.val++;
         types.put(name, ctx.new VarInfo(name, type, stackLocation));
         return name;
     }

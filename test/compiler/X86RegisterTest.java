@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.x86.X86Register;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
+import compiler.x86.X86Register;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -96,7 +96,7 @@ public class X86RegisterTest {
     public void testRegister(X86Register reg, String... requiredValues) {
         assertEquals(types.length, requiredValues.length);
         for (int i = 0; i < types.length; i++) {
-            assertEquals(requiredValues[i], reg.getRegister(types[i], true));
+            assertEquals(requiredValues[i], reg.getRegister1(types[i], true));
         }
     }
 }

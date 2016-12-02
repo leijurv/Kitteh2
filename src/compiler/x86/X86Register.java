@@ -4,8 +4,15 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
+import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.IllegalSelectorException;
+import java.nio.file.ClosedWatchServiceException;
+import java.util.FormatterClosedException;
 
 /**
  *
@@ -13,10 +20,40 @@ import java.nio.channels.IllegalSelectorException;
  */
 public enum X86Register {
     A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
-    public String getRegister(TypeNumerical version) {
-        return getRegister(version, false);
+    public static TypeNumerical typeFromRegister(String reg) {
+        if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
+            return typeFromRegister(reg.substring(1));
+        }
+        switch (reg.length()) {
+            case 2:
+                switch (reg.charAt(1)) {
+                    case 'l':
+                        return new TypeInt8();
+                    case 'x':
+                        return new TypeInt16();
+                    default:
+                        throw new IllegalBlockingModeException();
+                }
+            case 3:
+                switch (reg.charAt(0)) {
+                    case 'e':
+                        return new TypeInt32();
+                    case 'r':
+                        return new TypeInt64();
+                    default:
+                        throw new FormatterClosedException();
+                }
+            default:
+                throw new ClosedWatchServiceException();
+        }
     }
-    public String getRegister(TypeNumerical version, boolean allowSpills) {
+    public X86TypedRegister getRegister(TypeNumerical version) {
+        return new X86TypedRegister(this, version);
+    }
+    String getRegister1(TypeNumerical version) {
+        return getRegister1(version, false);
+    }
+    public String getRegister1(TypeNumerical version, boolean allowSpills) {
         //technically shouldn't be modified without restoring on return: B, R12, R13, R14, R15
         /*
          Registers %rbp, %rbx and

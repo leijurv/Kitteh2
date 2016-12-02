@@ -6,12 +6,15 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import static compiler.tac.TACConst.typeFromRegister;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Comparison;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
 import java.util.Arrays;
@@ -43,12 +46,7 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public String toString0() {
-        String firstName = paramNames[0];
-        String secondName = paramNames[1];
-        VarInfo first = params[0];
-        VarInfo second = params[1];
-        VarInfo result = params[2];
-        return result + " = " + (first == null ? firstName : first) + " " + op + " " + (second == null ? secondName : second);
+        return params[2] + " = " + params[0] + " " + op + " " + params[1];
     }
     @Override
     public void onContextKnown() {
@@ -66,46 +64,50 @@ public class TACStandard extends TACStatement {
     public void printx86(X86Emitter emit) {
         String firstName = paramNames[0];//i literally can't be bothered
         String secondName = paramNames[1];
-        VarInfo first = params[0];
-        VarInfo second = params[1];
-        VarInfo result = params[2];
+        X86Param first = params[0];
+        X86Param second = params[1];
+        X86Param result = params[2];
         TypeNumerical type;
         if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
-            type = typeFromRegister(firstName);
-        } else if (first == null) {
+            type = X86Register.typeFromRegister(firstName);
+        } /*else if (first == null) {
             if (second == null) {
                 throw new RuntimeException("that optimization related exception again " + this);
                 //type = (TypeNumerical) result.getType(); //this is a workaround for when i'm lazy
             } else {
                 type = (TypeNumerical) second.getType();
             }
-        } else {
+        }*/ else {
             type = (TypeNumerical) first.getType();
         }
-        String a = X86Register.A.getRegister(type);
-        String c = X86Register.C.getRegister(type);
-        String d = X86Register.D.getRegister(type);
+        X86TypedRegister a = X86Register.A.getRegister(type);
+        X86TypedRegister c = X86Register.C.getRegister(type);
+        X86TypedRegister d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
-        TACConst.move(a, null, first, firstName, emit);
-        if (type instanceof TypePointer && second != null) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
+        TACConst.move(a, first, emit);
+        if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
             if (!(second.getType() instanceof TypeNumerical)) {
                 throw new ClosedSelectorException();
             }
             if (!second.getType().getClass().toString().contains("TypeInt")) {//look bud i'm not perfect
-                throw new IllegalStateException(second.getType().toString());
+                throw new IllegalStateException(this + " " + second.getType().toString() + " " + second.getClass());
             }
             //we put the pointer in A
-            //and the integer in B
-            if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
-                TACConst.move(c, null, second, secondName, emit);
+            //and the integer in C
+            if (second instanceof X86Const) {
+                second = new X86Const(((X86Const) second).getName(), new TypeInt64());//its probably a const int that we are trying to add to an 8 byte pointer
+                //since its literally a const number, just change the type
+            }
+            if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
+                TACConst.move(X86Register.C.getRegister(type), second, emit);
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
             try {
-                TACConst.move(c, null, second, secondName, emit);
+                TACConst.move(X86Register.C.getRegister(type), second, emit);
             } catch (Exception e) {
                 throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }
@@ -140,7 +142,7 @@ public class TACStandard extends TACStatement {
             case GREATER_OR_EQUAL:
             case LESS_OR_EQUAL:
                 emit.addStatement("cmp" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.addStatement(op.tox86set() + " %cl");
+                emit.addStatement(X86Comparison.tox86set(op) + " %cl");
                 emit.addStatement("movb %cl, " + result.x86());
                 break;
             default:

@@ -20,7 +20,7 @@ public class CommonSubexpression extends TACOptimization {
         for (int i = 0; i < block.size(); i++) {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) block.get(i);
-                VarInfo result = ts.params[2];
+                VarInfo result = (VarInfo) ts.params[2];
                 final int begin = result.getStackLocation();//inclusive
                 final int end = result.getStackLocation() + result.getType().getSizeBytes() - 1;//inclusive
                 for (int j = i + 1; j < block.size(); j++) {

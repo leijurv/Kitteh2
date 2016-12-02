@@ -24,6 +24,7 @@ public enum Keyword implements Token<Keyword> {
     PRINT("MEOW", false),
     //PRINTLN("MEOWLN", false, null, null),
     IF("BLINK", true),
+    ELSE("SELL", true),
     TRUE("YES", new ExpressionConstBool(true)),
     FALSE("NO", new ExpressionConstBool(false)),
     BREAK("TRIP", false),

@@ -10,6 +10,7 @@ import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.util.MutInt;
+import compiler.x86.X86Param;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
@@ -26,15 +27,20 @@ import java.util.stream.Stream;
 public class Context {
     public static boolean printFull = true;
 
-    public class VarInfo {
+    public class VarInfo implements X86Param {
         private final String name;
         private final Type type;
         private ExpressionConst knownValue;
         private final int stackLocation;
+        private final boolean secret;
         public VarInfo(String name, Type type, int stackLocation) {
+            this(name, type, stackLocation, false);
+        }
+        public VarInfo(String name, Type type, int stackLocation, boolean secret) {
             this.name = name;
             this.type = type;
             this.stackLocation = stackLocation;
+            this.secret = secret;
         }
         @Override
         public String toString() {
@@ -46,19 +52,28 @@ public class Context {
             }
             //return ("{type: " + type + ", location: " + stackLocation + "}");
         }
+        @Override
         public Type getType() {
             return type;
         }
         public int getStackLocation() {
             return stackLocation;
         }
+        @Override
         public String getName() {
             return name;
         }
+        @Override
         public String x86() {
+            if (secret) {
+                throw new RuntimeException();
+            }
             return (stackLocation) + ("(%rbp)");
         }
         public Context getContext() {
+            if (secret) {
+                throw new RuntimeException();
+            }
             return Context.this;
         }
     }

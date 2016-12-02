@@ -10,6 +10,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
@@ -44,8 +45,8 @@ public class TACPointerDeref extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        VarInfo source = params[0];
-        VarInfo dest = params[1];
+        X86Param source = params[0];
+        X86Param dest = params[1];
         emit.addStatement("movq " + source.x86() + ", %rax");
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
@@ -53,7 +54,7 @@ public class TACPointerDeref extends TACStatement {
             emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(0, "%rax", dest.getStackLocation(), ts.struct, emit);
+            moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), ts.struct, emit);
         } else {
             throw new InvalidPathException("", "");
         }

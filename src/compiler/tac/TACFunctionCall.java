@@ -12,12 +12,12 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
+import compiler.x86.X86FunctionArg;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -42,8 +42,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        List<String> p = IntStream.range(0, paramNames.length).mapToObj(i -> params[i] == null ? paramNames[i] : params[i].toString()).collect(Collectors.toList());
-        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + p + ")";
+        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
     public void setVars() {
@@ -66,21 +65,21 @@ public class TACFunctionCall extends TACStatement {
         emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
-            emit.addStatement("movl " + (params[0] == null ? "$" + paramNames[0] : params[0].x86()) + ", %edi");
+            emit.addStatement("movl " + params[0].x86() + ", %edi");
             /*emit.addStatement("callq _malloc");
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/
         }
         if (header.name.equals(Keyword.PRINT.toString())) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
-            if (params.length != 1 || !(header.inputs().get(0) instanceof TypeNumerical)) {
+            if (params.length != 1 || !(params[0].getType() instanceof TypeNumerical)) {
                 throw new CancelledKeyException();
             }
-            TypeNumerical type = (TypeNumerical) (params[0] == null ? header.inputs().get(0) : params[0].getType());
             emit.addStatement("leaq lldformatstring(%rip), %rdi");//lol rip
             emit.addStatement("movb $0, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
             emit.addStatement("xorq %rdx, %rdx");
-            TACConst.move(X86Register.D.getRegister(type), null, params[0], paramNames[0], emit);
+            TypeNumerical type = (TypeNumerical) params[0].getType();
+            TACConst.move(X86Register.D.getRegister(type), params[0], emit);
             if (type.getSizeBytes() == 8) {
                 emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
             } else {
@@ -96,13 +95,11 @@ public class TACFunctionCall extends TACStatement {
         int stackLocation = 0;
         for (int i = 0; i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
-            String dest = stackLocation + "(%rsp)";
-            if (params[i] == null) {
-                emit.addStatement("mov" + type.x86typesuffix() + " $" + paramNames[i] + ", " + dest);
-            } else {
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + X86Register.D.getRegister(type));
-                emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.D.getRegister(type) + ", " + dest);
+            if (!type.equals(params[i].getType())) {
+                throw new RuntimeException();
             }
+            X86Param dest = new X86FunctionArg(stackLocation, type);
+            TACConst.move(dest, params[i], emit);
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();
         }

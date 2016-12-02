@@ -11,6 +11,7 @@ import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,10 +61,20 @@ class Parser {
                     case FOR:
                         return BlockBeginParser.parseFor(params, context, rawBlock);
                     case IF:
+                        if (i != lexed.size() - 1) {
+                            List<Token> nex = ((Line) lexed.get(i + 1)).getTokens();
+                            if (nex.equals(Arrays.asList(Keyword.ELSE))) {
+                                lexed.remove(i + 1);
+                                ArrayList<Object> elseBlock = (ArrayList<Object>) lexed.remove(i + 1);
+                                return BlockBeginParser.parseIf(params, context, rawBlock, elseBlock);
+                            }
+                        }
                         return BlockBeginParser.parseIf(params, context, rawBlock);
                     case STRUCT:
                         BlockBeginParser.parseStruct(params, context, rawBlock);
                         return null;
+                    case ELSE:
+                        throw new RuntimeException("improper placement of else");
                     default:
                         throw new RuntimeException();
                 }

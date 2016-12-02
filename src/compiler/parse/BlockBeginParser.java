@@ -55,13 +55,13 @@ class BlockBeginParser {
         } else if (returnType.isEmpty()) {
             retType = new TypeVoid();
         } else {
-            throw new IllegalStateException("no multiple returns yet. sorry!");
+            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
         }
-        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map((List<Token> tokenList) -> {
+        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
             Type type = Util.typeFromTokens(typeDefinition, context);
             if (type == null) {
-                throw new IllegalStateException(typeDefinition + "");
+                throw new IllegalStateException(typeDefinition + " not a valid type");
             }
             if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();
@@ -74,14 +74,7 @@ class BlockBeginParser {
             throw new InvalidParameterException();
         }
         Context subContext = context.subContext();
-        int pos = 16; //args start at *(ebp+16) in order to leave room for rip and rbp on the call stack
-        http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
-        for (Pair<String, Type> arg : args) {
-            subContext.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
-            pos += arg.getValue().getSizeBytes();
-        }
-        CommandDefineFunction def = new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
-        return def;
+        return new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
     }
     static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);
@@ -122,12 +115,16 @@ class BlockBeginParser {
         //i can't put a break or a return here because it's unreachable atm
     }
     static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
-        //TODO else
+        return parseIf(params, context, rawBlock, null);
+    }
+    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
         //System.out.println("Parsed " + params + " to " + condition);
-        Context sub = context.subContext();
-        ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
-        return new CommandIf(condition, blockCommands, sub);
+        Context ifTrue = context.subContext();
+        Context ifFalse = elseBlock == null ? null : context.subContext();
+        ArrayList<Command> blockCommands = Processor.parse(rawBlock, ifTrue);
+        ArrayList<Command> els = elseBlock == null ? null : Processor.parse(elseBlock, ifFalse);
+        return new CommandIf(condition, blockCommands, ifTrue, els, ifFalse);
     }
     static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {

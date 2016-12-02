@@ -15,6 +15,7 @@ import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -93,7 +94,7 @@ public class CommandFor extends CommandBlock {
             //and getAllVarsModified all get cleared
             //it's fine to run static values on the initilization
         }
-        List<String> varsMod = getAllVarsModified();
+        List<String> varsMod = getAllVarsModified().collect(Collectors.toList());
         List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
         System.out.println("CLEARING " + varsMod);
         for (String s : varsMod) {
@@ -128,10 +129,10 @@ public class CommandFor extends CommandBlock {
         }
     }
     @Override
-    public List<String> getAllVarsModified() {
-        List<String> mod = super.getAllVarsModified();
+    public Stream<String> getAllVarsModified() {
+        Stream<String> mod = super.getAllVarsModified();
         if (afterthought != null) {
-            mod.addAll(afterthought.getAllVarsModified());
+            return Stream.of(mod, afterthought.getAllVarsModified()).flatMap(x -> x);
         }
         return mod;
     }

@@ -4,9 +4,9 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.Context.VarInfo;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +38,7 @@ public class TACCast extends TACStatement {
     public void printx86(X86Emitter emit) {
         cast(params[0], params[1], emit);
     }
-    public static void cast(VarInfo input, VarInfo dest, X86Emitter emit) {
+    public static void cast(X86Param input, X86Param dest, X86Emitter emit) {
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (inp.getSizeBytes() >= out.getSizeBytes()) {

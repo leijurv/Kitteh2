@@ -10,10 +10,8 @@ import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
@@ -75,18 +73,14 @@ public class TACFunctionCall extends TACStatement {
         }
         if (header.name.equals(Keyword.PRINT.toString())) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
-            if (params.length != 1 || !(header.inputs().get(0) instanceof TypeNumerical)) {
+            if (params.length != 1 || !(params[0].getType() instanceof TypeNumerical)) {
                 throw new CancelledKeyException();
             }
-            TypeNumerical type = (TypeNumerical) (params[0] == null ? header.inputs().get(0) : params[0].getType());
             emit.addStatement("leaq lldformatstring(%rip), %rdi");//lol rip
             emit.addStatement("movb $0, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
             emit.addStatement("xorq %rdx, %rdx");
-            X86Param wew = params[0];
-            if (wew == null) {
-                wew = new X86Const(paramNames[0], type);//probably a const number
-            }
-            TACConst.move(X86Register.D.getRegister(type), wew, emit);
+            TypeNumerical type = (TypeNumerical) params[0].getType();
+            TACConst.move(X86Register.D.getRegister(type), params[0], emit);
             if (type.getSizeBytes() == 8) {
                 emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
             } else {

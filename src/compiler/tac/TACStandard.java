@@ -10,6 +10,7 @@ import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Comparison;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -84,7 +85,7 @@ public class TACStandard extends TACStatement {
         X86TypedRegister d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
         TACConst.move(a, first, emit);
-        if (type instanceof TypePointer && (second instanceof VarInfo)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
+        if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
             if (!(second.getType() instanceof TypeNumerical)) {
@@ -94,15 +95,19 @@ public class TACStandard extends TACStatement {
                 throw new IllegalStateException(this + " " + second.getType().toString() + " " + second.getClass());
             }
             //we put the pointer in A
-            //and the integer in B
-            if (second.getType().getSizeBytes() == first.getType().getSizeBytes()) {
+            //and the integer in C
+            if (second instanceof X86Const) {
+                second = new X86Const(((X86Const) second).getName(), new TypeInt64());//its probably a const int that we are trying to add to an 8 byte pointer
+                //since its literally a const number, just change the type
+            }
+            if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
                 TACConst.move(X86Register.C.getRegister(type), second, emit);
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
             try {
-                TACConst.move(X86Register.C.getRegister((TypeNumerical) second.getType()), second, emit);
+                TACConst.move(X86Register.C.getRegister(type), second, emit);
             } catch (Exception e) {
                 throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }

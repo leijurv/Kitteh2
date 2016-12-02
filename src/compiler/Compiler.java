@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -75,42 +74,41 @@ public class Compiler {
         }
         //byte[] program = Files.readAllBytes(new File(inFile).toPath());
         //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
-        String asm = compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        File dir = new File(inFile).getParentFile();
+        String cont = new File(inFile).getName().split(".k")[0];
+        String asm = compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
-    public static Pair<List<Command>, Context> load(Path inputProgram, OptimizationSettings settings) throws IOException {
-        byte[] program = Files.readAllBytes(inputProgram);
+    public static Pair<List<Command>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
+        byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
         List<Line> lines = Preprocessor.preprocess(new String(program));
-        Context context = new Context(inputProgram.toFile().getName().split(".k")[0]);
+        Context context = new Context(name);
         ArrayList<Command> cmds = Processor.parse(lines.stream().collect(Collectors.toList()), context);
         return new Pair<>(cmds, context);
     }
-    public static String compile(Path inputProgram, OptimizationSettings settings) throws IOException {
-        List<Path> toLoad = new ArrayList<>();
-        HashSet<Path> alreadyLoaded = new HashSet<>();
-        toLoad.add(inputProgram);
+    public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
+        List<String> toLoad = new ArrayList<>();
+        HashSet<String> alreadyLoaded = new HashSet<>();
+        toLoad.add(mainName);
         List<Pair<String, List<Command>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
-            Path path = toLoad.remove(0);
-            alreadyLoaded.add(path);
-            System.out.println("Loading " + path);
-            Pair<List<Command>, Context> funcs = load(path, settings);
+            String pathh = toLoad.remove(0);
+            alreadyLoaded.add(pathh);
+            System.out.println("Loading " + new File(dir, pathh + ".k"));
+            Pair<List<Command>, Context> funcs = load(dir, pathh, settings);
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImport = imp.getKey();
-                String alias = imp.getValue();
-                File fileToImport = new File(inputProgram.toFile().getParentFile(), toImport + ".k");
-                if (!fileToImport.exists()) {
-                    throw new IllegalStateException("Can't import " + fileToImport + " because " + fileToImport + " doesn't exist");
+                if (!new File(dir, toImport + ".k").exists()) {
+                    throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
                 }
-                Path pathToImport = fileToImport.toPath();
-                if (!alreadyLoaded.contains(pathToImport) && !toLoad.contains(pathToImport)) {
-                    toLoad.add(pathToImport);
+                if (!alreadyLoaded.contains(toImport) && !toLoad.contains(toImport)) {
+                    toLoad.add(toImport);
                 }
             }
-            loaded.add(new Pair<>(path.toFile().getName().split(".k")[0], funcs.getKey()));
+            loaded.add(new Pair<>(pathh, funcs.getKey()));
         }
         System.out.println(loaded);
         for (int i = 0; i < loaded.size(); i++) {

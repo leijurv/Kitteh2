@@ -44,14 +44,16 @@ class Parser {
                     throw new IllegalStateException("come on it's like you're TRYING to break the parser. don't have { on a line on its own");
                 }
                 Token startToken = lineTokens.get(0);
+                List<Token> params = lineTokens.subList(1, lineTokens.size());
                 if (!is(startToken, KEYWORD)) {
-                    throw new IllegalStateException("Line " + l + " is bad. It begins a block with {, but it doesn't begin with a TokenKeyword");
+                    startToken = Keyword.FUNC;
+                    params = lineTokens;
+                    //throw new IllegalStateException("Line " + l + " is bad. It begins a block with {, but it doesn't begin with a TokenKeyword");
                 }
                 Keyword beginningKeyword = (Keyword) startToken;
                 if (!beginningKeyword.canBeginBlock) {
                     throw new IllegalStateException("Hey guy, " + beginningKeyword + " can't be the beginning of a block");
                 }
-                List<Token> params = lineTokens.subList(1, lineTokens.size());
                 switch (beginningKeyword) {
                     case FUNC:
                         return BlockBeginParser.parseFunctionDefinition(params, context, rawBlock);

@@ -65,7 +65,7 @@ public class CompilerTest {
     }
     @Test
     public void testEuler2() throws Exception {
-        verifyCompilation("func main(){\n"
+        verifyCompilation("main(){\n"
                 + "	prev:=1\n"
                 + "	this:=1\n"
                 + "	sum:=0\n"

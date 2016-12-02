@@ -82,7 +82,7 @@ public class CompilerTest {
     }
     @Test
     public void testEuler6() throws Exception {
-        verifyCompilation("func main(){\n"
+        verifyCompilation("func main() void{\n"
                 + "	long sum=0\n"
                 + "	int othersum=0\n"
                 + "	for i:=0; i<=100; i++{\n"

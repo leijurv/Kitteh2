@@ -97,7 +97,13 @@ class RecursiveParentheses extends TokenBased {
             } else {
                 funcName = o.get(i - 1).toString();//some functions that you call are also keywords
             }
-            List<Type> desiredTypes = context.gc.getHeader(funcName).inputs();
+            String pkg = null;
+            if (i != 1 && o.get(i - 2) == ACCESS) {
+                String accessing = (String) ((Token) o.get(i - 3)).data();
+                System.out.println("Accessing " + accessing + "::" + funcName);
+                pkg = accessing;
+            }
+            List<Type> desiredTypes = context.gc.getHeader(pkg, funcName).inputs();
             //System.out.println("Expecting inputs: " + desiredTypes);
             //tfw parallel expression parsing
             //tfw this is a GOOD idea /s
@@ -105,7 +111,11 @@ class RecursiveParentheses extends TokenBased {
                 throw new SecurityException("mismatched arg count " + inParen + " " + desiredTypes);
             }
             List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
-            o.set(i - 1, new ExpressionFunctionCall(context, funcName, args));
+            o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, args));
+            if (pkg != null) {
+                o.remove(i - 3);
+                o.remove(i - 3);
+            }
             return true;
         }
         if (inParen.size() != 1) {

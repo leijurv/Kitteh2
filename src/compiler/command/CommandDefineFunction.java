@@ -42,17 +42,29 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             pos += arg.getValue().getSizeBytes();
         }
     }
+    private boolean isEntryPoint = false;
+    public void setEntryPoint() {
+        isEntryPoint = true;
+    }
     @Override
     public String toString() {
         return header + " " + (contents == null ? "unparsed" + rawContents : "parsed" + contents);
     }
     public FunctionHeader getHeader() {
+        if (isEntryPoint) {
+            return getLocalHeader();
+        }
+        return new FunctionHeader(context.packageName + "__" + name, header.returnType, header.arguments);
+    }
+    public FunctionHeader getLocalHeader() {
         return header;
     }
     public void parse(FunctionsContext gc) {
         context.setCurrFunc(this);
         context.gc = gc;
+        System.out.println("Parsing " + rawContents);
         contents = Processor.parse(rawContents, context);
+        System.out.println("wew " + contents);
         context.gc = null;
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;

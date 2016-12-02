@@ -23,9 +23,9 @@ import java.util.stream.IntStream;
 public class ExpressionFunctionCall extends Expression {
     private final List<Expression> args;
     private final FunctionHeader calling;
-    public ExpressionFunctionCall(Context context, String funcName, List<Expression> args) {
+    public ExpressionFunctionCall(Context context, String pkgName, String funcName, List<Expression> args) {
         this.args = args;
-        this.calling = context.gc.getHeader(funcName);
+        this.calling = context.gc.getHeader(pkgName, funcName);
         verifyTypes();
     }
     private void verifyTypes() {

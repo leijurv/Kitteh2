@@ -9,7 +9,6 @@ import compiler.command.Command;
 import compiler.lex.LexLuthor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -50,7 +49,7 @@ public class Processor {
      * @param obj
      * @return
      */
-    public static ArrayList<Command> parse(List<Line> obj) {
-        return parse(obj.stream().collect(Collectors.toList()), new Context());
-    }
+    /*public static ArrayList<Command> parse(List<Line> obj, Context context) {
+        return parse(obj.stream().collect(Collectors.toList()), context);
+    }*/
 }

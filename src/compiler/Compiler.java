@@ -16,12 +16,18 @@ import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.IllformedLocaleException;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.xml.crypto.NoSuchMechanismException;
 import org.w3c.dom.ls.LSException;
 
 /**
@@ -67,22 +73,80 @@ public class Compiler {
                     break;
             }
         }
-        byte[] program = Files.readAllBytes(new File(inFile).toPath());
-        String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        //byte[] program = Files.readAllBytes(new File(inFile).toPath());
+        //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        String asm = compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
+    public static Pair<List<Command>, Context> load(Path inputProgram, OptimizationSettings settings) throws IOException {
+        byte[] program = Files.readAllBytes(inputProgram);
+        List<Line> lines = Preprocessor.preprocess(new String(program));
+        Context context = new Context(inputProgram.toFile().getName().split(".k")[0]);
+        ArrayList<Command> cmds = Processor.parse(lines.stream().collect(Collectors.toList()), context);
+        return new Pair<>(cmds, context);
+    }
+    public static String compile(Path inputProgram, OptimizationSettings settings) throws IOException {
+        List<Path> toLoad = new ArrayList<>();
+        HashSet<Path> alreadyLoaded = new HashSet<>();
+        toLoad.add(inputProgram);
+        List<Pair<String, List<Command>>> loaded = new ArrayList<>();
+        while (!toLoad.isEmpty()) {
+            Path path = toLoad.remove(0);
+            alreadyLoaded.add(path);
+            System.out.println("Loading " + path);
+            Pair<List<Command>, Context> funcs = load(path, settings);
+            Context context = funcs.getValue();
+            System.out.println("Imports: " + context.imports);
+            for (Entry<String, String> imp : context.imports.entrySet()) {
+                String toImport = imp.getKey();
+                String alias = imp.getValue();
+                File fileToImport = new File(inputProgram.toFile().getParentFile(), toImport + ".k");
+                if (!fileToImport.exists()) {
+                    throw new IllegalStateException("Can't import " + fileToImport + " because " + fileToImport + " doesn't exist");
+                }
+                Path pathToImport = fileToImport.toPath();
+                if (!alreadyLoaded.contains(pathToImport) && !toLoad.contains(pathToImport)) {
+                    toLoad.add(pathToImport);
+                }
+            }
+            loaded.add(new Pair<>(path.toFile().getName().split(".k")[0], funcs.getKey()));
+        }
+        System.out.println(loaded);
+        for (int i = 0; i < loaded.size(); i++) {
+            List<Command> cmds = loaded.get(i).getValue();
+            System.out.println("Building context for " + loaded.get(i).getKey());
+            FunctionsContext fc = new FunctionsContext(cmds, loaded);
+            if (i == 0 && !fc.hasMain()) {
+                throw new NoSuchMechanismException("You need a main function");
+            }
+            if (i == 0) {
+                fc.setEntryPoint();
+            }
+            fc.parseRekursivelie();
+        }
+        List<Command> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
+        return finalCompile(flattenedList, settings);
+    }
     public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(lines);
+        ArrayList<Command> commands = Processor.parse(lines.stream().collect(Collectors.toList()), new Context(""));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
-        FunctionsContext.parseRekursively(commands);
+        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>("", commands)));
+        fc.parseRekursivelie();
+        if (!fc.hasMain()) {
+            throw new NoSuchMechanismException("You need a main function");
+        }
+        fc.setEntryPoint();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
+        return finalCompile(commands, settings);
+    }
+    public static String finalCompile(List<Command> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {
             for (Command com : commands) {
                 com.staticValues();
@@ -105,9 +169,9 @@ public class Compiler {
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
-        String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        System.out.println(loll);
-        System.err.println(loll);
+        //String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
+        //System.out.println(loll);
+        //System.err.println(loll);
         return asm;
     }
 }

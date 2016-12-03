@@ -29,7 +29,6 @@ public class FunctionsContext {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
-            System.out.println(cdf + " " + cdf.getLocalName() + " " + cdf.getHeader().name + " " + cdf.getLocalHeader().name);
             if (functionMap.containsKey(name)) {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
             }
@@ -83,11 +82,11 @@ public class FunctionsContext {
         if (pkg == null) {
             actual = name;
         } else {
-            actual = pkg.replace(".", "Dot").replace("/", "slash") + "__" + name;
+            actual = pkg.replace(".", "DOT").replace("/", "_") + Math.abs(pkg.hashCode()) + "__" + name;
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {
-            throw new ConcurrentModificationException("you tryna call a nonexistent function " + actual);
+            throw new ConcurrentModificationException("you tryna call a nonexistent function " + actual + " " + functionMap);
         }
         return tr;
     }

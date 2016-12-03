@@ -6,9 +6,11 @@
 package compiler.parse;
 import compiler.Context;
 import compiler.command.Command;
+import compiler.command.CommandDefineFunction;
 import compiler.lex.LexLuthor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -47,9 +49,10 @@ public class Processor {
      * parsedRekursively
      *
      * @param obj
+     * @param context
      * @return
      */
-    /*public static ArrayList<Command> parse(List<Line> obj, Context context) {
-        return parse(obj.stream().collect(Collectors.toList()), context);
-    }*/
+    public static List<CommandDefineFunction> initialParse(List<Line> obj, Context context) {
+        return parse(new ArrayList<>(obj), context).stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
+    }
 }

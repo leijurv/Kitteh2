@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.command.FunctionsContext;
 import compiler.parse.Line;
@@ -80,23 +79,23 @@ public class Compiler {
         new FileOutputStream(outFile).write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
-    public static Pair<List<Command>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
+    public static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
         byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name);
-        ArrayList<Command> cmds = Processor.parse(new ArrayList<>(lines), context);
+        List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
     public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
         List<String> toLoad = new ArrayList<>();
         HashSet<String> alreadyLoaded = new HashSet<>();
         toLoad.add(mainName);
-        List<Pair<String, List<Command>>> loaded = new ArrayList<>();
+        List<Pair<String, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
             String path = toLoad.remove(0);
             alreadyLoaded.add(path);
             System.out.println("Loading " + new File(dir, path + ".k"));
-            Pair<List<Command>, Context> funcs = load(dir, path, settings);
+            Pair<List<CommandDefineFunction>, Context> funcs = load(dir, path, settings);
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
@@ -117,7 +116,7 @@ public class Compiler {
         }
         contexts.get(0).setEntryPoint();
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
-        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).map(CommandDefineFunction.class::cast).collect(Collectors.toList());
+        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
         return generateASM(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
@@ -125,7 +124,7 @@ public class Compiler {
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(new ArrayList<>(lines), new Context(""));
+        List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(""));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
         FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>("", commands)));
@@ -136,8 +135,7 @@ public class Compiler {
         fc.setEntryPoint();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
-        List<CommandDefineFunction> cdfs = commands.stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
-        return generateASM(cdfs, settings);
+        return generateASM(commands, settings);
     }
     public static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {

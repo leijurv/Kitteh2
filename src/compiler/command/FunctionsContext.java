@@ -22,10 +22,9 @@ public class FunctionsContext {
     public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
-    public FunctionsContext(List<Command> definitions, List<Pair<String, List<Command>>> otherFiles) {
+    public FunctionsContext(List<CommandDefineFunction> definitions, List<Pair<String, List<CommandDefineFunction>>> otherFiles) {
         functionDefinitions = new ArrayList<>(definitions.size());
-        for (Command com : definitions) {
-            CommandDefineFunction cdf = (CommandDefineFunction) com;
+        for (CommandDefineFunction cdf : definitions) {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
@@ -34,10 +33,8 @@ public class FunctionsContext {
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         }
-        for (Pair<String, List<Command>> file : otherFiles) {
-            String packageName = file.getKey();
-            for (Command com : file.getValue()) {
-                CommandDefineFunction cdf = (CommandDefineFunction) com;
+        for (Pair<String, List<CommandDefineFunction>> file : otherFiles) {
+            for (CommandDefineFunction cdf : file.getValue()) {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {

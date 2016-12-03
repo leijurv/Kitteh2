@@ -56,6 +56,7 @@ public class Compiler {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist"+imp);
                 }
                 Path impPath = toImport.toPath();
+imp.setValue(impPath+"");
                 if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {
                     toLoad.add(impPath);
                 }

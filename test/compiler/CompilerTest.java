@@ -308,6 +308,8 @@ public class CompilerTest {
     public static void verifyFileCompilationTrue(String filename) throws IOException, InterruptedException {
         verifyCompilation(read(filename + ".k"), true, read(filename + ".t"));
     }
+    public static void verifyPackageCompilation(String directoryName) throws IOException, InterruptedException {
+    }
     public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
         try {
             //first check with all optimizations
@@ -387,7 +389,10 @@ public class CompilerTest {
             return;
         }
         assertNotNull(compiled);
-        File asm = File.createTempFile("kittehtest" + System.nanoTime() + "_" + program.hashCode(), ".s");
+        verifyASM(compiled, useAssert, desiredExecutionOutput);
+    }
+    public static void verifyASM(String compiled, boolean useAssert, String desiredExecutionOutput) throws IOException, InterruptedException {
+        File asm = File.createTempFile("kittehtest" + System.nanoTime() + "_" + compiled.hashCode(), ".s");
         File executable = new File(asm.getAbsolutePath().replace(".s", ".o"));
         assertEquals(false, executable.exists());
         assertEquals(true, asm.exists());

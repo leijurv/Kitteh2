@@ -15,8 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -209,99 +207,6 @@ public class CompilerTest {
                 }
             }
         }
-    }
-    @Test
-    public void testLinkedSort() throws Exception {
-        String program = "struct node{\n"
-                + "	bool hasNext\n"
-                + "	long value\n"
-                + "	node* next\n"
-                + "}\n"
-                + "struct linked{\n"
-                + "	node* first\n"
-                + "	bool hasFirst\n"
-                + "}\n"
-                + "func newLinked() linked*{\n"
-                + "	res:=(linked*)malloc(sizeof(linked))\n"
-                + "	res.hasFirst=false\n"
-                + "	return res\n"
-                + "}\n"
-                + "func add(linked* list, long toAdd){\n"
-                + "	n:=(node*)malloc(sizeof(node))\n"
-                + "	n.value=toAdd\n"
-                + "	if !list.hasFirst{\n"
-                + "		n.hasNext=false\n"
-                + "		list.hasFirst=true\n"
-                + "		list.first=n\n"
-                + "		return\n"
-                + "	}\n"
-                + "	n.hasNext=true\n"
-                + "	n.next=list.first\n"
-                + "	list.first=n\n"
-                + "}\n"
-                + "func removeLowest(linked* list) long{\n"
-                + "	this:=list.first\n"
-                + "	prev:=(node*)0\n"
-                + "	bestPrev:=prev\n"
-                + "	lowestValue:=this.value\n"
-                + "	for this.hasNext{\n"
-                + "		prev=this\n"
-                + "		this=this.next\n"
-                + "		if this.value < lowestValue{\n"
-                + "			lowestValue=this.value\n"
-                + "			bestPrev=prev\n"
-                + "		}\n"
-                + "	}\n"
-                + "	if (long)bestPrev==(long)0{\n"
-                + "		list.hasFirst=list.first.hasNext\n"
-                + "		list.first=list.first.next\n"
-                + "		return lowestValue\n"
-                + "	}\n"
-                + "	bestPrev.hasNext=bestPrev.next.hasNext\n"
-                + "	bestPrev.next=bestPrev.next.next\n"
-                + "	return lowestValue\n"
-                + "}\n"
-                + "func sort(long* ptr,int size) {\n"
-                + "	l:=newLinked()\n"
-                + "	for i:=0; i<size; i++{\n"
-                + "		add(l,ptr[i])\n"
-                + "	}\n"
-                + "	for i:=0; i<size; i++{\n"
-                + "		ptr[i]=removeLowest(l)\n"
-                + "	}\n"
-                + "}\n"
-                + "func r(int* seed,int max)int{\n"
-                + "	*seed=(*seed*5023+257)%2147483647\n"
-                + "	return *seed%max\n"
-                + "}\n"
-                + "func main(){\n"
-                + "	seed:=(int*)malloc(sizeof(int))\n"
-                + "	*seed=12359\n"
-                + "	num:=10\n"
-                + "	toSort:=(long*)malloc(num*sizeof(long))\n"
-                + "	for i:=0; i<num; i++{\n"
-                + "		toSort[i]=(long)r(seed,100)\n"
-                + "	}\n"
-                + "	for i:=0; i<num; i++{\n"
-                + "		print(toSort[i])\n"
-                + "	}\n"
-                + "	sort(toSort,num)\n"
-                + "	for i:=0; i<num; i++{\n"
-                + "		print(toSort[i])\n"
-                + "	}\n"
-                + "}";
-        String wew = "14\n"
-                + "20\n"
-                + "26\n"
-                + "83\n"
-                + "50\n"
-                + "79\n"
-                + "66\n"
-                + "0\n"
-                + "93\n"
-                + "16\n";
-        String sorted = Stream.of(wew.split("\n")).mapToInt(Integer::parseInt).sorted().mapToObj(x -> x + "").collect(Collectors.joining("\n"));
-        verifyCompilation(program, true, wew + sorted + "\n");
     }
     public static void shouldntCompile(String program) throws IOException, InterruptedException {
         verifyCompilation(program, false, null);

@@ -1,4 +1,4 @@
-func isPrime(int num) int{
+isPrime(int num) int{
 	for j:=3; j*j<=num; j=j+2{
 		if num % j==0{
 			return 0
@@ -6,7 +6,7 @@ func isPrime(int num) int{
 	}
 	return 1
 }
-func main(){
+func main() void{
 	i:=3
 	for soFar:=0; true; i=i+2{
 		if isPrime(i)==1{

@@ -7,12 +7,12 @@ struct linked{
 	node* first
 	bool hasFirst
 }
-func newLinked() linked*{
+newLinked() linked*{
 	res:=(linked*)malloc(sizeof(linked))
 	res.hasFirst=false
 	return res
 }
-func add(linked* list, long toAdd){
+add(linked* list, long toAdd){
 	n:=(node*)malloc(sizeof(node))
 	n.value=toAdd
 	if !list.hasFirst{
@@ -25,7 +25,7 @@ func add(linked* list, long toAdd){
 	n.next=list.first
 	list.first=n
 }
-func removeLowest(linked* list) long{
+removeLowest(linked* list) long{
 	this:=list.first
 	prev:=(node*)0
 	bestPrev:=prev
@@ -47,7 +47,7 @@ func removeLowest(linked* list) long{
 	bestPrev.next=bestPrev.next.next
 	return lowestValue
 }
-func sort(long* ptr,int size) {
+sort(long* ptr,int size) {
 	l:=newLinked()
 	for i:=0; i<size; i++{
 		add(l,ptr[i])
@@ -56,11 +56,11 @@ func sort(long* ptr,int size) {
 		ptr[i]=removeLowest(l)
 	}
 }
-func r(int* seed,int max)int{
+r(int* seed,int max)int{
 	*seed=(*seed*5023+257)%2147483647
 	return *seed%max
 }
-func main(){
+main(){
 	seed:=(int*)malloc(sizeof(int))
 	*seed=12359
 	num:=10

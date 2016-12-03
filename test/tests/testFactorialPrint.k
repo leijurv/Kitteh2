@@ -1,16 +1,16 @@
-func main(){
+main(){
 	for long i=0; i<(long)50; i=i+1{
 		println(factorial(i))
 	}
 }
-func println(long i){
+println(long i){
 	print(intToStr(i))
 	byte* nl=(byte*)((malloc(2)))
 	nl[0]=10//  aka '\n' but i don't have escape characters yet
 	nl[1]=0//gotta have the null terminator
 	print(nl)
 }
-func intToStr(long input) byte*{
+intToStr(long input) byte*{
 	inputCopy:=input
 	int count=0
 	if (long)(0) >inputCopy{
@@ -40,13 +40,13 @@ func intToStr(long input) byte*{
 	}
 	return result
 }
-func factorial(long i) long{
+factorial(long i) long{
 	wew:=i<=(long)1
-otherthingy:=wew
+	otherthingy:=wew
 	if otherthingy{
 		return 1
 	}else{
-	return i*factorial(i-1)
-}
-return 0-5021
+		return i*factorial(i-1)
+	}
+	return 0-5021
 }

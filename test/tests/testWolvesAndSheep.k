@@ -1,4 +1,4 @@
-func main(){
+main(){
 	wolves:=newBoard(5)
 	attacked:=newBoard(5)
 	seed:=(int*)malloc(sizeof(int))
@@ -58,7 +58,7 @@ func main(){
 		}
 	}
 }
-func fillDirection(int** board,int x,int y,int dirX,int dirY){
+fillDirection(int** board,int x,int y,int dirX,int dirY){
 	for x>=0 && y>=0 && x<5 && y<5{
 		board[x][y]=1
 		x=x+dirX
@@ -75,7 +75,7 @@ func r(int* seed,int max)int{
 	*seed=(*seed*5023+257)%2147483647
 	return *seed%max
 }
-func newBoard(int size) int**{
+newBoard(int size) int**{
 	board:=(int**)malloc(size*sizeof(int*))
 	for i:=0; i<size; i++{
 		board[i]=(int*)malloc(size*sizeof(int))

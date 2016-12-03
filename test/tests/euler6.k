@@ -1,4 +1,4 @@
-func main() void{
+main() void{
 	long sum=0
 	int othersum=0
 	for i:=0; i<=100; i++{

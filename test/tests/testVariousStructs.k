@@ -4,7 +4,7 @@ struct teststruct{
 	int b//lmao
 	long* c ;; ;; ;; ;; ; ; ; ; ; ; ; ;  ;
 }
-func main(){
+main(){
 	b:=(teststruct*)malloc(420)
 	teststruct* c =b
 	((int*)b)[0]=420

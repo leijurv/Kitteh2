@@ -1,4 +1,4 @@
-func mp(long base,long exp,long mod) long{
+mp(long base,long exp,long mod) long{
 	if exp==(long)0{
 		return 1
 	}
@@ -11,7 +11,7 @@ func mp(long base,long exp,long mod) long{
 	}
 	return (base*mp(base,exp-1,mod))%mod
 }
-func inv(long e, long t) long{
+inv(long e, long t) long{
 	for long d=1; d<t; d++{
 		if (e*d)%t==(long)1{
 			return d
@@ -19,7 +19,7 @@ func inv(long e, long t) long{
 	}
 	return 0-1
 }
-func coprime(long e,long t) bool{
+coprime(long e,long t) bool{
 	for long d=2; d<=e; d++{
 		if e%d==(long)0 && t%d==(long)0{
 			return false
@@ -27,7 +27,7 @@ func coprime(long e,long t) bool{
 	}
 	return true
 }
-func verify(long e,long d,long n){
+verify(long e,long d,long n)void{
 	for long i=1; i<n; i++{
 		if i≠mp(mp(i,e,n),d,n){
 			print(i)
@@ -41,7 +41,7 @@ func verify(long e,long d,long n){
 		}
 	}
 }
-func main(){
+main(){
 	print(mp(93845,24897,3460987))
 	verify(17,2753,3233)
 	long t=3120

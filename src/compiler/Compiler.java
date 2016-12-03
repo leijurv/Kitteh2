@@ -53,7 +53,7 @@ public class Compiler {
                 String toImportName = imp.getValue()+".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
                 if (!toImport.exists()) {
-                    throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
+                    throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist"+imp);
                 }
                 Path impPath = toImport.toPath();
                 if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {

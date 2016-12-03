@@ -57,6 +57,9 @@ public class Compiler {
                 }
                 Path impPath = new File(compiler.parse.Util.trimPath(toImport.toString())).toPath();
                 System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
+                if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
+                    throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
+                }
                 imp.setValue(impPath + "");
                 if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {
                     toLoad.add(impPath);

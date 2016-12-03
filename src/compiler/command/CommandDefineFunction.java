@@ -65,9 +65,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public void parse(FunctionsContext gc) {
         context.setCurrFunc(this);
         context.gc = gc;
-        System.out.println("Parsing " + rawContents);
+        //System.out.println("Parsing " + rawContents);
         contents = Processor.parse(rawContents, context);
-        System.out.println("wew " + contents);
+        //System.out.println("wew " + contents);
         context.gc = null;
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;

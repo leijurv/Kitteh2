@@ -16,6 +16,7 @@ import compiler.x86.X86Format;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -29,32 +30,34 @@ import javax.xml.crypto.NoSuchMechanismException;
  * @author leijurv
  */
 public class Compiler {
-    private static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
-        byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
+    private static Pair<List<CommandDefineFunction>, Context> load(Path name, OptimizationSettings settings) throws IOException {
+        byte[] program = Files.readAllBytes(name);
         List<Line> lines = Preprocessor.preprocess(new String(program));
-        Context context = new Context(name);
+        Context context = new Context(name + "");
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
     public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
-        List<String> toLoad = new ArrayList<>();
-        HashSet<String> alreadyLoaded = new HashSet<>();
-        toLoad.add(mainName);
-        List<Pair<String, List<CommandDefineFunction>>> loaded = new ArrayList<>();
+        List<Path> toLoad = new ArrayList<>();
+        HashSet<Path> alreadyLoaded = new HashSet<>();
+        toLoad.add(new File(dir, mainName).toPath());
+        List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
-            String path = toLoad.remove(0);
+            Path path = toLoad.remove(0);
             alreadyLoaded.add(path);
-            System.out.println("Loading " + new File(dir, path + ".k"));
-            Pair<List<CommandDefineFunction>, Context> funcs = load(dir, path, settings);
+            System.out.println("Loading " + path);
+            Pair<List<CommandDefineFunction>, Context> funcs = load(path, settings);
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImport = imp.getValue();
-                if (!new File(dir, toImport + ".k").exists()) {
+                String toImportName = imp.getValue();
+                File toImport = new File(path.toFile().getParent(), toImportName);
+                if (!toImport.exists()) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
                 }
-                if (!alreadyLoaded.contains(toImport) && !toLoad.contains(toImport)) {
-                    toLoad.add(toImport);
+                Path impPath = toImport.toPath();
+                if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {
+                    toLoad.add(impPath);
                 }
             }
             loaded.add(new Pair<>(path, funcs.getKey()));

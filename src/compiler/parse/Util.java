@@ -87,4 +87,18 @@ public class Util {
         }
         return Util.typeFromTokens(tmp, context);
     }
+    public static String trimPath(String s) {
+        if (s == null) {
+            return null;
+        }
+        int ind = s.indexOf("../");
+        if (ind == -1) {
+            return s;
+        }
+        if (ind == 0) {
+            return "../" + trimPath(s.substring(3));
+        }
+        int from = s.lastIndexOf("/", ind - 2);
+        return trimPath(s.substring(0, from + 1) + s.substring(ind + 3));
+    }
 }

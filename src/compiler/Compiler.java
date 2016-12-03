@@ -123,7 +123,7 @@ public class Compiler {
             }
             fc.parseRekursivelie();
         }
-        List<Command> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
+        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).map(CommandDefineFunction.class::cast).collect(Collectors.toList());
         return finalCompile(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
@@ -142,17 +142,16 @@ public class Compiler {
         fc.setEntryPoint();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
-        return finalCompile(commands, settings);
+        List<CommandDefineFunction> cdfs = commands.stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
+        return finalCompile(cdfs, settings);
     }
-    public static String finalCompile(List<Command> commands, OptimizationSettings settings) {
+    public static String finalCompile(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {
-            for (Command com : commands) {
-                com.staticValues();
-            }
+            commands.parallelStream().forEach(CommandDefineFunction::staticValues);
         }
         System.out.println("> DONE STATIC VALUES: " + commands);
         long e = System.currentTimeMillis();
-        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream().map(CommandDefineFunction.class::cast)
+        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();

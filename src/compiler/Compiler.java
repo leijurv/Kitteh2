@@ -14,71 +14,21 @@ import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import javax.xml.crypto.NoSuchMechanismException;
-import org.w3c.dom.ls.LSException;
 
 /**
  *
  * @author leijurv
  */
 public class Compiler {
-    public static long streamTime() {
-        long a = System.currentTimeMillis();
-        IntStream.range(0, 5).map(x -> x + 1).parallel().sum();
-        long b = System.currentTimeMillis();
-        return b - a;
-    }
-    protected static String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
-    protected static String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws Exception {
-        http://github.com/leijurv/Kitteh2
-        System.out.println("First stream: " + streamTime());//almost always several hundred ms
-        System.out.println("Second stream: " + streamTime());//almost always zero
-        String inFile = DEFAULT_IN_FILE;
-        String outFile = DEFAULT_OUT_FILE;
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "-i":
-                    if (i + 1 == args.length) {
-                        throw new IllformedLocaleException("You gotta give a file");
-                    }
-                    inFile = args[++i];
-                    break;
-                case "-o":
-                    if (i + 1 == args.length) {
-                        throw new LSException((short) "urmum".hashCode(), "You gotta give a file");
-                    }
-                    outFile = args[++i];
-                case "-I":
-                    inFile = "/dev/stdin";
-                    break;
-                case "-O":
-                    outFile = "/dev/stdout";
-                    break;
-            }
-        }
-        //byte[] program = Files.readAllBytes(new File(inFile).toPath());
-        //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
-        File dir = new File(inFile).getParentFile();
-        String cont = new File(inFile).getName().split(".k")[0];
-        String asm = Compiler.compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
-        new FileOutputStream(outFile).write(asm.getBytes());
-    }
-    public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
     public static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
         byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
         List<Line> lines = Preprocessor.preprocess(new String(program));

@@ -14,6 +14,7 @@ import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
+import compiler.type.TypeVoid;
 
 /**
  *
@@ -38,7 +39,8 @@ public enum Keyword implements Token<Keyword> {
     BYTE("BITE", new TypeInt8()),
     SHORT("CHOMP", new TypeInt16()),
     INT("MEOWNT", new TypeInt32()),
-    LONG("LAWNG", new TypeInt64());
+    LONG("LAWNG", new TypeInt64()),
+    VOID("MT", new TypeVoid());
     public static final boolean CAT_MODE = false;
     public final String catVersion;
     public final boolean canBeginBlock;

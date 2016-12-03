@@ -83,16 +83,14 @@ class Parser {
                     if (!context.isTopLevel()) {
                         throw new IllegalStateException("Imports are top level");
                     }
-                    String data = (String) l.getTokens().get(1).data();
-                    if (l.getTokens().size() > 2) {
-                        String alias = (String) l.getTokens().get(2).data();
-                        if (l.getTokens().size() != 3) {
-                            throw new IllegalStateException(l.getTokens() + "");
-                        }
-                        context.addImport(data, alias);
-                    } else {
-                        context.addImport(data, data);
+                    String raw = l.raw().substring(6).trim();
+                    String[] args = raw.split(" ");
+                    if (args[0].length() == 0 || args.length > 2 || (args.length == 2 && args[1].length() == 0)) {
+                        throw new IllegalStateException(l.getTokens() + "");
                     }
+                    String data = args[0];
+                    String alias = args.length == 2 ? args[1] : data.substring(data.lastIndexOf('/') + 1);
+                    context.addImport(data, alias);
                     return null;
                 }
                 if (context.isTopLevel()) {//nothing top level that isn't a block
@@ -104,7 +102,7 @@ class Parser {
             if (e.getMessage() != null && e.getMessage().contains("Exception while parsing line")) {
                 throw e;
             }
-            throw new RuntimeException("Exception while parsing line " + l.num(), e);
+            throw new RuntimeException(e.getClass().getName() + " while parsing line " + l.num(), e);
         }
     }
 }

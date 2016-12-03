@@ -84,7 +84,7 @@ public class Compiler {
         byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name);
-        ArrayList<Command> cmds = Processor.parse(lines.stream().collect(Collectors.toList()), context);
+        ArrayList<Command> cmds = Processor.parse(new ArrayList<>(lines), context);
         return new Pair<>(cmds, context);
     }
     public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
@@ -125,7 +125,7 @@ public class Compiler {
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(lines.stream().collect(Collectors.toList()), new Context(""));
+        ArrayList<Command> commands = Processor.parse(new ArrayList<>(lines), new Context(""));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
         FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>("", commands)));

@@ -77,6 +77,8 @@ public class Context {
             return Context.this;
         }
     }
+    public final HashMap<String, String> imports;
+    public final String packageName;
     private final HashMap<String, VarInfo>[] values;
     private final HashMap<String, Struct> structs;
     private int stackSize;
@@ -86,11 +88,33 @@ public class Context {
     public FunctionsContext gc;
     public final MutInt varIndex;
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[]{" so I can't fix this warning
-    public Context() {
+    public Context(String packageName) {
         this.values = new HashMap[]{new HashMap<>()};
         this.stackSize = 0;
         this.structs = new HashMap<>();
         this.varIndex = null;
+        this.imports = new HashMap<>();
+        this.packageName = packageName;
+        imports.put(packageName, packageName);
+    }
+    public String reverseAlias(String alias) {
+        String wew = imports.get(alias);
+        if (wew == null) {
+            throw new RuntimeException(imports + " " + alias);
+        }
+        return wew;
+    }
+    public void addImport(String fileName, String alias) {
+        if (fileName.equals(packageName) || alias.equals(packageName)) {
+            throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
+        }
+        if (imports.containsKey(alias)) {
+            throw new IllegalStateException("Already imported under alias " + alias);
+        }
+        if (imports.values().contains(fileName)) {
+            throw new IllegalStateException("Already imported " + fileName);
+        }
+        imports.put(alias, fileName);
     }
     public void defineStruct(Struct struct) {
         if (structs.containsKey(struct.name)) {
@@ -152,20 +176,22 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub) {
+    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;
         this.gc = gc;
         this.currentFunction = currentFunction;
         this.varIndex = sub;
+        this.imports = imports;
+        this.packageName = packageName;
     }
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
         HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex);
+        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
         return subContext;
     }
     private void defineLocal(String name, VarInfo value) {

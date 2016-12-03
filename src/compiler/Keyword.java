@@ -33,6 +33,7 @@ public enum Keyword implements Token<Keyword> {
     RETURN("POUNCE", false),
     FUNC("CHASE", true),
     STRUCT("IDKWHATEVER", true),
+    IMPORT("SOMETHINGGG", false),
     SIZEOF("BIGNESS", false),
     BOOL("BOWL", new TypeBoolean()),
     BYTE("BITE", new TypeInt8()),

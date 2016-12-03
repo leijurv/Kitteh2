@@ -75,7 +75,7 @@ class FirstPass implements ExpressionParseStep {
                     o.set(i, new ExpressionConstChar((Character) ob.data()));
                     break;
                 case VARIABLE:
-                    if (i != o.size() - 1 && o.get(i + 1) == STARTPAREN) {
+                    if (i != o.size() - 1 && (o.get(i + 1) == STARTPAREN || o.get(i + 1) == ACCESS)) {
                         //this is a pattern like f(
                         //indicates function call
                         //let's just like not

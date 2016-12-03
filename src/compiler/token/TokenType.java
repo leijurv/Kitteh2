@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import org.w3c.dom.DOMException;
 
 public enum TokenType implements Token<Void>, Predicate<Token> {
+    ACCESS("::"),
     CHAR(Character.class, arg -> "'" + arg + "'"),
     COMMA(","),
     DECREMENT("--"),

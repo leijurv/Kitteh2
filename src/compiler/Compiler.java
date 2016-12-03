@@ -16,12 +16,17 @@ import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.IllformedLocaleException;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.xml.crypto.NoSuchMechanismException;
 import org.w3c.dom.ls.LSException;
 
 /**
@@ -67,22 +72,79 @@ public class Compiler {
                     break;
             }
         }
-        byte[] program = Files.readAllBytes(new File(inFile).toPath());
-        String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        //byte[] program = Files.readAllBytes(new File(inFile).toPath());
+        //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        File dir = new File(inFile).getParentFile();
+        String cont = new File(inFile).getName().split(".k")[0];
+        String asm = compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
+    public static Pair<List<Command>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
+        byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
+        List<Line> lines = Preprocessor.preprocess(new String(program));
+        Context context = new Context(name);
+        ArrayList<Command> cmds = Processor.parse(lines.stream().collect(Collectors.toList()), context);
+        return new Pair<>(cmds, context);
+    }
+    public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
+        List<String> toLoad = new ArrayList<>();
+        HashSet<String> alreadyLoaded = new HashSet<>();
+        toLoad.add(mainName);
+        List<Pair<String, List<Command>>> loaded = new ArrayList<>();
+        while (!toLoad.isEmpty()) {
+            String pathh = toLoad.remove(0);
+            alreadyLoaded.add(pathh);
+            System.out.println("Loading " + new File(dir, pathh + ".k"));
+            Pair<List<Command>, Context> funcs = load(dir, pathh, settings);
+            Context context = funcs.getValue();
+            System.out.println("Imports: " + context.imports);
+            for (Entry<String, String> imp : context.imports.entrySet()) {
+                String toImport = imp.getValue();
+                if (!new File(dir, toImport + ".k").exists()) {
+                    throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
+                }
+                if (!alreadyLoaded.contains(toImport) && !toLoad.contains(toImport)) {
+                    toLoad.add(toImport);
+                }
+            }
+            loaded.add(new Pair<>(pathh, funcs.getKey()));
+        }
+        System.out.println(loaded);
+        for (int i = 0; i < loaded.size(); i++) {
+            List<Command> cmds = loaded.get(i).getValue();
+            System.out.println("Building context for " + loaded.get(i).getKey());
+            FunctionsContext fc = new FunctionsContext(cmds, loaded);
+            if (i == 0 && !fc.hasMain()) {
+                throw new NoSuchMechanismException("You need a main function");
+            }
+            if (i == 0) {
+                fc.setEntryPoint();
+            }
+            fc.parseRekursivelie();
+        }
+        List<Command> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
+        return finalCompile(flattenedList, settings);
+    }
     public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        ArrayList<Command> commands = Processor.parse(lines);
+        ArrayList<Command> commands = Processor.parse(lines.stream().collect(Collectors.toList()), new Context(""));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
-        FunctionsContext.parseRekursively(commands);
+        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>("", commands)));
+        fc.parseRekursivelie();
+        if (!fc.hasMain()) {
+            throw new NoSuchMechanismException("You need a main function");
+        }
+        fc.setEntryPoint();
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
+        return finalCompile(commands, settings);
+    }
+    public static String finalCompile(List<Command> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {
             for (Command com : commands) {
                 com.staticValues();
@@ -105,9 +167,9 @@ public class Compiler {
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
-        String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        System.out.println(loll);
-        System.err.println(loll);
+        //String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
+        //System.out.println(loll);
+        //System.err.println(loll);
         return asm;
     }
 }

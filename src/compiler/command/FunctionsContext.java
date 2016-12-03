@@ -29,6 +29,7 @@ public class FunctionsContext {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
+            System.out.println(cdf + " " + cdf.getLocalName() + " " + cdf.getHeader().name + " " + cdf.getLocalHeader().name);
             if (functionMap.containsKey(name)) {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
             }
@@ -39,7 +40,7 @@ public class FunctionsContext {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
-                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
+                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name + " " + functionMap);
                 }
                 functionMap.put(name, header);
             }
@@ -49,9 +50,12 @@ public class FunctionsContext {
     public void setEntryPoint() {
         for (CommandDefineFunction cdf : functionDefinitions) {
             if (cdf.getLocalHeader().name.equals("main")) {
+                System.out.println("Setting entry point");
                 cdf.setEntryPoint();
+                return;
             }
         }
+        throw new RuntimeException();
     }
     public boolean hasMain() {
         return functionMap.containsKey("main");
@@ -79,7 +83,7 @@ public class FunctionsContext {
         if (pkg == null) {
             actual = name;
         } else {
-            actual = pkg + "__" + name;
+            actual = pkg.replace(".", "Dot").replace("/", "slash") + "__" + name;
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {

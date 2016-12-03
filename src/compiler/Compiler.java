@@ -76,7 +76,7 @@ public class Compiler {
         //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         File dir = new File(inFile).getParentFile();
         String cont = new File(inFile).getName().split(".k")[0];
-        String asm = compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        String asm = Compiler.compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes());
     }
     public static final boolean OPTIMIZE = true;//if it's being bad, see if changing this to false fixes it
@@ -118,7 +118,7 @@ public class Compiler {
         contexts.get(0).setEntryPoint();
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).map(CommandDefineFunction.class::cast).collect(Collectors.toList());
-        return finalCompile(flattenedList, settings);
+        return generateASM(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
@@ -137,9 +137,9 @@ public class Compiler {
         System.out.println("> DONE PARSING: " + commands);
         long d = System.currentTimeMillis();
         List<CommandDefineFunction> cdfs = commands.stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
-        return finalCompile(cdfs, settings);
+        return generateASM(cdfs, settings);
     }
-    public static String finalCompile(List<CommandDefineFunction> commands, OptimizationSettings settings) {
+    public static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {
             commands.parallelStream().forEach(CommandDefineFunction::staticValues);
         }

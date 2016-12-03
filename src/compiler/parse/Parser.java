@@ -99,7 +99,7 @@ class Parser {
                 return LineParser.parseLine(l.getTokens(), context);
             }
         } catch (RuntimeException e) {
-            if (e.getMessage() != null && e.getMessage().contains("Exception while parsing line")) {
+            if (e.getMessage() != null && e.getMessage().contains(" while parsing line")) {
                 throw e;
             }
             throw new RuntimeException(e.getClass().getName() + " while parsing line " + l.num(), e);

@@ -56,6 +56,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
         return new FunctionHeader(context.packageName + "__" + name, header.returnType, header.arguments);
     }
+    public String getLocalName() {
+        return header.name;
+    }
     public FunctionHeader getLocalHeader() {
         return header;
     }
@@ -117,6 +120,14 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         @Override
         public String toString() {
             return "func " + name + arguments + " " + returnType;
+        }
+        @Override
+        public boolean equals(Object o) {
+            throw new UnsupportedOperationException();
+        }
+        @Override
+        public int hashCode() {
+            throw new UnsupportedOperationException();
         }
     }
     public static final FunctionHeader PRINTINT = new FunctionHeader(Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));

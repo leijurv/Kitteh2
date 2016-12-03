@@ -111,18 +111,12 @@ public class Compiler {
             loaded.add(new Pair<>(path, funcs.getKey()));
         }
         System.out.println(loaded);
-        for (int i = 0; i < loaded.size(); i++) {
-            List<Command> cmds = loaded.get(i).getValue();
-            System.out.println("Building context for " + loaded.get(i).getKey());
-            FunctionsContext fc = new FunctionsContext(cmds, loaded);
-            if (i == 0 && !fc.hasMain()) {
-                throw new NoSuchMechanismException("You need a main function");
-            }
-            if (i == 0) {
-                fc.setEntryPoint();
-            }
-            fc.parseRekursivelie();
+        List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getValue(), loaded)).collect(Collectors.toList());
+        if (!contexts.get(0).hasMain()) {
+            throw new NoSuchMechanismException("You need a main function");
         }
+        contexts.get(0).setEntryPoint();
+        contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).map(CommandDefineFunction.class::cast).collect(Collectors.toList());
         return finalCompile(flattenedList, settings);
     }

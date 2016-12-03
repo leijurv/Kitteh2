@@ -32,7 +32,7 @@ public class FunctionsContext {
             if (functionMap.containsKey(name)) {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
             }
-            functionMap.put(name, cdf.getHeader());
+            functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         }
         for (Pair<String, List<Command>> file : otherFiles) {
             String packageName = file.getKey();

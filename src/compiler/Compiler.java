@@ -40,7 +40,7 @@ public class Compiler {
     public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
         List<Path> toLoad = new ArrayList<>();
         HashSet<Path> alreadyLoaded = new HashSet<>();
-        toLoad.add(new File(dir, mainName).toPath());
+        toLoad.add(new File(dir, mainName+".k").toPath());
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
             Path path = toLoad.remove(0);
@@ -50,7 +50,7 @@ public class Compiler {
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImportName = imp.getValue();
+                String toImportName = imp.getValue()+".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
                 if (!toImport.exists()) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");

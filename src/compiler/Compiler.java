@@ -74,10 +74,10 @@ public class Compiler {
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING: " + lines);
         long b = System.currentTimeMillis();
-        List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(""));
+        List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
-        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>("", commands)));
+        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>(null, commands)));
         fc.parseRekursivelie();
         if (!fc.hasMain()) {
             throw new NoSuchMechanismException("You need a main function");

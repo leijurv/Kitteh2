@@ -105,7 +105,10 @@ public class Context {
         return wew;
     }
     public void addImport(String fileName, String alias) {
-        if (fileName.equals(packageName) || alias.equals(packageName)) {
+        if (packageName == null) {
+            throw new RuntimeException("Package mode is false, only compiling a single file. No imports allowed. Try using -p");
+        }
+        if (packageName.equals(fileName) || alias.equals(packageName)) {
             throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
         }
         if (imports.containsKey(alias)) {

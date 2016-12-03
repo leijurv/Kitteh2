@@ -7,6 +7,7 @@ package compiler;
 import compiler.tac.optimize.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.file.Files;
 import java.util.IllformedLocaleException;
 import java.util.stream.IntStream;
 import org.w3c.dom.ls.LSException;
@@ -34,6 +35,7 @@ public class Main {
         System.out.println("Second stream: " + streamTime()); //almost always zero
         String inFile = DEFAULT_IN_FILE;
         String outFile = DEFAULT_OUT_FILE;
+        boolean packageMode = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-i":
@@ -41,6 +43,9 @@ public class Main {
                         throw new IllformedLocaleException("You gotta give a file");
                     }
                     inFile = args[++i];
+                    break;
+                case "-p":
+                    packageMode = true;
                     break;
                 case "-o":
                     if (i + 1 == args.length) {
@@ -55,11 +60,15 @@ public class Main {
                     break;
             }
         }
-        //byte[] program = Files.readAllBytes(new File(inFile).toPath());
-        //String asm = compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
-        File dir = new File(inFile).getParentFile();
-        String cont = new File(inFile).getName().split(".k")[0];
-        String asm = Compiler.compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        String asm;
+        if (packageMode) {
+            File dir = new File(inFile).getParentFile();
+            String cont = new File(inFile).getName().split(".k")[0];
+            asm = Compiler.compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        } else {
+            byte[] program = Files.readAllBytes(new File(inFile).toPath());
+            asm = Compiler.compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        }
         new FileOutputStream(outFile).write(asm.getBytes());
     }
 }

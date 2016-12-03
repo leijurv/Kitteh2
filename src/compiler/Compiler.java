@@ -93,10 +93,10 @@ public class Compiler {
         toLoad.add(mainName);
         List<Pair<String, List<Command>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
-            String pathh = toLoad.remove(0);
-            alreadyLoaded.add(pathh);
-            System.out.println("Loading " + new File(dir, pathh + ".k"));
-            Pair<List<Command>, Context> funcs = load(dir, pathh, settings);
+            String path = toLoad.remove(0);
+            alreadyLoaded.add(path);
+            System.out.println("Loading " + new File(dir, path + ".k"));
+            Pair<List<Command>, Context> funcs = load(dir, path, settings);
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
@@ -108,7 +108,7 @@ public class Compiler {
                     toLoad.add(toImport);
                 }
             }
-            loaded.add(new Pair<>(pathh, funcs.getKey()));
+            loaded.add(new Pair<>(path, funcs.getKey()));
         }
         System.out.println(loaded);
         for (int i = 0; i < loaded.size(); i++) {

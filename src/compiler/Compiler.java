@@ -29,7 +29,7 @@ import javax.xml.crypto.NoSuchMechanismException;
  * @author leijurv
  */
 public class Compiler {
-    public static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
+    private static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
         byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name);
@@ -87,7 +87,7 @@ public class Compiler {
         long d = System.currentTimeMillis();
         return generateASM(commands, settings);
     }
-    public static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
+    private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         if (settings.staticValues()) {
             commands.parallelStream().forEach(CommandDefineFunction::staticValues);
         }

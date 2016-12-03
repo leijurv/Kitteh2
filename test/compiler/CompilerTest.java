@@ -372,9 +372,6 @@ public class CompilerTest {
         throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselesstempvars" + withAll);
     }
     public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
-        if (!new File("/usr/bin/gcc").exists()) {
-            assertNull("GCC must exist");
-        }
         if (!shouldCompile) {
             assertNull(desiredExecutionOutput);
         }
@@ -392,6 +389,9 @@ public class CompilerTest {
         verifyASM(compiled, useAssert, desiredExecutionOutput);
     }
     public static void verifyASM(String compiled, boolean useAssert, String desiredExecutionOutput) throws IOException, InterruptedException {
+        if (!new File("/usr/bin/gcc").exists()) {
+            assertNull("GCC must exist", "GCC must exist");
+        }
         File asm = File.createTempFile("kittehtest" + System.nanoTime() + "_" + compiled.hashCode(), ".s");
         File executable = new File(asm.getAbsolutePath().replace(".s", ".o"));
         assertEquals(false, executable.exists());
@@ -401,7 +401,7 @@ public class CompilerTest {
             out.write(compiled.getBytes());
         }
         assertEquals(true, asm.exists());
-        String[] compilationCommand = {"gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
+        String[] compilationCommand = {"/usr/bin/gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
         System.out.println(Arrays.asList(compilationCommand));
         Process gcc = new ProcessBuilder(compilationCommand).start();
         if (!gcc.waitFor(10, TimeUnit.SECONDS)) {

@@ -37,10 +37,10 @@ public class Compiler {
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
-    public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
+    public static String compile(Path main, OptimizationSettings settings) throws IOException {
         List<Path> toLoad = new ArrayList<>();
         HashSet<Path> alreadyLoaded = new HashSet<>();
-        toLoad.add(new File(dir, mainName+".k").toPath());
+        toLoad.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
             Path path = toLoad.remove(0);
@@ -50,13 +50,13 @@ public class Compiler {
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImportName = imp.getValue()+".k";
+                String toImportName = imp.getValue() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
                 if (!toImport.exists()) {
-                    throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist"+imp);
+                    throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
                 Path impPath = toImport.toPath();
-imp.setValue(impPath+"");
+                imp.setValue(impPath + "");
                 if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {
                     toLoad.add(impPath);
                 }

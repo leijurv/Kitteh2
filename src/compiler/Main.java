@@ -62,9 +62,7 @@ public class Main {
         }
         String asm;
         if (packageMode) {
-            File dir = new File(inFile).getParentFile();
-            String cont = new File(inFile).getName().split(".k")[0];
-            asm = Compiler.compile(dir, cont, new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+            asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         } else {
             byte[] program = Files.readAllBytes(new File(inFile).toPath());
             asm = Compiler.compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));

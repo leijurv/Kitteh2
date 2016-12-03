@@ -218,7 +218,7 @@ public class CompilerTest {
         File desiredOutput = new File(dir, "output");
         assertTrue("Package " + dir + " needs an " + desiredOutput, desiredOutput.exists());
         String desiredOut = new String(Files.readAllBytes(desiredOutput.toPath()));
-        String asm = Compiler.compile(dir, "main", OptimizationSettings.ALL);
+        String asm = Compiler.compile(new File(dir, "main.k").toPath(), OptimizationSettings.ALL);
         verifyASM(asm, true, desiredOut);
     }
     public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {

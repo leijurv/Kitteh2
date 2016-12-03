@@ -22,6 +22,7 @@ import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -308,7 +309,12 @@ public class CompilerTest {
     public static void verifyFileCompilationTrue(String filename) throws IOException, InterruptedException {
         verifyCompilation(read(filename + ".k"), true, read(filename + ".t"));
     }
-    public static void verifyPackageCompilation(String directoryName) throws IOException, InterruptedException {
+    public static void verifyPackageCompilation(File dir) throws IOException, InterruptedException {
+        File desiredOutput = new File(dir, "output");
+        assertTrue("Package " + dir + " needs an " + desiredOutput, desiredOutput.exists());
+        String desiredOut = new String(Files.readAllBytes(desiredOutput.toPath()));
+        String asm = Compiler.compile(dir, "main", OptimizationSettings.ALL);
+        verifyASM(asm, true, desiredOut);
     }
     public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
         try {

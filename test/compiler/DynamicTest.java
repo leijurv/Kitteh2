@@ -39,15 +39,12 @@ public class DynamicTest {
     @After
     public void tearDown() {
     }
-    /**
-     * Test of reverseAlias method, of class Context.
-     */
     @Test
     public void testCompilation() throws Exception {
         CompilerTest.verifyFileCompilationTrue(filename);
     }
     @Parameters
     public static Collection filenames() {
-        return Arrays.stream(new File("test/tests/").listFiles()).map(x -> x.getName()).filter(x -> x.charAt(x.length() - 1) == 'k').map(x -> x.substring(0, x.length() - 2)).collect(Collectors.toList());
+        return Arrays.stream(new File("test/tests/").listFiles()).map(x -> x.getName()).filter(x -> x.endsWith(".k")).map(x -> x.substring(0, x.length() - 2)).collect(Collectors.toList());
     }
 }

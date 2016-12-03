@@ -23,8 +23,8 @@ import org.junit.runners.Parameterized.Parameters;
  */
 @RunWith(Parameterized.class)
 public class DynamicTest {
-    public final String filename;
-    public DynamicTest(String s) {
+    public final File filename;
+    public DynamicTest(File s) {
         filename = s;
     }
     @BeforeClass
@@ -41,10 +41,20 @@ public class DynamicTest {
     }
     @Test
     public void testCompilation() throws Exception {
-        CompilerTest.verifyFileCompilationTrue(filename);
+        System.out.println(filename);
+        if (filename.getName().endsWith(".k")) {
+            String s = filename.getName();
+            CompilerTest.verifyFileCompilationTrue(s.substring(0, s.length() - 2));
+            return;
+        }
+        if (filename.isDirectory()) {
+            CompilerTest.verifyPackageCompilation(filename);
+            return;
+        }
     }
     @Parameters
     public static Collection filenames() {
-        return Arrays.stream(new File("test/tests/").listFiles()).map(x -> x.getName()).filter(x -> x.endsWith(".k")).map(x -> x.substring(0, x.length() - 2)).collect(Collectors.toList());
+        return Arrays.stream(new File("test/tests/").listFiles()).collect(Collectors.toList());
+        //return Arrays.stream(new File("test/tests/").listFiles()).map(x -> x.getName()).filter(x -> x.endsWith(".k")).map(x -> x.substring(0, x.length() - 2)).collect(Collectors.toList());
     }
 }

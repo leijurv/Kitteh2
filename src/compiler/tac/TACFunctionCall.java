@@ -63,7 +63,7 @@ public class TACFunctionCall extends TACStatement {
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         emit.addStatement("subq $" + toSubtract + ", %rsp");
-        if (header.name.equals("malloc") || header.name.equals("calloc")) {
+        if (header.name.equals("malloc") || header.name.equals("calloc") || header.name.equals("free")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
             emit.addStatement("movq $1, %rsi");
@@ -97,7 +97,11 @@ public class TACFunctionCall extends TACStatement {
         for (int i = 0; i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
             if (!type.equals(params[i].getType())) {
-                throw new RuntimeException();
+                if (header.name.equals("free") && params[i].getType() instanceof TypePointer) {
+                    //this is fine
+                } else {
+                    throw new RuntimeException();
+                }
             }
             X86Param dest = new X86FunctionArg(stackLocation, type);
             TACConst.move(dest, params[i], emit);

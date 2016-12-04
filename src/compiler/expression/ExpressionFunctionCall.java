@@ -14,6 +14,7 @@ import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,6 +39,10 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
         List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
         if (!got.equals(expected)) {
             if (calling.name.equals(Keyword.PRINT.toString()) && got.get(0) instanceof TypeNumerical) {
+                //good enough
+                return;
+            }
+            if (calling.name.equals("free") && got.get(0) instanceof TypePointer) {
                 //good enough
                 return;
             }

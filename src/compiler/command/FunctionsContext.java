@@ -81,6 +81,9 @@ public class FunctionsContext {
         if (name.equals("calloc")) {
             return CommandDefineFunction.CALLOC;
         }
+        if (name.equals("free")) {
+            return CommandDefineFunction.FREE;
+        }
         String actual;
         if (pkg == null) {
             actual = name;

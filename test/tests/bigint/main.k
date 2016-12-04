@@ -222,6 +222,7 @@ f(bigint*a){
 	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{
+	trimInPlace(a)
 	d:=new(a.size)
 	d.size=0
 	res:=new(a.size)
@@ -256,4 +257,41 @@ mod(bigint*a,bigint*b)bigint*{
 	f(dm.quotient)
 	free(dm)
 	return res
+}
+dup(bigint* a)bigint*{
+	trimInPlace(a)
+	res:=new(a.size)
+	for i:=0; i<a.size; i++{
+		res.cont[i]=a.cont[i]
+	}
+	return res
+}
+rightshiftone(bigint*a)bigint*{
+	trimInPlace(a)
+	res:=new(a.size-1)
+	for i:=0; i<a.size-1; i++{
+		res.cont[i]=a.cont[i+1]
+	}
+	return res
+}
+modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
+	return modpowInternal(dup(base),dup(pow),dup(modulus))
+}
+modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
+	trimInPlace(pow)
+	if pow.size==1{
+		return base
+	}
+	if pow.size==0{
+		one:=new(1)
+		one.cont[0]=true
+		return one
+	}
+	if pow.cont[0]{
+		//odd
+		pow.cont[0]=false // who needs subtract when you can set the bits manually
+		return mod(multiply(base,modpowInternal(base,pow,modulus)),modulus)
+	}
+	wew:=modpowInternal(base,rightshiftone(pow),modulus)
+	return mod(multiply(wew,wew),modulus)
 }

@@ -335,7 +335,7 @@ public class CompilerTest {
         assertEquals(0, gcc.waitFor());
         assertEquals(true, executable.exists());
         Process ex = new ProcessBuilder(executable.getAbsolutePath()).redirectError(Redirect.INHERIT).start();
-        if (!ex.waitFor(2, TimeUnit.SECONDS)) {
+        if (!ex.waitFor(10, TimeUnit.SECONDS)) {
             ex.destroyForcibly();
             assertEquals("Subprocess timed out", false, true);
         }

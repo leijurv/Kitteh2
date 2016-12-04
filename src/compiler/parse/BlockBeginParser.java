@@ -41,7 +41,7 @@ class BlockBeginParser {
         String functionName = (String) params.get(0).data();
         //System.out.println("FunctionName: " + functionName);
         if (params.get(1) != STARTPAREN) {
-            throw new AnnotationTypeMismatchException(null, "");
+            throw new AnnotationTypeMismatchException(null, "" + params);
         }
         int endParen = params.indexOf(ENDPAREN);
         if (endParen == -1) {

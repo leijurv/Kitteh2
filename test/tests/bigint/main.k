@@ -6,14 +6,19 @@ struct bigint{
 	bool* cont
 	int cap
 }
-fromLong(long i)bigint*{
-	x:=new(1)
-	for i>toLong(x){
-		one:=new(1)
-		one.cont[0]=true
-		x=add(x,one)
-		trimInPlace(x)
+fromLong(long inp)bigint*{
+	count:=0
+	copy:=inp
+	for copy>(long)0{
+		copy=copy/2
+		count++
 	}
+	x:=new(count+1)
+	for i:=0; inp>(long)0; i++{
+		x.cont[i]=inp%(long)2==(long)1
+		inp=inp/2
+	}
+	trimInPlace(x)
 	return x
 }
 toLong(bigint* b)long{

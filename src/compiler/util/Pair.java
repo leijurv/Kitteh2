@@ -49,7 +49,7 @@ public class Pair<A, B> implements Cloneable {
         try {
             return new Pair<A, B>((A) a.getClass().getMethod("clone").invoke(a), (B) b.getClass().getMethod("clone").invoke(b));
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            CloneNotSupportedException c = new CloneNotSupportedException(ex.getClass().getName() + " occoured while deep cloning " + this.toString() + "\n" + ex.getMessage());
+            CloneNotSupportedException c = new CloneNotSupportedException(ex.getClass().getName() + " occurred while deep cloning " + this.toString() + "\n" + ex.getMessage());
             c.initCause(ex);
             throw c;
         }

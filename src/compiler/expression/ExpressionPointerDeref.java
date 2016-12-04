@@ -8,16 +8,18 @@ import compiler.Context;
 import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
+import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import compiler.type.TypePointer;
 
 /**
  *
  * @author leijurv
  */
-public class ExpressionPointerDeref extends Expression implements Settable {
+public class ExpressionPointerDeref extends ExpressionConditionalJumpable implements Settable {
     final Expression deReferencing;
     public ExpressionPointerDeref(Expression deref) {
         this.deReferencing = deref;
@@ -48,5 +50,15 @@ public class ExpressionPointerDeref extends Expression implements Settable {
     @Override
     public Command setValue(Expression rvalue, Context context) {
         return new CommandSetPtr(context, deReferencing, rvalue);
+    }
+    @Override
+    public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+        String tmp = tempVars.getTempVar(new TypeBoolean());
+        generateTAC(emit, tempVars, tmp);
+        emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
+    }
+    @Override
+    public int condLength() {
+        return 1 + getTACLength();
     }
 }

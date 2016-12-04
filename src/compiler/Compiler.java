@@ -30,7 +30,7 @@ import javax.xml.crypto.NoSuchMechanismException;
  * @author leijurv
  */
 public class Compiler {
-    private static Pair<List<CommandDefineFunction>, Context> load(Path name, OptimizationSettings settings) throws IOException {
+    private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program = Files.readAllBytes(name);
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name + "");
@@ -46,7 +46,7 @@ public class Compiler {
             Path path = toLoad.remove(0);
             alreadyLoaded.add(path);
             System.out.println("Loading " + path);
-            Pair<List<CommandDefineFunction>, Context> funcs = load(path, settings);
+            Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getValue();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {

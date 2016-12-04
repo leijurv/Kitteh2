@@ -67,7 +67,6 @@ sub(bigint*aa,bigint*bb)bigint*{
 		return (bigint*)0
 	}
 	a=trim(a)
-	b=trim(b)
 	b=padtolength(b,a.size)
 	for i:=0; i<b.size; i++{
 		bi:=b.cont[i]
@@ -79,9 +78,13 @@ sub(bigint*aa,bigint*bb)bigint*{
 	}
 	one:=new(1)
 	one.cont[0]=true
-	b=add(b,one)
-	res:=add(a,b)
+	bplusone:=add(b,one)
+	res:=add(a,bplusone)
 	res.size=a.size
+	f(a)
+	f(b)
+	f(one)
+	f(bplusone)
 	return res
 }
 greater(bigint*a,bigint*b)bool{
@@ -154,6 +157,8 @@ leftshift(bigint*a,int amount){
 		for i:=0; i<amount; i++{
 			newCont[i]=false
 		}
+	}else{
+		free(a.cont)
 	}
 	a.cont=newCont
 }
@@ -163,15 +168,22 @@ multiply(bigint* a, bigint* bb)bigint*{
 	for i:=0; i<a.size; i++{
 		ai:=a.cont[i]
 		if ai{
+			old:=res
 			res=add(res,b)
+			f(old)
 		}
 		leftshift(b,1)
 	}
+	f(b)
 	return res
 }
 struct quotremain{
 	bigint* quotient
 	bigint* remainder
+}
+f(bigint*a){
+	free(a.cont)
+	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{
 	d:=new(0)
@@ -181,7 +193,9 @@ dividemod(bigint*a,bigint*b)quotremain*{
 		d.cont[0]=a.cont[e]
 		g:=greater(b,d)
 		if(!g){
+			old:=d
 			d=sub(d,b)
+			f(old)
 			res.cont[e]=true
 		}
 	}
@@ -193,8 +207,16 @@ dividemod(bigint*a,bigint*b)quotremain*{
 	return qr
 }
 divide(bigint*a,bigint*b)bigint*{
-	return dividemod(a,b).quotient
+	dm:=dividemod(a,b)
+	res:=dm.quotient
+	f(dm.remainder)
+	free(dm)
+	return res
 }
 mod(bigint*a,bigint*b)bigint*{
-	return dividemod(a,b).remainder
+	dm:=dividemod(a,b)
+	res:=dm.remainder
+	f(dm.quotient)
+	free(dm)
+	return res
 }

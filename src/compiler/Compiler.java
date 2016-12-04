@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -38,13 +39,13 @@ public class Compiler {
         return new Pair<>(cmds, context);
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
-        List<Path> toLoad = new ArrayList<>();
-        HashSet<Path> alreadyLoaded = new HashSet<>();
+        LinkedList<Path> toLoad = new LinkedList<>();
+        HashSet<Path> alrImp = new HashSet<>();
         toLoad.add(main);
+        alrImp.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         while (!toLoad.isEmpty()) {
-            Path path = toLoad.remove(0);
-            alreadyLoaded.add(path);
+            Path path = toLoad.pop();
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getValue();
@@ -61,8 +62,9 @@ public class Compiler {
                     throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
                 }
                 imp.setValue(impPath + "");
-                if (!alreadyLoaded.contains(impPath) && !toLoad.contains(impPath)) {
-                    toLoad.add(impPath);
+                if (!alrImp.contains(impPath)) {
+                    toLoad.push(impPath);
+                    alrImp.add(impPath);
                 }
             }
             loaded.add(new Pair<>(path, funcs.getKey()));

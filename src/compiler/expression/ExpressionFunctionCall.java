@@ -9,8 +9,10 @@ import compiler.Keyword;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +22,7 @@ import java.util.stream.IntStream;
  *
  * @author leijurv
  */
-public class ExpressionFunctionCall extends Expression {
+public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     private final List<Expression> args;
     private final FunctionHeader calling;
     public ExpressionFunctionCall(Context context, String pkgName, String funcName, List<Expression> args) {
@@ -81,5 +83,15 @@ public class ExpressionFunctionCall extends Expression {
     @Override
     public boolean canBeCommand() {
         return true;
+    }
+    @Override
+    public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+        String tmp = tempVars.getTempVar(new TypeBoolean());
+        generateTAC(emit, tempVars, tmp);
+        emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
+    }
+    @Override
+    public int condLength() {
+        return 1 + getTACLength();
     }
 }

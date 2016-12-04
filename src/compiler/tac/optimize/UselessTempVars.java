@@ -121,7 +121,14 @@ public class UselessTempVars extends TACOptimization {
                     //and since no temp variables are used again after a jump
                     //it means that somehow this temp variable was generated but went unused entirely
                     //it could indicate a bug in a different optimization btw
-                    throw new RuntimeException("Another optimization did something weird");
+                    System.out.println(curr);
+                    System.out.println(next);
+                    System.out.println("TODO TODO TODO TODO TODO figure out what causes this, and dont just comment out the exception");
+                    for (TACStatement ts : block) {
+                        System.out.println(ts);
+                    }
+                    break;//TODO TODO TODO TODO TODO figure out what causes this, and dont just comment out the exception
+                    //throw new RuntimeException("Another optimization did something weird");
                 }
             }
             while (block.contains(null)) {//</horrible hack>

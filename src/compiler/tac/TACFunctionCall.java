@@ -63,9 +63,10 @@ public class TACFunctionCall extends TACStatement {
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         emit.addStatement("subq $" + toSubtract + ", %rsp");
-        if (header.name.equals("malloc")) {
+        if (header.name.equals("malloc") || header.name.equals("calloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
+            emit.addStatement("movq $1, %rsi");
             /*emit.addStatement("callq _malloc");
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/

@@ -78,6 +78,9 @@ public class FunctionsContext {
         if (name.equals("malloc")) {
             return CommandDefineFunction.MALLOC;
         }
+        if (name.equals("calloc")) {
+            return CommandDefineFunction.CALLOC;
+        }
         String actual;
         if (pkg == null) {
             actual = name;

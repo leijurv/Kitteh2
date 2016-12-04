@@ -37,7 +37,7 @@ class TokenMapping {
         MAPPINGS = Collections.unmodifiableMap(map);
         verifySane();
     }
-    static void verifySane() {
+    private static void verifySane() {
         for (String s : MAPPINGS.keySet()) {
             switch (s.length()) {
                 case 1:
@@ -49,7 +49,7 @@ class TokenMapping {
             }
         }
     }
-    static void put(Token t, Map<String, Token> map) {
+    private static void put(Token t, Map<String, Token> map) {
         map.put(t.toString(), t);
     }
     static boolean mapsToToken(String s) {

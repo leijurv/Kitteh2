@@ -1,0 +1,20 @@
+import ../bigint/main bigint
+main(){
+	wew:=bigint::fromLong(5021)
+	w:=bigint::fromLong(47)
+	bigint::output(bigint::multiply(wew,w))
+	bigint::output(bigint::multiply(w,wew))
+	bigint::output(wew)
+	bigint::output(w)
+	d:=bigint::divide(wew,w)
+	m:=bigint::mod(wew,w)
+	print(502124)
+	bigint::output(d)
+	bigint::output(m)
+	bigint::output(bigint::multiply(d,w))
+	bigint::output(bigint::multiply(w,d))
+	bigint::output(bigint::add(m,bigint::multiply(w,d)))
+	bigint::output(bigint::add(bigint::multiply(w,d),m))
+	bigint::output(bigint::add(m,bigint::multiply(d,w)))
+	bigint::output(bigint::add(bigint::multiply(d,w),m))
+}

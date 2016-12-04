@@ -74,14 +74,9 @@ public class FunctionsContext {
         if (name.equals(Keyword.PRINT.toString())) {
             return CommandDefineFunction.PRINTINT;
         }
-        if (name.equals("malloc")) {
-            return CommandDefineFunction.MALLOC;
-        }
-        if (name.equals("calloc")) {
-            return CommandDefineFunction.CALLOC;
-        }
-        if (name.equals("free")) {
-            return CommandDefineFunction.FREE;
+        try {
+            return (FunctionHeader) Stream.of(CommandDefineFunction.class).parallel().map(Class::getFields).flatMap(Stream::of).parallel().filter(x -> x.getName().equals(name.toUpperCase())).findAny().get().get(null);
+        } catch (IllegalAccessException | RuntimeException ex) {
         }
         String actual;
         if (pkg == null) {

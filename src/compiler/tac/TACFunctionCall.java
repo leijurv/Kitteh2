@@ -63,13 +63,16 @@ public class TACFunctionCall extends TACStatement {
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         emit.addStatement("subq $" + toSubtract + ", %rsp");
-        if (header.name.equals("malloc") || header.name.equals("calloc") || header.name.equals("free")) {
+        if (header.name.equals("malloc") || header.name.equals("calloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
             emit.addStatement("movq $1, %rsi");
             /*emit.addStatement("callq _malloc");
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/
+        }
+        if (header.name.equals("free")) {
+            emit.addStatement("movq " + params[0].x86() + ", %rdi");
         }
         if (header.name.equals(Keyword.PRINT.toString())) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE

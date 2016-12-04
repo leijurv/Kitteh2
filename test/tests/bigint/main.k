@@ -59,6 +59,7 @@ output(bigint* bbb){
 		out[count]=digit
 		count--
 	}
+	f(zero)
 	f(b)
 	f(ten)
 	print(out)
@@ -221,7 +222,7 @@ f(bigint*a){
 	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{
-	d:=new(0)
+	d:=new(a.size)
 	res:=new(a.size)
 	for e:=a.size-1;e>=0;e--{
 		leftshift(d,1)

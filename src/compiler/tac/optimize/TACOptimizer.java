@@ -27,7 +27,8 @@ public class TACOptimizer {
             DoubleJump.class,
             CommonSubexpression.class,
             SelfSet.class,
-            AfterReturn.class
+            AfterReturn.class,
+            ConditionalDoubleJump.class
     ));
     public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         List<TACStatement> input = emitted.getResult();

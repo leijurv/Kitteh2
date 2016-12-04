@@ -14,7 +14,7 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpBoolVar extends TACJump {
-    boolean invert;
+    public final boolean invert;
     public TACJumpBoolVar(String varName, int jumpTo, boolean invert) {
         super(jumpTo, varName);
         this.invert = invert;

@@ -32,7 +32,14 @@ public class Pair<A, B> implements Cloneable {
     }
     @Override
     public boolean equals(Object o) {
-        return o instanceof Pair && Objects.equals(a, ((Pair) o).a) && Objects.equals(a, ((Pair) o).b);
+        if (o.getClass() != Pair.class) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        Pair oo = (Pair) o;
+        return Objects.equals(a, oo.a) && Objects.equals(a, oo.b);
     }
     @Override
     public int hashCode() {

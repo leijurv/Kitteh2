@@ -44,7 +44,6 @@ public class FunctionsContext {
                 functionMap.put(name, header);
             }
         }
-        System.out.println(functionMap);
     }
     public void setEntryPoint() {
         for (CommandDefineFunction cdf : functionDefinitions) {
@@ -54,7 +53,7 @@ public class FunctionsContext {
                 return;
             }
         }
-        throw new RuntimeException();
+        throw new RuntimeException(functionDefinitions + "");
     }
     public boolean hasMain() {
         return functionMap.containsKey("main");

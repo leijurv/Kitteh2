@@ -48,7 +48,7 @@ public class Compiler {
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
-            Context context = funcs.getValue();
+            Context context = funcs.getB();
             System.out.println("Imports: " + context.imports);
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getValue() + ".k";
@@ -67,16 +67,16 @@ public class Compiler {
                     alrImp.add(impPath);
                 }
             }
-            loaded.add(new Pair<>(path, funcs.getKey()));
+            loaded.add(new Pair<>(path, funcs.getA()));
         }
         System.out.println(loaded);
-        List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getValue(), loaded)).collect(Collectors.toList());
+        List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getB(), loaded)).collect(Collectors.toList());
         if (!contexts.get(0).hasMain()) {
             throw new NoSuchMechanismException("You need a main function");
         }
         contexts.get(0).setEntryPoint();
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
-        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
+        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
         return generateASM(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
@@ -109,9 +109,9 @@ public class Compiler {
         long f = System.currentTimeMillis();
         Context.printFull = false;
         for (Pair<String, List<TACStatement>> pair : wew) {
-            System.out.println("TAC FOR " + pair.getKey());
-            for (int i = 0; i < pair.getValue().size(); i++) {
-                System.out.println(i + ":     " + pair.getValue().get(i));
+            System.out.println("TAC FOR " + pair.getA());
+            for (int i = 0; i < pair.getB().size(); i++) {
+                System.out.println(i + ":     " + pair.getB().get(i));
             }
             System.out.println();
         }

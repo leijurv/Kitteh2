@@ -16,10 +16,10 @@ import java.util.Objects;
 public class Pair<A, B> implements Cloneable {
     private final A a;
     private final B b;
-    public A getKey() {
+    public A getA() {
         return a;
     }
-    public B getValue() {
+    public B getB() {
         return b;
     }
     public Pair(A a, B b) {

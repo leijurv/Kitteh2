@@ -34,12 +34,12 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
-        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getValue).collect(Collectors.toList()));
+        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getB).collect(Collectors.toList()));
         int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack
         http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
         for (Pair<String, Type> arg : arguments) {
-            context.registerArgumentInput(arg.getKey(), arg.getValue(), pos);
-            pos += arg.getValue().getSizeBytes();
+            context.registerArgumentInput(arg.getA(), arg.getB(), pos);
+            pos += arg.getB().getSizeBytes();
         }
     }
     private boolean isEntryPoint = false;

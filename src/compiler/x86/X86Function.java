@@ -21,8 +21,8 @@ class X86Function {
             + "	.cfi_def_cfa_register %rbp\n";
     private static final String FUNC_FOOTER = "\n	.cfi_endproc\n";
     public static String generateX86(Pair<String, List<TACStatement>> pair) {
-        String name = pair.getKey();
-        List<TACStatement> stmts = pair.getValue();
+        String name = pair.getA();
+        List<TACStatement> stmts = pair.getB();
         long start = System.currentTimeMillis();
         System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);

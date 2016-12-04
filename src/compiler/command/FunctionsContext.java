@@ -35,7 +35,7 @@ public class FunctionsContext {
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         }
         for (Pair<Path, List<CommandDefineFunction>> file : otherFiles) {
-            for (CommandDefineFunction cdf : file.getValue()) {
+            for (CommandDefineFunction cdf : file.getB()) {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {

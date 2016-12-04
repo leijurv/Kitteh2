@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.util;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 /**
@@ -51,14 +50,5 @@ public class Pair<A, B> implements Cloneable {
     @Override
     public Pair<A, B> clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException("there's literally no point if its not a deep clone");
-    }
-    public Pair<A, B> deepClone() throws CloneNotSupportedException {
-        try {
-            return new Pair<>((A) a.getClass().getMethod("clone").invoke(a), (B) b.getClass().getMethod("clone").invoke(b));
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            CloneNotSupportedException c = new CloneNotSupportedException(ex.getClass().getName() + " occoured while deep cloning " + this.toString() + "\n" + ex.getMessage());
-            c.initCause(ex);
-            throw c;
-        }
     }
 }

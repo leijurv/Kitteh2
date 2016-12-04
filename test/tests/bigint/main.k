@@ -290,8 +290,18 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	if pow.cont[0]{
 		//odd
 		pow.cont[0]=false // who needs subtract when you can set the bits manually
-		return mod(multiply(base,modpowInternal(base,pow,modulus)),modulus)
+		lol:=modpowInternal(base,pow,modulus)
+		lmao:=multiply(base,lol)
+		f(lol)
+		res:=mod(lmao,modulus)
+		f(lmao)
+		return res
 	}
 	wew:=modpowInternal(base,rightshiftone(pow),modulus)
-	return mod(multiply(wew,wew),modulus)
+	f(pow)
+	wewwew:=multiply(wew,wew)
+	//f(wew)
+	res:=mod(wewwew,modulus)
+	f(wewwew)
+	return res
 }

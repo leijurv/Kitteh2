@@ -31,8 +31,38 @@ toLong(bigint* b)long{
 	}
 	return res
 }
-output(bigint* b){
-	print(toLong(b))
+output(bigint* bbb){
+	zero:=fromLong(0)
+	b:=add(bbb,zero)
+	ten:=fromLong(10)
+	copy:=add(b,zero)
+	count:=0
+	for greater(copy,zero){
+		wew:=divide(copy,ten)
+		f(copy)
+		copy=wew
+		count++
+	}
+	f(copy)
+	out:=(byte*)malloc((count+2)*sizeof(byte))
+	out[count+1]=0
+	out[count]=10
+	count--
+	for greater(b,zero){
+		dm:=dividemod(b,ten)
+		f(b)
+		b=dm.quotient
+		digi:=toLong(dm.remainder)
+		f(dm.remainder)
+		free(dm)
+		digit:=(byte)digi+'0'
+		out[count]=digit
+		count--
+	}
+	f(b)
+	f(ten)
+	print(out)
+	free(out)
 }
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))

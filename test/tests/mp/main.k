@@ -2,9 +2,12 @@ import ../bigint/main b
 import ../testRSA r
 main(){
 	
-	long a=293465
+	/*long a=293465
 	long b=836794
-	long c=875623
+	long c=875623*/
+	long a=2
+	long b=10
+	long b=7
 	print(r::mp(a,b,c))
 
 	b::output(b::modpow( b::fromLong(a),b::fromLong(b),b::fromLong(c) ))

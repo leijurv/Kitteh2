@@ -294,7 +294,7 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		//pow.cont[0]=false // who needs subtract when you can set the bits manually
 		one:=new(1)
 		one.cont[0]=true
-		powminus:=subtract(pow,one)
+		powminus:=sub(pow,one)
 		lol:=modpowInternal(base,powminus,modulus)
 		lmao:=multiply(base,lol)
 		f(lol)

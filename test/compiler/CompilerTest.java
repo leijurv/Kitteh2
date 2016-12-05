@@ -222,13 +222,14 @@ public class CompilerTest {
         verifyASM(asm, true, desiredOut);
     }
     public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+        verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
+        //first, no optimizations
+        //if that fails, then just fail without checking anything else
         try {
-            //first check with all optimizations
+            //then check with all optimizations
             //if it works with correct output with all optimizations, then we are gud
             verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.ALL, false);
         } catch (Exception e) {
-            verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
-            //don't try/catch the no-optimization, because if that fails then that's the error we want to throw
             if (!shouldCompile) {
                 return;
                 //if it shouldn't compile, and the test was successful (i e it actually didn't compile)

@@ -5,9 +5,6 @@ main(){
         long a=293465
         long b=836794
         long c=875623
-         //a=33455
-         //b=894
-        c=845683
         print(r::mp(a,b,c))
       b::output(b::modpow( b::fromLong(a),b::fromLong(b),b::fromLong(c) ))
         //verification: http://www.wolframalpha.com/input/?i=293465%5E836794+mod+875623

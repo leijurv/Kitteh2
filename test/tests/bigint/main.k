@@ -291,7 +291,6 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	}
 	if pow.cont[0]{
 		//odd
-		//pow.cont[0]=false // who needs subtract when you can set the bits manually
 		one:=new(1)
 		one.cont[0]=true
 		powminus:=sub(pow,one)

@@ -69,8 +69,11 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         contents = Processor.parse(rawContents, context);
         //System.out.println("wew " + contents);
         context.gc = null;
-        boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;
+        if (contents.isEmpty() && returnsVoid) {
+            contents.add(new CommandReturn(context, null));
+        }
+        boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         if (!endWithReturn && !returnsVoid) {
             throw new RuntimeException();
         }

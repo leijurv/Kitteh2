@@ -115,7 +115,7 @@ public enum Operator implements Token<Operator> {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b + " extends ");
                 }
                 return a;
-            // Don't add a default and maybe throw an exception
+            //don't add a default and maybe throw an exception
         }
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }

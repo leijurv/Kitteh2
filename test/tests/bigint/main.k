@@ -302,6 +302,7 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	wewwew:=multiply(wew,wew)
 	f(wew)
 	res:=mod(wewwew,modulus)
+	trimInPlace(res)
 	f(wewwew)
 	return res
 }

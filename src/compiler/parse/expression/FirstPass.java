@@ -81,7 +81,7 @@ class FirstPass implements ExpressionParseStep {
                         //let's just like not
                         continue;
                     }
-                    if (i != 0 && o.get(i - 1) == PERIOD) {
+                    if (i != 0 && (o.get(i - 1) == PERIOD || o.get(i - 1) == ACCESS)) {
                         //struct field access like a.field1
                         //field1 isn't a real variable with a type on its own
                         //don't turn it to an expressionvariable

@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class Compiler {
         toLoad.add(main);
         alrImp.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
+        HashMap<Path, Context> ctxts = new HashMap<>();
         while (!toLoad.isEmpty()) {
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
@@ -67,7 +69,17 @@ public class Compiler {
                     alrImp.add(impPath);
                 }
             }
+            ctxts.put(path, context);
             loaded.add(new Pair<>(path, funcs.getA()));
+        }
+        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
+            Context context = ctxts.get(pair.getA());
+            for (Entry<String, String> imp : context.imports.entrySet()) {
+                Path importing = new File(imp.getValue()).toPath();
+                String underName = imp.getKey();
+                Context importedContext = ctxts.get(importing);
+                context.insertStructsUnderPackage(underName, importedContext);
+            }
         }
         System.out.println(loaded);
         List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getB(), loaded)).collect(Collectors.toList());

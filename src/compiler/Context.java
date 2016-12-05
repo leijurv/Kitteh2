@@ -15,6 +15,7 @@ import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
 
@@ -99,6 +100,15 @@ public class Context {
             String wewlad = packageName.substring(packageName.lastIndexOf("/") + 1).split(".k")[0];
             imports.put(wewlad, wewlad);
         }
+    }
+    public void insertStructsUnderPackage(String alias, Context other) {
+        if (other == this) {
+            return;
+        }
+        for (Entry<String, Struct> struct : other.structs.entrySet()) {
+            structs.put(alias + "::" + struct.getKey(), struct.getValue());
+        }
+        System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
         String wew = imports.get(alias);

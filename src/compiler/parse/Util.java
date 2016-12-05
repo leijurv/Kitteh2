@@ -28,6 +28,11 @@ public class Util {
         if (tokens.isEmpty()) {
             return null;
         }
+        String accessing = null;
+        if (tokens.size() > 1 && tokens.get(1) == TokenType.ACCESS) {
+            accessing = (String) tokens.get(0).data();
+            tokens = tokens.subList(2, tokens.size());
+        }
         Token first = tokens.get(0);
         Type tp;
         switch (first.tokenType()) {
@@ -43,6 +48,9 @@ public class Util {
                 if (name.equals(selfRef)) {
                     tp = new TypeStruct(null);
                 } else {
+                    if (accessing != null) {
+                        name = accessing + "::" + name;
+                    }
                     Struct struct = context.getStruct(name);
                     if (struct == null) {
                         return null;

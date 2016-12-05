@@ -7,6 +7,7 @@ package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Comparison;
@@ -127,10 +128,10 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
             case SHIFT_L:
-                emit.addStatement("sal" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement("sal" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
             case SHIFT_R:
-                emit.addStatement("sar" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement("sar" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
             case DIVIDE:
                 emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);

@@ -69,7 +69,10 @@ new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))
 	res.size=size
 	res.cap=size
-	res.cont=(bool*)calloc(sizeof(bool)*size)
+	res.cont=(bool*)malloc(sizeof(bool)*size)
+	for i:=0; i<size; i++{
+		res.cont[i]=false
+	}
 	return res
 }
 add(bigint* a,bigint* b)bigint*{
@@ -181,7 +184,7 @@ leftshift(bigint*a,int amount){
 	bool* newCont
 	bool reallocated=a.cap<a.size
 	if reallocated{
-		newCont=(bool*)calloc(a.size*sizeof(bool))
+		newCont=(bool*)malloc(a.size*sizeof(bool))
 		a.cap=a.size
 	}else{
 		newCont=a.cont
@@ -189,11 +192,10 @@ leftshift(bigint*a,int amount){
 	for i:=origsize-1; i>=0; i--{
 		newCont[i+amount]=a.cont[i]
 	}
-	if !reallocated{//only clear if we didn't calloc beacuse calloc clears for us
-		for i:=0; i<amount; i++{
-			newCont[i]=false
-		}
-	}else{
+	for i:=0; i<amount; i++{
+		newCont[i]=false
+	}
+	if reallocated{
 		free(a.cont)
 	}
 	a.cont=newCont

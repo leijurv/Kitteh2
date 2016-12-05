@@ -9,8 +9,7 @@ main(){
          //b=894
         c=845683
         print(r::mp(a,b,c))
-
-//      b::output(b::modpow( b::fromLong(a),b::fromLong(b),b::fromLong(c) ))
+      b::output(b::modpow( b::fromLong(a),b::fromLong(b),b::fromLong(c) ))
         //verification: http://www.wolframalpha.com/input/?i=293465%5E836794+mod+875623
         //lol
         m:=b::fromLong(1)

@@ -295,14 +295,18 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		one:=new(1)
 		one.cont[0]=true
 		powminus:=sub(pow,one)
+		f(one)
 		lol:=modpowInternal(base,powminus,modulus)
+		f(powminus)
 		lmao:=multiply(base,lol)
 		f(lol)
 		res:=mod(lmao,modulus)
 		f(lmao)
 		return res
 	}
-	wew:=modpowInternal(base,rightshiftone(pow),modulus)
+	shiftedPow:=rightshiftone(pow)
+	wew:=modpowInternal(base,shiftedPow,modulus)
+	f(shiftedPow)
 	wewwew:=multiply(wew,wew)
 	f(wew)
 	res:=mod(wewwew,modulus)

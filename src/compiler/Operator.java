@@ -40,6 +40,8 @@ public enum Operator implements Token<Operator> {
     GREATER_OR_EQUAL(">=", 10),
     LESS_OR_EQUAL("<=", 10),
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
+    SHIFT_L("<<", 2000),
+    SHIFT_R(">>", 2000),
     AND("&&", 5);
     public static final List<List<Operator>> ORDER;//sorry this can't be the first line
     private final String str;
@@ -104,7 +106,16 @@ public enum Operator implements Token<Operator> {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return new TypeBoolean();
-            //dont add a default
+            case SHIFT_L:
+            case SHIFT_R:
+                if (!(a instanceof TypeNumerical || b instanceof TypeNumerical)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                if (b instanceof TypePointer) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b + " extends ");
+                }
+                return a;
+            /* Don't add a default and maybe throw an exception */
         }
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
@@ -124,6 +135,10 @@ public enum Operator implements Token<Operator> {
             }
         }
         switch (this) {
+            case SHIFT_L:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() << ((ExpressionConstNum) b).getVal().intValue());
+            case SHIFT_R:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() >> ((ExpressionConstNum) b).getVal().intValue());
             case PLUS:
                 return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() + ((ExpressionConstNum) b).getVal().intValue());
             case MINUS:

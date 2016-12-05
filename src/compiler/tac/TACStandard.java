@@ -126,6 +126,12 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
+            case SHIFT_L:
+                emit.addStatement("sal" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
+            case SHIFT_R:
+                emit.addStatement("sar" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
             case DIVIDE:
                 emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);

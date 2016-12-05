@@ -67,7 +67,7 @@ public class TACFunctionCall extends TACStatement {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
             //emit.addStatement("movq $1, %rsi");
-            emit.addStatement("movslq " + params[0].x86() + ", %rsi");
+            emit.addStatement("movslq %edi, %rsi");
             /*emit.addStatement("callq _malloc");
             emit.addStatement("addq $" + toSubtract + ", %rsp");
             return;*/

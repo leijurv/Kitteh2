@@ -179,7 +179,7 @@ leftshift(bigint*a,int amount){
 	origsize:=a.size
 	a.size=a.size+amount
 	bool* newCont
-	bool reallocated=!(a.cap>=a.size)
+	bool reallocated=a.cap<a.size
 	if reallocated{
 		newCont=(bool*)calloc(a.size*sizeof(bool))
 		a.cap=a.size

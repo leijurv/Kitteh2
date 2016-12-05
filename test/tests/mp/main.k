@@ -16,7 +16,7 @@ main(){
         b::leftshift(m,195)
         b::output(m)
 
-//b::output(b::modpow( b::fromLong(a),b::fromLong(b),m ))
+b::output(b::modpow( b::fromLong(a),b::fromLong(b),m ))
         //http://www.wolframalpha.com/input/?i=293465%5E836794+mod+2%5E195
 
 

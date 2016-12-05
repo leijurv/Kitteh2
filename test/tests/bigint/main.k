@@ -280,7 +280,7 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	trimInPlace(pow)
 	if pow.size==1{
-		return base
+		return dup(base)
 	}
 	if pow.size==0{
 		one:=new(1)
@@ -300,7 +300,7 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	wew:=modpowInternal(base,rightshiftone(pow),modulus)
 	f(pow)
 	wewwew:=multiply(wew,wew)
-	//f(wew)
+	f(wew)
 	res:=mod(wewwew,modulus)
 	f(wewwew)
 	return res

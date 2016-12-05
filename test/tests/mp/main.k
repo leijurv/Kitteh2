@@ -7,7 +7,7 @@ main(){
 	long c=875623*/
 	long a=2
 	long b=10
-	long b=7
+	long c=7
 	print(r::mp(a,b,c))
 
 	b::output(b::modpow( b::fromLong(a),b::fromLong(b),b::fromLong(c) ))

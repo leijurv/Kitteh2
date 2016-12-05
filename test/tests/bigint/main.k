@@ -173,7 +173,7 @@ trimInPlace(bigint* a){
 }
 padtolength(bigint*a,int length)bigint*{
 	res:=new(length)
-	for i:=0; i<a.size; i++{
+	for i:=0; i<a.size && i<length; i++{
 		res.cont[i]=a.cont[i]
 	}
 	return res
@@ -291,8 +291,11 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	}
 	if pow.cont[0]{
 		//odd
-		pow.cont[0]=false // who needs subtract when you can set the bits manually
-		lol:=modpowInternal(base,pow,modulus)
+		//pow.cont[0]=false // who needs subtract when you can set the bits manually
+		one:=new(1)
+		one.cont[0]=true
+		powminus:=subtract(pow,one)
+		lol:=modpowInternal(base,powminus,modulus)
 		lmao:=multiply(base,lol)
 		f(lol)
 		res:=mod(lmao,modulus)

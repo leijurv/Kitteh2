@@ -298,7 +298,6 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		return res
 	}
 	wew:=modpowInternal(base,rightshiftone(pow),modulus)
-	f(pow)
 	wewwew:=multiply(wew,wew)
 	f(wew)
 	res:=mod(wewwew,modulus)

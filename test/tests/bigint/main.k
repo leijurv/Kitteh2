@@ -43,12 +43,15 @@ output(bigint* bbb){
 		copy=wew
 		count++
 	}
+	if count==0{
+		count++
+	}
 	f(copy)
 	out:=(byte*)malloc((count+2)*sizeof(byte))
 	out[count+1]=0
 	out[count]=10
 	count--
-	for greater(b,zero){
+	for count>=0{
 		dm:=dividemod(b,ten)
 		f(b)
 		b=dm.quotient
@@ -170,8 +173,15 @@ trim(bigint* a)bigint*{
 }
 trimInPlace(bigint* a){
 	a.size=highestbitset(a)+1
+	if a.size==0{
+		a.size=1
+	}
 }
-padtolength(bigint*a,int length)bigint*{
+padtolength(bigint*a,int length1)bigint*{
+	length:=length1
+	if length==0{
+		length=1
+	}
 	res:=new(length)
 	for i:=0; i<a.size && i<length; i++{
 		res.cont[i]=a.cont[i]
@@ -281,10 +291,10 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	trimInPlace(pow)
-	if pow.size==1{
+	if pow.size==1 && pow.cont[0]{
 		return dup(base)
 	}
-	if pow.size==0{
+	if pow.size<2{
 		one:=new(1)
 		one.cont[0]=true
 		return one

@@ -478,11 +478,13 @@ modInverse(bigint*a,bigint*b)bigint*{
 		t=newt
 	}
 	f(zero)
-	/*print(555555)
-	output(olds)
-	output(oldt)
-	output(oldr)
-	output(t)
-	output(s)*/
-	return mod(add(olds,b),b)
+	f(r)
+	f(s)
+	f(t)
+	f(oldr)
+	f(oldt)
+	wewlad:=add(olds,b)
+	res:= mod(wewlad,b)
+	f(wewlad)
+	return res
 }

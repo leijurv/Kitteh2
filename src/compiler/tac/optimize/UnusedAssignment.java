@@ -21,14 +21,14 @@ public class UnusedAssignment extends TACOptimization {
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {
-            if (block.get(i) instanceof TACFunctionCall) {
-                continue;
-            }
+            List<String> mv = block.get(i).modifiedVariables();
             Context.printFull = true;//TODO this is really bad, especially since optimizations are applied in a multithreaded manner
             if (block.get(i).toString().contains("Struct")) {
                 continue;
             }
-            List<String> mv = block.get(i).modifiedVariables();
+            if (block.get(i) instanceof TACFunctionCall) {
+                continue;
+            }
             if (mv.isEmpty()) {
                 continue;
             }
@@ -41,10 +41,11 @@ public class UnusedAssignment extends TACOptimization {
             if (mv.get(0).contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
-            if (!usedAfter(block, mv.get(0), i)) {
-                block.remove(i);
-                return;
+            if (usedAfter(block, mv.get(0), i)) {
+                continue;
             }
+            block.remove(i);
+            return;
         }
     }
     static boolean usedAfter(List<TACStatement> block, String varName, int lineNumber) {

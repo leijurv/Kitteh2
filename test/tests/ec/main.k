@@ -16,7 +16,7 @@ main(){
 	bp.x=(void*)x
 	bp.y=(void*)y
 
-	for i:=1; i<=20; i++{
+	for i:=15; i<=20; i++{
 		print(i)
 		pow:=(void*)b::fromLong((long)i)
 		pt:=multiply(dup(bp),pow,(void*)modulus,bp)
@@ -24,6 +24,7 @@ main(){
 		clear(pt)
 		b::f((b::bigint*)pow)
 	}
+	output(multiply(dup(bp),(void*)b::fromLong(50215021),(void*)modulus,bp))
 }
 clear(ecpoint* a){
 	b::f((b::bigint*)a.x)

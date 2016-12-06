@@ -14,4 +14,8 @@ public class TypeVoid extends Type {
     public int getSizeBytes() {
         throw new UnsupportedOperationException();
     }
+    @Override
+    public String toString() {
+        return "void";
+    }
 }

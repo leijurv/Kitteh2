@@ -102,7 +102,7 @@ public class TACFunctionCall extends TACStatement {
                 if (header.name.equals("free") && params[i].getType() instanceof TypePointer) {
                     //this is fine
                 } else {
-                    throw new RuntimeException();
+                    throw new RuntimeException(this + " " + params[i].getType() + " " + type);
                 }
             }
             X86Param dest = new X86FunctionArg(stackLocation, type);

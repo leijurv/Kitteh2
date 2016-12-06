@@ -1,12 +1,17 @@
 main(){
-	output(multiply(fromLong(2352),fromLong(234987)))
+	output(multiply(fromLong((long)(0-2352)),fromLong(234987)))
 }
 struct bigint{
 	int size
 	bool* cont
 	int cap
+	bool neg
 }
 fromLong(long inp)bigint*{
+	neg:=inp<(long)0
+	if neg{
+		inp=0-inp
+	}
 	count:=0
 	copy:=inp
 	for copy>(long)0{
@@ -19,6 +24,7 @@ fromLong(long inp)bigint*{
 		inp=inp/2
 	}
 	trimInPlace(x)
+	x.neg=neg
 	return x
 }
 toLong(bigint* b)long{
@@ -29,10 +35,15 @@ toLong(bigint* b)long{
 			res++
 		}
 	}
+	if b.neg{
+		res=0-res
+	}
 	return res
 }
 output(bigint* bbb){
 	zero:=fromLong(0)
+	neg:=bbb.neg
+	bbb.neg=false
 	b:=add(bbb,zero)
 	ten:=fromLong(10)
 	copy:=add(b,zero)
@@ -44,6 +55,9 @@ output(bigint* bbb){
 		count++
 	}
 	if count==0{
+		count++
+	}
+	if neg{
 		count++
 	}
 	f(copy)
@@ -62,11 +76,15 @@ output(bigint* bbb){
 		out[count]=digit
 		count--
 	}
+	if neg{
+		out[0]='-'
+	}
 	f(b)
 	f(ten)
 	f(zero)
 	print(out)
 	free(out)
+	bbb.neg=neg
 }
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))
@@ -76,9 +94,33 @@ new(int size)bigint*{
 	for i:=0; i<size; i++{
 		res.cont[i]=false
 	}
+	res.neg=false
 	return res
 }
 add(bigint* a,bigint* b)bigint*{
+	if a.neg{
+		if b.neg{
+			a.neg=false
+			b.neg=false
+			res:=add(a,b)
+			res.neg=true
+			a.neg=true
+			b.neg=true
+			return res
+		}
+		//b-a
+		a.neg=false
+		res:=sub(b,a)
+		a.neg=true
+		return res
+	}
+	if b.neg{
+		//a-b
+		b.neg=false
+		res:=sub(a,b)
+		b.neg=true
+		return res
+	}
 	size:=a.size
 	if b.size>size{
 		size=b.size
@@ -104,9 +146,39 @@ add(bigint* a,bigint* b)bigint*{
 sub(bigint*aa,bigint*bb)bigint*{
 	a:=aa
 	b:=bb
+	if a.neg{
+		if b.neg{
+			//-a - -b
+			//-a + b
+			//b-a
+			b.neg=false
+			res:=sub(b,a)
+			b.neg=true
+			return res
+		}
+		//-a - b
+		//-(a+b)
+		a.neg=false
+		b.neg=false
+		res:=add(a,b)
+		a.neg=true
+		b.neg=true
+		res.neg=true
+		return res
+	}
+	if b.neg{
+		//a - -b
+		//a+b
+		b.neg=false
+		res:=add(a,b)
+		b.neg=true
+		return res
+	}
 	g:=greater(b,a)
 	if g{
-		return (bigint*)0
+		res:=sub(b,a)
+		res.neg=true
+		return res
 	}
 	a=trim(a)
 	b=padtolength(b,a.size)
@@ -130,6 +202,20 @@ sub(bigint*aa,bigint*bb)bigint*{
 	return res
 }
 greater(bigint*a,bigint*b)bool{
+	if a.neg{
+		if b.neg{
+			a.neg=false
+			b.neg=false
+			res:=greater(b,a)
+			a.neg=true
+			b.neg=true
+			return res
+		}
+		return false
+	}
+	if b.neg{
+		return true
+	}
 	if highestbitset(a)>highestbitset(b){
 		return true
 	}
@@ -149,6 +235,9 @@ greater(bigint*a,bigint*b)bool{
 	return false
 }
 equal(bigint*a,bigint*b)bool{
+	if a.neg!=b.neg{
+		return false
+	}
 	if highestbitset(a)!=highestbitset(b){
 		return false
 	}
@@ -174,6 +263,7 @@ trim(bigint* a)bigint*{
 trimInPlace(bigint* a){
 	a.size=highestbitset(a)+1
 	if a.size==0{
+		a.neg=false //cant have negative zero
 		a.size=1
 	}
 }
@@ -212,6 +302,10 @@ leftshift(bigint*a,int amount){
 }
 multiply(bigint* a, bigint* bb)bigint*{
 	b:=trim(bb)
+	bneg:=b.neg
+	aneg:=a.neg
+	a.neg=false
+	b.neg=false
 	res:=new(1)
 	for i:=0; i<a.size; i++{
 		ai:=a.cont[i]
@@ -222,6 +316,9 @@ multiply(bigint* a, bigint* bb)bigint*{
 		}
 		leftshift(b,1)
 	}
+	res.neg=aneg!=bneg
+	a.neg=aneg
+	b.neg=bneg
 	f(b)
 	return res
 }
@@ -235,6 +332,10 @@ f(bigint*a){
 }
 dividemod(bigint*a,bigint*b)quotremain*{
 	trimInPlace(a)
+	bneg:=b.neg
+	b.neg=false
+	aneg:=a.neg
+	a.neg=false
 	d:=new(a.size)
 	d.size=0
 	res:=new(a.size)
@@ -252,8 +353,12 @@ dividemod(bigint*a,bigint*b)quotremain*{
 	trimInPlace(res)
 	trimInPlace(d)
 	qr:=(quotremain*)malloc(sizeof(quotremain))
+	res.neg=aneg!=bneg
 	qr.quotient=res
+	d.neg=aneg
 	qr.remainder=d
+	b.neg=bneg
+	a.neg=aneg
 	return qr
 }
 divide(bigint*a,bigint*b)bigint*{
@@ -276,6 +381,7 @@ dup(bigint* a)bigint*{
 	for i:=0; i<a.size; i++{
 		res.cont[i]=a.cont[i]
 	}
+	res.neg=a.neg
 	return res
 }
 rightshiftone(bigint*a)bigint*{
@@ -287,6 +393,9 @@ rightshiftone(bigint*a)bigint*{
 	return res
 }
 modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
+	if pow.neg || base.neg || modulus.neg{
+		return (bigint*)0
+	}
 	return modpowInternal(dup(base),dup(pow),dup(modulus))
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{

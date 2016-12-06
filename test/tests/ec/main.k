@@ -3,7 +3,7 @@ import base
 
 main(){
 	x:=(b::bigint*)base::basepointX()
-	y:=(b::bigint*)base::basepointY()
+	b::bigint* y=(b::bigint*)base::basepointY()
 	modulus:=(b::bigint*)base::modulus()
 	b::output(x)
 	b::output(y)

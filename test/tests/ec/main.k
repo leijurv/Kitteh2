@@ -19,7 +19,7 @@ main(){
 	for i:=1; i<=20; i++{
 		print(i)
 		pow:=(void*)b::fromLong((long)i)
-		pt:=multiply(bp,pow,(void*)modulus,bp)
+		pt:=multiply(dup(bp),pow,(void*)modulus,bp)
 		output(pt)
 	}
 }
@@ -27,6 +27,12 @@ clear(ecpoint* a){
 	b::f((b::bigint*)a.x)
 	b::f((b::bigint*)a.y)
 	free(a)
+}
+dup(ecpoint* x)ecpoint*{
+	new:=(ecpoint*)malloc(sizeof(ecpoint))
+	new.x=(void*)b::dup((b::bigint*)x.x)
+	new.y=(void*)b::dup((b::bigint*)x.y)
+	return new
 }
 output(ecpoint* t){
 	x:=b::tostring((b::bigint*)t.x,',')
@@ -62,7 +68,9 @@ multiply(ecpoint* base,void* POW,void* MOD,ecpoint* bp)ecpoint*{
 	
 	shiftedPow:=b::rightshiftone(pow)
 	wew:=multiply(base,(void*)shiftedPow,MOD,bp)
+	b::f(shiftedPow)
 	wewwew:=add(wew,wew,MOD)
+	clear(wew)
 	return wewwew
 }
 add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{

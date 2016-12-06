@@ -39,8 +39,16 @@ public class TACConst extends TACStatement {
     }
     @Override
     public void setVars() {
-        params[1] = paramNames[1].startsWith(X86Register.REGISTER_PREFIX) ? null : get(paramNames[1]);
-        TypeNumerical des = params[1] == null ? X86Register.typeFromRegister(paramNames[1]) : (params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType());
+        if (paramNames[1].startsWith(X86Register.REGISTER_PREFIX)) {
+            TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
+            params[1] = X86Register.A.getRegister(type);
+            if (!params[1].x86().equals(paramNames[1])) {//verify it was really %rax
+                throw new IllegalStateException(params[1].x86() + " " + paramNames[1]);
+            }
+        } else {
+            params[1] = get(paramNames[1]);
+        }
+        TypeNumerical des = params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType();
         try {//im tired ok? i know this is mal
             Double.parseDouble(paramNames[0]);
             params[0] = new X86Const(paramNames[0], des);
@@ -56,21 +64,17 @@ public class TACConst extends TACStatement {
     @Override
     public void onContextKnown() {
         if (params[0] != null && params[1] != null && !params[0].getType().equals(params[1].getType())) {
+            if (params[0].getType().getSizeBytes() == params[1].getType().getSizeBytes() && params[1] instanceof X86TypedRegister) {
+                //when returning a bool, it has to use the %al register which is technically a TypeInt8 not a TypeBoolean
+                //so dont throw an error
+                return;
+            }
             throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
         }
     }
     @Override
     public void printx86(X86Emitter emit) {
-        X86Param dest = params[1];
-        if (dest == null) {//special case for %eax, %rax, return register
-            TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
-            dest = X86Register.A.getRegister(type);
-            if (!dest.x86().equals(paramNames[1])) {
-                throw new IllegalStateException(dest.x86() + " " + paramNames[1]);
-            }
-        }
-        X86Param source = params[0];
-        move(dest, source, emit);
+        move(params[1], params[0], emit);
     }
     public static void move(X86Param dest, X86Param source, X86Emitter emit) {
         if (dest instanceof VarInfo && source instanceof VarInfo && !dest.getType().equals(source.getType())) {

@@ -25,8 +25,7 @@ public class X86Const implements X86Param {
     public String x86() {
         return "$" + value;
     }
-    @Override
-    public String getName() {
+    public String getValue() {
         return value;
     }
     @Override

@@ -98,7 +98,7 @@ public class TACStandard extends TACStatement {
             //we put the pointer in A
             //and the integer in C
             if (second instanceof X86Const) {
-                second = new X86Const(((X86Const) second).getName(), new TypeInt64());//its probably a const int that we are trying to add to an 8 byte pointer
+                second = new X86Const(((X86Const) second).getValue(), new TypeInt64());//its probably a const int that we are trying to add to an 8 byte pointer
                 //since its literally a const number, just change the type
             }
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {

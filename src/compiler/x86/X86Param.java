@@ -12,6 +12,5 @@ import compiler.type.Type;
  */
 public interface X86Param {
     String x86();
-    String getName();
     Type getType();
 }

@@ -25,10 +25,6 @@ public class X86FunctionArg implements X86Param {
         return location + "(%rsp)";
     }
     @Override
-    public String getName() {
-        return x86();
-    }
-    @Override
     public Type getType() {
         return type;
     }

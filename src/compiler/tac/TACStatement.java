@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public abstract class TACStatement {
-    public Context context;
-    public TempVarUsage tvu;
+    protected Context context;
+    protected TempVarUsage tvu;
     public String[] paramNames;
     public X86Param[] params;
     public TACStatement() {
@@ -32,8 +32,15 @@ public abstract class TACStatement {
     public final void setContext(Context context) {
         this.context = context;
         this.tvu = context.getTempVarUsage();//copy this because it's gonna be reset later
+        if (this.tvu == null || this.context == null) {
+            throw new IllegalStateException(context + " " + tvu);
+        }
         setVars();
         onContextKnown();
+    }
+    public void copyFrom(TACStatement copyingFrom) {
+        context = copyingFrom.context;
+        tvu = copyingFrom.tvu;
     }
     public void setVars() {
         for (int i = 0; i < paramNames.length; i++) {

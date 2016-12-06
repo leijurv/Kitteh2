@@ -23,16 +23,14 @@ public class RedundantCalculations extends TACOptimization {
                 if (ts.op == Operator.PLUS) {
                     if (ts.paramNames[0].equals("0")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
+                        repl.copyFrom(ts);
                         repl.setVars();
                         block.set(i, repl);
                         continue;
                     }
                     if (ts.paramNames[1].equals("0")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
+                        repl.copyFrom(ts);
                         repl.setVars();
                         block.set(i, repl);
                         continue;
@@ -41,16 +39,14 @@ public class RedundantCalculations extends TACOptimization {
                 if (ts.op == Operator.MULTIPLY) {
                     if (ts.paramNames[0].equals("1")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
+                        repl.copyFrom(ts);
                         repl.setVars();
                         block.set(i, repl);
                         continue;
                     }
                     if (ts.paramNames[1].equals("1")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
+                        repl.copyFrom(ts);
                         repl.setVars();
                         block.set(i, repl);
                         continue;

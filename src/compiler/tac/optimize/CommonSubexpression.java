@@ -54,8 +54,7 @@ public class CommonSubexpression extends TACOptimization {
                             compiler.Context.printFull = true;
                             //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
                             TACConst repl = new TACConst(o.paramNames[2], ts.paramNames[2]);
-                            repl.context = o.context;
-                            repl.tvu = o.tvu;
+                            repl.copyFrom(o);
                             repl.params[0] = ts.params[2];
                             repl.params[1] = o.params[2];
                             block.set(j, repl);

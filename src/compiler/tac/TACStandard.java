@@ -55,7 +55,7 @@ public class TACStandard extends TACStatement {
             throw new IllegalThreadStateException();
         }
         if (!params[0].getType().equals(params[1].getType())) {
-            if (params[0].getType() instanceof TypePointer) {
+            if (params[0].getType() instanceof TypePointer && (op == Operator.PLUS || op == Operator.MINUS)) {
                 return;
             }
             throw new IllegalStateException(this + "");

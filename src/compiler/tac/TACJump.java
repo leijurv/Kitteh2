@@ -21,7 +21,7 @@ public class TACJump extends TACStatement {
     @Override
     protected void onContextKnown() {
         if (getClass() != TACJump.class) {
-            throw new IllegalStateException("Subclasses must override onContextKnown");
+            throw new IllegalStateException("SWIPER NO SWIPING");
         }
     }
     @Override

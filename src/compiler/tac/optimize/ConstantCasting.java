@@ -33,7 +33,7 @@ public class ConstantCasting extends TACOptimization {
                 }
                 if (block.get(i + 1) instanceof TACCast) {
                     TACCast cast = (TACCast) block.get(i + 1);
-                    if (cast.paramNames[0].equals(con.paramNames[1]) && cast.params[0].equals(con.params[1])) {
+                    if (cast.paramNames[0].equals(con.paramNames[1])) {
                         con.replace(con.paramNames[1], cast.paramNames[1], cast.params[1]);
                         block.remove(i + 1);
                         i--;

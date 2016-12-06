@@ -40,8 +40,11 @@ public enum Operator implements Token<Operator> {
     GREATER_OR_EQUAL(">=", 10),
     LESS_OR_EQUAL("<=", 10),
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
-    SHIFT_L("<<", 2000),
-    SHIFT_R(">>", 2000),
+    SHIFT_L("<<", 1500),
+    SHIFT_R(">>", 1500),
+    L_XOR("^", 2000),
+    L_AND("&", 1900),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
+    L_OR("|", 1800),
     AND("&&", 5);
     public static final List<List<Operator>> ORDER;//sorry this can't be the first line
     private final String str;
@@ -106,8 +109,17 @@ public enum Operator implements Token<Operator> {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return new TypeBoolean();
+            case L_XOR:
+            case L_AND:
+            case L_OR:
+                if (b instanceof TypeBoolean) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
             case SHIFT_L:
             case SHIFT_R:
+                if (a instanceof TypeBoolean) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
                 if (!(a instanceof TypeNumerical || b instanceof TypeNumerical)) {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
@@ -135,6 +147,12 @@ public enum Operator implements Token<Operator> {
             }
         }
         switch (this) {
+            case L_XOR:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() ^ ((ExpressionConstNum) b).getVal().intValue());
+            case L_AND:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() & ((ExpressionConstNum) b).getVal().intValue());
+            case L_OR:
+                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() | ((ExpressionConstNum) b).getVal().intValue());
             case SHIFT_L:
                 return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() << ((ExpressionConstNum) b).getVal().intValue());
             case SHIFT_R:

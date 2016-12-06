@@ -135,6 +135,18 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("sar" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
+            case L_XOR:
+                emit.addStatement("xor" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
+                break;
+            case L_AND:
+                emit.addStatement("and" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
+                break;
+            case L_OR:
+                emit.addStatement("or" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement(mov + a + ", " + result.x86());
+                break;
             case DIVIDE:
                 emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);

@@ -27,7 +27,7 @@ public class Pair<A, B> implements Cloneable {
     }
     @Override
     public String toString() {
-        return a + "=" + b;
+        return a + "," + b;
     }
     @Override
     public boolean equals(Object o) {

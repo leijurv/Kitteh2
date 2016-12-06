@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
-    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//TODO replace recursion with loop
         new FirstPass().apply(o, desiredType, context);
         if (o.size() == 1) {
             return (Expression) o.get(0);
@@ -34,6 +34,8 @@ public class ExpressionParser {
         //recursively call parseImpl on the contents of parentheses
         new RecursiveParentheses(),
         //getting array item (like arr[ind])
+        //and also struct fields
+        //like a.b[0].c.d[3] would be parsed left to right with . and [ having the same precedence
         new StructFieldsAndArrays(),
         //casting
         //casting comes after parentheses: (long)(a)
@@ -42,7 +44,10 @@ public class ExpressionParser {
         //TODO should casting come before or after pointer dereferences?
         new Casting(),
         new PointerDeref(),
+        //! comes after pointer deref. !*boolArray should work I guess
+        //definitely comes after struct fields and arrays, !boolArray[0] should work
         new Not(),
+        //finally, the operators, in order of operations
         new Operations()
     };
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {

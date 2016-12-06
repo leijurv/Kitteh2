@@ -37,9 +37,11 @@ class FirstPass implements ExpressionParseStep {
             Token ob = (Token) o.get(i);
             switch (ob.tokenType()) {
                 case STARTPAREN:
+                case STARTBRAKT:
                     currentlyInParentheses++;
                     break;
                 case ENDPAREN:
+                case ENDBRKT:
                     currentlyInParentheses--;
                     break;
                 case NUM:

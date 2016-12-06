@@ -1,5 +1,7 @@
 main(){
-	output(multiply(fromLong((long)(0-2352)),fromLong(234987)))
+	//output(multiply(fromLong((long)(0-2352)),fromLong(234987)))
+	output(modInverse(fromLong(17),fromLong(3120)))
+	//output(mod(fromLong((long)(0-367)),fromLong(3120)))
 }
 struct bigint{
 	int size
@@ -41,6 +43,11 @@ toLong(bigint* b)long{
 	return res
 }
 output(bigint* bbb){
+	out:=tostring(bbb,10)
+	print(out)
+	free(out)
+}
+tostring(bigint* bbb,byte lastChar)byte*{
 	zero:=fromLong(0)
 	neg:=bbb.neg
 	bbb.neg=false
@@ -63,7 +70,7 @@ output(bigint* bbb){
 	f(copy)
 	out:=(byte*)malloc((count+2)*sizeof(byte))
 	out[count+1]=0
-	out[count]=10
+	out[count]=lastChar
 	count--
 	for count>=0{
 		dm:=dividemod(b,ten)
@@ -82,9 +89,8 @@ output(bigint* bbb){
 	f(b)
 	f(ten)
 	f(zero)
-	print(out)
-	free(out)
 	bbb.neg=neg
+	return out
 }
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))
@@ -302,7 +308,7 @@ leftshift(bigint*a,int amount){
 }
 multiply(bigint* a, bigint* bb)bigint*{
 	b:=trim(bb)
-	bneg:=b.neg
+	bneg:=bb.neg
 	aneg:=a.neg
 	a.neg=false
 	b.neg=false
@@ -431,4 +437,52 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	trimInPlace(res)
 	f(wewwew)
 	return res
+}
+modInverse(bigint*a,bigint*b)bigint*{
+	s:=fromLong(0)
+	olds:=fromLong(1)
+	t:=fromLong(1)
+	oldt:=fromLong(0)
+	r:=dup(b)
+	oldr:=dup(a)
+	zero:=fromLong(0)
+	for greater(r,zero){
+				/*print(50215021)
+				output(r)
+				output(oldr)
+				output(s)
+				output(olds)
+				output(t)
+				output(oldt)*/
+				/*output(quotient)
+				output(multiply(quotient,t))*/
+		quotient:=divide(oldr,r)
+		qr:=multiply(quotient,r)
+		qs:=multiply(quotient,s)
+		qt:=multiply(quotient,t)
+		newr:=sub(oldr,qr)
+		news:=sub(olds,qs)
+		newt:=sub(oldt,qt)
+		f(quotient)
+		f(qr)
+		f(qs)
+		f(qt)
+		f(oldr)
+		f(olds)
+		f(oldt)
+		oldr=r
+		olds=s
+		oldt=t
+		r=newr
+		s=news
+		t=newt
+	}
+	f(zero)
+	/*print(555555)
+	output(olds)
+	output(oldt)
+	output(oldr)
+	output(t)
+	output(s)*/
+	return mod(add(olds,b),b)
 }

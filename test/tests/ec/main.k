@@ -89,12 +89,26 @@ add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
     	lmao:=b::multiply(threexs,invertedy)
     	s=b::mod(lmao,modulus)
     }else{
-    	a:=b::add(modulus,b::sub(py,qy))
-    	b:=b::modInverse(b::add(modulus,b::sub(px,qx)),modulus)
-    	s=b::mod(b::multiply(a,b),modulus)
+    	ydiff:=b::sub(py,qy)
+    	a:=b::add(modulus,ydiff)
+    	xdiff:=b::sub(px,qx)
+    	posxdiff:=b::add(modulus,xdiff)
+    	b:=b::modInverse(posxdiff,modulus)
+    	ab:=b::multiply(a,b)
+    	s=b::mod(ab,modulus)
     }
-    xr:=b::mod(b::sub(b::sub(b::multiply(s,s),px),qx),modulus)
-    yr:=b::mod(b::add(modulus,b::mod(b::sub(modulus,b::add(py,b::multiply(s,b::sub(xr,px)))),modulus)),modulus)
+    ss:=b::multiply(s,s)
+    sspx:=b::sub(ss,px)
+    sspxqx:=b::sub(sspx,qx)
+    xr:=b::mod(sspxqx,modulus)
+
+    xdiff:=b::sub(xr,px)
+    sxdiff:=b::multiply(s,xdiff)
+    pysx:=b::add(py,sxdiff)
+    negpysx:=b::sub(modulus,pysx)
+    wrap1:=b::mod(negpysx,modulus)
+    wrap2:=b::add(modulus,wrap1)
+    yr:=b::mod(wrap2,modulus)
     res:=(ecpoint*)malloc(sizeof(ecpoint))
     res.x=(void*)xr
     res.y=(void*)yr

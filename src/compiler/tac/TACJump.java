@@ -13,10 +13,7 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJump extends TACStatement {
-    int jumpTo;
-    public TACJump(int jumpTo) {
-        this.jumpTo = jumpTo;
-    }
+    protected int jumpTo;
     public TACJump(int jumpTo, String... paramNames) {
         super(paramNames);
         this.jumpTo = jumpTo;

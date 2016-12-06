@@ -18,7 +18,7 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpCmp extends TACJump {
-    Operator op;
+    private final Operator op;
     public TACJumpCmp(String first, String second, Operator op, int jumpTo) {
         super(jumpTo, first, second);
         this.op = op;
@@ -46,8 +46,7 @@ public class TACJumpCmp extends TACJump {
         }
         TypeNumerical type = (TypeNumerical) first.getType();
         emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
-        emit.addStatement("mov" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.A.getRegister(type));
-        emit.addStatement("cmp" + type.x86typesuffix() + " " + X86Register.A.getRegister(type) + ", " + X86Register.C.getRegister(type));
+        emit.addStatement("cmp" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.C.getRegister(type));
         emit.addStatement(X86Comparison.tox86jump(op) + " " + emit.lineToLabel(jumpTo));
     }
 }

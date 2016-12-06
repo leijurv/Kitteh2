@@ -26,6 +26,8 @@ main(){
 clear(ecpoint* a){
 	b::f((b::bigint*)a.x)
 	b::f((b::bigint*)a.y)
+	a.x=(void*)0
+	a.y=(void*)0
 	free(a)
 }
 dup(ecpoint* x)ecpoint*{
@@ -84,31 +86,51 @@ add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
     	xs:=b::multiply(px,px)
     	twoxs:=b::add(xs,xs)
     	threexs:=b::add(xs,twoxs)
+    	b::f(xs)
+    	b::f(twoxs)
     	twopy:=b::add(py,py)
     	invertedy:=b::modInverse(twopy,modulus)
+    	b::f(twopy)
     	lmao:=b::multiply(threexs,invertedy)
+    	b::f(threexs)
+    	b::f(invertedy)
     	s=b::mod(lmao,modulus)
+    	b::f(lmao)
     }else{
     	ydiff:=b::sub(py,qy)
     	a:=b::add(modulus,ydiff)
+    	b::f(ydiff)
     	xdiff:=b::sub(px,qx)
     	posxdiff:=b::add(modulus,xdiff)
+    	b::f(xdiff)
     	b:=b::modInverse(posxdiff,modulus)
+    	b::f(posxdiff)
     	ab:=b::multiply(a,b)
+    	b::f(a)
+    	b::f(b)
     	s=b::mod(ab,modulus)
+    	b::f(ab)
     }
     ss:=b::multiply(s,s)
     sspx:=b::sub(ss,px)
+    b::f(ss)
     sspxqx:=b::sub(sspx,qx)
+    b::f(sspx)
     xr:=b::mod(sspxqx,modulus)
-
+    b::f(sspxqx)
     xdiff:=b::sub(xr,px)
     sxdiff:=b::multiply(s,xdiff)
+    b::f(xdiff)
     pysx:=b::add(py,sxdiff)
+    b::f(sxdiff)
     negpysx:=b::sub(modulus,pysx)
+    b::f(pysx)
     wrap1:=b::mod(negpysx,modulus)
+    b::f(negpysx)
     wrap2:=b::add(modulus,wrap1)
+    b::f(wrap1)
     yr:=b::mod(wrap2,modulus)
+    b::f(wrap2)
     res:=(ecpoint*)malloc(sizeof(ecpoint))
     res.x=(void*)xr
     res.y=(void*)yr

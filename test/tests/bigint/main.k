@@ -333,6 +333,7 @@ struct quotremain{
 }
 f(bigint*a){
 	free(a.cont)
+	a.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
 	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{

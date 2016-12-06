@@ -82,9 +82,12 @@ add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
     b::bigint* s
     if b::equal(qx,px){
     	xs:=b::multiply(px,px)
-    	threexs:=b::add(xs,b::add(xs,xs))
-    	invertedy:=b::modInverse(b::add(py,py),modulus)
-    	s=b::mod(b::multiply(threexs,invertedy),modulus)
+    	twoxs:=b::add(xs,xs)
+    	threexs:=b::add(xs,twoxs)
+    	twopy:=b::add(py,py)
+    	invertedy:=b::modInverse(twopy,modulus)
+    	lmao:=b::multiply(threexs,invertedy)
+    	s=b::mod(lmao,modulus)
     }else{
     	a:=b::add(modulus,b::sub(py,qy))
     	b:=b::modInverse(b::add(modulus,b::sub(px,qx)),modulus)

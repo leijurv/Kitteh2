@@ -21,6 +21,8 @@ main(){
 		pow:=(void*)b::fromLong((long)i)
 		pt:=multiply(dup(bp),pow,(void*)modulus,bp)
 		output(pt)
+		clear(pt)
+		b::f((b::bigint*)pow)
 	}
 }
 clear(ecpoint* a){
@@ -131,6 +133,7 @@ add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
     b::f(wrap1)
     yr:=b::mod(wrap2,modulus)
     b::f(wrap2)
+    b::f(s)
     res:=(ecpoint*)malloc(sizeof(ecpoint))
     res.x=(void*)xr
     res.y=(void*)yr

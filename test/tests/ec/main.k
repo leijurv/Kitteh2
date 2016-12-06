@@ -20,12 +20,16 @@ main(){
 	q:=add(t,bp,(void*)modulus)
 	output(t)
 	output(q)*/
-	for i:=1; i<=10; i++{
+	for i:=1; i<=20; i++{
 		print(i)
 		pow:=(void*)b::fromLong((long)i)
 		pt:=multiply(bp,pow,(void*)modulus,bp)
 		output(pt)
 	}
+	/*print(9000)
+	pow:=(void*)b::fromLong((long)5)
+	pt:=multiply(bp,pow,(void*)modulus,bp)
+	output(pt)*/
 }
 output(ecpoint* t){
 	x:=b::tostring((b::bigint*)t.x,',')
@@ -43,17 +47,29 @@ multiply(ecpoint* base,void* POW,void* MOD,ecpoint* bp)ecpoint*{
 	}
 	if pow.cont[0]{
 		//odd
+		
 		one:=b::new(1)
 		one.cont[0]=true
 		powminus:=b::sub(pow,one)
 		b::f(one)
 		min:=multiply(base,(void*)powminus,MOD,bp)
-		res:=add(min,bp,MOD)
+		
+		/*print(123123)
+		output(base)
+		b::output((b::bigint*)pow)
+		output(min)*/
+		res:=add(bp,min,MOD)
+		//output(res)
 		return res
 	}
+	
 	shiftedPow:=b::rightshiftone(pow)
 	wew:=multiply(base,(void*)shiftedPow,MOD,bp)
 	wewwew:=add(wew,wew,MOD)
+	/*print(321321)
+	output(base)
+	b::output((b::bigint*)pow)
+	output(wewwew)*/
 	return wewwew
 }
 add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
@@ -77,16 +93,30 @@ add(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
         return new ECPoint(xR, yR);*/
     b::bigint* s
     if b::equal(qx,px){
+    //print(10112)
     	xs:=b::multiply(px,px)
     	threexs:=b::add(xs,b::add(xs,xs))
     	invertedy:=b::modInverse(b::add(py,py),modulus)
     	s=b::mod(b::multiply(threexs,invertedy),modulus)
     }else{
+    	//print(10111)
     	a:=b::add(modulus,b::sub(py,qy))
-    	b:=b::modInverse(b::sub(px,qx),modulus)
+    	//b::output(a)
+    	b:=b::modInverse(b::add(modulus,b::sub(px,qx)),modulus)
+    	//b::output(b)
     	s=b::mod(b::multiply(a,b),modulus)
     }
+    /*print(555021)
+    print(555021)
+    b::output(px)
+    b::output(py)
+    b::output(qx)
+    b::output(qy)
+    b::output(s)
+    print(555022)
+    print(555022)*/
     xr:=b::mod(b::sub(b::sub(b::multiply(s,s),px),qx),modulus)
+    //b::output(xr)
     yr:=b::mod(b::add(modulus,b::mod(b::sub(modulus,b::add(py,b::multiply(s,b::sub(xr,px)))),modulus)),modulus)
     res:=(ecpoint*)malloc(sizeof(ecpoint))
     res.x=(void*)xr

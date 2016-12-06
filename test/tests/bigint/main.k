@@ -333,6 +333,7 @@ struct quotremain{
 }
 f(bigint*a){
 	free(a.cont)
+	a.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
 	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{
@@ -477,11 +478,13 @@ modInverse(bigint*a,bigint*b)bigint*{
 		t=newt
 	}
 	f(zero)
-	/*print(555555)
-	output(olds)
-	output(oldt)
-	output(oldr)
-	output(t)
-	output(s)*/
-	return mod(add(olds,b),b)
+	f(r)
+	f(s)
+	f(t)
+	f(oldr)
+	f(oldt)
+	wewlad:=add(olds,b)
+	res:= mod(wewlad,b)
+	f(wewlad)
+	return res
 }

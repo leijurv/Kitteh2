@@ -8,6 +8,7 @@ import compiler.tac.optimize.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.IllformedLocaleException;
 import java.util.stream.IntStream;
 import org.w3c.dom.ls.LSException;
@@ -30,6 +31,7 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws Exception {
+        System.out.println(Paths.get(Compiler.class.getResource("/lang/" + "bigint" + ".k").toURI()));
         http://github.com/leijurv/Kitteh2
         System.out.println("First stream: " + streamTime()); //almost always several hundred ms
         System.out.println("Second stream: " + streamTime()); //almost always zero

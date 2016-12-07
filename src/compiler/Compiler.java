@@ -13,10 +13,15 @@ import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,6 +29,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -31,22 +38,60 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
+    private static Boolean PRE_IMPORT = false;
+    private static byte[] getResource(String name) throws IOException {
+        String s = "";
+        InputStream is = Compiler.class.getResourceAsStream("/lang/" + name + ".k");
+        InputStreamReader isr = new InputStreamReader(is);
+        BufferedReader reader = new BufferedReader(isr);
+        while (reader.ready()) {
+            s += reader.readLine() + "\n";
+        }
+        return s.getBytes();
+    }
+    private static Path getResourcePath(String resourcename) {
+        try {
+            return Paths.get(Compiler.class.getResource("/lang/" + resourcename + ".k").toURI());
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex);
+        }
+    }
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
-        byte[] program = Files.readAllBytes(name);
+        byte[] program;
+        if (PRE_IMPORT) {
+            program = Files.readAllBytes(name);//getResource(name.getFileName().toString());
+        } else {
+            program = Files.readAllBytes(name);
+        }
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name + "");
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
+        int entrypoint = 0;
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
-        toLoad.add(main);
-        alrImp.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
-        while (!toLoad.isEmpty()) {
+        PRE_IMPORT = true;
+        Path importpath = getResourcePath("bigint");
+        entrypoint++;
+        toLoad.add(importpath);
+        alrImp.add(importpath);
+        while (true) {
+            if (toLoad.isEmpty()) {
+                if (!PRE_IMPORT) {
+                    break;
+                } else {
+                    toLoad.add(main);
+                    alrImp.add(main);
+                    PRE_IMPORT = false;
+                    continue;
+                }
+            }
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
@@ -96,7 +141,7 @@ public class Compiler {
             }
         }
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
-        contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded
+        contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         System.out.println();
         System.out.println("---- END IMPORTS, BEGIN PARSING ----");
         System.out.println();

@@ -1,6 +1,6 @@
-import ../bigint/main b
+import ../bigint/main
 func basepointX()void*{
-	x:=b::new(256)
+	x:=new(256)
 	xcont:=x.cont
 	
 	xcont[254]=true
@@ -261,7 +261,7 @@ xcont[0]=false
 return (void*)x
 }
 basepointY() void*{
-y:=b::new(256)
+y:=new(256)
 	ycont:=y.cont
 ycont[254]=true
 ycont[253]=false
@@ -521,16 +521,16 @@ ycont[0]=false
 return (void*)y
 }
 modulus() void*{
-	twofivesix:=b::fromLong(1)
-	b::leftshift(twofivesix,256)
-	thirtytwo:=b::fromLong(1)
-	b::leftshift(thirtytwo,32)
-	wew:=b::sub(twofivesix,thirtytwo)
-	ninesevenseven:=b::fromLong(977)
-	b::bigint* modulus=b::sub(wew,ninesevenseven)
-	b::f(twofivesix)
-	b::f(thirtytwo)
-	b::f(wew)
-	b::f(ninesevenseven)
+	twofivesix:=fromLong(1)
+	leftshift(twofivesix,256)
+	thirtytwo:=fromLong(1)
+	leftshift(thirtytwo,32)
+	wew:=sub(twofivesix,thirtytwo)
+	ninesevenseven:=fromLong(977)
+	bigint* modulus=sub(wew,ninesevenseven)
+	f(twofivesix)
+	f(thirtytwo)
+	f(wew)
+	f(ninesevenseven)
 	return (void*)modulus
 }

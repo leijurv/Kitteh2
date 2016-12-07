@@ -45,6 +45,7 @@ public class Compiler {
         toLoad.add(main);
         alrImp.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
+        HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         while (!toLoad.isEmpty()) {
             Path path = toLoad.pop();
@@ -52,8 +53,10 @@ public class Compiler {
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getB();
             System.out.println("Imports: " + context.imports);
+            HashMap<String, String> fix = new HashMap<>();
+            HashSet<String> rmv = new HashSet<>();
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImportName = imp.getValue() + ".k";
+                String toImportName = imp.getKey() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
                 if (!toImport.exists()) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
@@ -63,26 +66,49 @@ public class Compiler {
                 if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                     throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
                 }
-                imp.setValue(impPath + "");
+                rmv.add(imp.getKey());
+                fix.put(impPath + "", imp.getValue());
                 if (!alrImp.contains(impPath)) {
                     toLoad.push(impPath);
                     alrImp.add(impPath);
                 }
             }
+            System.out.println("FIXING " + fix + " " + rmv);
+            for (String s : rmv) {
+                context.imports.remove(s);
+            }
+            for (Entry<String, String> entry : fix.entrySet()) {
+                context.imports.put(entry.getKey(), entry.getValue());
+            }
             ctxts.put(path, context);
             loaded.add(new Pair<>(path, funcs.getA()));
+            loadedMap.put(path, funcs.getA());
         }
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());
             for (Entry<String, String> imp : context.imports.entrySet()) {
-                Path importing = new File(imp.getValue()).toPath();
-                String underName = imp.getKey();
+                Path importing = new File(imp.getKey()).toPath();
+                String underName = imp.getValue();
                 Context importedContext = ctxts.get(importing);
+                if (importedContext == null) {
+                    throw new IllegalStateException(ctxts + " " + importing + " " + imp);
+                }
                 context.insertStructsUnderPackage(underName, importedContext);
             }
         }
         System.out.println(loaded);
-        List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getB(), loaded)).collect(Collectors.toList());
+        List<FunctionsContext> contexts = new ArrayList<>();
+        for (int i = 0; i < loaded.size(); i++) {
+            ArrayList<Path> definedLocally = new ArrayList<>();
+            for (Entry<String, String> entry : ctxts.get(loaded.get(i).getA()).imports.entrySet()) {
+                if (entry.getValue() == null) {//local
+                    Path importing = new File(entry.getKey()).toPath();
+                    definedLocally.add(importing);
+                }
+            }
+            System.out.println("Locals: " + definedLocally);
+            contexts.add(new FunctionsContext(loaded.get(i).getB(), definedLocally, loaded));
+        }
         if (!contexts.get(0).hasMain()) {
             throw new NoSuchMechanismException("You need a main function");
         }
@@ -99,7 +125,7 @@ public class Compiler {
         List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
         System.out.println("> DONE PROCESSING: " + commands);
         long c = System.currentTimeMillis();
-        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>(null, commands)));
+        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
         fc.parseRekursivelie();
         if (!fc.hasMain()) {
             throw new NoSuchMechanismException("You need a main function");

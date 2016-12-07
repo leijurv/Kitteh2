@@ -105,31 +105,32 @@ public class Context {
             return;
         }
         for (Entry<String, Struct> struct : other.structs.entrySet()) {
-            structs.put(alias + "::" + struct.getKey(), struct.getValue());
+            structs.put((alias == null ? "" : alias + "::") + struct.getKey(), struct.getValue());
         }
         System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
-        String wew = imports.get(alias);
-        if (wew == null) {
-            throw new RuntimeException(imports + " " + alias);
+        for (Entry<String, String> entry : imports.entrySet()) {
+            if ((alias).equals(entry.getValue())) {
+                return entry.getKey();
+            }
         }
-        return wew;
+        throw new RuntimeException(imports + " " + alias);
     }
     public void addImport(String fileName, String alias) {
         if (packageName == null) {
             throw new RuntimeException("Package mode is false, only compiling a single file. No imports allowed. Try using -p");
         }
-        if (packageName.equals(fileName) || alias.equals(packageName)) {
+        if (packageName.equals(fileName) || packageName.equals(alias)) {
             throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
         }
-        if (imports.containsKey(alias)) {
+        if (imports.values().contains(alias)) {
             throw new IllegalStateException("Already imported under alias " + alias);
         }
-        if (imports.values().contains(fileName)) {
+        if (imports.containsKey(fileName)) {
             throw new IllegalStateException("Already imported " + fileName);
         }
-        imports.put(alias, fileName);
+        imports.put(fileName, alias);
     }
     public void defineStruct(Struct struct) {
         if (structs.containsKey(struct.name)) {

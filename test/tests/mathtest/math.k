@@ -1,4 +1,4 @@
-import main
+import main main
 fact(int i) int{
 	if i<2{
 	return 1

@@ -89,7 +89,7 @@ class Parser {
                         throw new IllegalStateException(l.getTokens() + "");
                     }
                     String data = args[0];
-                    String alias = args.length == 2 ? args[1] : data.substring(data.lastIndexOf('/') + 1);
+                    String alias = args.length == 2 ? args[1] : null;//data.substring(data.lastIndexOf('/') + 1);
                     context.addImport(data, alias);
                     return null;
                 }

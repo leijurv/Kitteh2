@@ -5,9 +5,9 @@ struct ecpoint{
 	void* y
 }
 main(){
-	x:=(b::bigint*)base::basepointX()
-	b::bigint* y=(b::bigint*)base::basepointY()
-	modulus:=(b::bigint*)base::modulus()
+	x:=(b::bigint*)basepointX()
+	b::bigint* y=(b::bigint*)basepointY()
+	modulus:=(b::bigint*)modulus()
 	b::output(x)
 	b::output(y)
 	b::output(modulus)

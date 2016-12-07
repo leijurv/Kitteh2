@@ -23,7 +23,7 @@ public class FunctionsContext {
     public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
-    public FunctionsContext(List<CommandDefineFunction> definitions, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
+    public FunctionsContext(List<CommandDefineFunction> definitions, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
         functionDefinitions = new ArrayList<>(definitions.size());
         for (CommandDefineFunction cdf : definitions) {
             functionDefinitions.add(cdf);
@@ -42,6 +42,13 @@ public class FunctionsContext {
                     throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name + " " + functionMap);
                 }
                 functionMap.put(name, header);
+                if (defineLocally.contains(file.getA())) {
+                    String name1 = cdf.getLocalHeader().name;
+                    if (functionMap.containsKey(name1)) {
+                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name + " " + functionMap);
+                    }
+                    functionMap.put(name1, header);
+                }
             }
         }
     }

@@ -1,7 +1,3 @@
-main(){
-	output(multiply(fromLong((long)(0-2352)),fromLong(234987)))
-	output(modInverse(fromLong(17),fromLong(3120)))
-}
 struct bigint{
 	int size
 	bool* cont

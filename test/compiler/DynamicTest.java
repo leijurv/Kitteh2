@@ -48,7 +48,9 @@ public class DynamicTest {
             return;
         }
         if (filename.isDirectory()) {
-            CompilerTest.verifyPackageCompilation(filename);
+            if (new File(filename, "output").exists()) {
+                CompilerTest.verifyPackageCompilation(filename);
+            }
             return;
         }
     }

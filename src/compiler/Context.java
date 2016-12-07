@@ -124,7 +124,7 @@ public class Context {
         if (packageName.equals(fileName) || packageName.equals(alias)) {
             throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
         }
-        if (imports.values().contains(alias)) {
+        if (imports.values().contains(alias) && alias != null) {
             throw new IllegalStateException("Already imported under alias " + alias);
         }
         if (imports.containsKey(fileName)) {

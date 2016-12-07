@@ -157,17 +157,17 @@ sub(bigint*aa,bigint*bb)bigint*{
 			//-a + b
 			//b-a
 			b.neg=false
+			a.neg=false
 			res:=sub(b,a)
 			b.neg=true
+			a.neg=true
 			return res
 		}
 		//-a - b
 		//-(a+b)
 		a.neg=false
-		b.neg=false
 		res:=add(a,b)
 		a.neg=true
-		b.neg=true
 		res.neg=true
 		return res
 	}

@@ -70,6 +70,7 @@ public class FunctionsContext {
         if (PARALLEL_FUNCTION_PARSING) {
             stream = stream.parallel();
         }
+        long start1 = System.currentTimeMillis();
         System.out.println("> Starting parsing functions in " + path);
         stream.forEach(cdf -> {
             long start = System.currentTimeMillis();
@@ -77,6 +78,7 @@ public class FunctionsContext {
             cdf.parse(this);
             System.out.println("> Finished parsing function " + cdf.getHeader().name + " -- " + (System.currentTimeMillis() - start) + "ms");
         });
+        System.out.println("> Finished parsing functions in " + path + " -- " + (System.currentTimeMillis() - start1) + "ms");
     }
     public FunctionHeader getHeader(String pkg, String name) {
         if (name.equals(Keyword.PRINT.toString())) {

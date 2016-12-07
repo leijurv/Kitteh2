@@ -104,8 +104,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         for (Command com : contents) {
             com.generateTAC(emit);
         }
+        long middle = System.currentTimeMillis();
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
-        System.out.println("> END TAC GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
+        long end = System.currentTimeMillis();
+        System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");
         return result;
     }
 

@@ -45,11 +45,7 @@ public class FunctionsContext {
                     throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import");
                 }
                 functionMap.put(name, header);
-                if (defineLocally.contains(file.getA()) || file.getA()
-                    is
-                a path from inside the jar
-
-                    ) {
+                if (defineLocally.contains(file.getA()) || (file.getA() != null && !file.getA().toFile().exists())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
                         throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import");

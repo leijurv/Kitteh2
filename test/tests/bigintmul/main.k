@@ -1,4 +1,3 @@
-import ../bigint/main
 main(){
 	wew:=fromLong(5021)
 	w:=fromLong(47)

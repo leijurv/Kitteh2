@@ -99,13 +99,7 @@ public class Compiler {
         System.out.println(loaded);
         List<FunctionsContext> contexts = new ArrayList<>();
         for (int i = 0; i < loaded.size(); i++) {
-            ArrayList<Path> definedLocally = new ArrayList<>();
-            for (Entry<String, String> entry : ctxts.get(loaded.get(i).getA()).imports.entrySet()) {
-                if (entry.getValue() == null) {//local
-                    Path importing = new File(entry.getKey()).toPath();
-                    definedLocally.add(importing);
-                }
-            }
+            List<Path> definedLocally = ctxts.get(loaded.get(i).getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
             System.out.println("Locals: " + definedLocally);
             contexts.add(new FunctionsContext(loaded.get(i).getB(), definedLocally, loaded));
         }

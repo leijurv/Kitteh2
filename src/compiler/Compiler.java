@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,8 +28,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +38,10 @@ public class Compiler {
     private static Boolean PRE_IMPORT = false;
     private static byte[] getResource(String name) throws IOException {
         String s = "";
-        InputStream is = Compiler.class.getResourceAsStream("/lang/" + name + ".k");
+        if (!name.endsWith(".k")) {
+            name += ".k";
+        }
+        InputStream is = Compiler.class.getResourceAsStream("/lang/" + name);
         InputStreamReader isr = new InputStreamReader(is);
         BufferedReader reader = new BufferedReader(isr);
         while (reader.ready()) {
@@ -49,18 +49,18 @@ public class Compiler {
         }
         return s.getBytes();
     }
-    private static Path getResourcePath(String resourcename) {
+    /*private static Path getResourcePath(String resourcename) {
         try {
             return Paths.get(Compiler.class.getResource("/lang/" + resourcename + ".k").toURI());
         } catch (URISyntaxException ex) {
             Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }
-    }
+    }*/
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program;
         if (PRE_IMPORT) {
-            program = Files.readAllBytes(name);//getResource(name.getFileName().toString());
+            program = getResource(name.toString());
         } else {
             program = Files.readAllBytes(name);
         }
@@ -70,14 +70,14 @@ public class Compiler {
         return new Pair<>(cmds, context);
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
-        int entrypoint = 0;
+        int entrypoint = 1;
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         PRE_IMPORT = true;
-        Path importpath = getResourcePath("bigint");
+        Path importpath = Paths.get("bigint");
         entrypoint++;
         toLoad.add(importpath);
         alrImp.add(importpath);
@@ -102,7 +102,7 @@ public class Compiler {
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getKey() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
-                if (!toImport.exists()) {
+                if (!toImport.exists() && !PRE_IMPORT) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
                 Path impPath = new File(compiler.parse.Util.trimPath(toImport.toString())).toPath();

@@ -99,9 +99,7 @@ public class Compiler {
         System.out.println(loaded);
         List<FunctionsContext> contexts = new ArrayList<>();
         for (int i = 0; i < loaded.size(); i++) {
-            List<Path> definedLocally = ctxts.get(loaded.get(i).getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
-            System.out.println("Locals: " + definedLocally);
-            contexts.add(new FunctionsContext(loaded.get(i).getB(), definedLocally, loaded));
+            contexts.add(new FunctionsContext(loaded.get(i).getB(), ctxts.get(loaded.get(i).getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded));
         }
         if (!contexts.get(0).hasMain()) {
             throw new NoSuchMechanismException("You need a main function");

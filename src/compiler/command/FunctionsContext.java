@@ -25,6 +25,7 @@ public class FunctionsContext {
     private final ArrayList<CommandDefineFunction> functionDefinitions;
     public FunctionsContext(List<CommandDefineFunction> definitions, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
         functionDefinitions = new ArrayList<>(definitions.size());
+        System.out.println("Local imports: " + defineLocally);
         for (CommandDefineFunction cdf : definitions) {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();

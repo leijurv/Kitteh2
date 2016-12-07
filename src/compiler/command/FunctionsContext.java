@@ -39,13 +39,13 @@ public class FunctionsContext {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
-                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name + " " + functionMap);
+                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import");
                 }
                 functionMap.put(name, header);
                 if (defineLocally.contains(file.getA())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
-                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name + " " + functionMap);
+                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import");
                     }
                     functionMap.put(name1, header);
                 }

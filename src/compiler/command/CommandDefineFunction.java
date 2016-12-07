@@ -70,12 +70,16 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         //System.out.println("wew " + contents);
         context.gc = null;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;
-        if (contents.isEmpty() && returnsVoid) {
-            contents.add(new CommandReturn(context, null));
+        if (contents.isEmpty()) {
+            if (returnsVoid) {
+                contents.add(new CommandReturn(context, null));
+            } else {
+                throw new RuntimeException("Empty function with non-void return type");
+            }
         }
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         if (!endWithReturn && !returnsVoid) {
-            throw new RuntimeException();
+            throw new RuntimeException("You need a return as the last command");
         }
     }
     @Override

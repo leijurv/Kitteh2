@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import javax.xml.crypto.NoSuchMechanismException;
 
 /**
  *
@@ -96,12 +95,11 @@ public class Compiler {
                 context.insertStructsUnderPackage(underName, importedContext);
             }
         }
-        System.out.println(loaded);
-        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
-        if (!contexts.get(0).hasMain()) {
-            throw new NoSuchMechanismException("You need a main function");
-        }
-        contexts.get(0).setEntryPoint();
+        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
+        contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded
+        System.out.println();
+        System.out.println("---- END IMPORTS, BEGIN PARSING ----");
+        System.out.println();
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
         return generateASM(flattenedList, settings);
@@ -109,26 +107,23 @@ public class Compiler {
     public static String compile(String program, OptimizationSettings settings) {
         long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);
-        System.out.println("> DONE PREPROCESSING: " + lines);
+        System.out.println("> DONE PREPROCESSING");
         long b = System.currentTimeMillis();
         List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
-        System.out.println("> DONE PROCESSING: " + commands);
+        System.out.println("> DONE PROCESSING");
         long c = System.currentTimeMillis();
-        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
+        FunctionsContext fc = new FunctionsContext(null, commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
         fc.parseRekursivelie();
-        if (!fc.hasMain()) {
-            throw new NoSuchMechanismException("You need a main function");
-        }
         fc.setEntryPoint();
-        System.out.println("> DONE PARSING: " + commands);
-        long d = System.currentTimeMillis();
+        System.out.println("> DONE PARSING");
         return generateASM(commands, settings);
     }
     private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
+        long d = System.currentTimeMillis();
         if (settings.staticValues()) {
             commands.parallelStream().forEach(CommandDefineFunction::staticValues);
         }
-        System.out.println("> DONE STATIC VALUES: " + commands);
+        System.out.println("> DONE STATIC VALUES");
         long e = System.currentTimeMillis();
         List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
@@ -145,9 +140,9 @@ public class Compiler {
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
-        //String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        //System.out.println(loll);
-        //System.err.println(loll);
+        String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
+        System.out.println(loll);
+        System.err.println(loll);
         return asm;
     }
 }

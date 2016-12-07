@@ -23,9 +23,11 @@ public class FunctionsContext {
     public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
-    public FunctionsContext(List<CommandDefineFunction> definitions, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
+    private final Path path;
+    public FunctionsContext(Path thisPath, List<CommandDefineFunction> definitions, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
         functionDefinitions = new ArrayList<>(definitions.size());
-        System.out.println("Local imports: " + defineLocally);
+        this.path = thisPath;
+        System.out.println("Local imports for " + thisPath + ": " + defineLocally);
         for (CommandDefineFunction cdf : definitions) {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();
@@ -56,21 +58,19 @@ public class FunctionsContext {
     public void setEntryPoint() {
         for (CommandDefineFunction cdf : functionDefinitions) {
             if (cdf.getLocalHeader().name.equals("main")) {
-                System.out.println("Setting entry point");
+                System.out.println("Setting entry point in file " + path);
                 cdf.setEntryPoint();
                 return;
             }
         }
-        throw new RuntimeException(functionDefinitions + "");
-    }
-    public boolean hasMain() {
-        return functionMap.containsKey("main");
+        throw new RuntimeException("You need a main function in " + path);
     }
     public void parseRekursivelie() {
         Stream<CommandDefineFunction> stream = functionDefinitions.stream();
         if (PARALLEL_FUNCTION_PARSING) {
             stream = stream.parallel();
         }
+        System.out.println("> Starting parsing functions in " + path);
         stream.forEach(cdf -> {
             long start = System.currentTimeMillis();
             System.out.println("> Starting parsing function " + cdf.getHeader().name);

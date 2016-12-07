@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Const;
@@ -92,8 +93,9 @@ public class TACConst extends TACStatement {
         if (source instanceof X86Const || dest instanceof X86TypedRegister) {
             emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + dest.x86());
         } else {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + X86Register.C.getRegister(type));
-            emit.addStatement("mov" + type.x86typesuffix() + " " + X86Register.C.getRegister(type) + ", " + dest.x86());
+            X86Param r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + r);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + r + ", " + dest.x86());
         }
     }
 }

@@ -97,10 +97,7 @@ public class Compiler {
             }
         }
         System.out.println(loaded);
-        List<FunctionsContext> contexts = new ArrayList<>();
-        for (int i = 0; i < loaded.size(); i++) {
-            contexts.add(new FunctionsContext(loaded.get(i).getB(), ctxts.get(loaded.get(i).getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded));
-        }
+        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         if (!contexts.get(0).hasMain()) {
             throw new NoSuchMechanismException("You need a main function");
         }

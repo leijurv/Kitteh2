@@ -136,7 +136,7 @@ public enum Operator implements Token<Operator> {
     }
     strictfp public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
         if (!((Expression) a).getType().equals(((Expression) b).getType())) {
-            throw new FileSystemAlreadyExistsException("");
+            throw new FileSystemAlreadyExistsException(a + " " + b + " " + ((Expression) a).getType() + " " + ((Expression) b).getType());
         }
         onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
         if (a instanceof ExpressionConstNum) {

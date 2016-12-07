@@ -19,7 +19,7 @@ import java.util.FormatterClosedException;
  * @author leijurv
  */
 public enum X86Register {
-    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
+    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15, XMM0, XMM1;
     public static TypeNumerical typeFromRegister(String reg) {
         if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
             return typeFromRegister(reg.substring(1));
@@ -73,6 +73,10 @@ these registers’ values for its caller.
             }
         }
         switch (this) {
+            case XMM0:
+                return "%xmm0";
+            case XMM1:
+                return "%xmm1";
             case A:
             case B:
             case C:

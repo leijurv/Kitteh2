@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.type.TypeFloat;
+import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
@@ -41,6 +43,14 @@ public class TACCast extends TACStatement {
     public static void cast(X86Param input, X86Param dest, X86Emitter emit) {
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
+        if (out instanceof TypeFloat) {
+            if (!(inp instanceof TypeInt32)) {
+                throw new RuntimeException("noplease");
+            }
+            emit.addStatement("cvtsi2ssl " + input.x86() + ", %xmm2");//kill me
+            emit.addStatement("movss %xmm2, " + dest.x86());
+            return;
+        }
         if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
             if (inp.equals(out)) {

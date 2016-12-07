@@ -19,8 +19,8 @@ public class TypeInt32 extends TypeNumerical {
         return "int";
     }
     @Override
-    public char x86typesuffix() {
-        return 'l';
+    public String x86typesuffix() {
+        return "l";
     }
     @Override
     public String x86registerprefix() {

@@ -9,6 +9,7 @@ import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeFloat;
 import java.util.stream.Stream;
 
 /**
@@ -48,7 +49,7 @@ public class CommandSetVar extends Command {
     public void staticValues() {
         val = val.insertKnownValues(context);
         val = val.calculateConstants();
-        if (val instanceof ExpressionConst) {
+        if (val instanceof ExpressionConst && !(val.getType() instanceof TypeFloat)) {
             System.out.println(var + " is known to be " + val);
             context.setKnownValue(var, (ExpressionConst) val);
         } else {

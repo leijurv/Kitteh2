@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import compiler.type.TypeFloat;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
@@ -85,6 +86,10 @@ public class TACStandard extends TACStatement {
         X86TypedRegister c = X86Register.C.getRegister(type);
         X86TypedRegister d = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
+        if (type instanceof TypeFloat) {
+            a = X86Register.XMM0.getRegister(type);
+            c = X86Register.XMM1.getRegister(type);
+        }
         TACConst.move(a, first, emit);
         if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
@@ -108,7 +113,7 @@ public class TACStandard extends TACStatement {
             }
         } else {
             try {
-                TACConst.move(X86Register.C.getRegister(type), second, emit);
+                TACConst.move(c, second, emit);
             } catch (Exception e) {
                 throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
             }
@@ -148,12 +153,17 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case DIVIDE:
+                if (type instanceof TypeFloat) {
+                    emit.addStatement("div" + type.x86typesuffix() + " " + c + ", " + a);
+                    emit.addStatement(mov + a + ", " + result.x86());
+                    break;
+                }
                 emit.addStatement("xor" + type.x86typesuffix() + " " + d + ", " + d);
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MULTIPLY:
-                emit.addStatement("imul" + type.x86typesuffix() + " " + c + ", " + a);
+                emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case LESS:

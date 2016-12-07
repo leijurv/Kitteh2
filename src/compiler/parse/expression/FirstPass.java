@@ -16,6 +16,7 @@ import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeFloat;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
@@ -50,7 +51,7 @@ class FirstPass implements ExpressionParseStep {
                         Number num;
                         TypeNumerical toUse;
                         if (desiredType.isPresent() && desiredType.get() instanceof TypeNumerical) {
-                            if (!(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer)) {
+                            if (!(desiredType.get() instanceof TypeBoolean) && !(desiredType.get() instanceof TypePointer) && !(desiredType.get() instanceof TypeFloat)) {
                                 toUse = (TypeNumerical) desiredType.get();
                             } else {
                                 toUse = new TypeInt32();//something like bool x = 5 < y

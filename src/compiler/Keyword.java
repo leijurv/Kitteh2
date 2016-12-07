@@ -10,6 +10,7 @@ import compiler.token.Token;
 import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
@@ -40,6 +41,7 @@ public enum Keyword implements Token<Keyword> {
     SHORT("CHOMP", new TypeInt16()),
     INT("MEOWNT", new TypeInt32()),
     LONG("LAWNG", new TypeInt64()),
+    FLOAT("FOOD", new TypeFloat()),
     VOID("MT", new TypeVoid());
     public static final boolean CAT_MODE = false;
     public final String catVersion;

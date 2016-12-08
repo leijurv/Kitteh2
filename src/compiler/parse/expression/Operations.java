@@ -24,7 +24,7 @@ class Operations implements ExpressionParseStep {
             for (int i = 0; i < o.size(); i++) {
                 if (o.get(i) instanceof Operator && op.contains((Operator) o.get(i))) {
                     if (i == 0 || i == o.size() - 1) {
-                        throw new IllegalStateException("Operator on edge. 411 hangs up on you.");
+                        throw new IllegalStateException("Operator on edge. 411 hangs up on you.");//TODO negative numbers like i := -1
                     }
                     Expression rightSide = (Expression) o.remove(i + 1);
                     Operator tokOp = (Operator) o.remove(i);

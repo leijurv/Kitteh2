@@ -36,9 +36,6 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             if (numerical(ch)) {
-                //TODO negative numbers
-                //it's nontrivial because a - and then a number can mean something else (like i-5) or really negative (like i= -5)
-                //negative numbers are in the parser not the lexer I think... =/
                 String lexeme = readNumerical();
                 emit(NUM.create(lexeme));
                 continue;

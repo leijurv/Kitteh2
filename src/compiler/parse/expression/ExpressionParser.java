@@ -17,19 +17,25 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
-    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {//TODO replace recursion with loop
-        new FirstPass().apply(o, desiredType, context);
-        if (o.size() == 1) {
-            return (Expression) o.get(0);
-        }
-        //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
-        for (ExpressionParseStep step : steps) {
-            if (step.apply(o, desiredType, context)) {
-                return parseImpl(o, desiredType, context);
+    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+        while (true) {
+            new FirstPass().apply(o, desiredType, context);
+            if (o.size() == 1) {
+                return (Expression) o.get(0);
+            }
+            boolean anyTrue = false;
+            for (ExpressionParseStep step : steps) {
+                if (step.apply(o, desiredType, context)) {
+                    anyTrue = true;
+                    break;
+                }
+            }
+            if (!anyTrue) {
+                throw new IllegalStateException("Unable to parse " + o);
             }
         }
-        throw new IllegalStateException("Unable to parse " + o);
     }
+    //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
     private static final ExpressionParseStep[] steps = {
         //recursively call parseImpl on the contents of parentheses
         new RecursiveParentheses(),
@@ -41,7 +47,6 @@ public class ExpressionParser {
         //casting comes after parentheses: (long)(a)
         //casting comes after array accesses: (long)a[1]
         //casting comes after increments: (long)a++
-        //TODO should casting come before or after pointer dereferences?
         new Casting(),
         new PointerDeref(),
         //! comes after pointer deref. !*boolArray should work I guess

@@ -143,7 +143,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        a = a.insertKnownValues(context);//TODO multithread this with a and b /s
+        a = a.insertKnownValues(context);
         b = b.insertKnownValues(context);
         return this;
     }

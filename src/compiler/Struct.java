@@ -34,8 +34,7 @@ public class Struct {
             return;
         }
         int pos = 0;
-        for (int j = 0; j < lines.size(); j++) {
-            Line thisLine = lines.get(j);
+        for (Line thisLine : lines) {
             List<Token> tokens = thisLine.getTokens();
             if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
                 throw new RuntimeException();

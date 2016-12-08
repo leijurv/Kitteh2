@@ -31,10 +31,10 @@ public abstract class TACStatement {
     }
     public final void setContext(Context context) {
         this.context = context;
-        this.tvu = context.getTempVarUsage();//copy this because it's gonna be reset later
-        if (this.tvu == null || this.context == null) {
-            throw new IllegalStateException(context + " " + tvu);
+        if (context == null) {
+            throw new IllegalArgumentException();
         }
+        this.tvu = context.getTempVarUsage();//copy this because it's gonna be reset later
         setVars();
         onContextKnown();
     }
@@ -51,11 +51,11 @@ public abstract class TACStatement {
         }
     }
     public final void replace(String toReplace, String replaceWith, X86Param infoWith) {
-        if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
-            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
-        }
         if (infoWith == null || replaceWith == null || toReplace == null) {
             throw new IllegalStateException(this + " " + toReplace + " " + replaceWith + " " + infoWith);
+        }
+        if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
         }
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {

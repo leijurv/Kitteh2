@@ -17,8 +17,8 @@ import org.w3c.dom.ls.LSException;
  * @author leijurv
  */
 public class Main {
-    protected static String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
-    protected static String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
+    protected static final String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
+    protected static final String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
     public static final boolean OPTIMIZE = true; //if it's being bad, see if changing this to false fixes it
     public static long streamTime() {
         long a = System.currentTimeMillis();
@@ -52,11 +52,14 @@ public class Main {
                         throw new LSException((short) "urmum".hashCode(), "You gotta give a file");
                     }
                     outFile = args[++i];
+                    break;
                 case "-I":
                     inFile = "/dev/stdin";
                     break;
                 case "-O":
                     outFile = "/dev/stdout";
+                    break;
+                default:
                     break;
             }
         }
@@ -65,8 +68,8 @@ public class Main {
             asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         } else {
             byte[] program = Files.readAllBytes(new File(inFile).toPath());
-            asm = Compiler.compile(new String(program), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+            asm = Compiler.compile(new String(program, "UTF-8"), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         }
-        new FileOutputStream(outFile).write(asm.getBytes());
+        new FileOutputStream(outFile).write(asm.getBytes("UTF-8"));
     }
 }

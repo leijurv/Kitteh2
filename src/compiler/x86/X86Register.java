@@ -13,6 +13,7 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.file.ClosedWatchServiceException;
 import java.util.FormatterClosedException;
+import java.util.Locale;
 
 /**
  *
@@ -20,8 +21,9 @@ import java.util.FormatterClosedException;
  */
 public enum X86Register {
     A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15, XMM0, XMM1;
+    public static final String REGISTER_PREFIX = "%";
     public static TypeNumerical typeFromRegister(String reg) {
-        if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
+        if (reg.startsWith(REGISTER_PREFIX)) {
             return typeFromRegister(reg.substring(1));
         }
         switch (reg.length()) {
@@ -81,10 +83,10 @@ these registers’ values for its caller.
             case B:
             case C:
             case D:
-                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + version.x86registersuffix();//e.g. %eax
+                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase(Locale.US) + version.x86registersuffix();//e.g. %eax
             case SI:
             case DI:
-                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + (version.x86registersuffix() == 'l' ? "l" : "");
+                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase(Locale.US) + (version.x86registersuffix() == 'l' ? "l" : "");
             case R8:
             case R9:
             case R10:
@@ -93,9 +95,8 @@ these registers’ values for its caller.
             case R13:
             case R14:
             case R15:
-                return REGISTER_PREFIX + toString().toLowerCase() + version.x86r_registersuffix();
+                return REGISTER_PREFIX + toString().toLowerCase(Locale.US) + version.x86r_registersuffix();
         }
         throw new IllegalSelectorException();
     }
-    public static final String REGISTER_PREFIX = "%";
 }

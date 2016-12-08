@@ -5,7 +5,6 @@
  */
 package compiler.tac.optimize;
 import compiler.Context.VarInfo;
-import compiler.type.TypeStruct;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACJump;
@@ -64,12 +63,12 @@ public class UselessTempVars extends TACOptimization {
             }
             for (int usageLocation = st; usageLocation < block.size(); usageLocation++) {
                 TACStatement next = block.get(usageLocation);
-                if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct) {
-                    //break;
-                    //this break used to be necesary to make the tests suceed, but I just commented it out and it doesn't make anything fail
-                    //go figure
-                    //leaving it here but commented out if it comes up in the future
-                }
+                //if (curr.params[1] != null && curr.params[1].getType() instanceof TypeStruct) {
+                //break;
+                //this break used to be necesary to make the tests suceed, but I just commented it out and it doesn't make anything fail
+                //go figure
+                //leaving it here but commented out if it comes up in the future
+                //}
                 if (next instanceof TACJumpBoolVar && next.requiredVariables().contains(valSet) && tempVar) {
                     throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }

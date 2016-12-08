@@ -97,7 +97,7 @@ public class Context {
         this.imports = new HashMap<>();
         this.packageName = packageName;
         if (packageName != null) {
-            String wewlad = packageName.substring(packageName.lastIndexOf("/") + 1).split(".k")[0];
+            String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split(".k")[0];
             imports.put(wewlad, wewlad);
         }
     }

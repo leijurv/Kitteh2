@@ -25,11 +25,11 @@ import java.util.List;
  * @author leijurv
  */
 public class TACFunctionCall extends TACStatement {
-    String resultName;
-    FunctionHeader header;
-    VarInfo result;
+    private final String resultName;
+    private final FunctionHeader header;
+    private VarInfo result;
     public TACFunctionCall(String result, FunctionHeader header, List<String> paramNames) {
-        super(paramNames.toArray(new String[]{}));
+        super(paramNames.toArray(new String[paramNames.size()]));
         this.resultName = result;
         this.header = header;
     }

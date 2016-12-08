@@ -12,7 +12,7 @@ import java.util.Objects;
  * @param <A>
  * @param <B>
  */
-public class Pair<A, B> implements Cloneable {
+public final class Pair<A, B> implements Cloneable {
     private final A a;
     private final B b;
     public A getA() {
@@ -31,7 +31,7 @@ public class Pair<A, B> implements Cloneable {
     }
     @Override
     public boolean equals(Object o) {
-        if (o.getClass() != Pair.class) {
+        if (o == null || o.getClass() != Pair.class) {
             return false;
         }
         if (this == o) {

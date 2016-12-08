@@ -43,7 +43,7 @@ public class Compiler {
         } else {
             program = Files.readAllBytes(name);
         }
-        List<Line> lines = Preprocessor.preprocess(new String(program));
+        List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"));
         Context context = new Context(name + "");
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);

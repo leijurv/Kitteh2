@@ -7,6 +7,7 @@ package compiler.x86;
 import compiler.tac.TACStatement;
 import compiler.util.Pair;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class X86Format {
-    public static final boolean MAC = System.getProperty("os.name").toLowerCase().contains("mac");
+    public static final boolean MAC = System.getProperty("os.name").toLowerCase(Locale.US).contains("mac");
     private static final String LLD_FORMAT = "lldformatstring:\n"
             + "	.asciz	\"%lld\\n\"\n"
             + "floatformatstring:\n"

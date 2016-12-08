@@ -42,7 +42,7 @@ public class Kitterature {
         if (ind == 0) {
             return "../" + trimPath(s.substring(3));
         }
-        int from = s.lastIndexOf("/", ind - 2);
+        int from = s.lastIndexOf('/', ind - 2);
         return trimPath(s.substring(0, from + 1) + s.substring(ind + 3));
     }
 }

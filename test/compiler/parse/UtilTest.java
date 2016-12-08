@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.util.Kitterature;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -36,14 +37,14 @@ public class UtilTest {
     @Test
     public void testTrimPath() {
         System.out.println("trimPath");
-        assertEquals("a", Util.trimPath("a"));
-        assertEquals("../x", Util.trimPath("../x"));
-        assertEquals("a/b", Util.trimPath("a/x/../b"));
-        assertEquals("b/c/", Util.trimPath("b/c/d/e/../../"));
-        assertEquals("wew/lad/cat", Util.trimPath("wew/lad/cat"));
-        assertEquals("wew/lad/lol", Util.trimPath("wew/lad/cat/../lol"));
-        assertEquals("../wew/lad/lol", Util.trimPath("../wew/lad/cat/../lol"));
-        assertEquals("../../wew/lad/lol", Util.trimPath("../../wew/lad/cat/../lol"));
-        assertEquals("../wew/lad/lol", Util.trimPath("../kitty/../wew/lad/cat/../lol"));
+        assertEquals("a", Kitterature.trimPath("a"));
+        assertEquals("../x", Kitterature.trimPath("../x"));
+        assertEquals("a/b", Kitterature.trimPath("a/x/../b"));
+        assertEquals("b/c/", Kitterature.trimPath("b/c/d/e/../../"));
+        assertEquals("wew/lad/cat", Kitterature.trimPath("wew/lad/cat"));
+        assertEquals("wew/lad/lol", Kitterature.trimPath("wew/lad/cat/../lol"));
+        assertEquals("../wew/lad/lol", Kitterature.trimPath("../wew/lad/cat/../lol"));
+        assertEquals("../../wew/lad/lol", Kitterature.trimPath("../../wew/lad/cat/../lol"));
+        assertEquals("../wew/lad/lol", Kitterature.trimPath("../kitty/../wew/lad/cat/../lol"));
     }
 }

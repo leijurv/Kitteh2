@@ -12,12 +12,10 @@ import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.Pair;
+import compiler.util.Kitterature;
 import compiler.x86.X86Format;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,31 +34,10 @@ import java.util.stream.Collectors;
  */
 public class Compiler {
     private static Boolean PRE_IMPORT = false;
-    private static byte[] getResource(String name) throws IOException {
-        String s = "";
-        if (!name.endsWith(".k")) {
-            name += ".k";
-        }
-        InputStream is = Compiler.class.getResourceAsStream("/lang/" + name);
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader reader = new BufferedReader(isr);
-        while (reader.ready()) {
-            s += reader.readLine() + "\n";
-        }
-        return s.getBytes();
-    }
-    /*private static Path getResourcePath(String resourcename) {
-        try {
-            return Paths.get(Compiler.class.getResource("/lang/" + resourcename + ".k").toURI());
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
-        }
-    }*/
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program;
         if (PRE_IMPORT) {
-            program = getResource(name.toString());
+            program = Kitterature.getResource(name.toString());
         } else {
             program = Files.readAllBytes(name);
         }
@@ -105,7 +82,7 @@ public class Compiler {
                 if (!toImport.exists() && !PRE_IMPORT) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
-                Path impPath = new File(compiler.parse.Util.trimPath(toImport.toString())).toPath();
+                Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
                 System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
                 if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                     throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());

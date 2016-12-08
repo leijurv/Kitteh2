@@ -52,6 +52,7 @@ public class Compiler {
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
+        HashMap<Path, HashMap<String, Struct>> importz = new HashMap<>();
         boolean preImport = true;
         Path importpath = Paths.get("bigint.k");
         entrypoint++;
@@ -102,24 +103,24 @@ public class Compiler {
             }
             ctxts.put(path, context);
             loaded.add(new Pair<>(path, funcs.getA()));
+            importz.put(path, context.structsCopy());
         }
         long b = System.currentTimeMillis();
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());
             for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
                 if (oth.getA() != null && !oth.getA().toFile().exists()) {
+                    if (oth.getA().equals(pair.getA())) {
+                        continue;
+                    }
                     System.out.println("Assuming stdlib for " + oth.getA());
-                    context.insertStructsUnderPackage(null, ctxts.get(oth.getA()));
+                    context.insertStructsUnderPackage(null, importz.get(oth.getA()));
                 }
             }
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 Path importing = new File(imp.getKey()).toPath();
                 String underName = imp.getValue();
-                Context importedContext = ctxts.get(importing);
-                if (importedContext == null) {
-                    throw new IllegalStateException(ctxts + " " + importing + " " + imp);
-                }
-                context.insertStructsUnderPackage(underName, importedContext);
+                context.insertStructsUnderPackage(underName, importz.get(importing));
             }
         }
         long c = System.currentTimeMillis();

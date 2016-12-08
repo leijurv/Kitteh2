@@ -100,17 +100,21 @@ public class Context {
             imports.put(wewlad, wewlad);
         }
     }
+    public HashMap<String, Struct> structsCopy() {
+        return new HashMap<>(structs);
+    }
     public void fixStructs() {
         for (Struct s : structs.values()) {
             s.parseContents();
         }
     }
-    public void insertStructsUnderPackage(String alias, Context other) {
-        if (other == this) {
-            return;
-        }
-        for (Entry<String, Struct> struct : other.structs.entrySet()) {
-            structs.put((alias == null ? "" : alias + "::") + struct.getKey(), struct.getValue());
+    public void insertStructsUnderPackage(String alias, HashMap<String, Struct> other) {
+        for (Entry<String, Struct> struct : other.entrySet()) {
+            String name = (alias == null ? "" : alias + "::") + struct.getKey();
+            if (structs.containsKey(name)) {
+                throw new RuntimeException("Overwriting struct " + name);
+            }
+            structs.put(name, struct.getValue());
         }
         System.out.println(packageName + " " + structs);
     }

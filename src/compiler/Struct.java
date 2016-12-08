@@ -22,6 +22,7 @@ public class Struct {
     private final HashMap<String, StructField> fields;
     private final List<Line> lines;
     private final Context context;
+    private boolean parsed = false;
     public Struct(String name, List<Line> rawLines, Context context) {
         this.name = name;
         this.fields = new HashMap<>();
@@ -29,7 +30,7 @@ public class Struct {
         this.lines = rawLines;
     }
     public void parseContents() {
-        if (!fields.isEmpty()) {
+        if (parsed) {
             return;
         }
         int pos = 0;
@@ -47,11 +48,18 @@ public class Struct {
             fields.put(fieldName, new StructField(fieldName, fieldType, pos));
             pos += fieldType.getSizeBytes();
         }
+        parsed = true;
     }
     public StructField getFieldByName(String name) {
+        if (!parsed) {
+            throw new RuntimeException("Out of order struct reference");
+        }
         return fields.get(name);
     }
     public Collection<StructField> getFields() {
+        if (!parsed) {
+            throw new RuntimeException("Out of order struct reference");
+        }
         return fields.values();
     }
     @Override

@@ -70,14 +70,14 @@ public class Compiler {
         return new Pair<>(cmds, context);
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
-        int entrypoint = 1;
+        int entrypoint = 0;
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         PRE_IMPORT = true;
-        Path importpath = Paths.get("bigint");
+        Path importpath = Paths.get("bigint.k");
         entrypoint++;
         toLoad.add(importpath);
         alrImp.add(importpath);
@@ -130,6 +130,12 @@ public class Compiler {
         }
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());
+            for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
+                if (oth.getA() != null && !oth.getA().toFile().exists()) {
+                    System.out.println("Assuming stdlib for " + oth.getA());
+                    context.insertStructsUnderPackage(null, ctxts.get(oth.getA()));
+                }
+            }
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 Path importing = new File(imp.getKey()).toPath();
                 String underName = imp.getValue();

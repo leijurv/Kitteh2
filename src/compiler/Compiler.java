@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.type.TypeStruct;
 import compiler.command.CommandDefineFunction;
 import compiler.command.FunctionsContext;
 import compiler.parse.Line;
@@ -12,6 +11,7 @@ import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
+import compiler.type.TypeStruct;
 import compiler.util.Kitterature;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
@@ -144,10 +144,8 @@ public class Compiler {
         return generateASM(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
-        long a = System.currentTimeMillis();
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING");
-        long b = System.currentTimeMillis();
         Context cont = new Context(null);
         List<CommandDefineFunction> commands = Processor.initialParse(lines, cont);
         System.out.println("> DONE PROCESSING");
@@ -160,7 +158,6 @@ public class Compiler {
         for (CommandDefineFunction cdf : commands) {
             cdf.parseHeader();
         }
-        long c = System.currentTimeMillis();
         FunctionsContext fc = new FunctionsContext(null, commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
         fc.parseRekursivelie();
         fc.setEntryPoint();

@@ -14,7 +14,6 @@ import java.io.InputStream;
  */
 public class Kitterature {
     public static byte[] getResource(String name) throws IOException {
-        String s = "";
         if (!name.endsWith(".k")) {
             name += ".k";
         }

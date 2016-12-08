@@ -99,7 +99,7 @@ public enum Operator implements Token<Operator> {
             case GREATER_OR_EQUAL:
             case LESS_OR_EQUAL:
             case NOT_EQUAL:
-                if (!(a instanceof TypeNumerical) || !(b instanceof TypeNumerical)) {
+                if (!(a instanceof TypeNumerical) || !(b instanceof TypeNumerical) || !a.equals(b)) {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return new TypeBoolean();

@@ -5,7 +5,6 @@
  */
 package compiler.type;
 import compiler.Struct;
-import compiler.Struct.StructField;
 
 /**
  *
@@ -18,7 +17,7 @@ public class TypeStruct extends Type {
     }
     @Override
     public int getSizeBytes() {
-        return struct.getFields().stream().map(StructField::getType).mapToInt(Type::getSizeBytes).sum();
+        return struct.getSizeBytes();
     }
     @Override
     public String toString() {

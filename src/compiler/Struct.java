@@ -51,6 +51,9 @@ public class Struct {
         }
         parsed = true;
     }
+    public int getSizeBytes() {
+        return fieldTypes.stream().mapToInt(Type::getSizeBytes).sum();
+    }
     public void allocate() {
         int pos = 0;
         for (int i = 0; i < fieldNames.size(); i++) {

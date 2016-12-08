@@ -1,7 +1,7 @@
 import base
 struct ecpoint{
-	void* x
-	void* y
+	bigint* x
+	bigint* y
 }
 main(){
 	x:=basepointX()
@@ -12,8 +12,8 @@ main(){
 	output(modulus)
 
 	bp:=(ecpoint*)malloc(sizeof(ecpoint))
-	bp.x=(void*)x
-	bp.y=(void*)y
+	bp.x=x
+	bp.y=y
 
 	for i:=15; i<=20; i++{
 		print(i)
@@ -26,22 +26,22 @@ main(){
 	outputec(multiplyec(dupec(bp),fromLong(50215021),modulus,bp))
 }
 clear(ecpoint* a){
-	f((bigint*)a.x)
-	f((bigint*)a.y)
-	a.x=(void*)0
-	a.y=(void*)0
+	f(a.x)
+	f(a.y)
+	a.x=(bigint*)0
+	a.y=(bigint*)0
 	free(a)
 }
 dupec(ecpoint* x)ecpoint*{
 	new:=(ecpoint*)malloc(sizeof(ecpoint))
-	new.x=(void*)dup((bigint*)x.x)
-	new.y=(void*)dup((bigint*)x.y)
+	new.x=dup(x.x)
+	new.y=dup(x.y)
 	return new
 }
 outputec(ecpoint* t){
-	x:=tostring((bigint*)t.x,',')
+	x:=tostring(t.x,',')
 	print(x)
-	output((bigint*)t.y)
+	output(t.y)
 }
 multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	trimInPlace(pow)
@@ -77,10 +77,10 @@ multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	return wewwew
 }
 addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{
-	px:=(bigint*)p.x
-	py:=(bigint*)p.y
-	qx:=(bigint*)q.x
-	qy:=(bigint*)q.y
+	px:=p.x
+	py:=p.y
+	qx:=q.x
+	qy:=q.y
     bigint* s
     if equal(qx,px){
     	xs:=multiply(px,px)
@@ -133,7 +133,7 @@ addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{
     f(wrap2)
     f(s)
     res:=(ecpoint*)malloc(sizeof(ecpoint))
-    res.x=(void*)xr
-    res.y=(void*)yr
+    res.x=xr
+    res.y=yr
     return res
 }

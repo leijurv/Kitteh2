@@ -5,12 +5,15 @@
  */
 package compiler;
 import compiler.Context.VarInfo;
+import compiler.parse.Line;
+import compiler.token.Token;
+import compiler.token.TokenType;
 import compiler.type.Type;
-import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
+import compiler.util.Parse;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -19,33 +22,38 @@ import java.util.HashMap;
 public class Struct {
     final String name;
     private final HashMap<String, VarInfo> fields;
-    public Struct(String name, ArrayList<Type> fieldTypes, ArrayList<String> fieldNames, Context context) {
+    private final List<Line> lines;
+    private final Context context;
+    public Struct(String name, List<Line> rawLines, Context context) {
         this.name = name;
-        int pos = 0;
         this.fields = new HashMap<>();
-        fixFieldTypes(fieldTypes);
+        this.context = context;
+        this.lines = rawLines;
+    }
+    public void parseContents() {
+        if (!fields.isEmpty()) {
+            return;
+        }
+        ArrayList<String> fieldNames = new ArrayList<>(lines.size());
+        ArrayList<Type> fieldTypes = new ArrayList<>(lines.size());
+        for (int j = 0; j < lines.size(); j++) {
+            Line thisLine = lines.get(j);
+            List<Token> tokens = thisLine.getTokens();
+            if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
+                throw new RuntimeException();
+            }
+            fieldNames.add((String) tokens.get(tokens.size() - 1).data());
+            Type tft = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
+            if (tft == null) {
+                throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
+            }
+            fieldTypes.add(tft);
+        }
+        int pos = 0;
         for (int i = 0; i < fieldTypes.size(); i++) {
             fields.put(fieldNames.get(i), context.new VarInfo(fieldNames.get(i), fieldTypes.get(i), pos, true));
             pos += fieldTypes.get(i).getSizeBytes();
         }
-    }
-    private void fixFieldTypes(ArrayList<Type> fieldTypes) {
-        for (int i = 0; i < fieldTypes.size(); i++) {
-            fieldTypes.set(i, fixType(fieldTypes.get(i)));
-        }
-    }
-    private Type fixType(Type type) {
-        if (type == null) {
-            throw new RuntimeException();
-        }
-        if (type instanceof TypeStruct && ((TypeStruct) type).struct == null) {
-            return new TypeStruct(this);
-        }
-        if (type instanceof TypePointer) {
-            Type pointingTo = ((TypePointer) type).pointingTo();
-            return new TypePointer<>(fixType(pointingTo));
-        }
-        return type;
     }
     public VarInfo getFieldByName(String name) {
         return fields.get(name);

@@ -124,6 +124,7 @@ public class Compiler {
         }
         long c = System.currentTimeMillis();
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
+            ctxts.get(pair.getA()).fixStructs();
             for (CommandDefineFunction cdf : pair.getB()) {
                 cdf.parseHeader();
             }
@@ -144,8 +145,10 @@ public class Compiler {
         List<Line> lines = Preprocessor.preprocess(program);
         System.out.println("> DONE PREPROCESSING");
         long b = System.currentTimeMillis();
-        List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
+        Context cont = new Context(null);
+        List<CommandDefineFunction> commands = Processor.initialParse(lines, cont);
         System.out.println("> DONE PROCESSING");
+        cont.fixStructs();
         for (CommandDefineFunction cdf : commands) {
             cdf.parseHeader();
         }

@@ -14,14 +14,13 @@ import compiler.expression.Expression;
 import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
-import compiler.type.Type;
 import compiler.type.TypeBoolean;
-import compiler.util.Parse;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
@@ -106,27 +105,11 @@ class BlockBeginParser {
             throw new NumberFormatException();
         }
         String structName = (String) params.get(0).data();
-        ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
-        ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
-        for (int j = 0; j < rawBlock.size(); j++) {
-            Line thisLine = (Line) rawBlock.get(j);
-            thisLine.lex();
-            List<Token> tokens = thisLine.getTokens();
-            //System.out.println(tokens);
-            if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
-                throw new RuntimeException();
-            }
-            fieldNames.add((String) tokens.get(tokens.size() - 1).data());
-            Type tft = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
-            if (tft == null) {
-                throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
-            }
-            fieldTypes.add(tft);
+        List<Line> lines = rawBlock.stream().map(Line.class::cast).collect(Collectors.toList());
+        for (Line l : lines) {
+            l.lex();
         }
-        //System.out.println(fieldNames);
-        //System.out.println(fieldTypes);
-        //System.out.println("Parsing struct " + params + " " + rawBlock);
-        Struct struct = new Struct(structName, fieldTypes, fieldNames, context);
+        Struct struct = new Struct(structName, lines, context);
         context.defineStruct(struct);
     }
 }

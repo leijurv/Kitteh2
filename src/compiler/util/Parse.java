@@ -22,9 +22,6 @@ import java.util.List;
  */
 public class Parse {
     public static Type typeFromTokens(List<Token> tokens, Context context) {
-        return typeFromTokens(tokens, context, null);
-    }
-    public static Type typeFromTokens(List<Token> tokens, Context context, String selfRef) {
         if (tokens.isEmpty()) {
             return null;
         }
@@ -45,18 +42,14 @@ public class Parse {
                 break;
             case VARIABLE:
                 String name = (String) first.data();
-                if (name.equals(selfRef)) {
-                    tp = new TypeStruct(null);
-                } else {
-                    if (accessing != null) {
-                        name = accessing + "::" + name;
-                    }
-                    Struct struct = context.getStruct(name);
-                    if (struct == null) {
-                        return null;
-                    }
-                    tp = new TypeStruct(struct);
+                if (accessing != null) {
+                    name = accessing + "::" + name;
                 }
+                Struct struct = context.getStruct(name);
+                if (struct == null) {
+                    return null;
+                }
+                tp = new TypeStruct(struct);
                 break;
             default:
                 return null;

@@ -100,6 +100,11 @@ public class Context {
             imports.put(wewlad, wewlad);
         }
     }
+    public void fixStructs() {
+        for (Struct s : structs.values()) {
+            s.parseContents();
+        }
+    }
     public void insertStructsUnderPackage(String alias, Context other) {
         if (other == this) {
             return;

@@ -71,7 +71,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public void parseHeader() {
         if (header != null) {
-            return;
+            throw new RuntimeException();
         }
         Type retType;
         if (Parse.typeFromTokens(returnType, context) != null) {

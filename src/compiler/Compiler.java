@@ -125,6 +125,8 @@ public class Compiler {
         long c = System.currentTimeMillis();
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             ctxts.get(pair.getA()).fixStructs();
+        }
+        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             for (CommandDefineFunction cdf : pair.getB()) {
                 cdf.parseHeader();
             }

@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.Context.VarInfo;
 import compiler.parse.Line;
 import compiler.token.Token;
 import compiler.token.TokenType;
@@ -20,7 +19,7 @@ import java.util.List;
  */
 public class Struct {
     final String name;
-    private final HashMap<String, VarInfo> fields;
+    private final HashMap<String, StructField> fields;
     private final List<Line> lines;
     private final Context context;
     public Struct(String name, List<Line> rawLines, Context context) {
@@ -45,18 +44,38 @@ public class Struct {
             if (fieldType == null) {
                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
             }
-            fields.put(fieldName, context.new VarInfo(fieldName, fieldType, pos, true));
+            fields.put(fieldName, new StructField(fieldName, fieldType, pos));
             pos += fieldType.getSizeBytes();
         }
     }
-    public VarInfo getFieldByName(String name) {
+    public StructField getFieldByName(String name) {
         return fields.get(name);
     }
-    public Collection<VarInfo> getFields() {
+    public Collection<StructField> getFields() {
         return fields.values();
     }
     @Override
     public String toString() {
         return name;
+    }
+
+    public static class StructField {
+        private final String name;
+        private final Type type;
+        private final int stackLocation;
+        StructField(String name, Type type, int stackLocation) {
+            this.name = name;
+            this.type = type;
+            this.stackLocation = stackLocation;
+        }
+        public Type getType() {
+            return type;
+        }
+        public int getStackLocation() {
+            return stackLocation;
+        }
+        public String getName() {
+            return name;
+        }
     }
 }

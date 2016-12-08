@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -218,10 +219,10 @@ public class CompilerTest {
         File desiredOutput = new File(dir, "output");
         assertTrue("Package " + dir + " needs an " + desiredOutput, desiredOutput.exists());
         String desiredOut = new String(Files.readAllBytes(desiredOutput.toPath()));
-        String asm = Compiler.compile(new File(dir, "main.k").toPath(), OptimizationSettings.ALL);
-        verifyASM(asm, true, desiredOut);
+        Path path = new File(dir, "main.k").toPath();
+        verifyCompilation(path, true, desiredOut);
     }
-    public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+    public static void verifyCompilation(Object program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
         verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
         //first, no optimizations
         //if that fails, then just fail without checking anything else
@@ -241,7 +242,7 @@ public class CompilerTest {
             throw new IllegalStateException("Detective failed" + e);//shouldn't get to here
         }
     }
-    public static Object detective(String program, String desiredExecutionOutput, Exception withAll) {//setting the return type to non-void ensures that it cannot exit without throwing SOME exception
+    public static Object detective(Object program, String desiredExecutionOutput, Exception withAll) {//setting the return type to non-void ensures that it cannot exit without throwing SOME exception
         //no exception with false,NONE
         //exception with true,ALL
         try {
@@ -283,13 +284,17 @@ public class CompilerTest {
         withAll.printStackTrace();
         throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselesstempvars" + withAll);
     }
-    public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+    public static void verifyCompilation(Object prog, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+        if (prog instanceof Path) {
+            verifyCompilation((Path) prog, desiredExecutionOutput, settings, useAssert);
+            return;
+        }
         if (!shouldCompile) {
             assertNull(desiredExecutionOutput);
         }
         String compiled;
         try {
-            compiled = Compiler.compile(program, settings);
+            compiled = Compiler.compile((String) prog, settings);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {
@@ -297,6 +302,12 @@ public class CompilerTest {
             }
             return;
         }
+        assertNotNull(compiled);
+        verifyASM(compiled, useAssert, desiredExecutionOutput);
+    }
+    public static void verifyCompilation(Path main, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+        assertNotNull(desiredExecutionOutput);
+        String compiled = Compiler.compile(main, settings);
         assertNotNull(compiled);
         verifyASM(compiled, useAssert, desiredExecutionOutput);
     }

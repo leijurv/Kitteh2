@@ -54,7 +54,7 @@ public class TACCast extends TACStatement {
         if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
             if (inp.equals(out)) {
-                throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes());
+                throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes() + " " + inp);
             }
             emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
         } else {

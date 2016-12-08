@@ -16,6 +16,7 @@ main(){
 	output(add(multiply(w,d),m))
 	output(add(m,multiply(d,w)))
 	output(add(multiply(d,w),m))
-	output(multiply(fromLong((long)(0-2352)),fromLong(234987)))
+	weww:=0-2352
+	output(multiply(fromLong((long)weww),fromLong(234987)))
 	output(modInverse(fromLong(17),fromLong(3120)))
 }

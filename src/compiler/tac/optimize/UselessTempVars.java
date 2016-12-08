@@ -116,19 +116,14 @@ public class UselessTempVars extends TACOptimization {
                         //perfectly valid to set a non-temp-var then jump
                         break;
                     }
-                    //if it gets to here, it means something is wrong
                     //it means that a temp variable is set, then goes unused up to a jump
-                    //and since no temp variables are used again after a jump
-                    //it means that somehow this temp variable was generated but went unused entirely
-                    //it could indicate a bug in a different optimization btw
-                    System.out.println(curr);
-                    System.out.println(next);
-                    System.out.println("TODO TODO TODO TODO TODO figure out what causes this, and dont just comment out the exception");
-                    for (TACStatement ts : block) {
-                        System.out.println(ts);
-                    }
-                    break;//TODO TODO TODO TODO TODO figure out what causes this, and dont just comment out the exception
-                    //throw new RuntimeException("Another optimization did something weird");
+                    //this is actually ok
+                    //it arises in cases like
+                    //if somecondition jump to tmp=1
+                    //tmp=0
+                    //jump past tmp=1
+                    //tmp=1
+                    break;
                 }
             }
             while (block.contains(null)) {//</horrible hack>

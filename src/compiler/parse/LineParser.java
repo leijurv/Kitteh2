@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.util.Parse;
 import compiler.parse.expression.ExpressionParser;
 import compiler.Context;
 import compiler.Keyword;
@@ -93,7 +94,7 @@ class LineParser {
             throw new IllegalStateException("Line cannot begin with =");
         }
         if (eqLoc == -1) {
-            Type type = Util.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
+            Type type = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
                 if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
@@ -162,7 +163,7 @@ class LineParser {
             throw new ClosedDirectoryStreamException();
         }
         //if the first token is a type, we are doing something like int i=5
-        Type type = Util.typeFromTokens(tokens.subList(0, eqLoc - 1), context);
+        Type type = Parse.typeFromTokens(tokens.subList(0, eqLoc - 1), context);
         if (type != null) {
             if (tokens.get(eqLoc - 1).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");

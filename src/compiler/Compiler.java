@@ -12,11 +12,13 @@ import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.Pair;
+import compiler.util.Kitterature;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,22 +33,42 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
+    private static Boolean PRE_IMPORT = false;
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
-        byte[] program = Files.readAllBytes(name);
+        byte[] program;
+        if (PRE_IMPORT) {
+            program = Kitterature.getResource(name.toString());
+        } else {
+            program = Files.readAllBytes(name);
+        }
         List<Line> lines = Preprocessor.preprocess(new String(program));
         Context context = new Context(name + "");
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
+        int entrypoint = 0;
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
-        toLoad.add(main);
-        alrImp.add(main);
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
-        while (!toLoad.isEmpty()) {
+        PRE_IMPORT = true;
+        Path importpath = Paths.get("bigint.k");
+        entrypoint++;
+        toLoad.add(importpath);
+        alrImp.add(importpath);
+        while (true) {
+            if (toLoad.isEmpty()) {
+                if (!PRE_IMPORT) {
+                    break;
+                } else {
+                    toLoad.add(main);
+                    alrImp.add(main);
+                    PRE_IMPORT = false;
+                    continue;
+                }
+            }
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
@@ -57,10 +79,10 @@ public class Compiler {
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getKey() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
-                if (!toImport.exists()) {
+                if (!toImport.exists() && !PRE_IMPORT) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
-                Path impPath = new File(compiler.parse.Util.trimPath(toImport.toString())).toPath();
+                Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
                 System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
                 if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                     throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
@@ -85,6 +107,12 @@ public class Compiler {
         }
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());
+            for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
+                if (oth.getA() != null && !oth.getA().toFile().exists()) {
+                    System.out.println("Assuming stdlib for " + oth.getA());
+                    context.insertStructsUnderPackage(null, ctxts.get(oth.getA()));
+                }
+            }
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 Path importing = new File(imp.getKey()).toPath();
                 String underName = imp.getValue();
@@ -96,7 +124,7 @@ public class Compiler {
             }
         }
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
-        contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded
+        contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         System.out.println();
         System.out.println("---- END IMPORTS, BEGIN PARSING ----");
         System.out.println();

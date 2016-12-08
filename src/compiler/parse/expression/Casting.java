@@ -7,7 +7,7 @@ package compiler.parse.expression;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
-import compiler.parse.Util;
+import compiler.util.Parse;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
@@ -36,7 +36,7 @@ class Casting extends TokenBased {
             }
             inBrkts.add((Token) ob);
         }
-        Type type = Util.typeFromTokens(inBrkts, context);
+        Type type = Parse.typeFromTokens(inBrkts, context);
         Expression casting = (Expression) o.remove(i);
         o.add(i, new ExpressionCast(casting, type));
         return true;

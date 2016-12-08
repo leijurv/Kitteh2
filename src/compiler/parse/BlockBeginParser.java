@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.util.Parse;
 import compiler.Context;
 import compiler.Struct;
 import compiler.command.Command;
@@ -50,16 +51,16 @@ class BlockBeginParser {
         List<Token> returnType = params.subList(endParen + 1, params.size());
         //System.out.println("Return type: " + returnType);
         Type retType;
-        if (Util.typeFromTokens(returnType, context) != null) {
-            retType = Util.typeFromTokens(returnType, context);
+        if (Parse.typeFromTokens(returnType, context) != null) {
+            retType = Parse.typeFromTokens(returnType, context);
         } else if (returnType.isEmpty()) {
             retType = new TypeVoid();
         } else {
             throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
         }
-        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
+        List<Pair<String, Type>> args = Parse.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
-            Type type = Util.typeFromTokens(typeDefinition, context);
+            Type type = Parse.typeFromTokens(typeDefinition, context);
             if (type == null) {
                 throw new IllegalStateException(typeDefinition + " not a valid type");
             }
@@ -145,7 +146,7 @@ class BlockBeginParser {
                 throw new RuntimeException();
             }
             fieldNames.add((String) tokens.get(tokens.size() - 1).data());
-            Type tft = Util.typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
+            Type tft = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
             if (tft == null) {
                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
             }

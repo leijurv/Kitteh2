@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.parse;
+package compiler.util;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class Util {
+public class Parse {
     public static Type typeFromTokens(List<Token> tokens, Context context) {
         return typeFromTokens(tokens, context, null);
     }
@@ -69,7 +69,7 @@ public class Util {
         }
         return tp;
     }
-    static List<List<Token>> splitList(List<Token> list, TokenType splitOn) {
+    public static List<List<Token>> splitList(List<Token> list, TokenType splitOn) {
         List<List<Token>> result = new ArrayList<>();
         List<Token> temp = new ArrayList<>();
         for (Token t : list) {
@@ -93,20 +93,6 @@ public class Util {
             }
             tmp.add((Token) obj);
         }
-        return Util.typeFromTokens(tmp, context);
-    }
-    public static String trimPath(String s) {
-        if (s == null) {
-            return null;
-        }
-        int ind = s.indexOf("../");
-        if (ind == -1) {
-            return s;
-        }
-        if (ind == 0) {
-            return "../" + trimPath(s.substring(3));
-        }
-        int from = s.lastIndexOf("/", ind - 2);
-        return trimPath(s.substring(0, from + 1) + s.substring(ind + 3));
+        return Parse.typeFromTokens(tmp, context);
     }
 }

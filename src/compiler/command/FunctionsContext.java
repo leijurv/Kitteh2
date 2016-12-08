@@ -42,13 +42,13 @@ public class FunctionsContext {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
-                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import");
+                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import " + name);
                 }
                 functionMap.put(name, header);
-                if (defineLocally.contains(file.getA())) {
+                if (defineLocally.contains(file.getA()) || (file.getA() != null && !file.getA().equals(thisPath) && !file.getA().toFile().exists())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
-                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import");
+                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());
                     }
                     functionMap.put(name1, header);
                 }
@@ -96,7 +96,7 @@ public class FunctionsContext {
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {
-            throw new ConcurrentModificationException("you tryna call a nonexistent function " + actual + " " + functionMap);
+            throw new ConcurrentModificationException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap);
         }
         return tr;
     }

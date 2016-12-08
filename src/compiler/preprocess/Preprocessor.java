@@ -6,6 +6,7 @@
 package compiler.preprocess;
 import compiler.parse.Line;
 import compiler.parse.Transform;
+import static compiler.preprocess.StripLocation.*;
 import java.util.List;
 
 /**
@@ -14,12 +15,12 @@ import java.util.List;
  */
 public class Preprocessor {
     static final LineBasedTransform CHAR_STRIPPER = new CharStripperFactory()
-            .addChar(' ', StripLocation.BOTH)//remove spaces from both ends of each line
-            .addChar(';', StripLocation.END)//remove semicolons from the end, they are optional lol (yes you can have something like "x=5;;;;;;  ; ; ;; " and it'll be valid
-            .addChar('	', StripLocation.BOTH)//you can use tabs or spaces
-            .addChar('\r', StripLocation.BOTH)//idk how returns work
-            .addChar((char) 11, StripLocation.BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
-            .addChar(' ', StripLocation.BOTH)//alt+space
+            .addChar(' ', BOTH)//remove spaces from both ends of each line
+            .addChar(';', END)//remove semicolons from the end, they are optional lol (yes you can have something like "x=5;;;;;;  ; ; ;; " and it'll be valid
+            .addChar('	', BOTH)//you can use tabs or spaces
+            .addChar('\r', BOTH)//idk how returns work
+            .addChar((char) 11, BOTH)//literally https://en.wikipedia.org/wiki/Tab_key#Tab_characters
+            .addChar(' ', BOTH)//alt+space
             .build();
     static final Transform<List<Line>> REMOVE_BLANK = new BlankLineRemover();
     @SuppressWarnings("unchecked")//you can't actually do "new Transform<>[]{" so I can't fix this warning

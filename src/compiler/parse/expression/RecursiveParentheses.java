@@ -9,7 +9,7 @@ import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionFunctionCall;
-import compiler.parse.Util;
+import compiler.util.Parse;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -70,7 +70,7 @@ class RecursiveParentheses extends TokenBased {
             if (inParen.size() != 1) {
                 throw new RuntimeException();
             }
-            Type type = Util.typeFromObjs(inParen.get(0), context);
+            Type type = Parse.typeFromObjs(inParen.get(0), context);
             if (type == null) {
                 throw new RuntimeException();
             }
@@ -80,7 +80,7 @@ class RecursiveParentheses extends TokenBased {
             o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
             return true;
         }
-        if (inParen.size() == 1 && Util.typeFromObjs(inParen.get(0), context) != null) {
+        if (inParen.size() == 1 && Parse.typeFromObjs(inParen.get(0), context) != null) {
             //this is a cast, skip the rest and don't modify these parentheses
             return false;
         } else {

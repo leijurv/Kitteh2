@@ -1,4 +1,3 @@
-import ../bigint/main
 import base
 struct ecpoint{
 	void* x

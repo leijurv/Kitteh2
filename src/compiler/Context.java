@@ -103,11 +103,6 @@ public class Context {
     public HashMap<String, Struct> structsCopy() {
         return new HashMap<>(structs);
     }
-    public void fixStructs() {
-        for (Struct s : structs.values()) {
-            s.parseContents();
-        }
-    }
     public void insertStructsUnderPackage(String alias, HashMap<String, Struct> other) {
         for (Entry<String, Struct> struct : other.entrySet()) {
             String name = (alias == null ? "" : alias + "::") + struct.getKey();

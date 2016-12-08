@@ -21,10 +21,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -124,14 +126,8 @@ public class Compiler {
             }
         }
         long c = System.currentTimeMillis();
-        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
-            ctxts.get(pair.getA()).fixStructs();
-        }
-        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
-            for (CommandDefineFunction cdf : pair.getB()) {
-                cdf.parseHeader();
-            }
-        }
+        loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).forEach(Struct::parseContents);
+        loaded.stream().map(Pair::getB).flatMap(List::stream).parallel().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
@@ -152,7 +148,9 @@ public class Compiler {
         Context cont = new Context(null);
         List<CommandDefineFunction> commands = Processor.initialParse(lines, cont);
         System.out.println("> DONE PROCESSING");
-        cont.fixStructs();
+        for (Struct struct : cont.structsCopy().values()) {
+            struct.parseContents();
+        }
         for (CommandDefineFunction cdf : commands) {
             cdf.parseHeader();
         }

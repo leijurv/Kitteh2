@@ -31,7 +31,7 @@ public class Struct {
     }
     public void parseContents() {
         if (parsed) {
-            return;
+            throw new RuntimeException();
         }
         int pos = 0;
         for (Line thisLine : lines) {

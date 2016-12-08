@@ -123,6 +123,11 @@ public class Compiler {
             }
         }
         long c = System.currentTimeMillis();
+        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
+            for (CommandDefineFunction cdf : pair.getB()) {
+                cdf.parseHeader();
+            }
+        }
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long d = System.currentTimeMillis();
@@ -141,6 +146,9 @@ public class Compiler {
         long b = System.currentTimeMillis();
         List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
         System.out.println("> DONE PROCESSING");
+        for (CommandDefineFunction cdf : commands) {
+            cdf.parseHeader();
+        }
         long c = System.currentTimeMillis();
         FunctionsContext fc = new FunctionsContext(null, commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
         fc.parseRekursivelie();

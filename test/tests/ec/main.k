@@ -4,9 +4,9 @@ struct ecpoint{
 	void* y
 }
 main(){
-	x:=(bigint*)basepointX()
-	bigint* y=(bigint*)basepointY()
-	modulus:=(bigint*)modulus()
+	x:=basepointX()
+	bigint* y=basepointY()
+	modulus:=modulus()
 	output(x)
 	output(y)
 	output(modulus)
@@ -17,13 +17,13 @@ main(){
 
 	for i:=15; i<=20; i++{
 		print(i)
-		pow:=(void*)fromLong((long)i)
-		pt:=multiplyec(dupec(bp),pow,(void*)modulus,bp)
+		pow:=fromLong((long)i)
+		pt:=multiplyec(dupec(bp),pow,modulus,bp)
 		outputec(pt)
 		clear(pt)
-		f((bigint*)pow)
+		f(pow)
 	}
-	outputec(multiplyec(dupec(bp),(void*)fromLong(50215021),(void*)modulus,bp))
+	outputec(multiplyec(dupec(bp),fromLong(50215021),modulus,bp))
 }
 clear(ecpoint* a){
 	f((bigint*)a.x)
@@ -43,8 +43,7 @@ outputec(ecpoint* t){
 	print(x)
 	output((bigint*)t.y)
 }
-multiplyec(ecpoint* base,void* POW,void* MOD,ecpoint* bp)ecpoint*{
-	pow:=(bigint*)POW
+multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	trimInPlace(pow)
 	if pow.size==1 && pow.cont[0]{
 		return base
@@ -60,7 +59,7 @@ multiplyec(ecpoint* base,void* POW,void* MOD,ecpoint* bp)ecpoint*{
 		powminus:=sub(pow,one)
 		f(one)
 
-		min:=multiplyec(base,(void*)powminus,MOD,bp)
+		min:=multiplyec(base,powminus,MOD,bp)
 
 		f(powminus)
 
@@ -71,18 +70,17 @@ multiplyec(ecpoint* base,void* POW,void* MOD,ecpoint* bp)ecpoint*{
 	}
 	
 	shiftedPow:=rightshiftone(pow)
-	wew:=multiplyec(base,(void*)shiftedPow,MOD,bp)
+	wew:=multiplyec(base,shiftedPow,MOD,bp)
 	f(shiftedPow)
 	wewwew:=addec(wew,wew,MOD)
 	clear(wew)
 	return wewwew
 }
-addec(ecpoint* p,ecpoint* q,void* MOD)ecpoint*{
+addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{
 	px:=(bigint*)p.x
 	py:=(bigint*)p.y
 	qx:=(bigint*)q.x
 	qy:=(bigint*)q.y
-	modulus:=(bigint*)MOD
     bigint* s
     if equal(qx,px){
     	xs:=multiply(px,px)

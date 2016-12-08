@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.parse;
-import compiler.util.Parse;
 import compiler.Context;
 import compiler.Struct;
 import compiler.command.Command;
@@ -17,15 +16,12 @@ import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
-import compiler.type.TypeVoid;
-import compiler.util.Pair;
+import compiler.util.Parse;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.management.openmbean.InvalidKeyException;
 import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
@@ -44,38 +40,13 @@ class BlockBeginParser {
         if (params.get(1) != STARTPAREN) {
             throw new AnnotationTypeMismatchException(null, "" + params);
         }
-        int endParen = params.indexOf(ENDPAREN);
-        if (endParen == -1) {
-            throw new InvalidKeyException();
-        }
-        List<Token> returnType = params.subList(endParen + 1, params.size());
         //System.out.println("Return type: " + returnType);
-        Type retType;
-        if (Parse.typeFromTokens(returnType, context) != null) {
-            retType = Parse.typeFromTokens(returnType, context);
-        } else if (returnType.isEmpty()) {
-            retType = new TypeVoid();
-        } else {
-            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
-        }
-        List<Pair<String, Type>> args = Parse.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
-            List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
-            Type type = Parse.typeFromTokens(typeDefinition, context);
-            if (type == null) {
-                throw new IllegalStateException(typeDefinition + " not a valid type");
-            }
-            if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
-                throw new RuntimeException();
-            }
-            String name = (String) tokenList.get(tokenList.size() - 1).data();
-            return new Pair<>(name, type);
-        }).collect(Collectors.toList());
         if (!context.isTopLevel()) {
             //make sure this is top level
             throw new InvalidParameterException();
         }
         Context subContext = context.subContext();
-        return new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
+        return new CommandDefineFunction(subContext, params, functionName, rawBlock);
     }
     static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);

@@ -1,4 +1,4 @@
-func basepointX()void*{
+func basepointX()bigint*{
 	x:=new(256)
 	xcont:=x.cont
 	
@@ -257,9 +257,9 @@ xcont[3]=true
 xcont[2]=false
 xcont[1]=false
 xcont[0]=false
-return (void*)x
+return x
 }
-basepointY() void*{
+basepointY() bigint*{
 y:=new(256)
 	ycont:=y.cont
 ycont[254]=true
@@ -517,9 +517,9 @@ ycont[3]=true
 ycont[2]=false
 ycont[1]=false
 ycont[0]=false
-return (void*)y
+return y
 }
-modulus() void*{
+modulus() bigint*{
 	twofivesix:=fromLong(1)
 	leftshift(twofivesix,256)
 	thirtytwo:=fromLong(1)
@@ -531,5 +531,5 @@ modulus() void*{
 	f(thirtytwo)
 	f(wew)
 	f(ninesevenseven)
-	return (void*)modulus
+	return modulus
 }

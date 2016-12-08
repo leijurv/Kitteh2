@@ -11,15 +11,21 @@ import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.tac.optimize.TACOptimizer;
+import compiler.token.Token;
+import static compiler.token.TokenType.COMMA;
+import static compiler.token.TokenType.ENDPAREN;
+import static compiler.token.TokenType.VARIABLE;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeVoid;
 import compiler.util.Pair;
+import compiler.util.Parse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.management.openmbean.InvalidKeyException;
 
 /**
  *
@@ -29,18 +35,19 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     private final String name;
     private ArrayList<Command> contents;
     private final ArrayList<Object> rawContents;
-    private final FunctionHeader header;
-    public CommandDefineFunction(Context context, Type returnType, List<Pair<String, Type>> arguments, String functionName, ArrayList<Object> rawContents) {
+    private FunctionHeader header;
+    private List<Token> returnType;
+    private List<Token> params;
+    public CommandDefineFunction(Context context, List<Token> params, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
-        this.header = new FunctionHeader(name, returnType, arguments.stream().map(Pair::getB).collect(Collectors.toList()));
-        int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack
-        http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
-        for (Pair<String, Type> arg : arguments) {
-            context.registerArgumentInput(arg.getA(), arg.getB(), pos);
-            pos += arg.getB().getSizeBytes();
+        this.params = params;
+        int endParen = params.indexOf(ENDPAREN);
+        if (endParen == -1) {
+            throw new InvalidKeyException();
         }
+        returnType = params.subList(endParen + 1, params.size());
     }
     private boolean isEntryPoint = false;
     public void setEntryPoint() {
@@ -61,6 +68,39 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public FunctionHeader getLocalHeader() {
         return header;
+    }
+    public void parseHeader() {
+        if (header != null) {
+            return;
+        }
+        Type retType;
+        if (Parse.typeFromTokens(returnType, context) != null) {
+            retType = Parse.typeFromTokens(returnType, context);
+        } else if (returnType.isEmpty()) {
+            retType = new TypeVoid();
+        } else {
+            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
+        }
+        int endParen = params.indexOf(ENDPAREN);
+        List<Pair<String, Type>> args = Parse.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
+            List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
+            Type type = Parse.typeFromTokens(typeDefinition, context);
+            if (type == null) {
+                throw new IllegalStateException(typeDefinition + " not a valid type");
+            }
+            if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
+                throw new RuntimeException();
+            }
+            String name = (String) tokenList.get(tokenList.size() - 1).data();
+            return new Pair<>(name, type);
+        }).collect(Collectors.toList());
+        this.header = new FunctionHeader(name, retType, args.stream().map(Pair::getB).collect(Collectors.toList()));
+        int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack
+        http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
+        for (Pair<String, Type> arg : args) {
+            context.registerArgumentInput(arg.getA(), arg.getB(), pos);
+            pos += arg.getB().getSizeBytes();
+        }
     }
     public void parse(FunctionsContext gc) {
         context.setCurrFunc(this);

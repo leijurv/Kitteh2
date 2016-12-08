@@ -4,11 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.parse;
-import compiler.util.Parse;
-import compiler.parse.expression.ExpressionParser;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
+import compiler.type.TypeStruct;
 import compiler.command.Command;
 import compiler.command.CommandBreak;
 import compiler.command.CommandContinue;
@@ -20,14 +19,15 @@ import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionVariable;
 import compiler.expression.Settable;
+import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
+import compiler.util.Parse;
 import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.ProviderMismatchException;
 import java.util.IllformedLocaleException;

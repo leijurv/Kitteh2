@@ -5,9 +5,9 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
+import compiler.type.TypeStruct;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
-import compiler.type.TypeStruct;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
@@ -83,7 +83,7 @@ public class TACConst extends TACStatement {
         }
         if (dest.getType() instanceof TypeStruct) {
             //oh god
-            TACPointerDeref.moveStruct(((VarInfo) source).getStackLocation(), "%rbp", ((VarInfo) dest).getStackLocation(), ((TypeStruct) dest.getType()).struct, emit);
+            TACPointerDeref.moveStruct(((VarInfo) source).getStackLocation(), "%rbp", ((VarInfo) dest).getStackLocation(), ((TypeStruct) dest.getType()), emit);
             return;
         }
         TypeNumerical type = (TypeNumerical) dest.getType();

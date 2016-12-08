@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.type.TypeStruct;
 import compiler.command.CommandDefineFunction;
 import compiler.command.FunctionsContext;
 import compiler.parse.Line;
@@ -54,7 +55,7 @@ public class Compiler {
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
-        HashMap<Path, HashMap<String, Struct>> importz = new HashMap<>();
+        HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         boolean preImport = true;
         Path importpath = Paths.get("bigint.k");
         entrypoint++;
@@ -126,9 +127,9 @@ public class Compiler {
             }
         }
         long c = System.currentTimeMillis();
-        List<Struct> structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
-        structs.stream().forEach(Struct::parseContents);
-        structs.stream().forEach(Struct::allocate);
+        List<TypeStruct> structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+        structs.stream().forEach(TypeStruct::parseContents);
+        structs.stream().forEach(TypeStruct::allocate);
         loaded.stream().map(Pair::getB).flatMap(List::stream).parallel().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
@@ -150,10 +151,10 @@ public class Compiler {
         Context cont = new Context(null);
         List<CommandDefineFunction> commands = Processor.initialParse(lines, cont);
         System.out.println("> DONE PROCESSING");
-        for (Struct struct : cont.structsCopy().values()) {
+        for (TypeStruct struct : cont.structsCopy().values()) {
             struct.parseContents();
         }
-        for (Struct struct : cont.structsCopy().values()) {
+        for (TypeStruct struct : cont.structsCopy().values()) {
             struct.allocate();
         }
         for (CommandDefineFunction cdf : commands) {

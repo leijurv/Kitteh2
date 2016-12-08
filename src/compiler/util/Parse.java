@@ -7,12 +7,11 @@ package compiler.util;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
-import compiler.Struct;
+import compiler.type.TypeStruct;
 import compiler.token.Token;
 import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +44,11 @@ public class Parse {
                 if (accessing != null) {
                     name = accessing + "::" + name;
                 }
-                Struct struct = context.getStruct(name);
+                TypeStruct struct = context.getStruct(name);
                 if (struct == null) {
                     return null;
                 }
-                tp = new TypeStruct(struct);
+                tp = struct;
                 break;
             default:
                 return null;

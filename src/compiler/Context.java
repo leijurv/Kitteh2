@@ -9,6 +9,7 @@ import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeStruct;
 import compiler.util.MutInt;
 import compiler.x86.X86Param;
 import java.awt.dnd.InvalidDnDOperationException;
@@ -80,7 +81,7 @@ public class Context {
     public final HashMap<String, String> imports;
     public final String packageName;
     private final HashMap<String, VarInfo>[] values;
-    private final HashMap<String, Struct> structs;
+    private final HashMap<String, TypeStruct> structs;
     private int stackSize;
     private Integer additionalSizeTemp = null;
     private TempVarUsage currentTempVarUsage = null;
@@ -100,11 +101,11 @@ public class Context {
             imports.put(wewlad, wewlad);
         }
     }
-    public HashMap<String, Struct> structsCopy() {
+    public HashMap<String, TypeStruct> structsCopy() {
         return new HashMap<>(structs);
     }
-    public void insertStructsUnderPackage(String alias, HashMap<String, Struct> other) {
-        for (Entry<String, Struct> struct : other.entrySet()) {
+    public void insertStructsUnderPackage(String alias, HashMap<String, TypeStruct> other) {
+        for (Entry<String, TypeStruct> struct : other.entrySet()) {
             String name = (alias == null ? "" : alias + "::") + struct.getKey();
             if (structs.containsKey(name)) {
                 throw new RuntimeException("Overwriting struct " + name);
@@ -136,16 +137,16 @@ public class Context {
         }
         imports.put(fileName, alias);
     }
-    public void defineStruct(Struct struct) {
-        if (structs.containsKey(struct.name)) {
+    public void defineStruct(TypeStruct struct) {
+        if (structs.containsKey(struct.getName())) {
             throw new InvalidDnDOperationException();
         }
         if (!isTopLevel()) {
             throw new OverlappingFileLockException();
         }
-        structs.put(struct.name, struct);
+        structs.put(struct.getName(), struct);
     }
-    public Struct getStruct(String name) {
+    public TypeStruct getStruct(String name) {
         return structs.get(name);
     }
     public void setCurrFunc(CommandDefineFunction cdf) {
@@ -196,7 +197,7 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
+    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;

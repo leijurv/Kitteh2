@@ -5,13 +5,13 @@
  */
 package compiler.tac.optimize;
 import compiler.Context.VarInfo;
+import compiler.type.TypeStruct;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACJump;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
-import compiler.type.TypeStruct;
 import compiler.x86.X86Param;
 import java.util.List;
 

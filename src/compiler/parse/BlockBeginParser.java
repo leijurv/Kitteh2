@@ -5,7 +5,7 @@
  */
 package compiler.parse;
 import compiler.Context;
-import compiler.Struct;
+import compiler.type.TypeStruct;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.command.CommandFor;
@@ -109,7 +109,7 @@ class BlockBeginParser {
         for (Line l : lines) {
             l.lex();
         }
-        Struct struct = new Struct(structName, lines, context);
+        TypeStruct struct = new TypeStruct(structName, lines, context);
         context.defineStruct(struct);
     }
 }

@@ -7,7 +7,7 @@ package compiler.expression;
 import compiler.Context;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import compiler.Struct;
+import compiler.type.TypeStruct;
 import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
@@ -17,7 +17,6 @@ import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.nio.file.ReadOnlyFileSystemException;
@@ -29,9 +28,9 @@ import java.nio.file.ReadOnlyFileSystemException;
 public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable implements Settable {
     String field;
     Expression input;
-    Struct struct;
+    TypeStruct struct;
     public ExpressionStructFieldAccess(Expression input, String field) {
-        this.struct = ((TypeStruct) input.getType()).struct;
+        this.struct = ((TypeStruct) input.getType());
         this.input = input;
         this.field = field;
         if (struct == null) {

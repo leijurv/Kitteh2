@@ -5,10 +5,9 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.Struct;
+import compiler.type.TypeStruct;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -54,13 +53,13 @@ public class TACPointerDeref extends TACStatement {
             emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), ts.struct, emit);
+            moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }
     }
-    public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, Struct struct, X86Emitter emit) {
-        int size = new TypeStruct(struct).getSizeBytes();
+    public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, TypeStruct struct, X86Emitter emit) {
+        int size = struct.getSizeBytes();
         //this is a really bad way to do this
         for (int i = 0; i + 8 <= size; i += 8) {
             emit.addStatement("movq " + (i + sourceStackLocation) + "(" + sourceRegister + "), %rcx");

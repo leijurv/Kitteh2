@@ -50,7 +50,6 @@ public class Compiler {
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
-        HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         boolean preImport = true;
         Path importpath = Paths.get("bigint.k");
@@ -102,7 +101,6 @@ public class Compiler {
             }
             ctxts.put(path, context);
             loaded.add(new Pair<>(path, funcs.getA()));
-            loadedMap.put(path, funcs.getA());
         }
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());

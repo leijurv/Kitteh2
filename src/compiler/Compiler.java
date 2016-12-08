@@ -11,8 +11,8 @@ import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
-import compiler.util.Pair;
 import compiler.util.Kitterature;
+import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +33,9 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    private static Boolean PRE_IMPORT = false;
-    private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
+    private static Pair<List<CommandDefineFunction>, Context> load(Path name, boolean preImport) throws IOException {
         byte[] program;
-        if (PRE_IMPORT) {
+        if (preImport) {
             program = Kitterature.getResource(name.toString());
         } else {
             program = Files.readAllBytes(name);
@@ -53,25 +52,25 @@ public class Compiler {
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, List<CommandDefineFunction>> loadedMap = new HashMap<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
-        PRE_IMPORT = true;
+        boolean preImport = true;
         Path importpath = Paths.get("bigint.k");
         entrypoint++;
         toLoad.add(importpath);
         alrImp.add(importpath);
         while (true) {
             if (toLoad.isEmpty()) {
-                if (!PRE_IMPORT) {
+                if (!preImport) {
                     break;
                 } else {
                     toLoad.add(main);
                     alrImp.add(main);
-                    PRE_IMPORT = false;
+                    preImport = false;
                     continue;
                 }
             }
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
-            Pair<List<CommandDefineFunction>, Context> funcs = load(path);
+            Pair<List<CommandDefineFunction>, Context> funcs = load(path, preImport);
             Context context = funcs.getB();
             System.out.println("Imports: " + context.imports);
             HashMap<String, String> fix = new HashMap<>();
@@ -79,7 +78,7 @@ public class Compiler {
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getKey() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
-                if (!toImport.exists() && !PRE_IMPORT) {
+                if (!toImport.exists() && !preImport) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
                 Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();

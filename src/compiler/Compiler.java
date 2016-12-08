@@ -126,7 +126,9 @@ public class Compiler {
             }
         }
         long c = System.currentTimeMillis();
-        loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).forEach(Struct::parseContents);
+        List<Struct> structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+        structs.stream().forEach(Struct::parseContents);
+        structs.stream().forEach(Struct::allocate);
         loaded.stream().map(Pair::getB).flatMap(List::stream).parallel().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());

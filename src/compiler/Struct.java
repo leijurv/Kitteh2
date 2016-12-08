@@ -9,6 +9,7 @@ import compiler.token.Token;
 import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.util.Parse;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,8 @@ public class Struct {
     private final List<Line> lines;
     private final Context context;
     private boolean parsed = false;
+    private final ArrayList<String> fieldNames = new ArrayList<>();
+    private final ArrayList<Type> fieldTypes = new ArrayList<>();
     public Struct(String name, List<Line> rawLines, Context context) {
         this.name = name;
         this.fields = new HashMap<>();
@@ -33,7 +36,6 @@ public class Struct {
         if (parsed) {
             throw new RuntimeException();
         }
-        int pos = 0;
         for (Line thisLine : lines) {
             List<Token> tokens = thisLine.getTokens();
             if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
@@ -44,10 +46,19 @@ public class Struct {
             if (fieldType == null) {
                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
             }
+            fieldNames.add(fieldName);
+            fieldTypes.add(fieldType);
+        }
+        parsed = true;
+    }
+    public void allocate() {
+        int pos = 0;
+        for (int i = 0; i < fieldNames.size(); i++) {
+            String fieldName = fieldNames.get(i);
+            Type fieldType = fieldTypes.get(i);
             fields.put(fieldName, new StructField(fieldName, fieldType, pos));
             pos += fieldType.getSizeBytes();
         }
-        parsed = true;
     }
     public StructField getFieldByName(String name) {
         if (!parsed) {

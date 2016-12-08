@@ -131,10 +131,11 @@ public class Compiler {
                 cdf.parseHeader();
             }
         }
+        long d = System.currentTimeMillis();
         List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
-        long d = System.currentTimeMillis();
-        System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, funcContext: " + (d - c) + "ms");
+        long e = System.currentTimeMillis();
+        System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
         System.out.println();
         System.out.println("---- END IMPORTS, BEGIN PARSING ----");
         System.out.println();

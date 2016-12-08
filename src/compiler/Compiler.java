@@ -153,6 +153,9 @@ public class Compiler {
         for (Struct struct : cont.structsCopy().values()) {
             struct.parseContents();
         }
+        for (Struct struct : cont.structsCopy().values()) {
+            struct.allocate();
+        }
         for (CommandDefineFunction cdf : commands) {
             cdf.parseHeader();
         }

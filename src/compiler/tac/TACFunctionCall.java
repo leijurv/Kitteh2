@@ -5,7 +5,6 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.Keyword;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
@@ -84,38 +83,51 @@ public class TACFunctionCall extends TACStatement {
         if (header.name.equals("free")) {
             emit.addStatement("movq " + params[0].x86() + ", %rdi");
         }
-        if (header.name.equals(Keyword.PRINT.toString())) {
+        if (header.name.endsWith("__print")) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
             if (params.length != 1 || !(params[0].getType() instanceof TypeNumerical)) {
                 throw new CancelledKeyException();
             }
-            String lmao = params[0].getType() instanceof TypeFloat ? "float" : "lld";
-            emit.addStatement("leaq " + lmao + "formatstring(%rip), %rdi");//lol rip
-            emit.addStatement("movb $" + (params[0].getType() instanceof TypeFloat ? "1" : "0") + ", %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
-            emit.addStatement("xorq %rdx, %rdx");
             TypeNumerical type = (TypeNumerical) params[0].getType();
-            if (type instanceof TypeFloat) {
-                emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
-            } else {
-                TACConst.move(X86Register.D.getRegister(type), params[0], emit);
-                if (type.getSizeBytes() == 8) {
-                    emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
+            if (type instanceof TypePointer || type instanceof TypeFloat) {
+                String lmao = params[0].getType() instanceof TypeFloat ? "float" : "lld";
+                emit.addStatement("leaq " + lmao + "formatstring(%rip), %rdi");//lol rip
+                emit.addStatement("movb $" + (params[0].getType() instanceof TypeFloat ? "1" : "0") + ", %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
+                emit.addStatement("xorq %rdx, %rdx");
+                if (type instanceof TypeFloat) {
+                    emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 } else {
-                    emit.addStatement("movs" + type.x86typesuffix() + "q " + X86Register.D.getRegister(type) + ", %rsi");
+                    TACConst.move(X86Register.D.getRegister(type), params[0], emit);
+                    if (type.getSizeBytes() == 8) {
+                        emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
+                    } else {
+                        emit.addStatement("movs" + type.x86typesuffix() + "q " + X86Register.D.getRegister(type) + ", %rsi");
+                    }
+                    if (type instanceof TypePointer) {
+                        emit.addStatement("movq %rdx, %rdi");//comment out this line if you want print(ptr) to print out the pointer address instead of the asciz string at that pointer
+                    }
                 }
-                if (type instanceof TypePointer) {
-                    emit.addStatement("movq %rdx, %rdi");//comment out this line if you want print(ptr) to print out the pointer address instead of the asciz string at that pointer
-                }
+                emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
+                emit.addStatement("addq $" + toSubtract + ", %rsp");
+                return;
             }
-            emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
-            emit.addStatement("addq $" + toSubtract + ", %rsp");
-            return;
         }
         int stackLocation = 0;
         for (int i = 0; i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
             if (!type.equals(params[i].getType())) {
-                if (header.name.equals("free") && params[i].getType() instanceof TypePointer) {
+                if (header.name.endsWith("__print")) {
+                    if (params[i].getType().getSizeBytes() != 8) {
+                        if (params[i] instanceof VarInfo) {
+                            emit.addStatement("movs" + ((TypeNumerical) params[i].getType()).x86typesuffix() + "q " + params[i].x86() + ", %rsi");
+                        } else {
+                            emit.addStatement("movq " + params[i].x86() + ", %rsi");
+                        }
+                        emit.addStatement("movq %rsi, " + stackLocation + "(%rsp)");
+                        stackLocation += 8;
+                        continue;
+                    }
+                } else if (header.name.equals("free") && params[i].getType() instanceof TypePointer) {
                     //this is fine
                 } else {
                     throw new RuntimeException(this + " was " + params[i].getType() + " expected " + type);

@@ -5,7 +5,6 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.Keyword;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
@@ -180,7 +179,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             throw new UnsupportedOperationException();
         }
     }
-    public static final FunctionHeader PRINTINT = new FunctionHeader(Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
+    //public static final FunctionHeader PRINTINT = new FunctionHeader(Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
     public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
     public static final FunctionHeader FREE = new FunctionHeader("free", new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid())})));
     public static final FunctionHeader SYSCALL = new FunctionHeader("syscall", new TypeVoid(), new ArrayList<>(Arrays.asList(new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64())));

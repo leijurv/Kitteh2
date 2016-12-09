@@ -5,7 +5,6 @@
  */
 package compiler.expression;
 import compiler.Context;
-import compiler.Keyword;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
@@ -38,7 +37,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
         }
         List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
         if (!got.equals(expected)) {
-            if (calling.name.equals(Keyword.PRINT.toString()) && got.get(0) instanceof TypeNumerical) {
+            if (calling.name.endsWith("__print") && got.get(0) instanceof TypeNumerical) {
                 //good enough
                 return;
             }
@@ -49,7 +48,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
             if (calling.name.equals("syscall")) {
                 return;
             }
-            throw new ArithmeticException("Expected types " + expected + ", got types " + got);
+            throw new ArithmeticException(calling.name + " expected types " + expected + ", got types " + got);
         }
     }
     @Override

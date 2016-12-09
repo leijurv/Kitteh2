@@ -39,7 +39,7 @@ toLong(bigint* b)long{
 }
 output(bigint* bbb){
 	out:=tostring(bbb,10)
-	print(out)
+	writeNullTerm(out)
 	free(out)
 }
 tostring(bigint* bbb,byte lastChar)byte*{

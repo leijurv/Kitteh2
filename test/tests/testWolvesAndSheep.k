@@ -69,7 +69,8 @@ func pr(byte b){
 	tmp:=(byte*)malloc(2)
 	tmp[0]=b
 	tmp[1]=0
-	print(tmp)
+	writeNullTerm(tmp)
+	free(tmp)
 }
 func r(int* seed,int max)int{
 	*seed=(*seed*5023+257)%2147483647

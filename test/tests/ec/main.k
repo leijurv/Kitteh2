@@ -40,7 +40,7 @@ dupec(ecpoint* x)ecpoint*{
 }
 outputec(ecpoint* t){
 	x:=tostring(t.x,',')
-	print(x)
+	writeNullTerm(x)
 	output(t.y)
 }
 multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{

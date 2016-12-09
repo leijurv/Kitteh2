@@ -110,7 +110,7 @@ class RecursiveParentheses extends TokenBased {
             if (inParen.size() != desiredTypes.size() && !funcName.equals("syscall")) {
                 throw new SecurityException("mismatched arg count " + inParen + " " + desiredTypes);
             }
-            List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
+            List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), funcName.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, args));
             if (pkg != null) {
                 o.remove(i - 3);

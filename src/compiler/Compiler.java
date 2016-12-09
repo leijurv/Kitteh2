@@ -16,12 +16,12 @@ import compiler.util.Kitterature;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +29,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -57,10 +59,12 @@ public class Compiler {
         HashMap<Path, Context> ctxts = new HashMap<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         boolean preImport = true;
-        Path importpath = Paths.get("bigint.k");
         entrypoint++;
-        toLoad.add(importpath);
-        alrImp.add(importpath);
+        toLoad.add(Paths.get("bigint.k"));
+        alrImp.add(Paths.get("bigint.k"));
+        entrypoint++;
+        toLoad.add(Paths.get("print.k"));
+        alrImp.add(Paths.get("print.k"));
         while (true) {
             if (toLoad.isEmpty()) {
                 if (!preImport) {
@@ -144,25 +148,14 @@ public class Compiler {
         return generateASM(flattenedList, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
-        List<Line> lines = Preprocessor.preprocess(program);
-        System.out.println("> DONE PREPROCESSING");
-        Context cont = new Context(null);
-        List<CommandDefineFunction> commands = Processor.initialParse(lines, cont);
-        System.out.println("> DONE PROCESSING");
-        for (TypeStruct struct : cont.structsCopy().values()) {
-            struct.parseContents();
+        try {
+            File f = File.createTempFile("temp", ".k");
+            new FileOutputStream(f).write(program.getBytes("UTF-8"));
+            return compile(f.toPath(), settings);
+        } catch (IOException ex) {
+            Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        for (TypeStruct struct : cont.structsCopy().values()) {
-            struct.allocate();
-        }
-        for (CommandDefineFunction cdf : commands) {
-            cdf.parseHeader();
-        }
-        FunctionsContext fc = new FunctionsContext(null, commands, Arrays.asList(), Arrays.asList(new Pair<>(null, commands)));
-        fc.parseRekursivelie();
-        fc.setEntryPoint();
-        System.out.println("> DONE PARSING");
-        return generateASM(commands, settings);
     }
     private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         long d = System.currentTimeMillis();
@@ -175,14 +168,14 @@ public class Compiler {
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
-        Context.printFull = false;
+        /* Context.printFull = false;
         for (Pair<String, List<TACStatement>> pair : wew) {
             System.out.println("TAC FOR " + pair.getA());
             for (int i = 0; i < pair.getB().size(); i++) {
                 System.out.println(i + ":     " + pair.getB().get(i));
             }
             System.out.println();
-        }
+        }*/
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();

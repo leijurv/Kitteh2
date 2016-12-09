@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.command;
-import compiler.Keyword;
 import compiler.Operator;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.util.Pair;
@@ -81,9 +80,6 @@ public class FunctionsContext {
         System.out.println("> Finished parsing functions in " + path + " -- " + (System.currentTimeMillis() - start1) + "ms");
     }
     public FunctionHeader getHeader(String pkg, String name) {
-        if (name.equals(Keyword.PRINT.toString())) {
-            return CommandDefineFunction.PRINTINT;
-        }
         try {
             return (FunctionHeader) Stream.of(CommandDefineFunction.class).parallel().map(Class::getFields).flatMap(Stream::of).parallel().filter(x -> x.getName().equals(name.toUpperCase())).findAny().get().get(null);
         } catch (IllegalAccessException | RuntimeException ex) {

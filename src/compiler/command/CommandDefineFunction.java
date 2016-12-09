@@ -138,7 +138,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public List<TACStatement> totac(OptimizationSettings settings) {
         long start = System.currentTimeMillis();
-        System.out.println("> BEGIN TAC GENERATION FOR " + name);
+        //System.out.println("> BEGIN TAC GENERATION FOR " + name);
         Context.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
@@ -147,7 +147,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         long middle = System.currentTimeMillis();
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
         long end = System.currentTimeMillis();
-        System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");
+        //System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");
         return result;
     }
 

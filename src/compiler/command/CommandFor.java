@@ -96,7 +96,7 @@ public class CommandFor extends CommandBlock {
         }
         List<String> varsMod = getAllVarsModified().collect(Collectors.toList());
         List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
-        System.out.println("CLEARING " + varsMod);
+        //System.out.println("CLEARING " + varsMod);
         for (String s : varsMod) {
             context.clearKnownValue(s);
         }

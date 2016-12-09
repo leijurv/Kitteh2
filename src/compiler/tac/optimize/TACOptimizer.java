@@ -51,7 +51,7 @@ public class TACOptimizer {
                     System.out.println();*/
                 }
             }
-            System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
+            //System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
         } while (!prev.equals(input));
         return input;
     }

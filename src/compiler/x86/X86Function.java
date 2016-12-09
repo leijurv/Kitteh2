@@ -24,7 +24,7 @@ class X86Function {
         String name = pair.getA();
         List<TACStatement> stmts = pair.getB();
         long start = System.currentTimeMillis();
-        System.out.println("> BEGIN X86 GENERATION FOR " + name);
+        //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < stmts.size(); i++) {
             emitter.addStatement(emitter.lineToLabel(i) + ":");
@@ -41,7 +41,7 @@ class X86Function {
         resp.append(FUNC_HEADER);
         resp.append(emitter.toX86());
         resp.append(FUNC_FOOTER);
-        System.out.println("> END X86 GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
+        //System.out.println("> END X86 GENERATION FOR " + name + " - " + (System.currentTimeMillis() - start) + "ms");
         return resp.toString();
     }
 }

@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
+    public static boolean PRINT_TAC = false;
     private static Pair<List<CommandDefineFunction>, Context> load(Path name, boolean preImport) throws IOException {
         byte[] program;
         if (preImport) {
@@ -165,14 +166,16 @@ public class Compiler {
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
-        /* Context.printFull = false;
-        for (Pair<String, List<TACStatement>> pair : wew) {
-            System.out.println("TAC FOR " + pair.getA());
-            for (int i = 0; i < pair.getB().size(); i++) {
-                System.out.println(i + ":     " + pair.getB().get(i));
+        if (PRINT_TAC) {
+            Context.printFull = false;
+            for (Pair<String, List<TACStatement>> pair : wew) {
+                System.out.println("TAC FOR " + pair.getA());
+                for (int i = 0; i < pair.getB().size(); i++) {
+                    System.out.println(i + ":     " + pair.getB().get(i));
+                }
+                System.out.println();
             }
-            System.out.println();
-        }*/
+        }
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();

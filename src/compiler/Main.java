@@ -58,6 +58,7 @@ public class Main {
                     break;
             }
         }
+        Compiler.PRINT_TAC = true;
         String asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         new FileOutputStream(outFile).write(asm.getBytes("UTF-8"));
     }

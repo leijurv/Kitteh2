@@ -7,7 +7,6 @@ package compiler.expression;
 import compiler.Context;
 import compiler.Context.VarInfo;
 import compiler.Operator;
-import compiler.type.TypeStruct;
 import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
@@ -17,6 +16,7 @@ import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.nio.file.ReadOnlyFileSystemException;
@@ -30,12 +30,9 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     Expression input;
     TypeStruct struct;
     public ExpressionStructFieldAccess(Expression input, String field) {
-        this.struct = ((TypeStruct) input.getType());
+        this.struct = (TypeStruct) input.getType();
         this.input = input;
         this.field = field;
-        if (struct == null) {
-            throw new RuntimeException(input + " " + input.getType() + " " + field);
-        }
         if (struct.getFieldByName(field) == null) {
             throw new RuntimeException("Accessing field " + field + " from struct " + struct);
         }

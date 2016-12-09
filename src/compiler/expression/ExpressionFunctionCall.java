@@ -33,7 +33,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     }
     private void verifyTypes() {
         List<Type> expected = calling.inputs();
-        if (expected.size() != args.size()) {
+        if (expected.size() != args.size() && !calling.name.equals("syscall")) {
             throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
         }
         List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
@@ -44,6 +44,9 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
             }
             if (calling.name.equals("free") && got.get(0) instanceof TypePointer) {
                 //good enough
+                return;
+            }
+            if (calling.name.equals("syscall")) {
                 return;
             }
             throw new ArithmeticException("Expected types " + expected + ", got types " + got);

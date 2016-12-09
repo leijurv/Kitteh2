@@ -4,13 +4,13 @@ main(){
 	}
 }
 println(long i){
-	print(intToStr(i))
+	intToStr(i)
 	byte* nl=(byte*)((malloc(2)))
 	nl[0]=10//  aka '\n' but i don't have escape characters yet
 	nl[1]=0//gotta have the null terminator
 	print(nl)
 }
-intToStr(long input) byte*{
+intToStr(long input){
 	inputCopy:=input
 	int count=0
 	if (long)(0) >inputCopy{
@@ -24,6 +24,7 @@ intToStr(long input) byte*{
 	if count == 0{//even if the input is just zero, the output needs to have the "0" char
 		count=1
 	}
+	totalSize:=count
 	result:=(byte*)malloc(count+1)//don't forget the null pointer at the end
 	result[count]=0//set the null pointer
 	count--//start at the last char before the null pointer
@@ -38,7 +39,8 @@ intToStr(long input) byte*{
 		input=input/10
 		count=count-1
 	}
-	return result
+	print(totalSize)
+	print(result)
 }
 factorial(long i) long{
 	wew:=i<=(long)1

@@ -64,6 +64,16 @@ public class TACFunctionCall extends TACStatement {
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         emit.addStatement("subq $" + toSubtract + ", %rsp");
+        if (header.name.equals("syscall")) {
+            X86Register[] registers = {X86Register.DI, X86Register.SI, X86Register.D, X86Register.C, X86Register.R8, X86Register.R9};
+            for (int i = 0; i < params.length; i++) {
+                TypeNumerical type = (TypeNumerical) params[i].getType();
+                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + registers[i].getRegister(type).x86());
+            }
+            emit.addStatement(X86Format.MAC ? "callq _syscall" : "callq syscall");
+            emit.addStatement("addq $" + toSubtract + ", %rsp");
+            return;
+        }
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");

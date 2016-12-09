@@ -9,12 +9,12 @@ import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionFunctionCall;
-import compiler.util.Parse;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
+import compiler.util.Parse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -107,7 +107,7 @@ class RecursiveParentheses extends TokenBased {
             //System.out.println("Expecting inputs: " + desiredTypes);
             //tfw parallel expression parsing
             //tfw this is a GOOD idea /s
-            if (inParen.size() != desiredTypes.size()) {
+            if (inParen.size() != desiredTypes.size() && !funcName.equals("syscall")) {
                 throw new SecurityException("mismatched arg count " + inParen + " " + desiredTypes);
             }
             List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());

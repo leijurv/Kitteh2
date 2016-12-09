@@ -250,7 +250,7 @@ public class CompilerTest {
         } catch (Exception e) {
             //exception isn't caused by any optimization settings
             e.printStackTrace();
-            throw new IllegalStateException("Exception caused by setting staticValues to true with optimizationsettings staying at NONE " + e);
+            throw new IllegalStateException("Exception caused by setting staticValues to true with OptimizationSettings staying at NONE " + e);
         }
         //no exception with *,NONE
         //try enabling individual optimizations
@@ -278,11 +278,11 @@ public class CompilerTest {
             } catch (Exception e) {
                 //if enabling one with uselesstempvars can trigger it, let's just throw that
                 e.printStackTrace();
-                throw new IllegalStateException("Caused by uselesstempvars AND optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
+                throw new IllegalStateException("Caused by uselessTempVars AND optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
             }
         }
         withAll.printStackTrace();
-        throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselesstempvars" + withAll);
+        throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselessTempVars" + withAll);
     }
     public static void verifyCompilation(Object prog, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
         if (prog instanceof Path) {
@@ -342,7 +342,7 @@ public class CompilerTest {
                 result.append((char) j);
             }
             System.out.println(result);
-            System.out.println("Oh well");
+            System.out.println("Oh well, rekt");
         }
         assertEquals(0, gcc.waitFor());
         assertEquals(true, executable.exists());

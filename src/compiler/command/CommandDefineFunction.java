@@ -61,7 +61,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (isEntryPoint) {
             return getLocalHeader();
         }
-        return new FunctionHeader((context.packageName != null ? context.packageName.replace(".", "DOT").replace("/", "_") + Math.abs(context.packageName.hashCode()) : context.packageName) + "__" + name, header.returnType, header.arguments);
+        return new FunctionHeader((context.packageName != null ? context.packageName.replace(".", "DOT").replace("/", "_") + ("" + context.packageName.hashCode()).replace("-", "negative") : context.packageName) + "__" + name, header.returnType, header.arguments);
     }
     public String getLocalName() {
         return header.name;

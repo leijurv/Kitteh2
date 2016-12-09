@@ -60,9 +60,6 @@ public class Compiler {
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         boolean preImport = true;
         entrypoint++;
-        toLoad.add(Paths.get("bigint.k"));
-        alrImp.add(Paths.get("bigint.k"));
-        entrypoint++;
         toLoad.add(Paths.get("print.k"));
         alrImp.add(Paths.get("print.k"));
         while (true) {

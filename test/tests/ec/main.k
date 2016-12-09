@@ -1,4 +1,5 @@
 import base
+import ../bigint/bigint
 struct ecpoint{
 	bigint* x
 	bigint* y

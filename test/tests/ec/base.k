@@ -1,3 +1,4 @@
+import ../bigint/bigint
 func basepointX()bigint*{
 	x:=new(256)
 	xcont:=x.cont

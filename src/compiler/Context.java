@@ -112,7 +112,7 @@ public class Context {
             }
             structs.put(name, struct.getValue());
         }
-        System.out.println(packageName + " " + structs);
+        //System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
         for (Entry<String, String> entry : imports.entrySet()) {

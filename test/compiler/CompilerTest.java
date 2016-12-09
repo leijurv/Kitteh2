@@ -14,7 +14,6 @@ import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -319,13 +318,13 @@ public class CompilerTest {
         File executable = new File(asm.getAbsolutePath().replace(".s", ".o"));
         assertEquals(false, executable.exists());
         assertEquals(true, asm.exists());
-        System.out.println("Writing to file " + asm);
+        //System.out.println("Writing to file " + asm);
         try (FileOutputStream out = new FileOutputStream(asm)) {
             out.write(compiled.getBytes());
         }
         assertEquals(true, asm.exists());
         String[] compilationCommand = {"/usr/bin/gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
-        System.out.println(Arrays.asList(compilationCommand));
+        //System.out.println(Arrays.asList(compilationCommand));
         Process gcc = new ProcessBuilder(compilationCommand).start();
         if (!gcc.waitFor(10, TimeUnit.SECONDS)) {
             gcc.destroyForcibly();
@@ -356,7 +355,9 @@ public class CompilerTest {
         while ((j = ex.getInputStream().read()) >= 0) {
             result.append((char) j);
         }
-        System.out.println("Execution output \"" + result + "\"");
+        if (!desiredExecutionOutput.equals(result.toString())) {
+            System.out.println("Execution output \"" + result + "\"");
+        }
         if (useAssert) {
             assertEquals(desiredExecutionOutput, result.toString());
         } else if (!desiredExecutionOutput.equals(result.toString())) {

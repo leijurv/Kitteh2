@@ -116,11 +116,11 @@ public class CommandIf extends CommandBlock {
         for (Command com : elseBlock) {
             com.staticValues();
         }
-        System.out.println(elseMod + " " + preKnownFalse);
+        //System.out.println(elseMod + " " + preKnownFalse);
         if (condition instanceof ExpressionConstBool) {
             boolean isTrue = ((ExpressionConstBool) condition).getVal();
             if (isTrue) {
-                System.out.println("RESETTING");
+                //System.out.println("RESETTING");
                 //set all known values back to what they were before
                 //because this is "if(false){"
                 //so whatever known values are inside should be ignored because it'll never be run

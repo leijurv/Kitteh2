@@ -99,7 +99,7 @@ public class Compiler {
                     alrImp.add(impPath);
                 }
             }
-            System.out.println("FIXING " + fix + " " + rmv);
+            //System.out.println("FIXING " + fix + " " + rmv);
             for (String s : rmv) {
                 context.imports.remove(s);
             }

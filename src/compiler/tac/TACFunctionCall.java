@@ -67,7 +67,11 @@ public class TACFunctionCall extends TACStatement {
             X86Register[] registers = {X86Register.DI, X86Register.SI, X86Register.D, X86Register.C, X86Register.R8, X86Register.R9};
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + registers[i].getRegister(type).x86());
+                String lol = params[i].x86();
+                if (i == 0 && lol.equals("$4") && !X86Format.MAC) {
+                    lol = "$1";
+                }
+                emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + registers[i].getRegister(type).x86());
             }
             emit.addStatement(X86Format.MAC ? "callq _syscall" : "callq syscall");
             emit.addStatement("addq $" + toSubtract + ", %rsp");

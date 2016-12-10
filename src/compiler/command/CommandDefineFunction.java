@@ -37,7 +37,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     private final ArrayList<Object> rawContents;
     private FunctionHeader header;
     private List<Token> returnType;
-    private List<Token> params;
+    private final List<Token> params;
     public CommandDefineFunction(Context context, List<Token> params, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.name = functionName;
@@ -61,7 +61,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (isEntryPoint) {
             return getLocalHeader();
         }
-        return new FunctionHeader((context.packageName != null ? context.packageName.replace(".", "DOT").replace("/", "_") + ("" + context.packageName.hashCode()).replace("-", "negative") : context.packageName) + "__" + name, header.returnType, header.arguments);
+        return new FunctionHeader((context.packageName != null ? context.packageName.replace(".", "DOT").replace("/", "_") + ("" + context.packageName.hashCode()).replace("-", "") : context.packageName) + "__" + name, header.returnType, header.arguments);
     }
     public String getLocalName() {
         return header.name;

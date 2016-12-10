@@ -7,6 +7,10 @@
 -verbose
 
 
+-allowaccessmodification
+-mergeinterfacesaggressively
+-overloadaggressively
+
 # Keep - Applications. Keep all application classes, along with their 'main'
 # methods.
 -keepclasseswithmembers public class * {

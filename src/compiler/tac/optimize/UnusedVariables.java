@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
-import compiler.type.TypeStruct;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeStruct;
 import compiler.x86.X86Register;
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class UnusedVariables extends TACOptimization {
                     continue;
                 }
                 if (!isUsedAtOrAfter(pos, dest)) {
-                    block.remove(ts);
+                    block.remove(i);
                     return;
                 }
             }

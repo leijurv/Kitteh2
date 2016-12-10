@@ -23,7 +23,7 @@
 -keepclassmembers class compiler.command.CommandDefineFunction {
     public static final <fields>;    
 }
--keepnames class compiler.type.**
+
 # Also keep - Database drivers. Keep all implementations of java.sql.Driver.
 -keep class * extends java.sql.Driver
 

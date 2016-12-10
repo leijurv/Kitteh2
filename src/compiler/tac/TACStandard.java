@@ -6,7 +6,10 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import compiler.type.Type;
 import compiler.type.TypeFloat;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
@@ -97,7 +100,8 @@ public class TACStandard extends TACStatement {
             if (!(second.getType() instanceof TypeNumerical)) {
                 throw new ClosedSelectorException();
             }
-            if (!second.getType().getClass().toString().contains("TypeInt")) {//look bud i'm not perfect
+            Type secondType = second.getType();
+            if (!(secondType instanceof TypeInt8 || secondType instanceof TypeInt16 || secondType instanceof TypeInt32 || secondType instanceof TypeInt64)) {
                 throw new IllegalStateException(this + " " + second.getType().toString() + " " + second.getClass());
             }
             //we put the pointer in A

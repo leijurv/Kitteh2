@@ -31,30 +31,33 @@ public class Kitterature {
         if (!name.endsWith(".k")) {
             name += ".k";
         }
-        InputStream is = Kitterature.class.getResourceAsStream(name);
+        InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
         return getBytes(is);
     }
     public static boolean resourceExists(String name) {//TODO fix this...
+        System.out.println("Checking if " + name + " exists");
         try {
             return getResource(name) != null;
         } catch (IOException | RuntimeException e) {
             return false;
         }
     }
-    public static List<Path> listFiles(String folder) throws IOException {
+    public static List<Path> listFiles() throws IOException {
         try {
-            URI uri = Kitterature.class.getResource("/" + folder).toURI();
+            URI uri = Kitterature.class.getResource("/lang").toURI();
             List<Path> paths = new ArrayList<>();
             try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null)) {
                 Path myPath = Paths.get(uri);
                 Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        if (!file.toString().endsWith(".k") || !file.toString().contains(folder)) {
+                        if (!file.toString().endsWith(".k") || !file.toString().contains("lang")) {
                             throw new RuntimeException("Unexpected extension for file " + file);
                         }
-                        String lol = file.toString().split(folder + "/")[1];
-                        paths.add(new File("/" + folder + "/" + lol).toPath());
+                        String lol = file.toString().split("lang/")[1];
+                        if (!lol.contains("/")) {
+                            paths.add(new File(lol).toPath());
+                        }
                         return FileVisitResult.CONTINUE;
                     }
                 });

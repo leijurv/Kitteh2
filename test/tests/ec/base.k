@@ -1,4 +1,4 @@
-import ../bigint/bigint
+import math/bigint
 import main mayn
 func basepointX()bigint*{
 	x:=new(256)

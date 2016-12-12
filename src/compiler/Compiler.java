@@ -64,8 +64,9 @@ public class Compiler {
         HashMap<Path, Context> ctxts = new HashMap<>();
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-        List<Path> autoImportedStd = Kitterature.listFiles("lang");
+        List<Path> autoImportedStd = Kitterature.listFiles();
         for (Path path : autoImportedStd) {
+            System.out.println("AUTOIMPORTED");
             toLoad.add(path);
             alrImp.add(path);
         }
@@ -82,9 +83,14 @@ public class Compiler {
             HashSet<String> rmv = new HashSet<>();
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getKey() + ".k";
-                File toImport = new File(path.toFile().getParent(), toImportName);
-                if (!toImport.exists() && !Kitterature.resourceExists(toImport + "")) {
-                    throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
+                File toImport;
+                if (Kitterature.resourceExists(toImportName)) {
+                    toImport = new File(toImportName);
+                } else {
+                    toImport = new File(path.toFile().getParent(), toImportName);
+                    if (!Kitterature.resourceExists(toImport + "") && !toImport.exists()) {
+                        throw new IllegalStateException(path + " " + "Can't import " + toImportName + " because " + toImport + " doesn't exist" + imp);
+                    }
                 }
                 Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
                 System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
@@ -114,11 +120,11 @@ public class Compiler {
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());
             for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
-                if (oth.getA() != null && !oth.getA().toFile().exists()) {
+                if (oth.getA() != null && autoImportedStd.contains(oth.getA())) {
                     if (oth.getA().equals(pair.getA())) {
                         continue;
                     }
-                    System.out.println("Assuming stdlib for " + oth.getA());
+                    System.out.println("Assuming autoimported stdlib for " + oth.getA());
                     context.insertStructsUnderPackage(null, importz.get(oth.getA()));
                 }
             }

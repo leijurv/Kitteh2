@@ -1,5 +1,5 @@
 import ../testRSA r
-import ../bigint/bigint
+import math/bigint
 main(){
     dividemod(fromLong(19),fromLong(10))
     long a=293465

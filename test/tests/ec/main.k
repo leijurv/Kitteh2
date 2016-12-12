@@ -1,5 +1,5 @@
 import base
-import ../bigint/bigint
+import math/bigint
 
 main(){
 

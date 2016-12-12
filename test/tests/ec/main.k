@@ -3,8 +3,21 @@ import ../bigint/bigint
 struct ecpoint{
 	bigint* x
 	bigint* y
+	outputec(){
+		x:=(this.x).tostring(',')
+		writeNullTerm(x)
+		output(this.y)
+	}
+	clear(){
+		f(this.x)
+		f(this.y)
+		this.x=(bigint*)0
+		this.y=(bigint*)0
+		free(this)
+	}
 }
 main(){
+
 	x:=basepointX()
 	bigint* y=basepointY()
 	modulus:=modulus()
@@ -15,34 +28,21 @@ main(){
 	bp:=(ecpoint*)malloc(sizeof(ecpoint))
 	bp.x=x
 	bp.y=y
-
 	for i:=15; i<=20; i++{
 		print(i)
 		pow:=fromLong((long)i)
 		pt:=multiplyec(dupec(bp),pow,modulus,bp)
-		outputec(pt)
-		clear(pt)
+		pt.outputec()
+		pt.clear()
 		f(pow)
 	}
-	outputec(multiplyec(dupec(bp),fromLong(50215021),modulus,bp))
-}
-clear(ecpoint* a){
-	f(a.x)
-	f(a.y)
-	a.x=(bigint*)0
-	a.y=(bigint*)0
-	free(a)
+	multiplyec(dupec(bp),fromLong(50215021),modulus,bp).outputec()
 }
 dupec(ecpoint* x)ecpoint*{
 	new:=(ecpoint*)malloc(sizeof(ecpoint))
 	new.x=dup(x.x)
 	new.y=dup(x.y)
 	return new
-}
-outputec(ecpoint* t){
-	x:=tostring(t.x,',')
-	writeNullTerm(x)
-	output(t.y)
 }
 multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	trimInPlace(pow)
@@ -65,7 +65,7 @@ multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 		f(powminus)
 
 		res:=addec(bp,min,MOD)
-		clear(min)
+		(min).clear()
 
 		return res
 	}
@@ -74,7 +74,7 @@ multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	wew:=multiplyec(base,shiftedPow,MOD,bp)
 	f(shiftedPow)
 	wewwew:=addec(wew,wew,MOD)
-	clear(wew)
+	wew.clear()
 	return wewwew
 }
 addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{

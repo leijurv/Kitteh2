@@ -5,7 +5,6 @@
  */
 package compiler.parse;
 import compiler.Context;
-import compiler.type.TypeStruct;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.command.CommandFor;
@@ -15,12 +14,12 @@ import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.TypeBoolean;
+import compiler.type.TypeStruct;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
@@ -105,11 +104,7 @@ class BlockBeginParser {
             throw new NumberFormatException();
         }
         String structName = (String) params.get(0).data();
-        List<Line> lines = rawBlock.stream().map(Line.class::cast).collect(Collectors.toList());
-        for (Line l : lines) {
-            l.lex();
-        }
-        TypeStruct struct = new TypeStruct(structName, lines, context);
+        TypeStruct struct = new TypeStruct(structName, rawBlock, context);
         context.defineStruct(struct);
     }
 }

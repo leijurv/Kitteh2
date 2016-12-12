@@ -58,6 +58,7 @@ public class Compiler {
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
+        ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         boolean preImport = true;
         entrypoint++;
@@ -108,6 +109,7 @@ public class Compiler {
             }
             ctxts.put(path, context);
             loaded.add(new Pair<>(path, funcs.getA()));
+            allContexts.add(context);
             importz.put(path, context.structsCopy());
         }
         long b = System.currentTimeMillis();
@@ -132,9 +134,14 @@ public class Compiler {
         List<TypeStruct> structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         structs.stream().forEach(TypeStruct::parseContents);
         structs.stream().forEach(TypeStruct::allocate);
-        loaded.stream().map(Pair::getB).flatMap(List::stream).parallel().forEach(CommandDefineFunction::parseHeader);
+        List<Pair<Context, CommandDefineFunction>> structMethod = structs.stream().map(TypeStruct::getStructMethods).flatMap(Collection::stream).collect(Collectors.toList());
+        List<CommandDefineFunction> allStructMethods = structMethod.stream().map(Pair::getB).collect(Collectors.toList());
+        System.out.println("Struct methods: " + structMethod);
+        List<CommandDefineFunction> allFunctions = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
+        allFunctions.addAll(allStructMethods);
+        allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
-        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
+        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), allStructMethods, ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long e = System.currentTimeMillis();
         System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
@@ -142,8 +149,11 @@ public class Compiler {
         System.out.println("---- END IMPORTS, BEGIN PARSING ----");
         System.out.println();
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
-        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
-        return generateASM(flattenedList, settings);
+        for (Pair<Context, CommandDefineFunction> cdf : structMethod) {
+            cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
+            System.out.println("Parsed " + cdf);
+        }
+        return generateASM(allFunctions, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {
         try {

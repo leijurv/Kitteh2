@@ -5,14 +5,21 @@
  */
 package compiler.type;
 import compiler.Context;
+import compiler.Keyword;
+import compiler.command.CommandDefineFunction;
+import compiler.parse.BlockFinder;
 import compiler.parse.Line;
 import compiler.token.Token;
 import compiler.token.TokenType;
+import static compiler.token.TokenType.STARTPAREN;
+import compiler.util.Pair;
 import compiler.util.Parse;
+import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,25 +28,55 @@ import java.util.List;
 public class TypeStruct extends Type {
     final String name;
     private final HashMap<String, StructField> fields;
-    private final List<Line> lines;
+    private final ArrayList<Object> rawBlock;
     private final Context context;
     private boolean parsed = false;
     private final ArrayList<String> fieldNames = new ArrayList<>();
     private final ArrayList<Type> fieldTypes = new ArrayList<>();
-    public TypeStruct(String name, List<Line> rawLines, Context context) {
+    private final List<CommandDefineFunction> structMethods = new ArrayList<>();
+    public TypeStruct(String name, ArrayList<Object> rawBlock, Context context) {
         this.name = name;
         this.fields = new HashMap<>();
         this.context = context;
-        this.lines = rawLines;
+        this.rawBlock = rawBlock;
+    }
+    public static String format(String structName, String methodName) {
+        return structName + "___" + methodName;
     }
     public void parseContents() {
         if (parsed) {
             throw new RuntimeException();
         }
-        for (Line thisLine : lines) {
+        new BlockFinder().apply(rawBlock);
+        for (int i = 0; i < rawBlock.size(); i++) {
+            Line thisLine = (Line) rawBlock.get(i);
+            thisLine.lex();
+            if (i != rawBlock.size() - 1 && rawBlock.get(i + 1) instanceof ArrayList) {
+                ArrayList<Object> functionContents = (ArrayList) rawBlock.remove(i + 1);
+                rawBlock.remove(i);
+                i = -1;
+                List<Token> params = thisLine.getTokens();
+                if (params.get(0) == Keyword.FUNC) {
+                    //optional
+                    params = params.subList(1, params.size());
+                }
+                String functionName = (String) params.get(0).data();
+                System.out.println("Struct with name " + name + " has function with name " + functionName);
+                functionName = format(name, functionName);
+                System.out.println("Renaming to " + functionName);
+                if (params.get(1) != STARTPAREN) {
+                    throw new AnnotationTypeMismatchException(null, "" + params);
+                }
+                Context subContext = context.subContext();
+                structMethods.add(new CommandDefineFunction(this, subContext, params, functionName, functionContents));
+                continue;
+            }
+            System.out.println(i);
+            rawBlock.remove(i);
+            i = -1;
             List<Token> tokens = thisLine.getTokens();
             if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
-                throw new RuntimeException();
+                throw new RuntimeException(tokens + "");
             }
             String fieldName = (String) tokens.get(tokens.size() - 1).data();
             Type fieldType = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
@@ -51,6 +88,10 @@ public class TypeStruct extends Type {
         }
         parsed = true;
     }
+    public List<Pair<Context, CommandDefineFunction>> getStructMethods() {
+        return structMethods.stream().map(cdf -> new Pair<>(context, cdf)).collect(Collectors.toList());
+    }
+    @Override
     public int getSizeBytes() {
         return fieldTypes.stream().mapToInt(Type::getSizeBytes).sum();
     }

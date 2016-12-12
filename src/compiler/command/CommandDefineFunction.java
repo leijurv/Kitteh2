@@ -18,6 +18,7 @@ import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
 import compiler.util.Pair;
 import compiler.util.Parse;
@@ -38,16 +39,24 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     private FunctionHeader header;
     private List<Token> returnType;
     private final List<Token> params;
+    private final TypeStruct methodOf;
     public CommandDefineFunction(Context context, List<Token> params, String functionName, ArrayList<Object> rawContents) {
+        this(null, context, params, functionName, rawContents);
+    }
+    public CommandDefineFunction(TypeStruct methodOf, Context context, List<Token> params, String functionName, ArrayList<Object> rawContents) {
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
+        if (name.contains("dankmeme")) {
+            System.out.println(name + ": " + rawContents);
+        }
         this.params = params;
         int endParen = params.indexOf(ENDPAREN);
         if (endParen == -1) {
             throw new InvalidKeyException();
         }
         returnType = params.subList(endParen + 1, params.size());
+        this.methodOf = methodOf;
     }
     private boolean isEntryPoint = false;
     public void setEntryPoint() {
@@ -94,6 +103,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             String name = (String) tokenList.get(tokenList.size() - 1).data();
             return new Pair<>(name, type);
         }).collect(Collectors.toList());
+        if (methodOf != null) {
+            args.add(0, new Pair<>("this", new TypePointer(methodOf)));
+        }
         this.header = new FunctionHeader(name, retType, args.stream().map(Pair::getB).collect(Collectors.toList()));
         int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack
         http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
@@ -105,7 +117,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public void parse(FunctionsContext gc) {
         context.setCurrFunc(this);
         context.gc = gc;
-        //System.out.println("Parsing " + rawContents);
+        //System.out.println(name + " parsing " + rawContents);
         contents = Processor.parse(rawContents, context);
         //System.out.println("wew " + contents);
         context.gc = null;
@@ -114,7 +126,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (returnsVoid) {
                 contents.add(new CommandReturn(context, null));
             } else {
-                throw new RuntimeException("Empty function with non-void return type");
+                throw new RuntimeException("Empty function with non-void return type " + name);
             }
         }
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;

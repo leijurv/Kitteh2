@@ -14,8 +14,11 @@ import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
 import compiler.type.TypeInt32;
+import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import compiler.util.Parse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -98,21 +101,47 @@ class RecursiveParentheses extends TokenBased {
                 funcName = o.get(i - 1).toString();//some functions that you call are also keywords
             }
             String pkg = null;
+            boolean removePreviousTwo = false;
             if (i != 1 && o.get(i - 2) == ACCESS) {
                 String accessing = (String) ((Token) o.get(i - 3)).data();
                 pkg = context.reverseAlias(accessing);
                 System.out.println("Accessing " + accessing + " alias for " + pkg + " ::" + funcName);
+                removePreviousTwo = true;
             }
+            Expression accessing = null;
+            if (i != 1 && o.get(i - 2) == PERIOD) {
+                accessing = (Expression) o.get(i - 3);
+                removePreviousTwo = true;
+                System.out.println("Accessing method " + funcName + " of " + accessing);
+                if (accessing.getType() instanceof TypeStruct) {
+                    throw new RuntimeException("Can only call struct methods on a pointer to a struct, not the struct itself");
+                }
+                if (!(accessing.getType() instanceof TypePointer)) {
+                    throw new RuntimeException("Struct methods must be called on a pointer to the struct");
+                }
+                TypeStruct ts = (TypeStruct) (((TypePointer) accessing.getType()).pointingTo());
+                funcName = TypeStruct.format(ts.getName(), funcName);
+            }
+            final String funcNameCopy = funcName;
             List<Type> desiredTypes = context.gc.getHeader(pkg, funcName).inputs();
             //System.out.println("Expecting inputs: " + desiredTypes);
             //tfw parallel expression parsing
             //tfw this is a GOOD idea /s
-            if (inParen.size() != desiredTypes.size() && !funcName.equals("syscall")) {
-                throw new SecurityException("mismatched arg count " + inParen + " " + desiredTypes);
+            ArrayList<ArrayList<Object>> args = new ArrayList<>();
+            for (ArrayList<Object> wew : inParen) {
+                args.add(wew);
             }
-            List<Expression> args = IntStream.range(0, inParen.size()).parallel().mapToObj(p -> ExpressionParser.parseImpl(inParen.get(p), funcName.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context)).collect(Collectors.toList());
-            o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, args));
-            if (pkg != null) {
+            if (accessing != null) {
+                args.add(0, new ArrayList<>(Arrays.asList(accessing)));
+            }
+            if (args.size() != desiredTypes.size() && !funcName.equals("syscall")) {
+                throw new SecurityException("mismatched arg count " + args + " " + desiredTypes);
+            }
+            List<Expression> arguments = IntStream.range(0, args.size()).parallel()
+                    .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), funcNameCopy.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
+                    .collect(Collectors.toList());
+            o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, arguments));
+            if (removePreviousTwo) {
                 o.remove(i - 3);
                 o.remove(i - 3);
             }

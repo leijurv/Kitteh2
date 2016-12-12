@@ -3,6 +3,51 @@ struct bigint{
 	bool* cont
 	int cap
 	bool neg
+	tostring(byte lastChar)byte*{
+		zero:=fromLong(0)
+		neg:=this.neg
+		this.neg=false
+		b:=add(this,zero)
+		ten:=fromLong(10)
+		copy:=add(b,zero)
+		count:=0
+		for greater(copy,zero){
+			wew:=divide(copy,ten)
+			f(copy)
+			copy=wew
+			count++
+		}
+		if count==0{
+			count++
+		}
+		if neg{
+			count++
+		}
+		f(copy)
+		out:=(byte*)malloc((count+2)*sizeof(byte))
+		out[count+1]=0
+		out[count]=lastChar
+		count--
+		for count>=0{
+			dm:=dividemod(b,ten)
+			f(b)
+			b=dm.quotient
+			digi:=toLong(dm.remainder)
+			f(dm.remainder)
+			free(dm)
+			digit:=(byte)digi+'0'
+			out[count]=digit
+			count--
+		}
+		if neg{
+			out[0]='-'
+		}
+		f(b)
+		f(ten)
+		f(zero)
+		this.neg=neg
+		return out
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -38,54 +83,9 @@ toLong(bigint* b)long{
 	return res
 }
 output(bigint* bbb){
-	out:=tostring(bbb,10)
+	out:=bbb.tostring(10)
 	writeNullTerm(out)
 	free(out)
-}
-tostring(bigint* bbb,byte lastChar)byte*{
-	zero:=fromLong(0)
-	neg:=bbb.neg
-	bbb.neg=false
-	b:=add(bbb,zero)
-	ten:=fromLong(10)
-	copy:=add(b,zero)
-	count:=0
-	for greater(copy,zero){
-		wew:=divide(copy,ten)
-		f(copy)
-		copy=wew
-		count++
-	}
-	if count==0{
-		count++
-	}
-	if neg{
-		count++
-	}
-	f(copy)
-	out:=(byte*)malloc((count+2)*sizeof(byte))
-	out[count+1]=0
-	out[count]=lastChar
-	count--
-	for count>=0{
-		dm:=dividemod(b,ten)
-		f(b)
-		b=dm.quotient
-		digi:=toLong(dm.remainder)
-		f(dm.remainder)
-		free(dm)
-		digit:=(byte)digi+'0'
-		out[count]=digit
-		count--
-	}
-	if neg{
-		out[0]='-'
-	}
-	f(b)
-	f(ten)
-	f(zero)
-	bbb.neg=neg
-	return out
 }
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))

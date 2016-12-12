@@ -23,7 +23,7 @@ public class FunctionsContext {
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
     private final Path path;
-    public FunctionsContext(Path thisPath, List<CommandDefineFunction> definitions, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
+    public FunctionsContext(Path thisPath, List<CommandDefineFunction> definitions, List<CommandDefineFunction> structMethods, List<Path> defineLocally, List<Pair<Path, List<CommandDefineFunction>>> otherFiles) {
         functionDefinitions = new ArrayList<>(definitions.size());
         this.path = thisPath;
         //System.out.println("Local imports for " + thisPath + ": " + defineLocally);
@@ -33,6 +33,14 @@ public class FunctionsContext {
             String name = header.name;
             if (functionMap.containsKey(name)) {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
+            }
+            functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
+        }
+        for (CommandDefineFunction cdf : structMethods) {
+            FunctionHeader header = cdf.getLocalHeader();
+            String name = header.name;
+            if (functionMap.containsKey(name)) {
+                throw new EnumConstantNotPresentException(Operator.class, "   error: Two struct methods with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         }

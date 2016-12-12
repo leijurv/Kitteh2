@@ -61,6 +61,11 @@ struct bigint{
 		}
 		return res
 	}
+	output(){
+		out:=this.tostring(10)
+		writeNullTerm(out)
+		free(out)
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -81,11 +86,6 @@ fromLong(long inp)bigint*{
 	trimInPlace(x)
 	x.neg=neg
 	return x
-}
-output(bigint* bbb){
-	out:=bbb.tostring(10)
-	writeNullTerm(out)
-	free(out)
 }
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))

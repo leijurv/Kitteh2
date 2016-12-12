@@ -6,7 +6,7 @@ struct ecpoint{
 	outputec(){
 		x:=(this.x).tostring(',')
 		writeNullTerm(x)
-		output(this.y)
+		(this.y).output()
 	}
 	clear(){
 		f(this.x)
@@ -21,9 +21,9 @@ main(){
 	x:=basepointX()
 	bigint* y=basepointY()
 	modulus:=modulus()
-	output(x)
-	output(y)
-	output(modulus)
+	x.output()
+	y.output()
+	modulus.output()
 
 	bp:=(ecpoint*)malloc(sizeof(ecpoint))
 	bp.x=x

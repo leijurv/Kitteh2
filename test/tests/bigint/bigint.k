@@ -32,7 +32,7 @@ struct bigint{
 			dm:=dividemod(b,ten)
 			f(b)
 			b=dm.quotient
-			digi:=toLong(dm.remainder)
+			digi:=(dm.remainder).toLong()
 			f(dm.remainder)
 			free(dm)
 			digit:=(byte)digi+'0'
@@ -47,6 +47,19 @@ struct bigint{
 		f(zero)
 		this.neg=neg
 		return out
+	}
+	toLong()long{
+		long res=0
+		for i:=this.size-1; i>=0; i--{
+			res=res*2
+			if this.cont[i]{
+				res++
+			}
+		}
+		if this.neg{
+			res=0-res
+		}
+		return res
 	}
 }
 fromLong(long inp)bigint*{
@@ -68,19 +81,6 @@ fromLong(long inp)bigint*{
 	trimInPlace(x)
 	x.neg=neg
 	return x
-}
-toLong(bigint* b)long{
-	long res=0
-	for i:=b.size-1; i>=0; i--{
-		res=res*2
-		if b.cont[i]{
-			res++
-		}
-	}
-	if b.neg{
-		res=0-res
-	}
-	return res
 }
 output(bigint* bbb){
 	out:=bbb.tostring(10)

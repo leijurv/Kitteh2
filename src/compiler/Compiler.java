@@ -66,7 +66,6 @@ public class Compiler {
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         List<Path> autoImportedStd = Kitterature.listFiles();
         for (Path path : autoImportedStd) {
-            System.out.println("AUTOIMPORTED");
             toLoad.add(path);
             alrImp.add(path);
             if (path.toFile().exists()) {

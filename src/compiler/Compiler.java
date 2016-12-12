@@ -136,7 +136,6 @@ public class Compiler {
         structs.stream().forEach(TypeStruct::allocate);
         List<Pair<Context, CommandDefineFunction>> structMethod = structs.stream().map(TypeStruct::getStructMethods).flatMap(Collection::stream).collect(Collectors.toList());
         List<CommandDefineFunction> allStructMethods = structMethod.stream().map(Pair::getB).collect(Collectors.toList());
-        System.out.println("Struct methods: " + structMethod);
         List<CommandDefineFunction> allFunctions = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
         allFunctions.addAll(allStructMethods);
         allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);
@@ -151,7 +150,6 @@ public class Compiler {
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         for (Pair<Context, CommandDefineFunction> cdf : structMethod) {
             cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
-            System.out.println("Parsed " + cdf);
         }
         return generateASM(allFunctions, settings);
     }

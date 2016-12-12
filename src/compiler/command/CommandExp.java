@@ -37,4 +37,7 @@ public class CommandExp extends Command {
         ex = ex.insertKnownValues(context);
         ex = ex.calculateConstants();
     }
+    public Expression getEx() {
+        return ex;
+    }
 }

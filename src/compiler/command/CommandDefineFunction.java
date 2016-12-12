@@ -124,6 +124,24 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (methodOf == null) {
                 throw new RuntimeException("Can't define a function called free outside of a struct");
             }
+            for (int i = 0; i < contents.size(); i++) {
+                if (contents.get(i) instanceof CommandExp) {
+                    Expression ex = ((CommandExp) contents.get(i)).getEx();
+                    if (ex instanceof ExpressionFunctionCall) {
+                        String calling = ((ExpressionFunctionCall) ex).callingName();
+                        if (calling.endsWith(name)) {
+                            //we're calling free
+                            Expression firstArg = ((ExpressionFunctionCall) ex).calling().get(0);
+                            if (firstArg instanceof ExpressionVariable) {
+                                String arg = ((ExpressionVariable) firstArg).getName();
+                                if (arg.equals("this")) {
+                                    throw new RuntimeException("Warning: don't call free(this) in a destructor. The compiler adds the real free(this) for you, and doing it manually will lead to infinite recursion.");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             Expression ex = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
             contents.add(new CommandExp(ex, context));
         }

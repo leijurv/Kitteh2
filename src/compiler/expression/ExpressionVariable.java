@@ -33,6 +33,9 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
     public String toString() {
         return name;
     }
+    public String getName() {
+        return name;
+    }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         emit.emit(new TACConst(resultLocation, name));

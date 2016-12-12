@@ -30,6 +30,12 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
         this.calling = context.gc.getHeader(pkgName, funcName);
         verifyTypes();
     }
+    public String callingName() {
+        return calling.name;
+    }
+    public List<Expression> calling() {
+        return args;
+    }
     private void verifyTypes() {
         List<Type> expected = calling.inputs();
         if (expected.size() != args.size() && !calling.name.equals("syscall")) {

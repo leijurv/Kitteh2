@@ -13,7 +13,7 @@ struct bigint{
 		count:=0
 		for greater(copy,zero){
 			wew:=divide(copy,ten)
-			f(copy)
+			copy.free()
 			copy=wew
 			count++
 		}
@@ -23,17 +23,17 @@ struct bigint{
 		if neg{
 			count++
 		}
-		f(copy)
+		copy.free()
 		out:=(byte*)malloc((count+2)*sizeof(byte))
 		out[count+1]=0
 		out[count]=lastChar
 		count--
 		for count>=0{
 			dm:=dividemod(b,ten)
-			f(b)
+			b.free()
 			b=dm.quotient
 			digi:=(dm.remainder).toLong()
-			f(dm.remainder)
+			(dm.remainder).free()
 			free(dm)
 			digit:=(byte)digi+'0'
 			out[count]=digit
@@ -42,9 +42,9 @@ struct bigint{
 		if neg{
 			out[0]='-'
 		}
-		f(b)
-		f(ten)
-		f(zero)
+		b.free()
+		ten.free()
+		zero.free()
 		this.neg=neg
 		return out
 	}
@@ -87,6 +87,11 @@ struct bigint{
 			free(this.cont)
 		}
 		this.cont=newCont
+	}
+	free(){
+		free(this.cont)
+		this.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
+		free(this)
 	}
 }
 fromLong(long inp)bigint*{
@@ -218,10 +223,10 @@ sub(bigint*aa,bigint*bb)bigint*{
 	bplusone:=add(b,one)
 	res:=add(a,bplusone)
 	res.size=a.size
-	f(a)
-	f(b)
-	f(one)
-	f(bplusone)
+	a.free()
+	b.free()
+	one.free()
+	bplusone.free()
 	return res
 }
 greater(bigint*a,bigint*b)bool{
@@ -313,24 +318,19 @@ multiply(bigint* a, bigint* bb)bigint*{
 		if ai{
 			old:=res
 			res=add(res,b)
-			f(old)
+			old.free()
 		}
 		b.leftshift(1)
 	}
 	res.neg=aneg!=bneg
 	a.neg=aneg
 	b.neg=bneg
-	f(b)
+	b.free()
 	return res
 }
 struct quotremain{
 	bigint* quotient
 	bigint* remainder
-}
-f(bigint*a){
-	free(a.cont)
-	a.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
-	free(a)
 }
 dividemod(bigint*a,bigint*b)quotremain*{
 	trimInPlace(a)
@@ -348,7 +348,7 @@ dividemod(bigint*a,bigint*b)quotremain*{
 		if(!g){
 			old:=d
 			d=sub(d,b)
-			f(old)
+			old.free()
 			res.cont[e]=true
 		}
 	}
@@ -366,14 +366,14 @@ dividemod(bigint*a,bigint*b)quotremain*{
 divide(bigint*a,bigint*b)bigint*{
 	dm:=dividemod(a,b)
 	res:=dm.quotient
-	f(dm.remainder)
+	(dm.remainder).free()
 	free(dm)
 	return res
 }
 mod(bigint*a,bigint*b)bigint*{
 	dm:=dividemod(a,b)
 	res:=dm.remainder
-	f(dm.quotient)
+	(dm.quotient).free()
 	free(dm)
 	return res
 }
@@ -415,23 +415,23 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		one:=new(1)
 		one.cont[0]=true
 		powminus:=sub(pow,one)
-		f(one)
+		(one).free()
 		lol:=modpowInternal(base,powminus,modulus)
-		f(powminus)
+		(powminus).free()
 		lmao:=multiply(base,lol)
-		f(lol)
+		(lol).free()
 		res:=mod(lmao,modulus)
-		f(lmao)
+		(lmao).free()
 		return res
 	}
 	shiftedPow:=rightshiftone(pow)
 	wew:=modpowInternal(base,shiftedPow,modulus)
-	f(shiftedPow)
+	shiftedPow.free()
 	wewwew:=multiply(wew,wew)
-	f(wew)
+	(wew).free()
 	res:=mod(wewwew,modulus)
 	trimInPlace(res)
-	f(wewwew)
+	(wewwew).free()
 	return res
 }
 modInverse(bigint*a,bigint*b)bigint*{
@@ -459,13 +459,13 @@ modInverse(bigint*a,bigint*b)bigint*{
 		newr:=sub(oldr,qr)
 		news:=sub(olds,qs)
 		newt:=sub(oldt,qt)
-		f(quotient)
-		f(qr)
-		f(qs)
-		f(qt)
-		f(oldr)
-		f(olds)
-		f(oldt)
+		(quotient).free()
+		(qr).free()
+		(qs).free()
+		(qt).free()
+		(oldr).free()
+		(olds).free()
+		(oldt).free()
 		oldr=r
 		olds=s
 		oldt=t
@@ -473,14 +473,14 @@ modInverse(bigint*a,bigint*b)bigint*{
 		s=news
 		t=newt
 	}
-	f(zero)
-	f(r)
-	f(s)
-	f(t)
-	f(oldr)
-	f(oldt)
+	(zero).free()
+	(r).free()
+	(s).free()
+	(t).free()
+	(oldr).free()
+	(oldt).free()
 	wewlad:=add(olds,b)
 	res:= mod(wewlad,b)
-	f(wewlad)
+	(wewlad).free()
 	return res
 }

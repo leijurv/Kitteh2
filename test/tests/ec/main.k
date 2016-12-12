@@ -8,9 +8,9 @@ struct ecpoint{
 		writeNullTerm(x)
 		(this.y).output()
 	}
-	clear(){
-		f(this.x)
-		f(this.y)
+	free(){
+		(this.x).free()
+		(this.y).free()
 		this.x=(bigint*)0
 		this.y=(bigint*)0
 		free(this)
@@ -33,8 +33,8 @@ main(){
 		pow:=fromLong((long)i)
 		pt:=multiplyec(dupec(bp),pow,modulus,bp)
 		pt.outputec()
-		pt.clear()
-		f(pow)
+		pt.free()
+		pow.free()
 	}
 	multiplyec(dupec(bp),fromLong(50215021),modulus,bp).outputec()
 }
@@ -58,23 +58,23 @@ multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 		one:=new(1)
 		one.cont[0]=true
 		powminus:=sub(pow,one)
-		f(one)
+		one.free()
 
 		min:=multiplyec(base,powminus,MOD,bp)
 
-		f(powminus)
+		powminus.free()
 
 		res:=addec(bp,min,MOD)
-		(min).clear()
+		min.free()
 
 		return res
 	}
 	
 	shiftedPow:=rightshiftone(pow)
 	wew:=multiplyec(base,shiftedPow,MOD,bp)
-	f(shiftedPow)
+	shiftedPow.free()
 	wewwew:=addec(wew,wew,MOD)
-	wew.clear()
+	wew.free()
 	return wewwew
 }
 addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{
@@ -87,52 +87,52 @@ addec(ecpoint* p,ecpoint* q,bigint* modulus)ecpoint*{
     	xs:=multiply(px,px)
     	twoxs:=add(xs,xs)
     	threexs:=add(xs,twoxs)
-    	f(xs)
-    	f(twoxs)
+    	(xs).free()
+    	(twoxs).free()
     	twopy:=add(py,py)
     	invertedy:=modInverse(twopy,modulus)
-    	f(twopy)
+    	(twopy).free()
     	lmao:=multiply(threexs,invertedy)
-    	f(threexs)
-    	f(invertedy)
+    	(threexs).free()
+    	(invertedy).free()
     	s=mod(lmao,modulus)
-    	f(lmao)
+    	(lmao).free()
     }else{
     	ydiff:=sub(py,qy)
     	a:=add(modulus,ydiff)
-    	f(ydiff)
+    	(ydiff).free()
     	xdiff:=sub(px,qx)
     	posxdiff:=add(modulus,xdiff)
-    	f(xdiff)
+    	(xdiff).free()
     	b:=modInverse(posxdiff,modulus)
-    	f(posxdiff)
+    	(posxdiff).free()
     	ab:=multiply(a,b)
-    	f(a)
-    	f(b)
+    	(a).free()
+    	(b).free()
     	s=mod(ab,modulus)
-    	f(ab)
+    	(ab).free()
     }
     ss:=multiply(s,s)
     sspx:=sub(ss,px)
-    f(ss)
+    (ss).free()
     sspxqx:=sub(sspx,qx)
-    f(sspx)
+    (sspx).free()
     xr:=mod(sspxqx,modulus)
-    f(sspxqx)
+    (sspxqx).free()
     xdiff:=sub(xr,px)
     sxdiff:=multiply(s,xdiff)
-    f(xdiff)
+    (xdiff).free()
     pysx:=add(py,sxdiff)
-    f(sxdiff)
+    (sxdiff).free()
     negpysx:=sub(modulus,pysx)
-    f(pysx)
+    (pysx).free()
     wrap1:=mod(negpysx,modulus)
-    f(negpysx)
+    (negpysx).free()
     wrap2:=add(modulus,wrap1)
-    f(wrap1)
+    (wrap1).free()
     yr:=mod(wrap2,modulus)
-    f(wrap2)
-    f(s)
+    (wrap2).free()
+    (s).free()
     res:=(ecpoint*)malloc(sizeof(ecpoint))
     res.x=xr
     res.y=yr

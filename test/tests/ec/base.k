@@ -528,9 +528,9 @@ modulus() bigint*{
 	wew:=sub(twofivesix,thirtytwo)
 	ninesevenseven:=fromLong(977)
 	bigint* modulus=sub(wew,ninesevenseven)
-	f(twofivesix)
-	f(thirtytwo)
-	f(wew)
-	f(ninesevenseven)
+	(twofivesix).free()
+	(thirtytwo).free()
+	(wew).free()
+	(ninesevenseven).free()
 	return modulus
 }

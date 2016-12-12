@@ -5,8 +5,22 @@
  */
 package compiler.util;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -17,15 +31,36 @@ public class Kitterature {
         if (!name.endsWith(".k")) {
             name += ".k";
         }
-        InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
+        InputStream is = Kitterature.class.getResourceAsStream(name);
         return getBytes(is);
     }
     public static boolean resourceExists(String name) {//TODO fix this...
         try {
-            getResource(name);
-            return true;
+            return getResource(name) != null;
         } catch (IOException | RuntimeException e) {
             return false;
+        }
+    }
+    public static List<Path> listFiles() throws IOException {
+        try {
+            URI uri = Kitterature.class.getResource("/lang").toURI();
+            List<Path> paths = new ArrayList<>();
+            FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null);
+            Path myPath = Paths.get(uri);
+            Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    if (!file.toString().endsWith(".k") || !file.toString().contains("lang")) {
+                        throw new RuntimeException("Unexpected extension for file " + file);
+                    }
+                    String lol = file.toString().split("lang/")[1];
+                    paths.add(new File("/lang/" + lol).toPath());
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return paths;
+        } catch (URISyntaxException ex) {
+            throw new IOException(ex);
         }
     }
     public static byte[] getBytes(InputStream is) throws IOException {

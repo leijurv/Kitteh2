@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,8 +64,11 @@ public class Compiler {
         HashMap<Path, Context> ctxts = new HashMap<>();
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-        toLoad.add(Paths.get("print.k"));
-        alrImp.add(Paths.get("print.k"));
+        for (Path path : Kitterature.listFiles()) {
+            System.out.println("ADDING IMPORT " + path);
+            toLoad.add(path);
+            alrImp.add(path);
+        }
         toLoad.add(main);
         alrImp.add(main);
         int entrypoint = toLoad.indexOf(main);

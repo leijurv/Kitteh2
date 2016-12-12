@@ -123,27 +123,31 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (name.endsWith("_free") || name.equals("free")) {
             if (methodOf == null) {
                 throw new RuntimeException("Can't define a function called free outside of a struct");
-            }
-            for (int i = 0; i < contents.size(); i++) {
-                if (contents.get(i) instanceof CommandExp) {
-                    Expression ex = ((CommandExp) contents.get(i)).getEx();
-                    if (ex instanceof ExpressionFunctionCall) {
-                        String calling = ((ExpressionFunctionCall) ex).callingName();
-                        if (calling.endsWith(name)) {
-                            //we're calling free
-                            Expression firstArg = ((ExpressionFunctionCall) ex).calling().get(0);
-                            if (firstArg instanceof ExpressionVariable) {
-                                String arg = ((ExpressionVariable) firstArg).getName();
-                                if (arg.equals("this")) {
-                                    throw new RuntimeException("Warning: don't call free(this) in a destructor. The compiler adds the real free(this) for you, and doing it manually will lead to infinite recursion.");
+            } else {
+                Expression freeThis = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
+                contents.add(new CommandExp(freeThis, context));
+                for (int i = 0; i < contents.size() - 1; i++) {
+                    if (contents.get(i) instanceof CommandExp) {
+                        Expression ex = ((CommandExp) contents.get(i)).getEx();
+                        if (ex instanceof ExpressionFunctionCall) {
+                            String calling = ((ExpressionFunctionCall) ex).callingName();
+                            if (calling.endsWith(name)) {
+                                //we're calling free
+                                List<Expression> args = ((ExpressionFunctionCall) ex).calling();
+                                if (args.size() == 1) {
+                                    Expression firstArg = args.get(0);
+                                    if (firstArg instanceof ExpressionVariable) {
+                                        String arg = ((ExpressionVariable) firstArg).getName();
+                                        if (arg.equals("this")) {
+                                            throw new RuntimeException("Warning: don't call free(this) in a destructor. The compiler adds the real free(this) for you, and doing it manually will lead to infinite recursion.");
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            Expression ex = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
-            contents.add(new CommandExp(ex, context));
         }
         context.gc = null;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;

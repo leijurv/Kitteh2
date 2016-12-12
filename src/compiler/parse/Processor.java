@@ -27,19 +27,19 @@ public class Processor {
      * @return
      */
     public static ArrayList<Command> parse(List<Object> tempO, Context context) {
-        long a = System.currentTimeMillis();
+        //long a = System.currentTimeMillis();
         ArrayList<Object> o = new ArrayList<>(tempO.size());
         o.addAll(tempO);
         tempO.clear();//idk
         //System.out.println("Processing " + o);
         new StringFinder().apply(o);//This makes a lot of things easier. Without this we can't do things like if(line.contains("{")) because the { might be in a string and therefore wouldn't actually begin a block
         new BlockFinder().apply(o);
-        long b = System.currentTimeMillis();
+        //long b = System.currentTimeMillis();
         new LexLuthor().apply(o);
-        long c = System.currentTimeMillis();
+        //long c = System.currentTimeMillis();
         //System.out.println("Done processing, beginning parsing " + o);
         ArrayList<Command> res = new Parser().parse(o, context);
-        long d = System.currentTimeMillis();
+        //long d = System.currentTimeMillis();
         //System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c) + " -- total " + (d - a));
         return res;
     }

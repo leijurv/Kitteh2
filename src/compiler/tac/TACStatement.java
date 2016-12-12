@@ -21,13 +21,10 @@ public abstract class TACStatement {
     protected TempVarUsage tvu;
     public String[] paramNames;
     public X86Param[] params;
-    public TACStatement() {
-        paramNames = new String[0];
-        params = new X86Param[0];
-    }
     public TACStatement(String... paramNames) {
         this.paramNames = paramNames;
         params = new X86Param[paramNames.length];
+        this.context = null;
     }
     public final void setContext(Context context) {
         this.context = context;
@@ -67,6 +64,10 @@ public abstract class TACStatement {
         throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames));
     }
     abstract protected void onContextKnown();
+    final public String toString(boolean printFull) {
+        context.printFull = printFull;
+        return toString();
+    }
     @Override
     final public String toString() {//all calls to toString should check the context first, and this results in a single error message for every case where the context isn't already set
         if (context == null) {

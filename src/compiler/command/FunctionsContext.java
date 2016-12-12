@@ -77,7 +77,7 @@ public class FunctionsContext {
         if (PARALLEL_FUNCTION_PARSING) {
             stream = stream.parallel();
         }
-        long start1 = System.currentTimeMillis();
+        //long start1 = System.currentTimeMillis();
         //System.out.println("> Starting parsing functions in " + path);
         stream.forEach(cdf -> {
             long start = System.currentTimeMillis();

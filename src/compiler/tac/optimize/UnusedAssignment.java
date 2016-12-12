@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
-import compiler.Context;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACReturn;
@@ -22,7 +21,6 @@ public class UnusedAssignment extends TACOptimization {
     protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {
             List<String> mv = block.get(i).modifiedVariables();
-            Context.printFull = true;//TODO this is really bad, especially since optimizations are applied in a multithreaded manner
             if (block.get(i).toString().contains("Struct")) {
                 continue;
             }

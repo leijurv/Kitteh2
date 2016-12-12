@@ -182,16 +182,15 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public List<TACStatement> totac(OptimizationSettings settings) {
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN TAC GENERATION FOR " + name);
-        Context.printFull = true;
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        long middle = System.currentTimeMillis();
+        //long middle = System.currentTimeMillis();
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
-        long end = System.currentTimeMillis();
+        //long end = System.currentTimeMillis();
         //System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");
         return result;
     }
@@ -217,7 +216,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
         @Override
         public boolean equals(Object o) {
-            throw new UnsupportedOperationException();
+            if (o == null || getClass() == o.getClass()) {
+                throw new UnsupportedOperationException();
+            }
+            throw new RuntimeException();
         }
         @Override
         public int hashCode() {

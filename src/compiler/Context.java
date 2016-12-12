@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class Context {
-    public static boolean printFull = true;
+    public boolean printFull = true;
 
     public class VarInfo implements X86Param {
         private final String name;

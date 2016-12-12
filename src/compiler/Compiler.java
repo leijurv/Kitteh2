@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    public static boolean PRINT_TAC = false;
+    static boolean PRINT_TAC = false;
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program;
         try {
@@ -191,11 +191,10 @@ public class Compiler {
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
         if (PRINT_TAC) {
-            Context.printFull = false;
             for (Pair<String, List<TACStatement>> pair : wew) {
                 System.out.println("TAC FOR " + pair.getA());
                 for (int i = 0; i < pair.getB().size(); i++) {
-                    System.out.println(i + ":     " + pair.getB().get(i));
+                    System.out.println(i + ":     " + pair.getB().get(i).toString(false));
                 }
                 System.out.println();
             }

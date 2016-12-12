@@ -151,7 +151,7 @@ class RecursiveParentheses extends TokenBased {
                         String xFree = TypeStruct.format(struct.getName(), "free");
                         Optional<CommandDefineFunction> freeDefinition = struct.getMethodByLocalName(xFree);
                         if (freeDefinition.isPresent()) {//does this struct* we're freeing have a .free() struct method?
-                            o.set(i - 1, new ExpressionFunctionCall(context, pkg, xFree, arguments));//call x.free() immediately before free(x)
+                            o.set(i - 1, new ExpressionFunctionCall(context, null, xFree, arguments));//call x.free() immediately before free(x)
                         } else {
                             //if the struct doesn't provide a free, just call the normal
                         }

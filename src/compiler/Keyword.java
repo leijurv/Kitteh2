@@ -65,7 +65,7 @@ public enum Keyword implements Token<Keyword> {
             throw new IllegalStateException(super.toString() + " " + super.toString().toUpperCase(Locale.US));
         }
         if (!catVersion.toUpperCase(Locale.US).equals(catVersion)) {
-            throw new IllegalStateException(catVersion + " " + catVersion.toUpperCase());
+            throw new IllegalStateException(catVersion + " " + catVersion.toUpperCase(Locale.US));
         }
     }
     public boolean isType() {

@@ -23,7 +23,7 @@ class X86Function {
     public static String generateX86(Pair<String, List<TACStatement>> pair) {
         String name = pair.getA();
         List<TACStatement> stmts = pair.getB();
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < stmts.size(); i++) {

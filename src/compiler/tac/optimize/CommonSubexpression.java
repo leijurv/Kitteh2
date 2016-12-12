@@ -51,7 +51,6 @@ public class CommonSubexpression extends TACOptimization {
                     if (block.get(j) instanceof TACStandard) {
                         TACStandard o = (TACStandard) block.get(j);
                         if (o.op == ts.op && o.paramNames[0].equals(ts.paramNames[0]) && o.paramNames[1].equals(ts.paramNames[1])) {
-                            compiler.Context.printFull = true;
                             //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
                             TACConst repl = new TACConst(o.paramNames[2], ts.paramNames[2]);
                             repl.copyFrom(o);

@@ -1,4 +1,5 @@
 import ../bigint/bigint
+import main mayn
 func basepointX()bigint*{
 	x:=new(256)
 	xcont:=x.cont
@@ -519,6 +520,12 @@ ycont[2]=false
 ycont[1]=false
 ycont[0]=false
 return y
+}
+basepoint() mayn::ecpoint*{
+	bp:=(mayn::ecpoint*)malloc(sizeof(mayn::ecpoint))
+	bp.x=basepointX()
+	bp.y=basepointY()
+	return bp
 }
 modulus() bigint*{
 	twofivesix:=fromLong(1)

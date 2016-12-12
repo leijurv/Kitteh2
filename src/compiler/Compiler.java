@@ -184,7 +184,7 @@ public class Compiler {
         if (settings.staticValues()) {
             commands.parallelStream().forEach(CommandDefineFunction::staticValues);
         }
-        System.out.println("> DONE STATIC VALUES");
+        //System.out.println("> DONE STATIC VALUES");
         long e = System.currentTimeMillis();
         List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))

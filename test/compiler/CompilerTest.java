@@ -61,7 +61,6 @@ public class CompilerTest {
         shouldntCompile("");
         shouldntCompile("func main({}");
         shouldntCompile("func main(){}");
-        shouldntCompile("func main(){\n}");
     }
     @Test
     public void testLinkedList() throws Exception {

@@ -112,7 +112,6 @@ class RecursiveParentheses extends TokenBased {
             if (i != 1 && o.get(i - 2) == PERIOD) {
                 accessing = (Expression) o.get(i - 3);
                 removePreviousTwo = true;
-                System.out.println("Accessing method " + funcName + " of " + accessing);
                 if (accessing.getType() instanceof TypeStruct) {
                     throw new RuntimeException("Can only call struct methods on a pointer to a struct, not the struct itself");
                 }

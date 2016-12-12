@@ -65,6 +65,8 @@ public class Compiler {
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
         List<Path> autoImportedStd = Kitterature.listFiles();
+        toLoad.add(main);
+        alrImp.add(main);
         for (Path path : autoImportedStd) {
             toLoad.add(path);
             alrImp.add(path);
@@ -72,9 +74,6 @@ public class Compiler {
                 throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
             }
         }
-        toLoad.add(main);
-        alrImp.add(main);
-        int entrypoint = toLoad.indexOf(main);
         while (!toLoad.isEmpty()) {
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
@@ -154,7 +153,7 @@ public class Compiler {
             locallyImported.addAll(autoImportedStd);
             return new FunctionsContext(load.getA(), load.getB(), allStructMethods, locallyImported, loaded);
         }).collect(Collectors.toList());
-        contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
+        contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long e = System.currentTimeMillis();
         System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
         System.out.println();

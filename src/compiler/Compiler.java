@@ -79,7 +79,7 @@ public class Compiler {
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getB();
-            System.out.println("Imports: " + context.imports);
+            //System.out.println("Imports: " + context.imports);
             HashMap<String, String> fix = new HashMap<>();
             HashSet<String> rmv = new HashSet<>();
             for (Entry<String, String> imp : context.imports.entrySet()) {
@@ -97,7 +97,7 @@ public class Compiler {
                     throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
                 }
                 Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
-                System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
+                //System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
                 if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                     throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
                 }
@@ -128,7 +128,9 @@ public class Compiler {
                     if (oth.getA().equals(pair.getA())) {
                         continue;
                     }
-                    System.out.println("Assuming autoimported stdlib for " + oth.getA());
+                    if (PRINT_TAC) {
+                        System.out.println("Assuming autoimported stdlib for " + oth.getA());
+                    }
                     context.insertStructsUnderPackage(null, importz.get(oth.getA()));
                 }
             }
@@ -155,10 +157,12 @@ public class Compiler {
         }).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long e = System.currentTimeMillis();
-        System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
-        System.out.println();
-        System.out.println("---- END IMPORTS, BEGIN PARSING ----");
-        System.out.println();
+        if (PRINT_TAC) {
+            System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
+            System.out.println();
+            System.out.println("---- END IMPORTS, BEGIN PARSING ----");
+            System.out.println();
+        }
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         for (Pair<Context, CommandDefineFunction> cdf : structMethod) {
             cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
@@ -202,8 +206,10 @@ public class Compiler {
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
         String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        System.out.println(loll);
-        System.err.println(loll);
+        if (PRINT_TAC) {
+            System.out.println(loll);
+            System.err.println(loll);
+        }
         return asm;
     }
 }

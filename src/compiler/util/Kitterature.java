@@ -38,7 +38,6 @@ public class Kitterature {
         return getBytes(getResourceAsStream(name));
     }
     public static boolean resourceExists(String name) {
-        System.out.println("Checking if " + name + " exists");
         try {
             return getResourceAsStream(name) != null;
         } catch (IOException ex) {

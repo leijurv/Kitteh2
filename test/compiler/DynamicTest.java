@@ -41,14 +41,17 @@ public class DynamicTest {
     }
     @Test
     public void testCompilation() throws Exception {
-        System.out.println(filename);
         if (filename.getName().endsWith(".k")) {
+            System.out.println();
+            System.out.println("Testing individual " + filename);
             String s = filename.getName();
             CompilerTest.verifyFileCompilationTrue(s.substring(0, s.length() - 2));
             return;
         }
         if (filename.isDirectory()) {
             if (new File(filename, "output").exists()) {
+                System.out.println();
+                System.out.println("Testing package " + filename);
                 CompilerTest.verifyPackageCompilation(filename);
             }
             return;

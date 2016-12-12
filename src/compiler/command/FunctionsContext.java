@@ -65,7 +65,7 @@ public class FunctionsContext {
     public void setEntryPoint() {
         for (CommandDefineFunction cdf : functionDefinitions) {
             if (cdf.getLocalHeader().name.equals("main")) {
-                System.out.println("Setting entry point in file " + path);
+                //System.out.println("Setting entry point in file " + path);
                 cdf.setEntryPoint();
                 return;
             }

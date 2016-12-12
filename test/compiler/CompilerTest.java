@@ -331,8 +331,8 @@ public class CompilerTest {
             gcc.destroyForcibly();
             assertEquals("GCC timed out????", false, true);
         }
-        System.out.println("GCC return value: " + gcc.waitFor());
         if (gcc.waitFor() != 0) {
+            System.out.println("GCC return value: " + gcc.waitFor());
             int j;
             StringBuilder result = new StringBuilder();
             while ((j = gcc.getErrorStream().read()) >= 0) {

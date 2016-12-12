@@ -69,6 +69,9 @@ public class Compiler {
             System.out.println("AUTOIMPORTED");
             toLoad.add(path);
             alrImp.add(path);
+            if (path.toFile().exists()) {
+                throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath());
+            }
         }
         toLoad.add(main);
         alrImp.add(main);

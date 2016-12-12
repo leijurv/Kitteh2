@@ -93,6 +93,15 @@ struct bigint{
 		this.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
 		free(this)
 	}
+	highestbitset()int{
+		for i:=this.size-1;i>=0;i--{
+			wew:=this.cont[i]
+			if wew{
+				return i
+			}
+		}
+		return 0-1
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -244,13 +253,13 @@ greater(bigint*a,bigint*b)bool{
 	if b.neg{
 		return true
 	}
-	if highestbitset(a)>highestbitset(b){
+	if a.highestbitset()>b.highestbitset(){
 		return true
 	}
-	if highestbitset(a)<highestbitset(b){
+	if a.highestbitset()<b.highestbitset(){
 		return false
 	}
-	for i:=highestbitset(a); i>=0; i--{
+	for i:=a.highestbitset(); i>=0; i--{
 		ai:=a.cont[i]
 		bi:=b.cont[i]
 		if ai && !bi{
@@ -266,30 +275,21 @@ equal(bigint*a,bigint*b)bool{
 	if a.neg!=b.neg{
 		return false
 	}
-	if highestbitset(a)!=highestbitset(b){
+	if a.highestbitset()!=b.highestbitset(){
 		return false
 	}
-	for i:=0; i<highestbitset(a); i++{
+	for i:=0; i<a.highestbitset(); i++{
 		if a.cont[i]!=b.cont[i]{
 			return false
 		}
 	}
 	return true
 }
-highestbitset(bigint*a)int{
-	for i:=a.size-1;i>=0;i--{
-		wew:=a.cont[i]
-		if wew{
-			return i
-		}
-	}
-	return 0-1
-}
 trim(bigint* a)bigint*{
-	return padtolength(a,highestbitset(a)+1)
+	return padtolength(a,a.highestbitset()+1)
 }
 trimInPlace(bigint* a){
-	a.size=highestbitset(a)+1
+	a.size=a.highestbitset()+1
 	if a.size==0{
 		a.neg=false //cant have negative zero
 		a.size=1

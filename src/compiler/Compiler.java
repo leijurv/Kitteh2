@@ -169,7 +169,10 @@ public class Compiler {
     public static String compile(String program, OptimizationSettings settings) {
         try {
             File f = File.createTempFile("temp", ".k");
-            new FileOutputStream(f).write(program.getBytes("UTF-8"));
+            f.deleteOnExit();
+            try (FileOutputStream lol = new FileOutputStream(f)) {
+                lol.write(program.getBytes("UTF-8"));
+            }
             return compile(f.toPath(), settings);
         } catch (IOException ex) {
             Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);

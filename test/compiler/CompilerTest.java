@@ -315,6 +315,8 @@ public class CompilerTest {
         }
         File asm = File.createTempFile("kittehtest" + System.nanoTime() + "_" + compiled.hashCode(), ".s");
         File executable = new File(asm.getAbsolutePath().replace(".s", ".o"));
+        asm.deleteOnExit();
+        executable.deleteOnExit();
         assertEquals(false, executable.exists());
         assertEquals(true, asm.exists());
         //System.out.println("Writing to file " + asm);

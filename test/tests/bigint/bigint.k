@@ -140,6 +140,30 @@ struct bigint{
 		}
 		return res
 	}
+	add(bigint*b)bigint*{
+		return add(this,b)
+	}
+	subtract(bigint*b)bigint*{
+		return subtract(this,b)
+	}
+	multiply(bigint*b)bigint*{
+		return multiply(this,b)
+	}
+	divide(bigint*b)bigint*{
+		return divide(this,b)
+	}
+	mod(bigint*b)bigint*{
+		return mod(this,b)
+	}
+	dividemod(bigint*b)quotremain*{
+		return dividemod(this,b)
+	}
+	modpow(bigint*pow,bigint*modulus)bigint*{
+		return modpow(this,pow,modulus)
+	}
+	modInverse(bigint*modulus)bigint*{
+		return modInverse(this,modulus)
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -185,14 +209,14 @@ add(bigint* a,bigint* b)bigint*{
 		}
 		//b-a
 		a.neg=false
-		res:=sub(b,a)
+		res:=b.subtract(a)
 		a.neg=true
 		return res
 	}
 	if b.neg{
 		//a-b
 		b.neg=false
-		res:=sub(a,b)
+		res:=a.subtract(b)
 		b.neg=true
 		return res
 	}
@@ -218,7 +242,7 @@ add(bigint* a,bigint* b)bigint*{
 	}
 	return res
 }
-sub(bigint*aa,bigint*bb)bigint*{
+subtract(bigint*aa,bigint*bb)bigint*{
 	a:=aa
 	b:=bb
 	if a.neg{
@@ -228,7 +252,7 @@ sub(bigint*aa,bigint*bb)bigint*{
 			//b-a
 			b.neg=false
 			a.neg=false
-			res:=sub(b,a)
+			res:=b.subtract(a)
 			b.neg=true
 			a.neg=true
 			return res
@@ -251,7 +275,7 @@ sub(bigint*aa,bigint*bb)bigint*{
 	}
 	g:=greater(b,a)
 	if g{
-		res:=sub(b,a)
+		res:=b.subtract(a)
 		res.neg=true
 		return res
 	}
@@ -365,7 +389,7 @@ dividemod(bigint*a,bigint*b)quotremain*{
 		g:=greater(b,d)
 		if(!g){
 			old:=d
-			d=sub(d,b)
+			d=d.subtract(b)
 			old.free()
 			res.cont[e]=true
 		}
@@ -415,7 +439,7 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		//odd
 		one:=new(1)
 		one.cont[0]=true
-		powminus:=sub(pow,one)
+		powminus:=pow.subtract(one)
 		(one).free()
 		lol:=modpowInternal(base,powminus,modulus)
 		(powminus).free()
@@ -444,22 +468,13 @@ modInverse(bigint*a,bigint*b)bigint*{
 	oldr:=a.dup()
 	zero:=fromLong(0)
 	for greater(r,zero){
-				/*print(50215021)
-				output(r)
-				output(oldr)
-				output(s)
-				output(olds)
-				output(t)
-				output(oldt)*/
-				/*output(quotient)
-				output(multiply(quotient,t))*/
 		quotient:=divide(oldr,r)
 		qr:=multiply(quotient,r)
 		qs:=multiply(quotient,s)
 		qt:=multiply(quotient,t)
-		newr:=sub(oldr,qr)
-		news:=sub(olds,qs)
-		newt:=sub(oldt,qt)
+		newr:=oldr.subtract(qr)
+		news:=olds.subtract(qs)
+		newt:=oldt.subtract(qt)
 		(quotient).free()
 		(qr).free()
 		(qs).free()

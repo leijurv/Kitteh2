@@ -5,6 +5,9 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.expression.Expression;
+import compiler.expression.ExpressionFunctionCall;
+import compiler.expression.ExpressionVariable;
 import compiler.parse.Processor;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
@@ -47,9 +50,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         super(context);
         this.name = functionName;
         this.rawContents = rawContents;
-        if (name.contains("dankmeme")) {
-            System.out.println(name + ": " + rawContents);
-        }
         this.params = params;
         int endParen = params.indexOf(ENDPAREN);
         if (endParen == -1) {
@@ -120,6 +120,16 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         //System.out.println(name + " parsing " + rawContents);
         contents = Processor.parse(rawContents, context);
         //System.out.println("wew " + contents);
+        if (name.endsWith("_free")) {
+            if (methodOf == null) {
+                throw new RuntimeException("Can't define a function called free outside of a struct");
+            }
+            Expression ex = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
+            //if (contents.isEmpty()) {
+            contents.add(new CommandExp(ex, context));
+            //}
+            //throw new RuntimeException("ok let's go " + name + " " + methodOf + " " + contents);
+        }
         context.gc = null;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;
         if (contents.isEmpty()) {

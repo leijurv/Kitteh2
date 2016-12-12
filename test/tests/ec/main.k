@@ -31,11 +31,10 @@ struct ecpoint{
 		(this.y).output()
 	}
 	free(){
-		(this.x).free()
-		(this.y).free()
+		free(this.x)
+		free(this.y)
 		this.x=(bigint*)0
 		this.y=(bigint*)0
-		free(this)
 	}
 	dup()ecpoint*{
 		new:=(ecpoint*)malloc(sizeof(ecpoint))

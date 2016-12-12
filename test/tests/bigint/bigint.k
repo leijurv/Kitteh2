@@ -91,7 +91,6 @@ struct bigint{
 	free(){
 		free(this.cont)
 		this.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
-		free(this)
 	}
 	highestbitset()int{
 		for i:=this.size-1;i>=0;i--{

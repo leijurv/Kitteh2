@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -89,6 +90,9 @@ public class TypeStruct extends Type {
     }
     public List<Pair<Context, CommandDefineFunction>> getStructMethods() {
         return structMethods.stream().map(cdf -> new Pair<>(context, cdf)).collect(Collectors.toList());
+    }
+    public Optional<CommandDefineFunction> getMethodByLocalName(String methodName) {
+        return structMethods.stream().filter(cdf -> cdf.getLocalName().equals(methodName)).findAny();
     }
     @Override
     public int getSizeBytes() {

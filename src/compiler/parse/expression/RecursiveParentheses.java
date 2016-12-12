@@ -6,6 +6,7 @@
 package compiler.parse.expression;
 import compiler.Context;
 import compiler.Keyword;
+import compiler.command.CommandDefineFunction;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionFunctionCall;
@@ -140,6 +141,23 @@ class RecursiveParentheses extends TokenBased {
                     .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), funcNameCopy.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
                     .collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, arguments));
+            if (funcName.equals("free") && pkg == null) {//calling free without a ::
+                Expression arg = arguments.get(0);
+                Type freeing = arg.getType();
+                if (freeing instanceof TypePointer) {//freeing a pointer
+                    Type pointingTo = ((TypePointer) freeing).pointingTo();
+                    if (pointingTo instanceof TypeStruct) {//freeing a pointer to a struct
+                        TypeStruct struct = (TypeStruct) pointingTo;
+                        String xFree = TypeStruct.format(struct.getName(), "free");
+                        Optional<CommandDefineFunction> freeDefinition = struct.getMethodByLocalName(xFree);
+                        if (freeDefinition.isPresent()) {//does this struct* we're freeing have a .free() struct method?
+                            o.set(i - 1, new ExpressionFunctionCall(context, pkg, xFree, arguments));//call x.free() immediately before free(x)
+                        } else {
+                            //if the struct doesn't provide a free, just call the normal
+                        }
+                    }
+                }
+            }
             if (removePreviousTwo) {
                 o.remove(i - 3);
                 o.remove(i - 3);

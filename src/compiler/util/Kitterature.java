@@ -27,19 +27,22 @@ import java.util.List;
  * @author leijurv
  */
 public class Kitterature {
-    public static byte[] getResource(String name) throws IOException {
+    public static InputStream getResourceAsStream(String name) throws IOException {
         if (!name.endsWith(".k")) {
             name += ".k";
         }
         InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
-        return getBytes(is);
+        return is;
     }
-    public static boolean resourceExists(String name) {//TODO fix this...
+    public static byte[] getResource(String name) throws IOException {
+        return getBytes(getResourceAsStream(name));
+    }
+    public static boolean resourceExists(String name) {
         System.out.println("Checking if " + name + " exists");
         try {
-            return getResource(name) != null;
-        } catch (IOException | RuntimeException e) {
-            return false;
+            return getResourceAsStream(name) != null;
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
     public static List<Path> listFiles() throws IOException {

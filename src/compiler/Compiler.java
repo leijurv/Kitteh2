@@ -89,17 +89,14 @@ public class Compiler {
                 File toImport;
                 if (Kitterature.resourceExists(toImportName)) {
                     toImport = new File(toImportName);
-                    if (toImport.exists()) {
-                        throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
-                    }
                 } else {
                     toImport = new File(path.toFile().getParent(), toImportName);
                     if (!Kitterature.resourceExists(toImport + "") && !toImport.exists()) {
                         throw new IllegalStateException(path + " " + "Can't import " + toImportName + " because " + toImport + " doesn't exist" + imp);
                     }
-                    if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
-                        throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
-                    }
+                }
+                if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
+                    throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
                 }
                 Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
                 System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);

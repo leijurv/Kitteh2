@@ -3,7 +3,7 @@ import ../bigint/bigint
 struct ecpoint{
 	bigint* x
 	bigint* y
-	outputec(){
+	output(){
 		x:=(this.x).tostring(',')
 		writeNullTerm(x)
 		(this.y).output()
@@ -32,11 +32,11 @@ main(){
 		print(i)
 		pow:=fromLong((long)i)
 		pt:=multiplyec(dupec(bp),pow,modulus,bp)
-		pt.outputec()
+		pt.output()
 		pt.free()
 		pow.free()
 	}
-	multiplyec(dupec(bp),fromLong(50215021),modulus,bp).outputec()
+	multiplyec(dupec(bp),fromLong(50215021),modulus,bp).output()
 }
 dupec(ecpoint* x)ecpoint*{
 	new:=(ecpoint*)malloc(sizeof(ecpoint))

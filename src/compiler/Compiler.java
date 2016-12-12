@@ -70,7 +70,7 @@ public class Compiler {
             toLoad.add(path);
             alrImp.add(path);
             if (path.toFile().exists()) {
-                throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath());
+                throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
             }
         }
         toLoad.add(main);

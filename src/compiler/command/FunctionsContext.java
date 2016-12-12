@@ -80,7 +80,7 @@ public class FunctionsContext {
         //long start1 = System.currentTimeMillis();
         //System.out.println("> Starting parsing functions in " + path);
         stream.forEach(cdf -> {
-            long start = System.currentTimeMillis();
+            //long start = System.currentTimeMillis();
             //System.out.println("> Starting parsing function " + cdf.getHeader().name);
             cdf.parse(this);
             //System.out.println("> Finished parsing function " + cdf.getHeader().name + " -- " + (System.currentTimeMillis() - start) + "ms");

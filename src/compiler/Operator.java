@@ -140,6 +140,9 @@ public enum Operator implements Token<Operator> {
         }
         onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
         if (a instanceof ExpressionConstNum) {
+            if (!(b instanceof ExpressionConstNum)) {
+                throw new RuntimeException(a + " is expression const num but " + b + " isn't");
+            }
             if ((int) ((ExpressionConstNum) a).getVal().longValue() != ((ExpressionConstNum) a).getVal().intValue()) {
                 //if the long version, when casted to int, is different than the int version
                 //some form of overflow is happening?
@@ -148,6 +151,24 @@ public enum Operator implements Token<Operator> {
             if ((int) ((ExpressionConstNum) b).getVal().longValue() != ((ExpressionConstNum) b).getVal().intValue()) {
                 throw new RuntimeException();
             }
+        }
+        if (this == OR || this == AND) {
+            if (!(a instanceof ExpressionConstBool)) {
+                throw new RuntimeException("Expected " + a + " to be expression const bool");
+            }
+            if (!(b instanceof ExpressionConstBool)) {
+                throw new RuntimeException("Expected " + b + " to be expression const bool");
+            }
+            if (this == AND) {
+                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() && ((ExpressionConstBool) b).getVal());
+            }
+            return new ExpressionConstBool(((ExpressionConstBool) a).getVal() || ((ExpressionConstBool) b).getVal());
+        }
+        if (!(a instanceof ExpressionConstNum)) {
+            throw new RuntimeException("Expected " + a + " to be expression const num");
+        }
+        if (!(b instanceof ExpressionConstNum)) {
+            throw new RuntimeException("Expected " + b + " to be expression const num");
         }
         switch (this) {
             case L_XOR:
@@ -182,10 +203,6 @@ public enum Operator implements Token<Operator> {
                 return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() >= ((ExpressionConstNum) b).getVal().intValue());
             case LESS_OR_EQUAL:
                 return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() <= ((ExpressionConstNum) b).getVal().intValue());
-            case AND:
-                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() && ((ExpressionConstBool) b).getVal());
-            case OR:
-                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() || ((ExpressionConstBool) b).getVal());
             default:
                 throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
         }

@@ -33,7 +33,7 @@ public class TACOptimizer {
     public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         List<TACStatement> input = emitted.getResult();
         List<TACStatement> prev;
-        int num = 0;
+        //int num = 0;
         do {
             prev = new ArrayList<>(input);
             for (Class<? extends TACOptimization> optim : opt) {

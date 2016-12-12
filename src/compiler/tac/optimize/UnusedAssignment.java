@@ -43,7 +43,6 @@ public class UnusedAssignment extends TACOptimization {
                 continue;
             }
             block.remove(i);
-            return;
         }
     }
     static boolean usedAfter(List<TACStatement> block, String varName, int lineNumber) {

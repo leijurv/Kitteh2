@@ -28,8 +28,8 @@ public class CommandReturn extends Command {
     }
     @Override
     protected void generateTAC0(IREmitter emit) {
+        TempVarUsage lol = new TempVarUsage(context);
         if (toReturn != null) {
-            TempVarUsage lol = new TempVarUsage(context);
             String var = lol.getTempVar(toReturn.getType());
             toReturn.generateTAC(emit, lol, var);
             emit.emit(new TACConst("" + X86Register.A.getRegister((TypeNumerical) toReturn.getType()), var));

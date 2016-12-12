@@ -120,7 +120,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         //System.out.println(name + " parsing " + rawContents);
         contents = Processor.parse(rawContents, context);
         //System.out.println("wew " + contents);
-        if (name.endsWith("_free")) {
+        if (name.endsWith("_free") || name.equals("free")) {
             if (methodOf == null) {
                 throw new RuntimeException("Can't define a function called free outside of a struct");
             }

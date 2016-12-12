@@ -71,7 +71,6 @@ public class TypeStruct extends Type {
                 structMethods.add(new CommandDefineFunction(this, subContext, params, functionName, functionContents));
                 continue;
             }
-            System.out.println(i);
             rawBlock.remove(i);
             i = -1;
             List<Token> tokens = thisLine.getTokens();

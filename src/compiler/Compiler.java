@@ -39,12 +39,18 @@ import java.util.stream.Collectors;
  */
 public class Compiler {
     public static boolean PRINT_TAC = false;
-    private static Pair<List<CommandDefineFunction>, Context> load(Path name, boolean preImport) throws IOException {
+    private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program;
-        if (preImport) {
+        try {
             program = Kitterature.getResource(name.toString());
-        } else {
-            program = Files.readAllBytes(name);
+        } catch (IOException | RuntimeException e) {
+            try {
+                program = Files.readAllBytes(name);
+            } catch (IOException | RuntimeException e2) {
+                e.printStackTrace();
+                e2.printStackTrace();
+                throw new RuntimeException("Couldn't load " + name);
+            }
         }
         List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"));
         Context context = new Context(name + "");
@@ -53,31 +59,21 @@ public class Compiler {
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();
-        int entrypoint = 0;
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-        boolean preImport = true;
-        entrypoint++;
         toLoad.add(Paths.get("print.k"));
         alrImp.add(Paths.get("print.k"));
-        while (true) {
-            if (toLoad.isEmpty()) {
-                if (!preImport) {
-                    break;
-                } else {
-                    toLoad.add(main);
-                    alrImp.add(main);
-                    preImport = false;
-                    continue;
-                }
-            }
+        toLoad.add(main);
+        alrImp.add(main);
+        int entrypoint = toLoad.indexOf(main);
+        while (!toLoad.isEmpty()) {
             Path path = toLoad.pop();
             System.out.println("Loading " + path);
-            Pair<List<CommandDefineFunction>, Context> funcs = load(path, preImport);
+            Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getB();
             System.out.println("Imports: " + context.imports);
             HashMap<String, String> fix = new HashMap<>();
@@ -85,7 +81,7 @@ public class Compiler {
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 String toImportName = imp.getKey() + ".k";
                 File toImport = new File(path.toFile().getParent(), toImportName);
-                if (!toImport.exists() && !preImport) {
+                if (!toImport.exists() && !Kitterature.resourceExists(toImport + "")) {
                     throw new IllegalStateException("Can't import " + toImport + " because " + toImport + " doesn't exist" + imp);
                 }
                 Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();

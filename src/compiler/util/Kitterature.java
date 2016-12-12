@@ -20,6 +20,14 @@ public class Kitterature {
         InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
         return getBytes(is);
     }
+    public static boolean resourceExists(String name) {//TODO fix this...
+        try {
+            getResource(name);
+            return true;
+        } catch (IOException | RuntimeException e) {
+            return false;
+        }
+    }
     public static byte[] getBytes(InputStream is) throws IOException {
         int size = 1024;
         byte[] buf = new byte[size];

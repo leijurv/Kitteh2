@@ -103,12 +103,41 @@ struct bigint{
 		return 0-1
 	}
 	dup()bigint*{
-		trimInPlace(this)
+		this.trimInPlace()
 		res:=new(this.size)
 		for i:=0; i<this.size; i++{
 			res.cont[i]=this.cont[i]
 		}
 		res.neg=this.neg
+		return res
+	}
+	trim()bigint*{
+		return this.padtolength(this.highestbitset()+1)
+	}
+	trimInPlace(){
+		this.size=this.highestbitset()+1
+		if this.size==0{
+			this.neg=false //cant have negative zero
+			this.size=1
+		}
+	}
+	padtolength(int length1)bigint*{
+		length:=length1
+		if length==0{
+			length=1
+		}
+		res:=new(length)
+		for i:=0; i<this.size && i<length; i++{
+			res.cont[i]=this.cont[i]
+		}
+		return res
+	}
+	rightshiftone()bigint*{
+		this.trimInPlace()
+		res:=new(this.size-1)
+		for i:=0; i<this.size-1; i++{
+			res.cont[i]=this.cont[i+1]
+		}
 		return res
 	}
 }
@@ -128,7 +157,7 @@ fromLong(long inp)bigint*{
 		x.cont[i]=inp%(long)2==(long)1
 		inp=inp/2
 	}
-	trimInPlace(x)
+	x.trimInPlace()
 	x.neg=neg
 	return x
 }
@@ -226,8 +255,8 @@ sub(bigint*aa,bigint*bb)bigint*{
 		res.neg=true
 		return res
 	}
-	a=trim(a)
-	b=padtolength(b,a.size)
+	a=a.trim()
+	b=b.padtolength(a.size)
 	for i:=0; i<b.size; i++{
 		bi:=b.cont[i]
 		if bi{
@@ -294,29 +323,9 @@ equal(bigint*a,bigint*b)bool{
 	}
 	return true
 }
-trim(bigint* a)bigint*{
-	return padtolength(a,a.highestbitset()+1)
-}
-trimInPlace(bigint* a){
-	a.size=a.highestbitset()+1
-	if a.size==0{
-		a.neg=false //cant have negative zero
-		a.size=1
-	}
-}
-padtolength(bigint*a,int length1)bigint*{
-	length:=length1
-	if length==0{
-		length=1
-	}
-	res:=new(length)
-	for i:=0; i<a.size && i<length; i++{
-		res.cont[i]=a.cont[i]
-	}
-	return res
-}
+
 multiply(bigint* a, bigint* bb)bigint*{
-	b:=trim(bb)
+	b:=bb.trim()
 	bneg:=bb.neg
 	aneg:=a.neg
 	a.neg=false
@@ -342,7 +351,7 @@ struct quotremain{
 	bigint* remainder
 }
 dividemod(bigint*a,bigint*b)quotremain*{
-	trimInPlace(a)
+	a.trimInPlace()
 	bneg:=b.neg
 	b.neg=false
 	aneg:=a.neg
@@ -361,8 +370,8 @@ dividemod(bigint*a,bigint*b)quotremain*{
 			res.cont[e]=true
 		}
 	}
-	trimInPlace(res)
-	trimInPlace(d)
+	res.trimInPlace()
+	d.trimInPlace()
 	qr:=(quotremain*)malloc(sizeof(quotremain))
 	res.neg=aneg!=bneg
 	qr.quotient=res
@@ -386,14 +395,6 @@ mod(bigint*a,bigint*b)bigint*{
 	free(dm)
 	return res
 }
-rightshiftone(bigint*a)bigint*{
-	trimInPlace(a)
-	res:=new(a.size-1)
-	for i:=0; i<a.size-1; i++{
-		res.cont[i]=a.cont[i+1]
-	}
-	return res
-}
 modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	if pow.neg || base.neg || modulus.neg{
 		return (bigint*)0
@@ -401,7 +402,7 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	return modpowInternal(base,pow,modulus)
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
-	trimInPlace(pow)
+	pow.trimInPlace()
 	if pow.size==1 && pow.cont[0]{
 		return base.dup()
 	}
@@ -424,13 +425,13 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 		(lmao).free()
 		return res
 	}
-	shiftedPow:=rightshiftone(pow)
+	shiftedPow:=pow.rightshiftone()
 	wew:=modpowInternal(base,shiftedPow,modulus)
 	shiftedPow.free()
 	wewwew:=multiply(wew,wew)
 	(wew).free()
 	res:=mod(wewwew,modulus)
-	trimInPlace(res)
+	res.trimInPlace()
 	(wewwew).free()
 	return res
 }

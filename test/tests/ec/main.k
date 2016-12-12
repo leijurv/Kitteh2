@@ -45,7 +45,7 @@ main(){
 	multiplyec(bp.dup(),fromLong(50215021),modulus,bp).output()
 }
 multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
-	trimInPlace(pow)
+	pow.trimInPlace()
 	if pow.size==1 && pow.cont[0]{
 		return base
 	}
@@ -70,7 +70,7 @@ multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 		return res
 	}
 	
-	shiftedPow:=rightshiftone(pow)
+	shiftedPow:=pow.rightshiftone()
 	wew:=multiplyec(base,shiftedPow,MOD,bp)
 	shiftedPow.free()
 	wewwew:=addec(wew,wew,MOD)

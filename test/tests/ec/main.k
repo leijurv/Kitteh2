@@ -15,6 +15,12 @@ struct ecpoint{
 		this.y=(bigint*)0
 		free(this)
 	}
+	dup()ecpoint*{
+		new:=(ecpoint*)malloc(sizeof(ecpoint))
+		new.x=(this.x).dup()
+		new.y=(this.y).dup()
+		return new
+	}
 }
 main(){
 
@@ -31,18 +37,12 @@ main(){
 	for i:=15; i<=20; i++{
 		print(i)
 		pow:=fromLong((long)i)
-		pt:=multiplyec(dupec(bp),pow,modulus,bp)
+		pt:=multiplyec(bp.dup(),pow,modulus,bp)
 		pt.output()
 		pt.free()
 		pow.free()
 	}
-	multiplyec(dupec(bp),fromLong(50215021),modulus,bp).output()
-}
-dupec(ecpoint* x)ecpoint*{
-	new:=(ecpoint*)malloc(sizeof(ecpoint))
-	new.x=dup(x.x)
-	new.y=dup(x.y)
-	return new
+	multiplyec(bp.dup(),fromLong(50215021),modulus,bp).output()
 }
 multiplyec(ecpoint* base,bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 	trimInPlace(pow)

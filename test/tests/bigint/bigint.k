@@ -102,6 +102,15 @@ struct bigint{
 		}
 		return 0-1
 	}
+	dup()bigint*{
+		trimInPlace(this)
+		res:=new(this.size)
+		for i:=0; i<this.size; i++{
+			res.cont[i]=this.cont[i]
+		}
+		res.neg=this.neg
+		return res
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -377,15 +386,6 @@ mod(bigint*a,bigint*b)bigint*{
 	free(dm)
 	return res
 }
-dup(bigint* a)bigint*{
-	trimInPlace(a)
-	res:=new(a.size)
-	for i:=0; i<a.size; i++{
-		res.cont[i]=a.cont[i]
-	}
-	res.neg=a.neg
-	return res
-}
 rightshiftone(bigint*a)bigint*{
 	trimInPlace(a)
 	res:=new(a.size-1)
@@ -398,12 +398,12 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	if pow.neg || base.neg || modulus.neg{
 		return (bigint*)0
 	}
-	return modpowInternal(dup(base),dup(pow),dup(modulus))
+	return modpowInternal(base,pow,modulus)
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	trimInPlace(pow)
 	if pow.size==1 && pow.cont[0]{
-		return dup(base)
+		return base.dup()
 	}
 	if pow.size<2{
 		one:=new(1)
@@ -439,8 +439,8 @@ modInverse(bigint*a,bigint*b)bigint*{
 	olds:=fromLong(1)
 	t:=fromLong(1)
 	oldt:=fromLong(0)
-	r:=dup(b)
-	oldr:=dup(a)
+	r:=b.dup()
+	oldr:=a.dup()
 	zero:=fromLong(0)
 	for greater(r,zero){
 				/*print(50215021)

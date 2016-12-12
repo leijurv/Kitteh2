@@ -125,10 +125,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                 throw new RuntimeException("Can't define a function called free outside of a struct");
             }
             Expression ex = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
-            //if (contents.isEmpty()) {
             contents.add(new CommandExp(ex, context));
-            //}
-            //throw new RuntimeException("ok let's go " + name + " " + methodOf + " " + contents);
         }
         context.gc = null;
         boolean returnsVoid = header.getReturnType() instanceof TypeVoid;

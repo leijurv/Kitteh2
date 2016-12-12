@@ -64,8 +64,8 @@ public class Compiler {
         HashMap<Path, Context> ctxts = new HashMap<>();
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-        for (Path path : Kitterature.listFiles()) {
-            System.out.println("ADDING IMPORT " + path);
+        List<Path> autoImportedStd = Kitterature.listFiles("lang");
+        for (Path path : autoImportedStd) {
             toLoad.add(path);
             alrImp.add(path);
         }
@@ -138,7 +138,11 @@ public class Compiler {
         allFunctions.addAll(allStructMethods);
         allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
-        List<FunctionsContext> contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), allStructMethods, ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
+        List<FunctionsContext> contexts = loaded.stream().map(load -> {
+            List<Path> locallyImported = ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
+            locallyImported.addAll(autoImportedStd);
+            return new FunctionsContext(load.getA(), load.getB(), allStructMethods, locallyImported, loaded);
+        }).collect(Collectors.toList());
         contexts.get(entrypoint).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long e = System.currentTimeMillis();
         System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");

@@ -41,23 +41,24 @@ public class Kitterature {
             return false;
         }
     }
-    public static List<Path> listFiles() throws IOException {
+    public static List<Path> listFiles(String folder) throws IOException {
         try {
-            URI uri = Kitterature.class.getResource("/lang").toURI();
+            URI uri = Kitterature.class.getResource("/" + folder).toURI();
             List<Path> paths = new ArrayList<>();
-            FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null);
-            Path myPath = Paths.get(uri);
-            Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    if (!file.toString().endsWith(".k") || !file.toString().contains("lang")) {
-                        throw new RuntimeException("Unexpected extension for file " + file);
+            try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null)) {
+                Path myPath = Paths.get(uri);
+                Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        if (!file.toString().endsWith(".k") || !file.toString().contains(folder)) {
+                            throw new RuntimeException("Unexpected extension for file " + file);
+                        }
+                        String lol = file.toString().split(folder + "/")[1];
+                        paths.add(new File("/" + folder + "/" + lol).toPath());
+                        return FileVisitResult.CONTINUE;
                     }
-                    String lol = file.toString().split("lang/")[1];
-                    paths.add(new File("/lang/" + lol).toPath());
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+                });
+            }
             return paths;
         } catch (URISyntaxException ex) {
             throw new IOException(ex);

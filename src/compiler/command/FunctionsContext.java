@@ -52,7 +52,7 @@ public class FunctionsContext {
                     throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import " + name);
                 }
                 functionMap.put(name, header);
-                if (defineLocally.contains(file.getA()) || (file.getA() != null && !file.getA().equals(thisPath) && !file.getA().toFile().exists())) {
+                if (defineLocally.contains(file.getA()) && !thisPath.equals(file.getA())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
                         throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());

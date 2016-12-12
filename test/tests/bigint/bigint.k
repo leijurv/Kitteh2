@@ -66,6 +66,28 @@ struct bigint{
 		writeNullTerm(out)
 		free(out)
 	}
+	leftshift(int amount){
+		origsize:=this.size
+		this.size=this.size+amount
+		bool* newCont
+		bool reallocated=this.cap<this.size
+		if reallocated{
+			newCont=(bool*)malloc(this.size*sizeof(bool))
+			this.cap=this.size
+		}else{
+			newCont=this.cont
+		}
+		for i:=origsize-1; i>=0; i--{
+			newCont[i+amount]=this.cont[i]
+		}
+		for i:=0; i<amount; i++{
+			newCont[i]=false
+		}
+		if reallocated{
+			free(this.cont)
+		}
+		this.cont=newCont
+	}
 }
 fromLong(long inp)bigint*{
 	neg:=inp<(long)0
@@ -279,28 +301,6 @@ padtolength(bigint*a,int length1)bigint*{
 	}
 	return res
 }
-leftshift(bigint*a,int amount){
-	origsize:=a.size
-	a.size=a.size+amount
-	bool* newCont
-	bool reallocated=a.cap<a.size
-	if reallocated{
-		newCont=(bool*)malloc(a.size*sizeof(bool))
-		a.cap=a.size
-	}else{
-		newCont=a.cont
-	}
-	for i:=origsize-1; i>=0; i--{
-		newCont[i+amount]=a.cont[i]
-	}
-	for i:=0; i<amount; i++{
-		newCont[i]=false
-	}
-	if reallocated{
-		free(a.cont)
-	}
-	a.cont=newCont
-}
 multiply(bigint* a, bigint* bb)bigint*{
 	b:=trim(bb)
 	bneg:=bb.neg
@@ -315,7 +315,7 @@ multiply(bigint* a, bigint* bb)bigint*{
 			res=add(res,b)
 			f(old)
 		}
-		leftshift(b,1)
+		b.leftshift(1)
 	}
 	res.neg=aneg!=bneg
 	a.neg=aneg
@@ -342,7 +342,7 @@ dividemod(bigint*a,bigint*b)quotremain*{
 	d.size=0
 	res:=new(a.size)
 	for e:=a.size-1;e>=0;e--{
-		leftshift(d,1)
+		d.leftshift(1)
 		d.cont[0]=a.cont[e]
 		g:=greater(b,d)
 		if(!g){

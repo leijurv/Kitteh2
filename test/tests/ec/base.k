@@ -522,9 +522,9 @@ return y
 }
 modulus() bigint*{
 	twofivesix:=fromLong(1)
-	leftshift(twofivesix,256)
+	twofivesix.leftshift(256)
 	thirtytwo:=fromLong(1)
-	leftshift(thirtytwo,32)
+	thirtytwo.leftshift(32)
 	wew:=sub(twofivesix,thirtytwo)
 	ninesevenseven:=fromLong(977)
 	bigint* modulus=sub(wew,ninesevenseven)

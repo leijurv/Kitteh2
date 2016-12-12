@@ -137,8 +137,12 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             }
         }
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
-        if (!endWithReturn && !returnsVoid) {
-            throw new RuntimeException("You need a return as the last command");
+        if (!endWithReturn) {
+            if (returnsVoid) {
+                contents.add(new CommandReturn(context, null));
+            } else {
+                throw new RuntimeException("You need a return as the last command");
+            }
         }
     }
     @Override

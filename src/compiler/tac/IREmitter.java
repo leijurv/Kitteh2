@@ -70,10 +70,7 @@ public class IREmitter {//extends ArrayList XDDD
             throw new IllegalStateException("YOU CAN NEVER ESCAPE THE FITNESSGRAM");
         }
         if (!(result.get(result.size() - 1) instanceof TACReturn)) {
-            TACReturn ret = new TACReturn();
-            ret.setContext(result.get(0).context);
-            result.add(ret);
-            return getResult();
+            throw new RuntimeException("return should have been added in command define function");
         }
         return result;
     }

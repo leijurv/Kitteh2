@@ -62,9 +62,9 @@ public class TypeStruct extends Type {
                     params = params.subList(1, params.size());
                 }
                 String functionName = (String) params.get(0).data();
-                System.out.println("Struct with name " + name + " has function with name " + functionName);
+                //System.out.println("Struct with name " + name + " has function with name " + functionName);
                 functionName = format(name, functionName);
-                System.out.println("Renaming to " + functionName);
+                //System.out.println("Renaming to " + functionName);
                 if (params.get(1) != STARTPAREN) {
                     throw new AnnotationTypeMismatchException(null, "" + params);
                 }

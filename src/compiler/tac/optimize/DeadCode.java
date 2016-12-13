@@ -9,6 +9,9 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * This optimization doesn't come up in any of the test cases. It eliminates
+ * things like: if false { anything with internal jumps, like a for loop or
+ * another if}
  *
  * @author leijurv
  */
@@ -40,8 +43,22 @@ public class DeadCode extends TACOptimization {
     }
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
-        if (blockBegin >= rangeBegin && blockBegin < rangeEnd) {
-            block.clear();
+        if (rangeBegin == -1 || rangeEnd == -1) {
+            return;
         }
+        int localRangeBegin = rangeBegin - blockBegin;
+        int localRangeEnd = rangeEnd - blockBegin;
+        if (localRangeEnd <= localRangeBegin) {
+            throw new RuntimeException(rangeBegin + " " + rangeEnd + " " + localRangeBegin + " " + localRangeEnd);
+        }
+        if (localRangeEnd <= 0) {
+            return;
+        }
+        if (localRangeBegin > block.size() - 1) {
+            return;
+        }
+        localRangeBegin = Math.max(0, localRangeBegin);
+        localRangeEnd = Math.min(block.size(), localRangeEnd);
+        block.subList(localRangeBegin, localRangeEnd).clear();
     }
 }

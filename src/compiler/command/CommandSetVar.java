@@ -38,6 +38,12 @@ public class CommandSetVar extends Command {
         val.generateTAC(emit, new TempVarUsage(context), var);//this one, at least, is easy
         //}
     }
+    public String varSet() {
+        return var;
+    }
+    public Expression setTo() {
+        return val;
+    }
     @Override
     protected int calculateTACLength() {
         /*if (val.getType() instanceof TypeBoolean) {

@@ -56,26 +56,45 @@ public class Compiler {
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
-    public static String compile(Path main, OptimizationSettings settings) throws IOException {
-        long a = System.currentTimeMillis();
+
+    public static class CompilationState {
         LinkedList<Path> toLoad = new LinkedList<>();
         HashSet<Path> alrImp = new HashSet<>();
         List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
         HashMap<Path, Context> ctxts = new HashMap<>();
         ArrayList<Context> allContexts = new ArrayList<>();
         HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-        List<Path> autoImportedStd = Kitterature.listFiles();
-        toLoad.add(main);
-        alrImp.add(main);
-        for (Path path : autoImportedStd) {
-            toLoad.add(path);
-            alrImp.add(path);
-            if (path.toFile().exists()) {
-                throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
+        List<Path> autoImportedStd;
+        public CompilationState(Path main) throws IOException {
+            autoImportedStd = Kitterature.listFiles();
+            toLoad.add(main);
+            alrImp.add(main);
+            for (Path path : autoImportedStd) {
+                toLoad.add(path);
+                alrImp.add(path);
+                if (path.toFile().exists()) {
+                    throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
+                }
             }
         }
-        while (!toLoad.isEmpty()) {
-            Path path = toLoad.pop();
+        public void newImport(Path impPath) {
+            if (!alrImp.contains(impPath)) {
+                toLoad.push(impPath);
+                alrImp.add(impPath);
+            }
+        }
+        public void doneImporting(Path path, Context context, List<CommandDefineFunction> functions) {
+            ctxts.put(path, context);
+            loaded.add(new Pair<>(path, functions));
+            allContexts.add(context);
+            importz.put(path, context.structsCopy());
+        }
+    }
+    public static String compile(Path main, OptimizationSettings settings) throws IOException {
+        long a = System.currentTimeMillis();
+        CompilationState cs = new CompilationState(main);
+        while (!cs.toLoad.isEmpty()) {
+            Path path = cs.toLoad.pop();
             System.out.println("Loading " + path);
             Pair<List<CommandDefineFunction>, Context> funcs = load(path);
             Context context = funcs.getB();
@@ -103,10 +122,7 @@ public class Compiler {
                 }
                 rmv.add(imp.getKey());
                 fix.put(impPath + "", imp.getValue());
-                if (!alrImp.contains(impPath)) {
-                    toLoad.push(impPath);
-                    alrImp.add(impPath);
-                }
+                cs.newImport(impPath);
             }
             //System.out.println("FIXING " + fix + " " + rmv);
             for (String s : rmv) {
@@ -115,45 +131,42 @@ public class Compiler {
             for (Entry<String, String> entry : fix.entrySet()) {
                 context.imports.put(entry.getKey(), entry.getValue());
             }
-            ctxts.put(path, context);
-            loaded.add(new Pair<>(path, funcs.getA()));
-            allContexts.add(context);
-            importz.put(path, context.structsCopy());
+            cs.doneImporting(path, context, funcs.getA());
         }
         long b = System.currentTimeMillis();
-        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
-            Context context = ctxts.get(pair.getA());
-            for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
-                if (oth.getA() != null && autoImportedStd.contains(oth.getA())) {
+        for (Pair<Path, List<CommandDefineFunction>> pair : cs.loaded) {
+            Context context = cs.ctxts.get(pair.getA());
+            for (Pair<Path, List<CommandDefineFunction>> oth : cs.loaded) {
+                if (oth.getA() != null && cs.autoImportedStd.contains(oth.getA())) {
                     if (oth.getA().equals(pair.getA())) {
                         continue;
                     }
                     if (PRINT_TAC) {
                         System.out.println("Assuming autoimported stdlib for " + oth.getA());
                     }
-                    context.insertStructsUnderPackage(null, importz.get(oth.getA()));
+                    context.insertStructsUnderPackage(null, cs.importz.get(oth.getA()));
                 }
             }
             for (Entry<String, String> imp : context.imports.entrySet()) {
                 Path importing = new File(imp.getKey()).toPath();
                 String underName = imp.getValue();
-                context.insertStructsUnderPackage(underName, importz.get(importing));
+                context.insertStructsUnderPackage(underName, cs.importz.get(importing));
             }
         }
         long c = System.currentTimeMillis();
-        List<TypeStruct> structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+        List<TypeStruct> structs = cs.loaded.stream().map(Pair::getA).map(cs.importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         structs.stream().forEach(TypeStruct::parseContents);
         structs.stream().forEach(TypeStruct::allocate);
         List<Pair<Context, CommandDefineFunction>> structMethod = structs.stream().map(TypeStruct::getStructMethods).flatMap(Collection::stream).collect(Collectors.toList());
         List<CommandDefineFunction> allStructMethods = structMethod.stream().map(Pair::getB).collect(Collectors.toList());
-        List<CommandDefineFunction> allFunctions = loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
+        List<CommandDefineFunction> allFunctions = cs.loaded.stream().map(Pair::getB).flatMap(List::stream).collect(Collectors.toList());
         allFunctions.addAll(allStructMethods);
         allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
-        List<FunctionsContext> contexts = loaded.stream().map(load -> {
-            List<Path> locallyImported = ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
-            locallyImported.addAll(autoImportedStd);
-            return new FunctionsContext(load.getA(), load.getB(), allStructMethods, locallyImported, loaded);
+        List<FunctionsContext> contexts = cs.loaded.stream().map(load -> {
+            List<Path> locallyImported = cs.ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
+            locallyImported.addAll(cs.autoImportedStd);
+            return new FunctionsContext(load.getA(), load.getB(), allStructMethods, locallyImported, cs.loaded);
         }).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();//the actual main-main function we'll start with is in the first file loaded plus the number of stdlib files we imported
         long e = System.currentTimeMillis();
@@ -165,7 +178,7 @@ public class Compiler {
         }
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
         for (Pair<Context, CommandDefineFunction> cdf : structMethod) {
-            cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
+            cdf.getB().parse(contexts.get(cs.allContexts.indexOf(cdf.getA())));
         }
         return generateASM(allFunctions, settings);
     }

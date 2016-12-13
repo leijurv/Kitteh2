@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler;
+package compiler.util;
+import compiler.Compiler;
+import compiler.Context;
 import compiler.command.CommandDefineFunction;
 import compiler.command.FunctionsContext;
 import compiler.type.TypeStruct;
-import compiler.util.Kitterature;
-import compiler.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 public class CompilationState {
     private final LinkedList<Path> toLoad = new LinkedList<>();
     private final HashSet<Path> alrImp = new HashSet<>();
-    final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
-    final HashMap<Path, Context> ctxts = new HashMap<>();
+    private final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
+    private final HashMap<Path, Context> ctxts = new HashMap<>();
     private final ArrayList<Context> allContexts = new ArrayList<>();
-    final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-    final List<Path> autoImportedStd;
+    private final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
+    private final List<Path> autoImportedStd;
     private List<TypeStruct> structs = null;
     private List<FunctionsContext> contexts;
     public CompilationState(Path main) throws IOException {
@@ -99,5 +99,28 @@ public class CompilationState {
     }
     public void parseAllFunctionsContexts() {
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
+    }
+    public void insertStructs() {
+        for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
+            Context context = ctxts.get(pair.getA());
+            for (Pair<Path, List<CommandDefineFunction>> oth : loaded) {
+                if (oth.getA() != null && autoImportedStd.contains(oth.getA())) {
+                    if (oth.getA().equals(pair.getA())) {
+                        continue;
+                    }
+                    if (Compiler.PRINT_TAC) {
+                        System.out.println("Assuming autoimported stdlib for " + oth.getA());
+                    }
+                    context.insertStructsUnderPackage(null, importz.get(oth.getA()));
+                }
+            }
+            for (Map.Entry<String, String> imp : context.imports.entrySet()) {
+                Path importing = new File(imp.getKey()).toPath();
+                String underName = imp.getValue();
+                context.insertStructsUnderPackage(underName, importz.get(importing));
+            }
+        }
+        getStructs().stream().forEach(TypeStruct::parseContents);
+        getStructs().stream().forEach(TypeStruct::allocate);
     }
 }

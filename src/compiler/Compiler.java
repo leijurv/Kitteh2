@@ -5,24 +5,17 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
-import compiler.parse.Line;
-import compiler.parse.Processor;
-import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
-import compiler.type.TypeStruct;
-import compiler.util.Kitterature;
+import compiler.util.CompilationState;
+import compiler.util.Loader;
 import compiler.util.Pair;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -32,96 +25,13 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    static boolean PRINT_TAC = false;
-    private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
-        byte[] program;
-        try {
-            program = Kitterature.getResource(name.toString());
-        } catch (IOException | RuntimeException e) {
-            try {
-                program = Files.readAllBytes(name);
-            } catch (IOException | RuntimeException e2) {
-                e.printStackTrace();
-                e2.printStackTrace();
-                throw new RuntimeException("Couldn't load " + name);
-            }
-        }
-        List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"));
-        Context context = new Context(name + "");
-        List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
-        return new Pair<>(cmds, context);
-    }
-    public static void mainImportLoop(CompilationState cs) throws IOException {
-        while (cs.has()) {
-            Path path = cs.pop();
-            System.out.println("Loading " + path);
-            Pair<List<CommandDefineFunction>, Context> funcs = load(path);
-            Context context = funcs.getB();
-            //System.out.println("Imports: " + context.imports);
-            HashMap<String, String> fix = new HashMap<>();
-            HashSet<String> rmv = new HashSet<>();
-            for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImportName = imp.getKey() + ".k";
-                File toImport;
-                if (Kitterature.resourceExists(toImportName)) {
-                    toImport = new File(toImportName);
-                } else {
-                    toImport = new File(path.toFile().getParent(), toImportName);
-                    if (!Kitterature.resourceExists(toImport + "") && !toImport.exists()) {
-                        throw new IllegalStateException(path + " " + "Can't import " + toImportName + " because " + toImport + " doesn't exist" + imp);
-                    }
-                }
-                if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
-                    throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
-                }
-                Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
-                //System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
-                if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
-                    throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
-                }
-                rmv.add(imp.getKey());
-                fix.put(impPath + "", imp.getValue());
-                cs.newImport(impPath);
-            }
-            //System.out.println("FIXING " + fix + " " + rmv);
-            for (String s : rmv) {
-                context.imports.remove(s);
-            }
-            for (Entry<String, String> entry : fix.entrySet()) {
-                context.imports.put(entry.getKey(), entry.getValue());
-            }
-            cs.doneImporting(path, context, funcs.getA());
-        }
-    }
-    public static void insertStructs(CompilationState cs) {
-        for (Pair<Path, List<CommandDefineFunction>> pair : cs.loaded) {
-            Context context = cs.ctxts.get(pair.getA());
-            for (Pair<Path, List<CommandDefineFunction>> oth : cs.loaded) {
-                if (oth.getA() != null && cs.autoImportedStd.contains(oth.getA())) {
-                    if (oth.getA().equals(pair.getA())) {
-                        continue;
-                    }
-                    if (PRINT_TAC) {
-                        System.out.println("Assuming autoimported stdlib for " + oth.getA());
-                    }
-                    context.insertStructsUnderPackage(null, cs.importz.get(oth.getA()));
-                }
-            }
-            for (Entry<String, String> imp : context.imports.entrySet()) {
-                Path importing = new File(imp.getKey()).toPath();
-                String underName = imp.getValue();
-                context.insertStructsUnderPackage(underName, cs.importz.get(importing));
-            }
-        }
-        cs.getStructs().stream().forEach(TypeStruct::parseContents);
-        cs.getStructs().stream().forEach(TypeStruct::allocate);
-    }
+    public static boolean PRINT_TAC = false;
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();
         CompilationState cs = new CompilationState(main);
-        mainImportLoop(cs);
+        Loader.mainImportLoop(cs);
         long b = System.currentTimeMillis();
-        insertStructs(cs);
+        cs.insertStructs();
         long c = System.currentTimeMillis();
         List<CommandDefineFunction> allFunctions = cs.allFunctions();
         allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);

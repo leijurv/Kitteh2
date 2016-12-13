@@ -29,11 +29,11 @@ import java.util.stream.Stream;
 public class CompilationState {
     private final LinkedList<Path> toLoad = new LinkedList<>();
     private final HashSet<Path> alrImp = new HashSet<>();
-    public final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
-    public final HashMap<Path, Context> ctxts = new HashMap<>();
-    final ArrayList<Context> allContexts = new ArrayList<>();
-    public final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
-    public final List<Path> autoImportedStd;
+    final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
+    final HashMap<Path, Context> ctxts = new HashMap<>();
+    private final ArrayList<Context> allContexts = new ArrayList<>();
+    final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
+    final List<Path> autoImportedStd;
     private List<TypeStruct> structs = null;
     private List<FunctionsContext> contexts;
     public CompilationState(Path main) throws IOException {

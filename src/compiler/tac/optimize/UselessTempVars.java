@@ -15,7 +15,17 @@ import compiler.x86.X86Param;
 import java.util.List;
 
 /**
- * Remove temp vars that have no point Like t1=5,a=t1+t2 should become a=5+t2
+ * Remove vars that have no point
+ *
+ * Like
+ *
+ * t1=5
+ *
+ * a=t1+t2
+ *
+ * should become
+ *
+ * a=5+t2
  *
  * @author leijurv
  */

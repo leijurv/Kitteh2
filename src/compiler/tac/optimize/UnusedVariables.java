@@ -18,6 +18,14 @@ import java.util.List;
  * variables that are set and unused, NOT for variables that are set and reset
  * (that's unusedassignment's job)
  *
+ * x=y
+ *
+ * ... x isn't used no matter which jumps are followed or not followed
+ *
+ * end of function
+ *
+ * "x=y" can be removed no matter whether x is a tmp var or not
+ *
  * @author leijurv
  */
 public class UnusedVariables extends TACOptimization {

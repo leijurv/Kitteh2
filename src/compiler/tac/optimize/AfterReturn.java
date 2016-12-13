@@ -10,8 +10,8 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
- * Any statement after a return / unconditional jump and before a jump
- * destination is unreachable.
+ * Any statement after a return or unconditional jump, and before a jump
+ * destination, is unreachable.
  *
  * @author leijurv
  */

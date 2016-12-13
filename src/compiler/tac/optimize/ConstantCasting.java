@@ -13,6 +13,11 @@ import compiler.x86.X86Const;
 import java.util.List;
 
 /**
+ * tmp0 = CONSTint 5
+ *
+ * tmp2 = (byte) tmp0
+ *
+ * gets replaced with "tmp2=CONSTbyte 5"
  *
  * @author leijurv
  */

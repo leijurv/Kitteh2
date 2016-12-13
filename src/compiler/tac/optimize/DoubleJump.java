@@ -9,6 +9,9 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * Eliminates jumps to unconditional jumps. If jump A's destination is jump B,
+ * and jump B is unconditional, you can set A's destination to be equal to B's
+ * destination.
  *
  * @author leijurv
  */

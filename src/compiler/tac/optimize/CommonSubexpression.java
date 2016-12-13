@@ -11,6 +11,13 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * a=b+c
+ *
+ * ... (no jump destinations, and a, b, and c not modified)
+ *
+ * d=b+c
+ *
+ * this optimization would replace "d=b+c" with "d=a"
  *
  * @author leijurv
  */

@@ -11,6 +11,8 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * Remove some simple calculations that are redundant. Specifically, adding to
+ * zero or multiplying by one.
  *
  * @author leijurv
  */

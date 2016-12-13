@@ -9,6 +9,10 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * any jumps to the next statement, conditional or not, are useless and should
+ * be removed. only check the last item of a block because a jump to the last
+ * statement will always be the last item of a block, because the next item is
+ * always a jump destination
  *
  * @author leijurv
  */
@@ -18,7 +22,7 @@ public class JumpOver extends TACOptimization {
         if (block.isEmpty()) {
             return;
         }
-        if (block.get(block.size() - 1) instanceof TACJump) {//have this one separate because it can fire for any type of tacjump
+        if (block.get(block.size() - 1) instanceof TACJump) {
             int dest = ((TACJump) block.get(block.size() - 1)).jumpTo();
             if (dest == blockBegin + block.size()) {
                 block.remove(block.size() - 1);

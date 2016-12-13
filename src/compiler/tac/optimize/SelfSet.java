@@ -9,6 +9,8 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * Again, this doesn't come up in the test cases. This removes useless
+ * instructions like "x=x" wherever they arise
  *
  * @author leijurv
  */

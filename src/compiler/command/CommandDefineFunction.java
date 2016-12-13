@@ -164,6 +164,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.generateTAC(emit);
         }
         //long middle = System.currentTimeMillis();
+        if (TACOptimizer.OPTIMIZATION_METRICS) {
+            System.out.println(name);
+        }
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
         //long end = System.currentTimeMillis();
         //System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");

@@ -30,18 +30,26 @@ public class TACOptimizer {
             AfterReturn.class,
             ConditionalDoubleJump.class
     ));
+    public static final boolean OPTIMIZATION_METRICS = false;
+    static int[] usefulnessCount = new int[opt.size()];
+    static int count = 0;
     public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         List<TACStatement> input = emitted.getResult();
         List<TACStatement> prev;
         //int num = 0;
+        boolean[] didAnything = new boolean[opt.size()];
         do {
             prev = new ArrayList<>(input);
             for (Class<? extends TACOptimization> optim : opt) {
                 if (settings.run(optim)) {
+                    String before = OPTIMIZATION_METRICS ? input + "" : "";
                     try {
                         input = optim.newInstance().go(input);
                     } catch (InstantiationException | IllegalAccessException e) {
                         throw new RuntimeException("idk man", e);
+                    }
+                    if (OPTIMIZATION_METRICS) {
+                        didAnything[opt.indexOf(optim)] |= !before.equals(input + "");
                     }
                     /*compiler.Context.printFull = false;//for debugging purposes
                     System.out.println(optim);
@@ -53,6 +61,19 @@ public class TACOptimizer {
             }
             //System.out.println("Pass " + (++num) + ". Prev num statements: " + prev.size() + " Current num statements: " + input.size());
         } while (!prev.equals(input));
+        if (OPTIMIZATION_METRICS && settings.run(opt.get(0))) {
+            for (int i = 0; i < didAnything.length; i++) {
+                System.out.println(opt.get(i) + " " + didAnything[i]);
+                if (didAnything[i]) {
+                    usefulnessCount[i]++;
+                }
+            }
+            count++;
+            for (int i = 0; i < didAnything.length; i++) {
+                double lol = (double) usefulnessCount[i] / (double) count;
+                System.out.println(opt.get(i) + " " + usefulnessCount[i] + "/" + count + " " + lol);
+            }
+        }
         return input;
     }
 }

@@ -108,7 +108,7 @@ public class CompilationState {
                     if (oth.getA().equals(pair.getA())) {
                         continue;
                     }
-                    if (Compiler.PRINT_TAC) {
+                    if (Compiler.VERBOSE) {
                         System.out.println("Assuming autoimported stdlib for " + oth.getA());
                     }
                     context.insertStructsUnderPackage(null, importz.get(oth.getA()));

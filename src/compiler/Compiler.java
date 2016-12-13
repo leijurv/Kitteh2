@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    public static boolean PRINT_TAC = false;
+    public static boolean VERBOSE = false;
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();
         CompilationState cs = new CompilationState(main);
@@ -38,7 +38,7 @@ public class Compiler {
         long d = System.currentTimeMillis();
         cs.generateFunctionsContexts();
         long e = System.currentTimeMillis();
-        if (PRINT_TAC) {
+        if (VERBOSE) {
             System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
             System.out.println();
             System.out.println("---- END IMPORTS, BEGIN PARSING ----");
@@ -72,7 +72,7 @@ public class Compiler {
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
-        if (PRINT_TAC) {
+        if (VERBOSE) {
             for (Pair<String, List<TACStatement>> pair : wew) {
                 System.out.println("TAC FOR " + pair.getA());
                 for (int i = 0; i < pair.getB().size(); i++) {
@@ -85,7 +85,7 @@ public class Compiler {
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();
         String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        if (PRINT_TAC) {
+        if (VERBOSE) {
             System.out.println(loll);
             System.err.println(loll);
         }

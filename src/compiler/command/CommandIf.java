@@ -114,7 +114,7 @@ public class CommandIf extends CommandBlock {
         List<String> elseMod = varsModElse();
         List<ExpressionConst> preKnownFalse = elseMod.stream().map(ifFalse::knownValue).collect(Collectors.toList());
         for (int i = 0; i < elseBlock.size(); i++) {
-            contents.set(i, elseBlock.get(i).optimize());
+            elseBlock.set(i, elseBlock.get(i).optimize());
         }
         //System.out.println(elseMod + " " + preKnownFalse);
         if (condition instanceof ExpressionConstBool) {

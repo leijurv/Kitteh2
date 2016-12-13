@@ -22,9 +22,9 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class CommandFor extends CommandBlock {
-    private final Command initialization;
+    private Command initialization;
     private Expression condition;
-    private final Command afterthought;
+    private Command afterthought;
     public CommandFor(Command initialization, Expression condition, Command afterthought, ArrayList<Command> contents, Context context) {
         super(context, contents);
         this.initialization = initialization;
@@ -89,7 +89,7 @@ public class CommandFor extends CommandBlock {
     @Override
     public void staticValues() {
         if (initialization != null) {
-            initialization.staticValues();
+            initialization = initialization.optimize();
             //since the afterthought is now included in getAllVarsModified
             //and getAllVarsModified all get cleared
             //it's fine to run static values on the initilization
@@ -105,10 +105,10 @@ public class CommandFor extends CommandBlock {
             condition = condition.calculateConstants();
         }
         if (afterthought != null) {
-            afterthought.staticValues();
+            afterthought = afterthought.optimize();
         }
-        for (Command com : contents) {
-            com.staticValues();
+        for (int i = 0; i < contents.size(); i++) {
+            contents.set(i, contents.get(i).optimize());
         }
         if (condition != null && condition instanceof ExpressionConstBool) {
             boolean wew = ((ExpressionConstBool) condition).getVal();

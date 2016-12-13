@@ -84,8 +84,8 @@ public class CommandIf extends CommandBlock {
         condition = condition.calculateConstants();
         List<String> trueMod = super.getAllVarsModified().collect(Collectors.toList());
         List<ExpressionConst> preKnownTrue = trueMod.stream().map(context::knownValue).collect(Collectors.toList());
-        for (Command com : contents) {
-            com.staticValues();
+        for (int i = 0; i < contents.size(); i++) {
+            contents.set(i, contents.get(i).optimize());
         }
         if (condition instanceof ExpressionConstBool) {
             boolean isTrue = ((ExpressionConstBool) condition).getVal();
@@ -113,8 +113,8 @@ public class CommandIf extends CommandBlock {
         }
         List<String> elseMod = varsModElse();
         List<ExpressionConst> preKnownFalse = elseMod.stream().map(ifFalse::knownValue).collect(Collectors.toList());
-        for (Command com : elseBlock) {
-            com.staticValues();
+        for (int i = 0; i < elseBlock.size(); i++) {
+            contents.set(i, elseBlock.get(i).optimize());
         }
         //System.out.println(elseMod + " " + preKnownFalse);
         if (condition instanceof ExpressionConstBool) {

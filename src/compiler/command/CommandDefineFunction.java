@@ -153,8 +153,8 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     @Override
     public void staticValues() {
-        for (Command com : contents) {
-            com.staticValues();
+        for (int i = 0; i < contents.size(); i++) {
+            contents.set(i, contents.get(i).optimize());
         }
     }
     public List<TACStatement> totac(OptimizationSettings settings) {

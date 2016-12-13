@@ -42,7 +42,11 @@ public abstract class Command {
         }
         return taclen;
     }
-    public abstract void staticValues();
+    public Command optimize() {
+        staticValues();
+        return this;
+    }
+    protected abstract void staticValues();
     public Stream<String> getAllVarsModified() {
         return Stream.empty();
     }

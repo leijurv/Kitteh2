@@ -63,7 +63,7 @@ public class Compiler {
     private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
         long d = System.currentTimeMillis();
         if (settings.staticValues()) {
-            commands.parallelStream().forEach(CommandDefineFunction::staticValues);
+            commands.parallelStream().forEach(CommandDefineFunction::optimize);
         }
         //System.out.println("> DONE STATIC VALUES");
         long e = System.currentTimeMillis();

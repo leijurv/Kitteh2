@@ -7,9 +7,16 @@
 -verbose
 
 
+#-renamesourcefileattribute SourceFile
+#-keepattributes SourceFile,LineNumberTabl
+#-keepclasses class **
+
 -allowaccessmodification
 -mergeinterfacesaggressively
 -overloadaggressively
+
+-keeppackagenames lang
+-keepdirectories  lang
 
 # Keep - Applications. Keep all application classes, along with their 'main'
 # methods.

@@ -24,28 +24,29 @@ public class CommonSubexpression extends TACOptimization {
                 final int begin = result.getStackLocation();//inclusive
                 final int end = result.getStackLocation() + result.getType().getSizeBytes() - 1;//inclusive
                 for (int j = i + 1; j < block.size(); j++) {
-                    List<String> mod = block.get(j).modifiedVariables();
-                    if (mod.contains(ts.paramNames[0]) || mod.contains(ts.paramNames[1]) || mod.contains(ts.paramNames[2])) {
-                        break;//technically this break shouldn't be required, but it feels sketchy without it
-                    }
-                    if (block.get(j).modifiedVariableInfos().stream().anyMatch(vi -> {
+                    boolean shouldBreak = false;
+                    for (VarInfo vi : block.get(j).modifiedVariableInfos()) {
                         //does vi overwrite result?
                         int viBegin = vi.getStackLocation();//inclusive
                         int viEnd = vi.getStackLocation() + vi.getType().getSizeBytes() - 1;//inclusive
                         if (viBegin >= begin && viBegin <= end) {//if there is any overlap, at least one end of one of them needs to be within the other
-                            return true;
+                            shouldBreak = true;
+                            break;
                         }
                         if (viEnd >= begin && viEnd <= end) {
-                            return true;
+                            shouldBreak = true;
+                            break;
                         }
                         if (begin >= viBegin && begin <= viEnd) {
-                            return true;
+                            shouldBreak = true;
+                            break;
                         }
                         if (end >= viBegin && end <= viEnd) {
-                            return true;
+                            shouldBreak = true;
+                            break;
                         }
-                        return false;
-                    })) {
+                    }
+                    if (shouldBreak) {
                         break;
                     }
                     if (block.get(j) instanceof TACStandard) {

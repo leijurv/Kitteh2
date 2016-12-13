@@ -81,6 +81,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public FunctionHeader getLocalHeader() {
         return header;
     }
+    @SuppressWarnings("unchecked")
     public void parseHeader() {
         if (header != null) {
             throw new RuntimeException();

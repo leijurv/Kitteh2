@@ -44,6 +44,7 @@ public class TypeStruct extends Type {
     public static String format(String structName, String methodName) {
         return structName + "___" + methodName;
     }
+    @SuppressWarnings("unchecked")
     public void parseContents() {
         if (parsed) {
             throw new RuntimeException();
@@ -53,7 +54,7 @@ public class TypeStruct extends Type {
             Line thisLine = (Line) rawBlock.get(i);
             thisLine.lex();
             if (i != rawBlock.size() - 1 && rawBlock.get(i + 1) instanceof ArrayList) {
-                ArrayList<Object> functionContents = (ArrayList) rawBlock.remove(i + 1);
+                ArrayList<Object> functionContents = (ArrayList<Object>) rawBlock.remove(i + 1);
                 rawBlock.remove(i);
                 i = -1;
                 List<Token> params = thisLine.getTokens();

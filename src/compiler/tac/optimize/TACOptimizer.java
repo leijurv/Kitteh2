@@ -28,7 +28,8 @@ public class TACOptimizer {
             CommonSubexpression.class,
             SelfSet.class,
             AfterReturn.class,
-            ConditionalDoubleJump.class
+            ConditionalDoubleJump.class,
+            KnownConditions.class
     ));
     public static final boolean OPTIMIZATION_METRICS = false;
     private static final int[] usefulnessCount = new int[opt.size()];

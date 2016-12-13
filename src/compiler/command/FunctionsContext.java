@@ -96,7 +96,7 @@ public class FunctionsContext {
         if (pkg == null) {
             actual = name;
         } else {
-            actual = pkg.replace(".", "DOT").replace("/", "_") + ("" + pkg.hashCode()).replace("-", "") + "__" + name;
+            actual = CommandDefineFunction.headerNameFromPkgAndName(pkg, name);
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {

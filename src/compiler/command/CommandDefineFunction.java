@@ -66,11 +66,14 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public String toString() {
         return header + " " + (contents == null ? "unparsed" + rawContents : "parsed" + contents);
     }
+    public static String headerNameFromPkgAndName(String packageName, String name) {
+        return (packageName != null ? packageName.replace(".", "DOT").replace("/", "_") + ("" + packageName.hashCode()).replace("-", "") : packageName) + "__" + name;
+    }
     public FunctionHeader getHeader() {
         if (isEntryPoint) {
             return getLocalHeader();
         }
-        return new FunctionHeader((context.packageName != null ? context.packageName.replace(".", "DOT").replace("/", "_") + ("" + context.packageName.hashCode()).replace("-", "") : context.packageName) + "__" + name, header.returnType, header.arguments);
+        return new FunctionHeader(headerNameFromPkgAndName(context.packageName, name), header.returnType, header.arguments);
     }
     public String getLocalName() {
         return header.name;

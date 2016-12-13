@@ -67,7 +67,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         return header + " " + (contents == null ? "unparsed" + rawContents : "parsed" + contents);
     }
     public static String headerNameFromPkgAndName(String packageName, String name) {
-        return (packageName != null ? packageName.replace(".", "DOT").replace("/", "_") + ("" + packageName.hashCode()).replace("-", "") : packageName) + "__" + name;
+        return packageName.replace(".", "DOT").replace("/", "_") + ("" + packageName.hashCode()).replace("-", "") + "__" + name;
     }
     public FunctionHeader getHeader() {
         if (isEntryPoint) {

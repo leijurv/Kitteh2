@@ -100,7 +100,7 @@ public class FunctionsContext {
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {
-            throw new ConcurrentModificationException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap);
+            throw new ConcurrentModificationException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap.keySet());
         }
         return tr;
     }

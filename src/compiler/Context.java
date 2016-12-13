@@ -96,10 +96,8 @@ public class Context {
         this.varIndex = null;
         this.imports = new HashMap<>();
         this.packageName = packageName;
-        if (packageName != null) {
-            String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split(".k")[0];
-            imports.put(wewlad, wewlad);
-        }
+        String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split(".k")[0];
+        imports.put(wewlad, wewlad);
     }
     public HashMap<String, TypeStruct> structsCopy() {
         return new HashMap<>(structs);
@@ -124,7 +122,7 @@ public class Context {
     }
     public void addImport(String fileName, String alias) {
         if (packageName == null) {
-            throw new RuntimeException("Package mode is false, only compiling a single file. No imports allowed. Try using -p");
+            throw new RuntimeException("This no longer can happen");
         }
         if (packageName.equals(fileName) || packageName.equals(alias)) {
             throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);

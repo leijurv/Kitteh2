@@ -9,9 +9,6 @@ import compiler.command.CommandDefineFunction;
 import compiler.parse.Line;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
-import compiler.util.CompilationState;
-import compiler.util.Kitterature;
-import compiler.util.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,46 +41,43 @@ public class Loader {
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
-    public static void mainImportLoop(CompilationState cs) throws IOException {
-        while (cs.has()) {
-            Path path = cs.pop();
-            System.out.println("Loading " + path);
-            Pair<List<CommandDefineFunction>, Context> funcs = load(path);
-            Context context = funcs.getB();
-            //System.out.println("Imports: " + context.imports);
-            HashMap<String, String> fix = new HashMap<>();
-            HashSet<String> rmv = new HashSet<>();
-            for (Map.Entry<String, String> imp : context.imports.entrySet()) {
-                String toImportName = imp.getKey() + ".k";
-                File toImport;
-                if (Kitterature.resourceExists(toImportName)) {
-                    toImport = new File(toImportName);
-                } else {
-                    toImport = new File(path.toFile().getParent(), toImportName);
-                    if (!Kitterature.resourceExists(toImport + "") && !toImport.exists()) {
-                        throw new IllegalStateException(path + " " + "Can't import " + toImportName + " because " + toImport + " doesn't exist" + imp);
-                    }
+    public static void importPath(CompilationState cs, Path path) throws IOException {
+        System.out.println("Loading " + path);
+        Pair<List<CommandDefineFunction>, Context> funcs = load(path);
+        Context context = funcs.getB();
+        //System.out.println("Imports: " + context.imports);
+        HashMap<String, String> fix = new HashMap<>();
+        HashSet<String> rmv = new HashSet<>();
+        for (Map.Entry<String, String> imp : context.imports.entrySet()) {
+            String toImportName = imp.getKey() + ".k";
+            File toImport;
+            if (Kitterature.resourceExists(toImportName)) {
+                toImport = new File(toImportName);
+            } else {
+                toImport = new File(path.toFile().getParent(), toImportName);
+                if (!Kitterature.resourceExists(toImport + "") && !toImport.exists()) {
+                    throw new IllegalStateException(path + " " + "Can't import " + toImportName + " because " + toImport + " doesn't exist" + imp);
                 }
-                if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
-                    throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
-                }
-                Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
-                //System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
-                if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
-                    throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
-                }
-                rmv.add(imp.getKey());
-                fix.put(impPath + "", imp.getValue());
-                cs.newImport(impPath);
             }
-            //System.out.println("FIXING " + fix + " " + rmv);
-            for (String s : rmv) {
-                context.imports.remove(s);
+            if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
+                throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
             }
-            for (Map.Entry<String, String> entry : fix.entrySet()) {
-                context.imports.put(entry.getKey(), entry.getValue());
+            Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
+            //System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
+            if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
+                throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
             }
-            cs.doneImporting(path, context, funcs.getA());
+            rmv.add(imp.getKey());
+            fix.put(impPath + "", imp.getValue());
+            cs.newImport(impPath);
         }
+        //System.out.println("FIXING " + fix + " " + rmv);
+        for (String s : rmv) {
+            context.imports.remove(s);
+        }
+        for (Map.Entry<String, String> entry : fix.entrySet()) {
+            context.imports.put(entry.getKey(), entry.getValue());
+        }
+        cs.doneImporting(path, context, funcs.getA());
     }
 }

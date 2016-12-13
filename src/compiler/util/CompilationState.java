@@ -36,6 +36,13 @@ public class CompilationState {
     private final List<Path> autoImportedStd;
     private List<TypeStruct> structs = null;
     private List<FunctionsContext> contexts;
+    /**
+     * Initialize a compilation state and add all auto-imported standard library
+     * files to the list of files to be imported
+     *
+     * @param main
+     * @throws IOException
+     */
     public CompilationState(Path main) throws IOException {
         autoImportedStd = Kitterature.listFiles();
         toLoad.add(main);
@@ -48,47 +55,102 @@ public class CompilationState {
             }
         }
     }
+    /**
+     * Add a path to be imported sometime in the future, if it hasn't already
+     *
+     * @param impPath
+     */
     public void newImport(Path impPath) {
         if (!alrImp.contains(impPath)) {
             toLoad.push(impPath);
             alrImp.add(impPath);
         }
     }
+    /**
+     * Called by loader once it's done importing a path
+     *
+     * @param path the path that it finished importing
+     * @param context a new context for this file
+     * @param functions the functions defined in this file
+     */
     public void doneImporting(Path path, Context context, List<CommandDefineFunction> functions) {
         ctxts.put(path, context);
         loaded.add(new Pair<>(path, functions));
         allContexts.add(context);
         importz.put(path, context.structsCopy());
     }
+    /**
+     * Get all structs defined in all files. Should only be called after
+     * mainImportLoop because it caches the result.
+     *
+     * @return
+     */
     public List<TypeStruct> getStructs() {
         if (structs == null) {
             structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         }
         return structs;
     }
+    /**
+     * All struct methods, alongside the file contexts in which they were
+     * defined
+     *
+     * @return a stream of pairs, where each pair is a CDF for a struct method
+     * and the context for the file in which the struct was defined
+     */
     public Stream<Pair<Context, CommandDefineFunction>> structMethod() {
         return getStructs().stream().map(TypeStruct::getStructMethods).flatMap(Collection::stream);
     }
+    /**
+     * All methods for all structs imported
+     *
+     * @return
+     */
     public Stream<CommandDefineFunction> allStructMethods() {
         return structMethod().map(Pair::getB);
     }
+    /**
+     * All functions (not struct methods) defined normally in all files imported
+     *
+     * @return
+     */
     public Stream<CommandDefineFunction> functions() {
         return loaded.stream().map(Pair::getB).flatMap(List::stream);
     }
-    public boolean has() {
-        return !toLoad.isEmpty();
+    /**
+     * Run the main import loop, which consists of calling Loader.importPath on
+     * every item in toLoad until toLoad.isEmpty
+     *
+     * @throws IOException
+     */
+    public void mainImportLoop() throws IOException {
+        while (!toLoad.isEmpty()) {
+            Loader.importPath(this, toLoad.pop());
+        }
     }
-    public Path pop() {
-        return toLoad.pop();
-    }
+    /**
+     * Merge of allStructMethods() and functions()
+     *
+     * @return
+     */
     public List<CommandDefineFunction> allFunctions() {
         return Stream.of(allStructMethods(), functions()).flatMap(x -> x).collect(Collectors.toList());
     }
+    /**
+     * Parse all struct methods, using the functionsContexts for each file where
+     * they were defined
+     */
     public void parseStructMethods() {
         for (Pair<Context, CommandDefineFunction> cdf : structMethod().collect(Collectors.toList())) {
             cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
         }
     }
+    /**
+     * Generate functions context objects for each file. This includes passing
+     * to the FunctionsContext constructor: which files were imported and under
+     * what aliases, which files were locally imported, all methods for all
+     * structs, locally imported and auto imported standard library methods
+     */
     public void generateFunctionsContexts() {
         contexts = loaded.stream().map(load -> {
             List<Path> locallyImported = ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
@@ -100,6 +162,13 @@ public class CompilationState {
     public void parseAllFunctionsContexts() {
         contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
     }
+    /**
+     * Insert locally imported structs into local contexts. Then parse struct
+     * contents (including fields and method headers), but don't allocate field
+     * locations or parse method bodies. Next, once all structs know the types
+     * of their fields, allocate field locations now that every struct should
+     * know what types it has
+     */
     public void insertStructs() {
         for (Pair<Path, List<CommandDefineFunction>> pair : loaded) {
             Context context = ctxts.get(pair.getA());

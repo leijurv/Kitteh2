@@ -24,18 +24,5 @@ public class JumpOver extends TACOptimization {
                 block.remove(block.size() - 1);
             }
         }
-        if (block.isEmpty()) {
-            return;
-        }
-        for (int i = 0; i < block.size(); i++) {
-            if (block.get(i).getClass() == TACJump.class) {//only if it's a non conditional tacjump
-                int dest = ((TACJump) block.get(i)).jumpTo();
-                if (dest == blockBegin + block.size()) {
-                    while (i < block.size()) {
-                        block.remove(i);
-                    }
-                }
-            }
-        }
     }
 }

@@ -167,7 +167,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public List<TACStatement> totac(OptimizationSettings settings) {
         long start = System.currentTimeMillis();
-        System.out.println("> BEGIN TAC GENERATION FOR " + name);
+        if (Compiler.VERBOSE) {
+            System.out.println("> BEGIN TAC GENERATION FOR " + name);
+        }
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);

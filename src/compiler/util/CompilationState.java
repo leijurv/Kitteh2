@@ -152,7 +152,7 @@ public class CompilationState {
     }
     public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        Stream.<Stream<Runnable>>of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), structMethod().map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
+        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), structMethod().<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
         System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }

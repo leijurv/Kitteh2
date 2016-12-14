@@ -235,9 +235,8 @@ add(bigint* a,bigint* b)bigint*{
 			bi=b.cont[i]
 		}
 		ci:=res.cont[i]
-		tm:=(ai||bi)&&(!ai||!bi)
-		res.cont[i]=(tm||ci)&&(!tm||!ci)
-		res.cont[i+1]=(ai&&bi)||((ai||bi)&&ci)
+		res.cont[i]=(bool)(ai^bi^ci)
+		res.cont[i+1]=(bool)(ai&bi|(ai|bi)&ci)
 	}
 	return res
 }

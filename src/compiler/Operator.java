@@ -112,12 +112,16 @@ public enum Operator implements Token<Operator> {
             case L_XOR:
             case L_AND:
             case L_OR:
-                if (b instanceof TypeBoolean) {
-                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
-                }
                 if (!a.equals(b)) {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
+                if (!(a instanceof TypeNumerical && b instanceof TypeNumerical)) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                if (b instanceof TypePointer || a instanceof TypePointer) {
+                    throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
+                }
+                return a;
             case SHIFT_L:
             case SHIFT_R:
                 if (a instanceof TypeBoolean) {

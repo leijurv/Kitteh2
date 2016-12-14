@@ -26,7 +26,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
         //print out the composition of lines
         //SELECT class,count(*) FROM lines GROUP BY class
         //System.out.println("Lexing " + lines.stream().collect(Collectors.groupingBy(obj -> obj.getClass())).entrySet().stream().map(entry -> new Pair<>(entry.getKey(), entry.getValue().size())).collect(Collectors.toList()) + " lines");
-        Optional<RuntimeException> e = Parse.flatten(Line.class, lines).filter(Line::unlext).parallel().map(line -> {//TODO check if its faster to instead collect into a list then do .parallelStream vs just .parallel on the super flatmapped stream
+        Optional<RuntimeException> e = Parse.filteredFlatten(Line.class, Line::unlext, lines).parallel().map(line -> {//TODO check if its faster to instead collect into a list then do .parallelStream vs just .parallel on the super flatmapped stream
             try {
                 line.lex();
             } catch (Exception ex) {

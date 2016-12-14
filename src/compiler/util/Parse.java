@@ -14,6 +14,7 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -94,12 +95,16 @@ public class Parse {
      *
      * @param <T> The generic type to search for
      * @param searchingFor the class to search for
+     * @param filter just a PredicateT to filter which elements to return
      * @param inp the arraylist to flatten
      * @return a stream of all items at any depth that are instances of
      * searchingFor
      */
     @SuppressWarnings("unchecked")//.filter(ArrayList.class::isInstance)   then    (ArrayList<Object>) obj doesn't quite work because you can't check if something is an ArrayList<Object>, only if its an ArrayList
-    public static <T> Stream<T> flatten(Class<T> searchingFor, ArrayList<Object> inp) {
-        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast), inp.stream().filter(ArrayList.class::isInstance).map(x -> flatten(searchingFor, (ArrayList<Object>) x)).flatMap(x -> x)).flatMap(x -> x);
+    public static <T> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<T> filter, ArrayList<Object> inp) {
+        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<Object>) x)).flatMap(x -> x)).flatMap(x -> x);
+    }
+    public static <T> Stream<T> flatten(ArrayList<Object> inp, Class<T> searchingFor) {
+        return filteredFlatten(searchingFor, x -> true, inp);
     }
 }

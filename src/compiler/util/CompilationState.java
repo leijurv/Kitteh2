@@ -87,7 +87,7 @@ public class CompilationState {
      */
     public List<TypeStruct> getStructs() {
         if (structs == null) {
-            structs = loaded.stream().map(Pair::getA).map(importz::get).map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+            structs = importz.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
         }
         return structs;
     }

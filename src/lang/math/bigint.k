@@ -198,6 +198,9 @@ new(int size)bigint*{
 	return res
 }
 add(bigint* a,bigint* b)bigint*{
+	return addWithCin(a,b,false)
+}
+addWithCin(bigint* a,bigint* b,bool cin)bigint*{
 	if a.neg{
 		if b.neg{
 			a.neg=false
@@ -227,6 +230,7 @@ add(bigint* a,bigint* b)bigint*{
 	}
 	size++
 	res:=new(size)
+	res.cont[0]=cin
 	for i:=0; i<a.size || i<b.size; i++{
 		ai:=false
 		if i<a.size{
@@ -279,25 +283,14 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		res.neg=true
 		return res
 	}
-	a=a.trim()
+	a.trimInPlace()
 	b=b.padtolength(a.size)
 	for i:=0; i<b.size; i++{
-		bi:=b.cont[i]
-		if bi{
-			b.cont[i]=false
-		}else{
-			b.cont[i]=true
-		}
+		b.cont[i]=true^b.cont[i]
 	}
-	one:=new(1)
-	one.cont[0]=true
-	bplusone:=add(b,one)
-	res:=add(a,bplusone)
+	res:=addWithCin(a,b,true)
 	res.size=a.size
-	a.free()
 	b.free()
-	one.free()
-	bplusone.free()
 	return res
 }
 greater(bigint*a,bigint*b)bool{
@@ -498,6 +491,7 @@ modInverse(bigint*a,bigint*b)bigint*{
 	(oldr).free()
 	(oldt).free()
 	wewlad:=add(olds,b)
+	free(olds)
 	res:= mod(wewlad,b)
 	(wewlad).free()
 	return res

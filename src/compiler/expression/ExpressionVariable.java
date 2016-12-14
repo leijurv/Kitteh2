@@ -22,7 +22,7 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
         this.name = name;
         this.type = context.get(name) == null ? null : context.get(name).getType();
         if (type == null) {
-            throw new IllegalStateException("pls " + name + " " + context);
+            throw new IllegalStateException("variable not found " + name + " " + context);
         }
     }
     @Override

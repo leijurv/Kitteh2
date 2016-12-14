@@ -53,7 +53,7 @@ class BlockBeginParser {
             case 0: {
                 // for{   OR  for i<5{
                 Context sub = context.subContext();
-                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
+                ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub);
                 if (params.isEmpty()) {
                     //for{
                     System.out.println("I'm a strong independant for loop that doesn't need no conditions");
@@ -75,7 +75,7 @@ class BlockBeginParser {
                 Context sub = context.subContext();
                 Command initialization = LineParser.parseLine(first, sub);
                 Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
-                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
+                ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                 Command afterthought = LineParser.parseLine(third, sub);
                 return new CommandFor(initialization, condition, afterthought, blockCommands, sub);
             }
@@ -92,8 +92,8 @@ class BlockBeginParser {
         //System.out.println("Parsed " + params + " to " + condition);
         Context ifTrue = context.subContext();
         Context ifFalse = elseBlock == null ? null : context.subContext();
-        ArrayList<Command> blockCommands = Processor.parse(rawBlock, ifTrue);
-        ArrayList<Command> els = elseBlock == null ? null : Processor.parse(elseBlock, ifFalse);
+        ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, ifTrue);
+        ArrayList<Command> els = elseBlock == null ? null : Processor.parseRecursive(elseBlock, ifFalse);
         return new CommandIf(condition, blockCommands, ifTrue, els, ifFalse);
     }
     static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {

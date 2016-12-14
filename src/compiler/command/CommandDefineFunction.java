@@ -127,7 +127,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         context.setCurrFunc(this);
         context.gc = gc;
         //System.out.println(name + " parsing " + rawContents);
-        contents = Processor.parse(rawContents, context);
+        contents = Processor.parseRecursive(rawContents, context);
         //System.out.println("wew " + contents);
         checkFrees();
         context.gc = null;

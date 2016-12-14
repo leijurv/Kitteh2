@@ -18,15 +18,14 @@ import java.util.stream.Collectors;
  */
 public class Processor {
     /**
-     * So this does the entire lexing and parsing stuff. It goes from your list
-     * of strings (the lines of code, with comments and such removed), to just
-     * your AST, in the form of an ArrayList of commands
+     * Top level parsing, only parses the function headers and returns a list of
+     * CommandDefineFunctions.
      *
      * @param tempO
      * @param context
      * @return
      */
-    public static ArrayList<Command> parse(List<Object> tempO, Context context) {
+    public static List<CommandDefineFunction> initialParse(List<Line> tempO, Context context) {
         //long a = System.currentTimeMillis();
         ArrayList<Object> o = new ArrayList<>(tempO.size());
         o.addAll(tempO);
@@ -41,18 +40,23 @@ public class Processor {
         ArrayList<Command> res = new Parser().parse(o, context);
         //long d = System.currentTimeMillis();
         //System.out.println("benchmark " + (b - a) + " " + (c - b) + " " + (d - c) + " -- total " + (d - a));
-        return res;
+        return res.stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
     }
     /**
-     * Top level parsing, only parses the function headers and returns a list of
-     * CommandDefineFunctions. Should be assembled into a FunctionsContext then
-     * parsedRekursively
+     * Used for recursively parsing contents of blocks. Similar to initialParse,
+     * but it doesn't run stringfinder or lexluthor, because there's no point:
+     * they've already been run on all lines. It still needs to run blockFinder
+     * because that only does one level of block finding at a time
      *
-     * @param obj
+     * @param tempO
      * @param context
      * @return
      */
-    public static List<CommandDefineFunction> initialParse(List<Line> obj, Context context) {
-        return parse(new ArrayList<>(obj), context).stream().map(CommandDefineFunction.class::cast).collect(Collectors.toList());
+    public static ArrayList<Command> parseRecursive(List<Object> tempO, Context context) {
+        ArrayList<Object> o = new ArrayList<>(tempO.size());
+        o.addAll(tempO);
+        tempO.clear();
+        new BlockFinder().apply(o);
+        return new Parser().parse(o, context);
     }
 }

@@ -120,7 +120,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public void parse(FunctionsContext gc) {
-        if (Compiler.VERBOSE) {
+        if (Compiler.verbose()) {
             System.out.println("Starting to parse " + name);
         }
         long aoeu = System.currentTimeMillis();
@@ -147,7 +147,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                 throw new RuntimeException("You need a return as the last command");
             }
         }
-        if (Compiler.VERBOSE) {
+        if (Compiler.verbose()) {
             System.out.println("Done parsing " + name + " -- took " + (System.currentTimeMillis() - aoeu) + "ms");
         }
     }
@@ -167,7 +167,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public List<TACStatement> totac(OptimizationSettings settings) {
         long start = System.currentTimeMillis();
-        if (Compiler.VERBOSE) {
+        if (Compiler.verbose()) {
             System.out.println("> BEGIN TAC GENERATION FOR " + name);
         }
         IREmitter emit = new IREmitter();
@@ -175,12 +175,12 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             com.generateTAC(emit);
         }
         long middle = System.currentTimeMillis();
-        if (TACOptimizer.OPTIMIZATION_METRICS) {
+        if (Compiler.metrics()) {
             System.out.println(name);
         }
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
         long end = System.currentTimeMillis();
-        if (Compiler.VERBOSE) {
+        if (Compiler.verbose()) {
             System.out.println("> END TAC GENERATION FOR " + name + " - " + (middle - start) + "ms gen, " + (end - middle) + "ms optim, " + (end - start) + "ms overall");
         }
         return result;

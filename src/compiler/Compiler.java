@@ -24,7 +24,14 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    public static boolean VERBOSE = false;
+    static boolean VERBOSE = false;
+    static boolean METRICS = false;
+    public static boolean verbose() {
+        return VERBOSE;
+    }
+    public static boolean metrics() {
+        return METRICS;
+    }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();
         CompilationState cs = new CompilationState(main);

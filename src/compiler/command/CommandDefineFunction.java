@@ -148,7 +148,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             }
         }
         if (Compiler.VERBOSE) {
-            System.out.println("Done parsing " + name + " " + (System.currentTimeMillis() - aoeu));
+            System.out.println("Done parsing " + name + " -- took " + (System.currentTimeMillis() - aoeu) + "ms");
         }
     }
     @Override

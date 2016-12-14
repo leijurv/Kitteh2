@@ -54,11 +54,16 @@ public class Main {
                 case "-O":
                     outFile = "/dev/stdout";
                     break;
+                case "-v":
+                case "-V":
+                case "-verbose":
+                case "--verbose":
+                    Compiler.VERBOSE = true;
+                    break;
                 default:
                     break;
             }
         }
-        Compiler.VERBOSE = true;
         String asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         try (FileOutputStream lol = new FileOutputStream(outFile)) {
             lol.write(asm.getBytes("UTF-8"));

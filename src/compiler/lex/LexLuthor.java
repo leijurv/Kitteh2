@@ -35,6 +35,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
         //this is faster than just piping parse.filteredFlatten into .parallel
         //because the super nested flatmaps, filters, streams, and maps are therefore run in series and not in parallel (which would be kinda useless as they are very very computationally light)
         //and also because we can skip hitting the parallel framework entirely if toLex is empty (so as to prevent nested parallels)
+        //this helps a ton because now that it flattens, everything gets lexed first pass, and every subsequent pass has toLex as empty
         Optional<RuntimeException> e = toLex.parallelStream().map(line -> {
             try {
                 line.lex();

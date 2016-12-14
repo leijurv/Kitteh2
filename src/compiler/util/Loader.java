@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,8 +45,9 @@ public class Loader {
         Pair<List<CommandDefineFunction>, Context> funcs = load(path);
         Context context = funcs.getB();
         //System.out.println("Imports: " + context.imports);
-        HashMap<String, String> fix = new HashMap<>();
-        for (Map.Entry<String, String> imp : context.imports.entrySet()) {
+        List<Map.Entry<String, String>> copy = new ArrayList<>(context.imports.entrySet());
+        context.imports.clear();
+        for (Map.Entry<String, String> imp : copy) {
             String toImportName = imp.getKey() + ".k";
             File toImport;
             if (Kitterature.resourceExists(toImportName)) {
@@ -65,11 +66,7 @@ public class Loader {
             if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                 throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
             }
-            fix.put(impPath + "", imp.getValue());
-        }
-        context.imports.clear();
-        for (Map.Entry<String, String> entry : fix.entrySet()) {
-            context.imports.put(entry.getKey(), entry.getValue());
+            context.imports.put(impPath + "", imp.getValue());
         }
         return new Pair<>(context, funcs.getA());
     }

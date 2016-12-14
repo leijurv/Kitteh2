@@ -125,7 +125,7 @@ struct ecpoint{
 
 			res:=bp.add(min,MOD)
 			min.free()
-
+			//pow.output()
 			return res
 		}
 		
@@ -134,6 +134,7 @@ struct ecpoint{
 		shiftedPow.free()
 		wewwew:=wew.add(wew,MOD)
 		wew.free()
+		//pow.output()
 		return wewwew
 	}
 }

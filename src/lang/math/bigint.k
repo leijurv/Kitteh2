@@ -349,7 +349,9 @@ equal(bigint*a,bigint*b)bool{
 }
 
 multiply(bigint* a, bigint* bb)bigint*{
-	b:=bb.trim()
+	a.trimInPlace()
+	bb.trimInPlace()
+	b:=bb.padtolength(a.size+bb.size)
 	bneg:=bb.neg
 	aneg:=a.neg
 	a.neg=false

@@ -41,7 +41,7 @@ public class Loader {
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);
     }
-    public static void importPath(CompilationState cs, Path path) throws IOException {
+    public static Pair<Context, List<CommandDefineFunction>> importPath(Path path) throws IOException {
         System.out.println("Loading " + path);
         Pair<List<CommandDefineFunction>, Context> funcs = load(path);
         Context context = funcs.getB();
@@ -69,7 +69,6 @@ public class Loader {
             }
             rmv.add(imp.getKey());
             fix.put(impPath + "", imp.getValue());
-            cs.newImport(impPath);
         }
         //System.out.println("FIXING " + fix + " " + rmv);
         for (String s : rmv) {
@@ -78,6 +77,6 @@ public class Loader {
         for (Map.Entry<String, String> entry : fix.entrySet()) {
             context.imports.put(entry.getKey(), entry.getValue());
         }
-        cs.doneImporting(path, context, funcs.getA());
+        return new Pair<>(context, funcs.getA());
     }
 }

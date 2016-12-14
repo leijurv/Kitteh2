@@ -55,30 +55,6 @@ public class CompilationState {
         }
     }
     /**
-     * Add a path to be imported sometime in the future, if it hasn't already
-     *
-     * @param impPath
-     */
-    public void newImport(Path impPath) {
-        if (!alrImp.contains(impPath)) {
-            toLoad.push(impPath);
-            alrImp.add(impPath);
-        }
-    }
-    /**
-     * Called by loader once it's done importing a path
-     *
-     * @param path the path that it finished importing
-     * @param context a new context for this file
-     * @param functions the functions defined in this file
-     */
-    public void doneImporting(Path path, Context context, List<CommandDefineFunction> functions) {
-        ctxts.put(path, context);
-        loaded.add(new Pair<>(path, functions));
-        allContexts.add(context);
-        importz.put(path, context.structsCopy());
-    }
-    /**
      * Run the main import loop, which consists of calling Loader.importPath on
      * every item in toLoad until toLoad.isEmpty
      *
@@ -86,7 +62,20 @@ public class CompilationState {
      */
     public void mainImportLoop() throws IOException {
         while (!toLoad.isEmpty()) {
-            Loader.importPath(this, toLoad.pop());
+            Path path = toLoad.pop();
+            Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);
+            Context context = loadResult.getA();
+            for (String str : context.imports.keySet()) {
+                Path impPath = new File(str).toPath();
+                if (!alrImp.contains(impPath)) {
+                    toLoad.push(impPath);
+                    alrImp.add(impPath);
+                }
+            }
+            ctxts.put(path, context);
+            loaded.add(new Pair<>(path, loadResult.getB()));
+            allContexts.add(context);
+            importz.put(path, context.structsCopy());
         }
     }
     /**

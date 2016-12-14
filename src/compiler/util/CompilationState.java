@@ -135,11 +135,7 @@ public class CompilationState {
      * structs, locally imported and auto imported standard library methods
      */
     public void generateFunctionsContexts() {
-        contexts = loaded.stream().map(load -> {
-            List<Path> locallyImported = ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()).collect(Collectors.toList());
-            locallyImported.addAll(autoImportedStd);
-            return new FunctionsContext(load.getA(), load.getB(), allStructMethods().collect(Collectors.toList()), locallyImported, loaded);
-        }).collect(Collectors.toList());
+        contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), allStructMethods().collect(Collectors.toList()), Stream.of(ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()), autoImportedStd.stream()).flatMap(x -> x).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();
     }
     public void parseAllFunctions() {

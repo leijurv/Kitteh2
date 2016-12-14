@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,6 @@ public class Loader {
         Context context = funcs.getB();
         //System.out.println("Imports: " + context.imports);
         HashMap<String, String> fix = new HashMap<>();
-        HashSet<String> rmv = new HashSet<>();
         for (Map.Entry<String, String> imp : context.imports.entrySet()) {
             String toImportName = imp.getKey() + ".k";
             File toImport;
@@ -67,13 +65,9 @@ public class Loader {
             if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
                 throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
             }
-            rmv.add(imp.getKey());
             fix.put(impPath + "", imp.getValue());
         }
-        //System.out.println("FIXING " + fix + " " + rmv);
-        for (String s : rmv) {
-            context.imports.remove(s);
-        }
+        context.imports.clear();
         for (Map.Entry<String, String> entry : fix.entrySet()) {
             context.imports.put(entry.getKey(), entry.getValue());
         }

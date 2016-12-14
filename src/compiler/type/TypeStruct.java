@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -89,8 +89,8 @@ public class TypeStruct extends Type {
         }
         parsed = true;
     }
-    public List<Pair<Context, CommandDefineFunction>> getStructMethods() {
-        return structMethods.stream().map(cdf -> new Pair<>(context, cdf)).collect(Collectors.toList());
+    public Stream<Pair<Context, CommandDefineFunction>> getStructMethods() {
+        return structMethods.stream().map(cdf -> new Pair<>(context, cdf));
     }
     public Optional<CommandDefineFunction> getMethodByLocalName(String methodName) {
         return structMethods.stream().filter(cdf -> cdf.getLocalName().equals(methodName)).findAny();

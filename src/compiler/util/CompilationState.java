@@ -99,7 +99,7 @@ public class CompilationState {
      * and the context for the file in which the struct was defined
      */
     public Stream<Pair<Context, CommandDefineFunction>> structMethod() {
-        return getStructs().stream().map(TypeStruct::getStructMethods).flatMap(Collection::stream);
+        return getStructs().stream().flatMap(TypeStruct::getStructMethods);
     }
     /**
      * All methods for all structs imported
@@ -108,14 +108,6 @@ public class CompilationState {
      */
     public Stream<CommandDefineFunction> allStructMethods() {
         return structMethod().map(Pair::getB);
-    }
-    /**
-     * All functions (not struct methods) defined normally in all files imported
-     *
-     * @return
-     */
-    public Stream<CommandDefineFunction> functions() {
-        return loaded.stream().map(Pair::getB).flatMap(List::stream);
     }
     /**
      * Run the main import loop, which consists of calling Loader.importPath on
@@ -134,7 +126,7 @@ public class CompilationState {
      * @return
      */
     public List<CommandDefineFunction> allFunctions() {
-        return Stream.of(allStructMethods(), functions()).flatMap(x -> x).collect(Collectors.toList());
+        return Stream.of(allStructMethods(), loaded.stream().map(Pair::getB).flatMap(List::stream)).flatMap(x -> x).collect(Collectors.toList());
     }
     /**
      * Generate functions context objects for each file. This includes passing

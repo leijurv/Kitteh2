@@ -241,8 +241,8 @@ addWithCin(bigint* a,bigint* b,bool cin)bigint*{
 			bi=b.cont[i]
 		}
 		ci:=res.cont[i]
-		res.cont[i]=(bool)(ai^bi^ci)
-		res.cont[i+1]=(bool)(ai&bi|(ai|bi)&ci)
+		res.cont[i]=ai^bi^ci
+		res.cont[i+1]=ai&bi|(ai|bi)&ci
 	}
 	return res
 }

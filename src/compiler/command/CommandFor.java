@@ -80,7 +80,7 @@ public class CommandFor extends CommandBlock {
     }
     @Override
     protected int calculateTACLength() {
-        int bodyLen = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int bodyLen = contents.stream().mapToInt(Command::getTACLength).sum();
         int init = initialization != null ? initialization.getTACLength() : 0;
         int cond = condition != null ? ((ExpressionConditionalJumpable) condition).condLength() : 0;
         int aft = afterthought != null ? afterthought.getTACLength() : 0;

@@ -76,7 +76,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     }
     @Override
     public int calculateTACLength() {
-        int sum = args.parallelStream().mapToInt(Expression::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int sum = args.stream().mapToInt(Expression::getTACLength).sum();
         return sum + 1;
     }
     @Override

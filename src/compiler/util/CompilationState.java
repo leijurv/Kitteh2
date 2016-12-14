@@ -34,7 +34,6 @@ public class CompilationState {
     private final ArrayList<Context> allContexts = new ArrayList<>();
     private final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
     private final List<Path> autoImportedStd;
-    private List<TypeStruct> structs = null;
     private List<FunctionsContext> contexts;
     /**
      * Initialize a compilation state and add all auto-imported standard library
@@ -80,36 +79,6 @@ public class CompilationState {
         importz.put(path, context.structsCopy());
     }
     /**
-     * Get all structs defined in all files. Should only be called after
-     * mainImportLoop because it caches the result.
-     *
-     * @return
-     */
-    public List<TypeStruct> getStructs() {
-        if (structs == null) {
-            structs = importz.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
-        }
-        return structs;
-    }
-    /**
-     * All struct methods, alongside the file contexts in which they were
-     * defined
-     *
-     * @return a stream of pairs, where each pair is a CDF for a struct method
-     * and the context for the file in which the struct was defined
-     */
-    public Stream<Pair<Context, CommandDefineFunction>> structMethod() {
-        return getStructs().stream().flatMap(TypeStruct::getStructMethods);
-    }
-    /**
-     * All methods for all structs imported
-     *
-     * @return
-     */
-    public Stream<CommandDefineFunction> allStructMethods() {
-        return structMethod().map(Pair::getB);
-    }
-    /**
      * Run the main import loop, which consists of calling Loader.importPath on
      * every item in toLoad until toLoad.isEmpty
      *
@@ -126,7 +95,7 @@ public class CompilationState {
      * @return
      */
     public List<CommandDefineFunction> allFunctions() {
-        return Stream.of(allStructMethods(), loaded.stream().map(Pair::getB).flatMap(List::stream)).flatMap(x -> x).collect(Collectors.toList());
+        return Stream.of(importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).map(Pair::getB), loaded.stream().map(Pair::getB).flatMap(List::stream)).flatMap(x -> x).collect(Collectors.toList());
     }
     /**
      * Generate functions context objects for each file. This includes passing
@@ -135,12 +104,12 @@ public class CompilationState {
      * structs, locally imported and auto imported standard library methods
      */
     public void generateFunctionsContexts() {
-        contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), allStructMethods().collect(Collectors.toList()), Stream.of(ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()), autoImportedStd.stream()).flatMap(x -> x).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
+        contexts = loaded.stream().map(load -> new FunctionsContext(load.getA(), load.getB(), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).map(Pair::getB).collect(Collectors.toList()), Stream.of(ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(entry -> new File(entry.getKey()).toPath()), autoImportedStd.stream()).flatMap(x -> x).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();
     }
     public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), structMethod().<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
+        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
         System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }
@@ -171,7 +140,7 @@ public class CompilationState {
                 context.insertStructsUnderPackage(underName, importz.get(importing));
             }
         }
-        getStructs().stream().forEach(TypeStruct::parseContents);
-        getStructs().stream().forEach(TypeStruct::allocate);
+        importz.values().stream().map(Map::values).flatMap(Collection::stream).forEach(TypeStruct::parseContents);
+        importz.values().stream().map(Map::values).flatMap(Collection::stream).forEach(TypeStruct::allocate);
     }
 }

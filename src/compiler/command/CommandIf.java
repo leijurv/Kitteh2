@@ -55,12 +55,12 @@ public class CommandIf extends CommandBlock {
             //1:
             //iffalse
             //2:
-            int jumpToIfFalse = emit.lineNumberOfNextStatement() + contents.parallelStream().mapToInt(Command::getTACLength).sum() + ((ExpressionConditionalJumpable) condition).condLength() + 1;
+            int jumpToIfFalse = emit.lineNumberOfNextStatement() + contents.stream().mapToInt(Command::getTACLength).sum() + ((ExpressionConditionalJumpable) condition).condLength() + 1;
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToIfFalse, true);//invert is true
             for (Command com : contents) {
                 com.generateTAC(emit);
             }
-            int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.parallelStream().mapToInt(Command::getTACLength).sum();
+            int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.stream().mapToInt(Command::getTACLength).sum();
             new TempVarUsage(ifFalse);
             emit.updateContext(ifFalse);
             emit.emit(new TACJump(jumpTo));
@@ -72,10 +72,10 @@ public class CommandIf extends CommandBlock {
     @Override
     protected int calculateTACLength() {
         if (elseBlock == null) {
-            int sum = contents.parallelStream().mapToInt(Command::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+            int sum = contents.stream().mapToInt(Command::getTACLength).sum();
             return sum + ((ExpressionConditionalJumpable) condition).condLength();
         } else {
-            return contents.parallelStream().mapToInt(Command::getTACLength).sum() + elseBlock.parallelStream().mapToInt(Command::getTACLength).sum() + 1 + ((ExpressionConditionalJumpable) condition).condLength();
+            return contents.stream().mapToInt(Command::getTACLength).sum() + elseBlock.stream().mapToInt(Command::getTACLength).sum() + 1 + ((ExpressionConditionalJumpable) condition).condLength();
         }
     }
     @Override

@@ -6,6 +6,7 @@
 package compiler.lex;
 import compiler.parse.Line;
 import compiler.parse.Transform;
+import compiler.util.Parse;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -22,7 +23,10 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
          ((Line) o).lex();
          }
          }*/
-        Optional<RuntimeException> e = lines.parallelStream().filter(Line.class::isInstance).map(Line.class::cast).map(line -> {
+        //print out the composition of lines
+        //SELECT class,count(*) FROM lines GROUP BY class
+        //System.out.println("Lexing " + lines.stream().collect(Collectors.groupingBy(obj -> obj.getClass())).entrySet().stream().map(entry -> new Pair<>(entry.getKey(), entry.getValue().size())).collect(Collectors.toList()) + " lines");
+        Optional<RuntimeException> e = Parse.flatten(Line.class, lines).filter(Line::unlext).parallel().map(line -> {//TODO check if its faster to instead collect into a list then do .parallelStream vs just .parallel on the super flatmapped stream
             try {
                 line.lex();
             } catch (Exception ex) {

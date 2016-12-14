@@ -52,7 +52,6 @@ public class TypeStruct extends Type {
         new BlockFinder().apply(rawBlock);
         for (int i = 0; i < rawBlock.size(); i++) {
             Line thisLine = (Line) rawBlock.get(i);
-            thisLine.lex();
             if (i != rawBlock.size() - 1 && rawBlock.get(i + 1) instanceof ArrayList) {
                 ArrayList<Object> functionContents = (ArrayList<Object>) rawBlock.remove(i + 1);
                 rawBlock.remove(i);

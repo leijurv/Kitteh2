@@ -54,7 +54,7 @@ public class Lexer extends AbstractLexer {
             if (ch == ' ') {//spaces don't do anything i think
                 continue;//TODO allow any of the blank stripped chars (like tab) in the middle of a line, not just space
             }
-            if (ch == '{') {//lol idk man
+            if (ch == '{' || ch == '}') {//lol idk man
                 continue;
             }
             throw new FileSystemAlreadyExistsException("Unexpected " + ch);

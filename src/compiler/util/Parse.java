@@ -7,13 +7,14 @@ package compiler.util;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.Operator;
-import compiler.type.TypeStruct;
 import compiler.token.Token;
 import compiler.token.TokenType;
 import compiler.type.Type;
 import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  *
@@ -86,5 +87,19 @@ public class Parse {
             tmp.add((Token) obj);
         }
         return Parse.typeFromTokens(tmp, context);
+    }
+    /**
+     * Recursively flatten an ArrayList of arbitrary depth, returning a stream
+     * of all instances of a given class
+     *
+     * @param <T> The generic type to search for
+     * @param searchingFor the class to search for
+     * @param inp the arraylist to flatten
+     * @return a stream of all items at any depth that are instances of
+     * searchingFor
+     */
+    @SuppressWarnings("unchecked")//.filter(ArrayList.class::isInstance)   then    (ArrayList<Object>) obj doesn't quite work because you can't check if something is an ArrayList<Object>, only if its an ArrayList
+    public static <T> Stream<T> flatten(Class<T> searchingFor, ArrayList<Object> inp) {
+        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast), inp.stream().filter(ArrayList.class::isInstance).map(x -> flatten(searchingFor, (ArrayList<Object>) x)).flatMap(x -> x)).flatMap(x -> x);
     }
 }

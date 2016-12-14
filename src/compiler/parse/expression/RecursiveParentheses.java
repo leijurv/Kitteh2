@@ -125,8 +125,6 @@ class RecursiveParentheses extends TokenBased {
             final String funcNameCopy = funcName;
             List<Type> desiredTypes = context.gc.getHeader(pkg, funcName).inputs();
             //System.out.println("Expecting inputs: " + desiredTypes);
-            //tfw parallel expression parsing
-            //tfw this is a GOOD idea /s
             ArrayList<ArrayList<Object>> args = new ArrayList<>();
             for (ArrayList<Object> wew : inParen) {
                 args.add(wew);
@@ -137,7 +135,7 @@ class RecursiveParentheses extends TokenBased {
             if (args.size() != desiredTypes.size() && !funcName.equals("syscall")) {
                 throw new SecurityException("mismatched arg count " + args + " " + desiredTypes);
             }
-            List<Expression> arguments = IntStream.range(0, args.size()).parallel()
+            List<Expression> arguments = IntStream.range(0, args.size())
                     .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), funcNameCopy.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
                     .collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, arguments));

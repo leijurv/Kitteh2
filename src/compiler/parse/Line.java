@@ -52,6 +52,9 @@ public class Line {
     public ArrayList<Object> source() {
         return source;
     }
+    public boolean unlext() {
+        return tokens == null;
+    }
     public void lex() {
         if (tokens != null) {
             throw new NonReadableChannelException();//muahahaha not even an exception message XDD

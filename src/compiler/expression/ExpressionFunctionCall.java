@@ -16,7 +16,6 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -81,16 +80,22 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+        /*IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
             args.set(i, args.get(i).insertKnownValues(context));//.parallel() == sanik
-        });
+        });*/
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).insertKnownValues(context));
+        }
         return this;
     }
     @Override
     public Expression calculateConstants() {
-        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+        /*IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
             args.set(i, args.get(i).calculateConstants());//.parallel() == sanik
-        });
+        });*/
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).calculateConstants());
+        }
         return this;
     }
     @Override

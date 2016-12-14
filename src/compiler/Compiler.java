@@ -64,12 +64,17 @@ public class Compiler {
         if (settings.staticValues()) {
             commands.parallelStream().forEach(CommandDefineFunction::optimize);
         }
-        //System.out.println("> DONE STATIC VALUES");
+        if (VERBOSE) {
+            System.out.println("> DONE STATIC VALUES");
+        }
         long e = System.currentTimeMillis();
         List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
                 .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
                 .collect(Collectors.toList());
         long f = System.currentTimeMillis();
+        if (VERBOSE) {
+            System.out.println("TAC generation took " + (f - e) + "ms overall");
+        }
         if (VERBOSE) {
             for (Pair<String, List<TACStatement>> pair : wew) {
                 System.out.println("TAC FOR " + pair.getA());

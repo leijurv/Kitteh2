@@ -166,19 +166,21 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public List<TACStatement> totac(OptimizationSettings settings) {
-        //long start = System.currentTimeMillis();
-        //System.out.println("> BEGIN TAC GENERATION FOR " + name);
+        long start = System.currentTimeMillis();
+        System.out.println("> BEGIN TAC GENERATION FOR " + name);
         IREmitter emit = new IREmitter();
         for (Command com : contents) {
             com.generateTAC(emit);
         }
-        //long middle = System.currentTimeMillis();
+        long middle = System.currentTimeMillis();
         if (TACOptimizer.OPTIMIZATION_METRICS) {
             System.out.println(name);
         }
         List<TACStatement> result = TACOptimizer.optimize(emit, settings);
-        //long end = System.currentTimeMillis();
-        //System.out.println("> END TAC GENERATION FOR " + name + " - " + (end - start) + "ms overall, " + (end - middle) + "ms optim, " + (middle - start) + "ms gen");
+        long end = System.currentTimeMillis();
+        if (Compiler.VERBOSE) {
+            System.out.println("> END TAC GENERATION FOR " + name + " - " + (middle - start) + "ms gen, " + (end - middle) + "ms optim, " + (end - start) + "ms overall");
+        }
         return result;
     }
 

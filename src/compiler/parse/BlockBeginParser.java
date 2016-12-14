@@ -10,6 +10,7 @@ import compiler.command.CommandDefineFunction;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConditionalJumpable;
 import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
@@ -60,7 +61,7 @@ class BlockBeginParser {
                     return new CommandFor(blockCommands, sub);
                 } else {
                     //for i<5
-                    Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
+                    ExpressionConditionalJumpable condition = (ExpressionConditionalJumpable) ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
                     return new CommandFor(condition, blockCommands, sub);
                 }
             }
@@ -74,7 +75,7 @@ class BlockBeginParser {
                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
                 Context sub = context.subContext();
                 Command initialization = LineParser.parseLine(first, sub);
-                Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
+                ExpressionConditionalJumpable condition = (ExpressionConditionalJumpable) ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                 ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                 Command afterthought = LineParser.parseLine(third, sub);
                 return new CommandFor(initialization, condition, afterthought, blockCommands, sub);

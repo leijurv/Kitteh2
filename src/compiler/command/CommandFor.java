@@ -5,7 +5,6 @@
  */
 package compiler.command;
 import compiler.Context;
-import compiler.expression.Expression;
 import compiler.expression.ExpressionConditionalJumpable;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
@@ -23,15 +22,15 @@ import java.util.stream.Stream;
  */
 public class CommandFor extends CommandBlock {
     private Command initialization;
-    private Expression condition;
+    private ExpressionConditionalJumpable condition;
     private Command afterthought;
-    public CommandFor(Command initialization, Expression condition, Command afterthought, ArrayList<Command> contents, Context context) {
+    public CommandFor(Command initialization, ExpressionConditionalJumpable condition, Command afterthought, ArrayList<Command> contents, Context context) {
         super(context, contents);
         this.initialization = initialization;
         this.condition = condition;
         this.afterthought = afterthought;
     }
-    public CommandFor(Expression condition, ArrayList<Command> contents, Context context) {
+    public CommandFor(ExpressionConditionalJumpable condition, ArrayList<Command> contents, Context context) {
         this(null, condition, null, contents, context);
     }
     public CommandFor(ArrayList<Command> contents, Context context) {
@@ -55,7 +54,7 @@ public class CommandFor extends CommandBlock {
         //System.out.println(placeToJumpTo + " " + conditionLen + " " + bodyLen + " " + afterLen + " " + afterItAll);
         emit.updateContext(context);//I don't remember why this needs to be here, but if you remove it then compile something with a for loop, there will be an illegal state exception about the fitnessgram pacer test
         if (condition != null) {
-            ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
+            condition.generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         }
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
         int previousBreakTo = emit.canBreak() ? emit.breakTo() : -1;
@@ -82,7 +81,7 @@ public class CommandFor extends CommandBlock {
     protected int calculateTACLength() {
         int bodyLen = contents.stream().mapToInt(Command::getTACLength).sum();
         int init = initialization != null ? initialization.getTACLength() : 0;
-        int cond = condition != null ? ((ExpressionConditionalJumpable) condition).condLength() : 0;
+        int cond = condition != null ? condition.condLength() : 0;
         int aft = afterthought != null ? afterthought.getTACLength() : 0;
         return init + cond + bodyLen + aft + 1;//+1 for the jump from after the afterthought back to the condition
     }
@@ -101,8 +100,8 @@ public class CommandFor extends CommandBlock {
             context.clearKnownValue(s);
         }
         if (condition != null) {
-            condition = condition.insertKnownValues(context);
-            condition = condition.calculateConstants();
+            condition = (ExpressionConditionalJumpable) condition.insertKnownValues(context);
+            condition = (ExpressionConditionalJumpable) condition.calculateConstants();
         }
         if (afterthought != null) {
             afterthought = afterthought.optimize();

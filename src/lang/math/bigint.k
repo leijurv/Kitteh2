@@ -129,6 +129,7 @@ struct bigint{
 		for i:=0; i<this.size && i<length; i++{
 			res.cont[i]=this.cont[i]
 		}
+		res.neg=this.neg
 		return res
 	}
 	rightshiftone()bigint*{
@@ -137,6 +138,7 @@ struct bigint{
 		for i:=0; i<this.size-1; i++{
 			res.cont[i]=this.cont[i+1]
 		}
+		res.neg=this.neg
 		return res
 	}
 	add(bigint*b)bigint*{

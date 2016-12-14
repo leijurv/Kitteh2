@@ -58,7 +58,7 @@ public class Main {
                     break;
             }
         }
-        //Compiler.VERBOSE = true;
+        Compiler.VERBOSE = true;
         String asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
         try (FileOutputStream lol = new FileOutputStream(outFile)) {
             lol.write(asm.getBytes("UTF-8"));

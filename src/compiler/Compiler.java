@@ -43,8 +43,7 @@ public class Compiler {
             System.out.println("---- END IMPORTS, BEGIN PARSING ----");
             System.out.println();
         }
-        cs.parseAllFunctionsContexts();
-        cs.parseStructMethods();
+        cs.parseAllFunctions();
         return generateASM(allFunctions, settings);
     }
     public static String compile(String program, OptimizationSettings settings) {

@@ -137,15 +137,6 @@ public class CompilationState {
         return Stream.of(allStructMethods(), functions()).flatMap(x -> x).collect(Collectors.toList());
     }
     /**
-     * Parse all struct methods, using the functionsContexts for each file where
-     * they were defined
-     */
-    public void parseStructMethods() {
-        for (Pair<Context, CommandDefineFunction> cdf : structMethod().collect(Collectors.toList())) {
-            cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA())));
-        }
-    }
-    /**
      * Generate functions context objects for each file. This includes passing
      * to the FunctionsContext constructor: which files were imported and under
      * what aliases, which files were locally imported, all methods for all
@@ -159,12 +150,11 @@ public class CompilationState {
         }).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();
     }
-    public void parseAllFunctionsContexts() {
+    public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        System.out.println("lol?");
-        contexts.stream().flatMap(FunctionsContext::parseRekursivelie).parallel().forEach(Runnable::run);
+        Stream.<Stream<Runnable>>of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), structMethod().map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
-        System.out.println("Full parse: " + (end - start));
+        System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }
     /**
      * Insert locally imported structs into local contexts. Then parse struct

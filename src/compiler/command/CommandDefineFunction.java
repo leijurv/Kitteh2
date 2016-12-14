@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.command;
+import compiler.Compiler;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionFunctionCall;
@@ -119,7 +120,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public void parse(FunctionsContext gc) {
-        System.out.println("Starting to parse " + name);
+        if (Compiler.VERBOSE) {
+            System.out.println("Starting to parse " + name);
+        }
         long aoeu = System.currentTimeMillis();
         context.setCurrFunc(this);
         context.gc = gc;
@@ -144,7 +147,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                 throw new RuntimeException("You need a return as the last command");
             }
         }
-        System.out.println("Done parsing " + name + " " + (System.currentTimeMillis() - aoeu));
+        if (Compiler.VERBOSE) {
+            System.out.println("Done parsing " + name + " " + (System.currentTimeMillis() - aoeu));
+        }
     }
     @Override
     protected void generateTAC0(IREmitter emit) {

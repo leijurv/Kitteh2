@@ -160,7 +160,11 @@ public class CompilationState {
         contexts.get(0).setEntryPoint();
     }
     public void parseAllFunctionsContexts() {
-        contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
+        long start = System.currentTimeMillis();
+        System.out.println("lol?");
+        contexts.stream().flatMap(FunctionsContext::parseRekursivelie).parallel().forEach(Runnable::run);
+        long end = System.currentTimeMillis();
+        System.out.println("Full parse: " + (end - start));
     }
     /**
      * Insert locally imported structs into local contexts. Then parse struct

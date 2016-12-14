@@ -119,6 +119,8 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     public void parse(FunctionsContext gc) {
+        System.out.println("Starting to parse " + name);
+        long aoeu = System.currentTimeMillis();
         context.setCurrFunc(this);
         context.gc = gc;
         //System.out.println(name + " parsing " + rawContents);
@@ -142,6 +144,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                 throw new RuntimeException("You need a return as the last command");
             }
         }
+        System.out.println("Done parsing " + name + " " + (System.currentTimeMillis() - aoeu));
     }
     @Override
     protected void generateTAC0(IREmitter emit) {

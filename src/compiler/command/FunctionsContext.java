@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class FunctionsContext {
-    public static final boolean PARALLEL_FUNCTION_PARSING = true;
+    //public static final boolean PARALLEL_FUNCTION_PARSING = true;
     private final HashMap<String, FunctionHeader> functionMap = new HashMap<>();
     private final ArrayList<CommandDefineFunction> functionDefinitions;
     private final Path path;
@@ -72,21 +72,20 @@ public class FunctionsContext {
         }
         throw new RuntimeException("You need a main function in " + path);
     }
-    public void parseRekursivelie() {
-        Stream<CommandDefineFunction> stream = functionDefinitions.stream();
-        if (PARALLEL_FUNCTION_PARSING) {
-            stream = stream.parallel();
-        }
-        //long start1 = System.currentTimeMillis();
-        //System.out.println("> Starting parsing functions in " + path);
-        stream.forEach(cdf -> {
-            //long start = System.currentTimeMillis();
-            //System.out.println("> Starting parsing function " + cdf.getHeader().name);
-            cdf.parse(this);
-            //System.out.println("> Finished parsing function " + cdf.getHeader().name + " -- " + (System.currentTimeMillis() - start) + "ms");
-        });
-        //System.out.println("> Finished parsing functions in " + path + " -- " + (System.currentTimeMillis() - start1) + "ms");
+    public Stream<Runnable> parseRekursivelie() {
+        return functionDefinitions.stream().map(cdf -> () -> cdf.parse(this));
     }
+    //public void parseRekursivelie() {
+    //long start1 = System.currentTimeMillis();
+    //System.out.println("> Starting parsing functions in " + path);
+    //stream.forEach((CommandDefineFunction cdf) -> {
+    //long start = System.currentTimeMillis();
+    //System.out.println("> Starting parsing function " + cdf.getHeader().name);
+    //cdf.parse(this);
+    //System.out.println("> Finished parsing function " + cdf.getHeader().name + " -- " + (System.currentTimeMillis() - start) + "ms");
+    //});
+    //System.out.println("> Finished parsing functions in " + path + " -- " + (System.currentTimeMillis() - start1) + "ms");
+    //}
     public FunctionHeader getHeader(String pkg, String name) {
         try {
             return (FunctionHeader) Stream.of(CommandDefineFunction.class).parallel().map(Class::getFields).flatMap(Stream::of).parallel().filter(x -> x.getName().equals(name.toUpperCase())).findAny().get().get(null);

@@ -31,6 +31,18 @@ public class CommonSubexpression extends TACOptimization {
                 final int begin = result.getStackLocation();//inclusive
                 final int end = result.getStackLocation() + result.getType().getSizeBytes() - 1;//inclusive
                 for (int j = i + 1; j < block.size(); j++) {
+                    if (block.get(j) instanceof TACStandard) {
+                        TACStandard o = (TACStandard) block.get(j);
+                        if (o.op == ts.op && o.paramNames[0].equals(ts.paramNames[0]) && o.paramNames[1].equals(ts.paramNames[1])) {
+                            //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
+                            TACConst repl = new TACConst(o.paramNames[2], ts.paramNames[2]);
+                            repl.copyFrom(o);
+                            repl.params[0] = ts.params[2];
+                            repl.params[1] = o.params[2];
+                            block.set(j, repl);
+                            return;
+                        }
+                    }
                     boolean shouldBreak = false;
                     for (VarInfo vi : block.get(j).modifiedVariableInfos()) {
                         //does vi overwrite result?
@@ -55,18 +67,6 @@ public class CommonSubexpression extends TACOptimization {
                     }
                     if (shouldBreak) {
                         break;
-                    }
-                    if (block.get(j) instanceof TACStandard) {
-                        TACStandard o = (TACStandard) block.get(j);
-                        if (o.op == ts.op && o.paramNames[0].equals(ts.paramNames[0]) && o.paramNames[1].equals(ts.paramNames[1])) {
-                            //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
-                            TACConst repl = new TACConst(o.paramNames[2], ts.paramNames[2]);
-                            repl.copyFrom(o);
-                            repl.params[0] = ts.params[2];
-                            repl.params[1] = o.params[2];
-                            block.set(j, repl);
-                            return;
-                        }
                     }
                 }
             }

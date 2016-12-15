@@ -16,9 +16,8 @@ import java.util.stream.Collectors;
  */
 public class X86Format {
     public static final boolean MAC = System.getProperty("os.name").toLowerCase(Locale.US).contains("mac");
-    private static final String LLD_FORMAT = "lldformatstring:\n"
-            + "	.asciz	\"%lld\\n\"\n"
-            + "floatformatstring:\n"
+    private static final String LLD_FORMAT
+            = "floatformatstring:\n"
             + "	.asciz	\"%f\\n\"\n";
     private static final String HEADER_MAC = "    .section    __TEXT,__text\n"
             + "    .macosx_version_min 10, 10\n";

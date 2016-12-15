@@ -34,10 +34,13 @@ intToStr(long input){
 }
 print(long input){
 	intToStr(input)
-	newline:=(byte*)malloc(1)
-	newline[0]=10
-	write(newline,1)
-	free(newline)
+	writeByte(10)
+}
+writeByte(byte b){
+	arr:=(byte*)malloc(1)
+	arr[0]=b
+	write(arr,1)
+	free(arr)
 }
 write(byte* str, int len){
 	syscall(4,1,str,len)

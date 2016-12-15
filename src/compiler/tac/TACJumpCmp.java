@@ -5,11 +5,13 @@
  */
 package compiler.tac;
 import compiler.Operator;
+import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Comparison;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,8 +47,17 @@ public class TACJumpCmp extends TACJump {
             throw new IllegalStateException("an apple and an orange snuck in");
         }
         TypeNumerical type = (TypeNumerical) first.getType();
-        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + X86Register.C.getRegister(type));
-        emit.addStatement("cmp" + type.x86typesuffix() + " " + second.x86() + ", " + X86Register.C.getRegister(type));
-        emit.addStatement(X86Comparison.tox86jump(op) + " " + emit.lineToLabel(jumpTo));
+        X86TypedRegister noplease = type instanceof TypeFloat ? X86Register.XMM0.getRegister(type) : X86Register.C.getRegister(type);
+        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease);
+        String comparison = "cmp" + type.x86typesuffix();
+        if (first.getType() instanceof TypeFloat) {
+            comparison = "ucomiss";//please, x86, why
+        }
+        emit.addStatement(comparison + " " + second.x86() + ", " + noplease);
+        String jump = X86Comparison.tox86jump(op);
+        if (first.getType() instanceof TypeFloat) {
+            jump = jump.replace("l", "b").replace("g", "a");//i actually want to die
+        }
+        emit.addStatement(jump + " " + emit.lineToLabel(jumpTo));
     }
 }

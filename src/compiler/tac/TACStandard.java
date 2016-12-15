@@ -176,8 +176,16 @@ public class TACStandard extends TACStatement {
             case NOT_EQUAL:
             case GREATER_OR_EQUAL:
             case LESS_OR_EQUAL:
-                emit.addStatement("cmp" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.addStatement(X86Comparison.tox86set(op) + " %cl");
+                String comparison = "cmp" + type.x86typesuffix();
+                if (type instanceof TypeFloat) {
+                    comparison = "ucomiss";//please, x86, why
+                }
+                emit.addStatement(comparison + " " + c + ", " + a);
+                String set = X86Comparison.tox86set(op);
+                if (first.getType() instanceof TypeFloat) {
+                    set = set.replace("l", "b").replace("g", "a");//i actually want to die
+                }
+                emit.addStatement(set + " %cl");
                 emit.addStatement("movb %cl, " + result.x86());
                 break;
             default:

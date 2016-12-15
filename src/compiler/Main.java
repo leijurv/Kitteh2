@@ -60,6 +60,9 @@ public class Main {
                 case "--verbose":
                     Compiler.VERBOSE = true;
                     break;
+                case "-m":
+                    Compiler.METRICS = true;
+                    break;
                 default:
                     break;
             }

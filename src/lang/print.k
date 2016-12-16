@@ -42,6 +42,20 @@ writeByte(byte b){
 	write(arr,1)
 	free(arr)
 }
+open(byte* file,long flags,long mode) int{
+	if MACOSX{
+		open:=2<<24+5
+		return (int)syscall((long)open,file,flags,mode)
+	}
+	return (int)syscall(2,file,flags,mode)
+}
+close(int fd) int{
+	if MACOSX{
+		close:=2<<24+6
+		return (int)syscall((long)close,fd)
+	}
+	return (int)syscall(3,fd)
+}
 writefd(int fd,byte* str, int len){
 	if MACOSX{
 		num:=2<<24+4
@@ -53,21 +67,23 @@ writefd(int fd,byte* str, int len){
 write(byte* buf, int num){
 	writefd(1,buf,num)
 }
-readfd(int fd, byte* buf, int len){
+readfd(int fd, byte* buf, int len) long{
 	if MACOSX{
 		num:=2<<24+3
-		syscall((long)num,fd,buf,len)
-	}else{
-		syscall(0,fd,buf,len)
+		return syscall((long)num,fd,buf,len)
 	}
+	return syscall(0,fd,buf,len)
 }
 read(byte* buf, int num){
 	readfd(0,buf,num)
 }
-writeNullTerm(byte* str){
+writefdNullTerm(byte* str,int fd){
 	i:=0
 	for copy:=str; *copy!=(byte)0; i++{
 		copy=copy+1
 	}
-	write(str,i)
+	writefd(fd,str,i)
+}
+writeNullTerm(byte* str){
+	writefdNullTerm(str,1)
 }

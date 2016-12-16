@@ -70,6 +70,10 @@ public class TACFunctionCall extends TACStatement {
                 emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + registers[i].getRegister(type).x86());
             }
             emit.addStatement("syscall");
+            if (result != null) {
+                TypeNumerical ret = (TypeNumerical) result.getType();
+                emit.addStatement("mov" + ret.x86typesuffix() + " " + X86Register.A.getRegister(ret) + ", " + result.x86());
+            }
             return;
         }
         emit.addStatement("subq $" + toSubtract + ", %rsp");

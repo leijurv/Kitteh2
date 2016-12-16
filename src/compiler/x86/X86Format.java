@@ -32,6 +32,7 @@ public class X86Format {
         String constantStrs = functions.stream().map(Pair::getB).flatMap(Collection::stream)
                 .filter(TACConstStr.class::isInstance).map(TACConstStr.class::cast)
                 .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")
+                .distinct()
                 .collect(Collectors.joining());
         return functions.parallelStream().map(X86Function::generateX86).collect(Collectors.joining("\n", HEADER, FOOTER + constantStrs));
     }

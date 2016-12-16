@@ -62,21 +62,20 @@ public class TACFunctionCall extends TACStatement {
         toSubtract /= 16;
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
-        emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (header.name.equals("syscall")) {
-            X86Register[] registers = {X86Register.DI, X86Register.SI, X86Register.D, X86Register.C, X86Register.R8, X86Register.R9};
+            X86Register[] registers = {X86Register.A, X86Register.DI, X86Register.SI, X86Register.D, X86Register.R10, X86Register.R8, X86Register.R9};
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
                 String lol = params[i].x86();
-                if (i == 0 && !X86Format.MAC) {
-                    lol = "$1";
+                if (i == 0 && X86Format.MAC) {
+                    lol = "$0x2000004";
                 }
                 emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + registers[i].getRegister(type).x86());
             }
-            emit.addStatement(X86Format.MAC ? "callq _syscall" : "callq syscall");
-            emit.addStatement("addq $" + toSubtract + ", %rsp");
+            emit.addStatement("syscall");
             return;
         }
+        emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");

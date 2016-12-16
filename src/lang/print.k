@@ -43,7 +43,7 @@ writeByte(byte b){
 	free(arr)
 }
 write(byte* str, int len){
-	syscall(4,1,str,len)
+	syscall(1,1,str,len)
 }
 writeNullTerm(byte* str){
 	i:=0

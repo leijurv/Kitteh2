@@ -93,17 +93,10 @@ public class TACFunctionCall extends TACStatement {
                 throw new CancelledKeyException();
             }
             TypeNumerical type = (TypeNumerical) params[0].getType();
-            if (type instanceof TypePointer || type instanceof TypeFloat) {
+            if (type instanceof TypeFloat) {
                 emit.addStatement("leaq floatformatstring(%rip), %rdi");//lol rip
-                emit.addStatement("movb $" + (params[0].getType() instanceof TypeFloat ? "1" : "0") + ", %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
-                emit.addStatement("xorq %rdx, %rdx");
-                if (type instanceof TypeFloat) {
-                    emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
-                } else {
-                    TACConst.move(X86Register.D.getRegister(type), params[0], emit);
-                    emit.addStatement("movq %rdx, %rsi");//why esi? idk. again, i'm just copying gcc output asm
-                    emit.addStatement("movq %rdx, %rdi");//comment out this line if you want print(ptr) to print out the pointer address instead of the asciz string at that pointer
-                }
+                emit.addStatement("movb $1, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
+                emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
                 emit.addStatement("addq $" + toSubtract + ", %rsp");
                 return;

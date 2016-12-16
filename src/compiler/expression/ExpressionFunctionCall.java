@@ -26,6 +26,10 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     private final FunctionHeader calling;
     public ExpressionFunctionCall(Context context, String pkgName, String funcName, List<Expression> args) {
         this.args = args;
+        if (pkgName == null && funcName.equals("print") && args.size() == 1 && args.get(0).getType() instanceof TypePointer) {
+            //print out the value at the pointer addr not the numerical pointer address
+            funcName = "writeNullTerm";
+        }
         this.calling = context.gc.getHeader(pkgName, funcName);
         verifyTypes();
     }

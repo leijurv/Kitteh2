@@ -142,7 +142,7 @@ public enum Operator implements Token<Operator> {
         if (!((Expression) a).getType().equals(((Expression) b).getType())) {
             throw new FileSystemAlreadyExistsException(a + " " + b + " " + ((Expression) a).getType() + " " + ((Expression) b).getType());
         }
-        onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
+        Type resulting = onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
         if (a instanceof ExpressionConstNum) {
             if (!(b instanceof ExpressionConstNum)) {
                 throw new RuntimeException(a + " is expression const num but " + b + " isn't");
@@ -174,41 +174,55 @@ public enum Operator implements Token<Operator> {
         if (!(b instanceof ExpressionConstNum)) {
             throw new RuntimeException("Expected " + b + " to be expression const num");
         }
+        int aval = ((ExpressionConstNum) a).getVal().intValue();
+        int bval = ((ExpressionConstNum) b).getVal().intValue();
+        if (resulting instanceof TypeBoolean) {
+            return new ExpressionConstBool(calculateBoolean(aval, bval));
+        }
+        return new ExpressionConstNum(calculateIntegral(aval, bval), (TypeNumerical) resulting);
+    }
+    public int calculateIntegral(int a, int b) {
         switch (this) {
             case L_XOR:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() ^ ((ExpressionConstNum) b).getVal().intValue());
+                return a ^ b;
             case L_AND:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() & ((ExpressionConstNum) b).getVal().intValue());
+                return a & b;
             case L_OR:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() | ((ExpressionConstNum) b).getVal().intValue());
+                return a | b;
             case SHIFT_L:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() << ((ExpressionConstNum) b).getVal().intValue());
+                return a << b;
             case SHIFT_R:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() >> ((ExpressionConstNum) b).getVal().intValue());
+                return a >> b;
             case PLUS:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() + ((ExpressionConstNum) b).getVal().intValue());
+                return a + b;
             case MINUS:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() - ((ExpressionConstNum) b).getVal().intValue());
+                return a - b;
             case MULTIPLY:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() * ((ExpressionConstNum) b).getVal().intValue());
+                return a * b;
             case DIVIDE:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() / ((ExpressionConstNum) b).getVal().intValue());
+                return a / b;
             case MOD:
-                return new ExpressionConstNum(((ExpressionConstNum) a).getVal().intValue() % ((ExpressionConstNum) b).getVal().intValue());
-            case EQUAL:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() == ((ExpressionConstNum) b).getVal().intValue());
-            case NOT_EQUAL:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() != ((ExpressionConstNum) b).getVal().intValue());
-            case LESS:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() < ((ExpressionConstNum) b).getVal().intValue());
-            case GREATER:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() > ((ExpressionConstNum) b).getVal().intValue());
-            case GREATER_OR_EQUAL:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() >= ((ExpressionConstNum) b).getVal().intValue());
-            case LESS_OR_EQUAL:
-                return new ExpressionConstBool(((ExpressionConstNum) a).getVal().intValue() <= ((ExpressionConstNum) b).getVal().intValue());
+                return a % b;
             default:
-                throw new IllegalStateException("DUDE IDK MAN. HOW THE HELL DO I CALCULATE " + this + " ON " + a + " AND " + b);
+                throw new IllegalStateException("DO I CALCULATE " + this + " ON " + a + " AND " + b);
+        }
+    }
+    public boolean calculateBoolean(int a, int b) {
+        switch (this) {
+            case EQUAL:
+                return a == b;
+            case NOT_EQUAL:
+                return a != b;
+            case LESS:
+                return a < b;
+            case GREATER:
+                return a > b;
+            case GREATER_OR_EQUAL:
+                return a >= b;
+            case LESS_OR_EQUAL:
+                return a <= b;
+            default:
+                throw new IllegalStateException("DO I CALCULATE " + this + " ON " + a + " AND " + b);
         }
     }
     public Operator invert() {

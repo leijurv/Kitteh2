@@ -42,13 +42,27 @@ writeByte(byte b){
 	write(arr,1)
 	free(arr)
 }
-write(byte* str, int len){
+writefd(int fd,byte* str, int len){
 	if MACOSX{
 		num:=2<<24+4
-		syscall((long)num,1,str,len)
+		syscall((long)num,fd,str,len)
 	}else{
-		syscall(1,1,str,len)
+		syscall(1,fd,str,len)
 	}
+}
+write(byte* buf, int num){
+	writefd(1,buf,num)
+}
+readfd(int fd, byte* buf, int len){
+	if MACOSX{
+		num:=2<<24+3
+		syscall((long)num,fd,buf,len)
+	}else{
+		syscall(0,fd,buf,len)
+	}
+}
+read(byte* buf, int num){
+	readfd(0,buf,num)
 }
 writeNullTerm(byte* str){
 	i:=0

@@ -1,4 +1,4 @@
-intToStr(long input){
+print(long input){
 	inputCopy:=input
 	int count=0
 	if (long)(0) >inputCopy{
@@ -12,9 +12,10 @@ intToStr(long input){
 	if count == 0{//even if the input is just zero, the output needs to have the "0" char
 		count=1
 	}
-	totalSize:=count
-	result:=(byte*)malloc(count)
-	count--//start at the last char before the null pointer
+	totalSize:=count+1
+	result:=(byte*)malloc(count+1)
+	result[count]=10
+	count--
 	neg:=input<(long)0
 	if neg{//if we are doing a negative number
 		input=0-input//make it positive
@@ -32,15 +33,18 @@ intToStr(long input){
 	write(result,totalSize)
 	free(result)
 }
-print(long input){
-	intToStr(input)
-	writeByte(10)
-}
 writeByte(byte b){
 	arr:=(byte*)malloc(1)
 	arr[0]=b
 	write(arr,1)
 	free(arr)
+}
+readByte()byte{
+	arr:=(byte*)malloc(1)
+	read(arr,1)
+	resp:=arr[0]
+	free(arr)
+	return resp
 }
 open(byte* file,long flags,long mode) int{
 	if MACOSX{

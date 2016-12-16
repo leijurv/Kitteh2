@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.tac.TACConstStr;
 import compiler.tac.TACStatement;
 import compiler.util.Pair;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -27,6 +29,10 @@ public class X86Format {
     private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
     private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
     public static String assembleFinalFile(List<Pair<String, List<TACStatement>>> functions) {
-        return functions.parallelStream().map(X86Function::generateX86).collect(Collectors.joining("\n", HEADER, FOOTER));
+        String constantStrs = functions.stream().map(Pair::getB).flatMap(Collection::stream)
+                .filter(TACConstStr.class::isInstance).map(TACConstStr.class::cast)
+                .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")
+                .collect(Collectors.joining());
+        return functions.parallelStream().map(X86Function::generateX86).collect(Collectors.joining("\n", HEADER, FOOTER + constantStrs));
     }
 }

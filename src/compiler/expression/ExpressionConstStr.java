@@ -5,7 +5,7 @@
  */
 package compiler.expression;
 import compiler.tac.IREmitter;
-import compiler.tac.TACConst;
+import compiler.tac.TACConstStr;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeInt8;
@@ -26,7 +26,7 @@ public class ExpressionConstStr extends Expression implements ExpressionConst {
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        emit.emit(new TACConst(resultLocation, '"' + val + '"'));
+        emit.emit(new TACConstStr(resultLocation, val));
     }
     @Override
     protected int calculateTACLength() {

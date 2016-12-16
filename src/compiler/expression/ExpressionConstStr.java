@@ -15,7 +15,7 @@ import compiler.type.TypePointer;
  *
  * @author leijurv
  */
-public class ExpressionConstStr extends Expression implements ExpressionConst {
+public class ExpressionConstStr extends Expression {
     public final String val;
     public ExpressionConstStr(String val) {
         this.val = val;

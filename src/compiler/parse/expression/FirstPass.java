@@ -8,6 +8,7 @@ import compiler.Context;
 import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstBool;
 import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
@@ -20,6 +21,7 @@ import compiler.type.TypeFloat;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Format;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -93,6 +95,10 @@ class FirstPass implements ExpressionParseStep {
                     String name = (String) ob.data();
                     if (context.getStruct(name) != null) {
                         continue;
+                    }
+                    if (name.equals("MACOSX")) {
+                        o.set(i, new ExpressionConstBool(X86Format.MAC));
+                        break;
                     }
                     Expression ex = new ExpressionVariable(name, context);
                     ex.getType();

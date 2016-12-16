@@ -43,7 +43,12 @@ writeByte(byte b){
 	free(arr)
 }
 write(byte* str, int len){
-	syscall(1,1,str,len)
+	if MACOSX{
+		num:=2<<24+4
+		syscall((long)num,1,str,len)
+	}else{
+		syscall(1,1,str,len)
+	}
 }
 writeNullTerm(byte* str){
 	i:=0

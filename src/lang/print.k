@@ -48,22 +48,19 @@ readByte()byte{
 }
 open(byte* file,long flags,long mode) int{
 	if MACOSX{
-		open:=2<<24+5
-		return (int)syscall((long)open,file,flags,mode)
+		return (int)syscall(2<<24+5,file,flags,mode)
 	}
 	return (int)syscall(2,file,flags,mode)
 }
 close(int fd) int{
 	if MACOSX{
-		close:=2<<24+6
-		return (int)syscall((long)close,fd)
+		return (int)syscall(2<<24+6,fd)
 	}
 	return (int)syscall(3,fd)
 }
 writefd(int fd,byte* str, int len){
 	if MACOSX{
-		num:=2<<24+4
-		syscall((long)num,fd,str,len)
+		syscall(2<<24+4,fd,str,len)
 	}else{
 		syscall(1,fd,str,len)
 	}
@@ -73,8 +70,7 @@ write(byte* buf, int num){
 }
 readfd(int fd, byte* buf, int len) long{
 	if MACOSX{
-		num:=2<<24+3
-		return syscall((long)num,fd,buf,len)
+		return syscall(2<<24+3,fd,buf,len)
 	}
 	return syscall(0,fd,buf,len)
 }

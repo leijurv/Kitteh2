@@ -80,7 +80,7 @@ public class Context {
     }
     public final HashMap<String, String> imports;
     public final String packageName;
-    private final HashMap<String, VarInfo>[] values;
+    private final HashMap<String, X86Param>[] values;
     private final HashMap<String, TypeStruct> structs;
     private int stackSize;
     private Integer additionalSizeTemp = null;
@@ -195,7 +195,7 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
+    private Context(HashMap<String, X86Param>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;
@@ -207,7 +207,7 @@ public class Context {
     }
     @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
-        HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
+        HashMap<String, X86Param>[] temp = new HashMap[values.length + 1];
         System.arraycopy(values, 0, temp, 0, values.length);
         temp[values.length] = new HashMap<>();
         Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
@@ -217,15 +217,15 @@ public class Context {
         values[values.length - 1].put(name, value);
     }
     public ExpressionConst knownValue(String name) {
-        VarInfo info = get(name);
+        X86Param info = get(name);
         //System.out.println("Known for " + name + ": " + info);
-        if (info == null) {
+        if (info == null || !(info instanceof VarInfo)) {
             return null;
         }
-        return info.knownValue;
+        return ((VarInfo) info).knownValue;
     }
     public boolean varDefined(String name) {
-        for (HashMap<String, VarInfo> value : values) {
+        for (HashMap<String, X86Param> value : values) {
             if (value.containsKey(name)) {
                 return true;
             }
@@ -249,23 +249,23 @@ public class Context {
         defineLocal(name, new VarInfo(name, type, stackSize));//Otherwise define it as local
     }
     public void setKnownValue(String name, ExpressionConst val) {
-        get(name).knownValue = val;
+        ((VarInfo) get(name)).knownValue = val;
     }
     public void clearKnownValue(String name) {
         if (get(name) != null) {
             setKnownValue(name, null);
         }
     }
-    public VarInfo getRequired(String name) {
-        VarInfo info = get(name);
+    public X86Param getRequired(String name) {
+        X86Param info = get(name);
         if (info == null) {
             throw new IllegalStateException("WEWLAD\nEWLADW\nWLADWE\nLADWEW\nADWEWL\nDWEWLA\n" + name);
         }
         return info;
     }
-    public VarInfo get(String name) {
+    public X86Param get(String name) {
         for (int i = values.length - 1; i >= 0; i--) {
-            VarInfo possibleValue = values[i].get(name);
+            X86Param possibleValue = values[i].get(name);
             if (possibleValue != null) {
                 return possibleValue;
             }

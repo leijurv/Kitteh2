@@ -5,7 +5,6 @@
  */
 package compiler.tac;
 import compiler.Context;
-import compiler.Context.VarInfo;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import java.util.Arrays;
@@ -87,10 +86,10 @@ public abstract class TACStatement {
     }
     public abstract List<String> requiredVariables();
     public abstract List<String> modifiedVariables();
-    public final List<VarInfo> modifiedVariableInfos() {
+    public final List<X86Param> modifiedVariableInfos() {
         return modifiedVariables().stream().filter(x -> !x.startsWith("%")).map(this::get).collect(Collectors.toList());
     }
-    protected VarInfo get(String name) {
+    protected X86Param get(String name) {
         if (context.get(name) != null) {
             return context.get(name);
         }

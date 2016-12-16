@@ -8,6 +8,7 @@ import compiler.Context.VarInfo;
 import compiler.tac.TACConst;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
+import compiler.x86.X86Param;
 import java.util.List;
 
 /**
@@ -44,10 +45,13 @@ public class CommonSubexpression extends TACOptimization {
                         }
                     }
                     boolean shouldBreak = false;
-                    for (VarInfo vi : block.get(j).modifiedVariableInfos()) {
+                    for (X86Param vi : block.get(j).modifiedVariableInfos()) {
+                        if (!(vi instanceof VarInfo)) {
+                            continue;
+                        }
                         //does vi overwrite result?
-                        int viBegin = vi.getStackLocation();//inclusive
-                        int viEnd = vi.getStackLocation() + vi.getType().getSizeBytes() - 1;//inclusive
+                        int viBegin = ((VarInfo) vi).getStackLocation();//inclusive
+                        int viEnd = ((VarInfo) vi).getStackLocation() + vi.getType().getSizeBytes() - 1;//inclusive
                         if (viBegin >= begin && viBegin <= end) {//if there is any overlap, at least one end of one of them needs to be within the other
                             shouldBreak = true;
                             break;

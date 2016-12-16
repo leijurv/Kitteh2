@@ -26,7 +26,7 @@ import java.util.List;
 public class TACFunctionCall extends TACStatement {
     private final String resultName;
     private final FunctionHeader header;
-    private VarInfo result;
+    private X86Param result;
     public TACFunctionCall(String result, FunctionHeader header, List<String> paramNames) {
         super(paramNames.toArray(new String[paramNames.size()]));
         this.resultName = result;

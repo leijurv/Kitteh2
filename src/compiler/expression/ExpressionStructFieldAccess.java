@@ -17,6 +17,7 @@ import compiler.type.Type;
 import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Param;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.nio.file.ReadOnlyFileSystemException;
@@ -90,7 +91,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
             return new CommandSetPtr(context, fieldLoc, rvalue);
         } else if (input instanceof ExpressionVariable) {
             //input.field=rvalue
-            VarInfo thisVariable = context.get(((ExpressionVariable) input).name);
+            X86Param thisVariable = context.get(((ExpressionVariable) input).name);
             class CommandSetStructField extends Command {
                 Expression insert;
                 int stackLoc;
@@ -119,7 +120,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
                 public void staticValues() {
                 }
             }
-            return new CommandSetStructField(context, thisVariable.getStackLocation() + offsetOfThisFieldWithinStruct, rvalue);
+            return new CommandSetStructField(context, ((VarInfo) thisVariable).getStackLocation() + offsetOfThisFieldWithinStruct, rvalue);
         } else {
             throw new UnsupportedOperationException(input + " ", new MalformedParameterizedTypeException());
         }

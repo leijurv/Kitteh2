@@ -55,6 +55,9 @@ public class TACFunctionCall extends TACStatement {
             result = context.getRequired(resultName);
         }
     }
+    public String calling() {
+        return header.name;
+    }
     @Override
     public void printx86(X86Emitter emit) {
         int argsSize = header.inputs().stream().mapToInt(Type::getSizeBytes).sum();

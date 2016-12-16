@@ -5,15 +5,21 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
+import compiler.tac.TACFunctionCall;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.CompilationState;
 import compiler.util.Pair;
+import compiler.util.Prune;
 import compiler.x86.X86Format;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,6 +97,7 @@ public class Compiler {
                 System.out.println();
             }
         }
+        wew = Prune.prune(wew);
         long g = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(wew);
         long h = System.currentTimeMillis();

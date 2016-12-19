@@ -24,10 +24,11 @@ import java.util.List;
  * @author leijurv
  */
 public class TACFunctionCall extends TACStatement {
-    private final String resultName;
+    public static final X86Register[] returnRegisters = {X86Register.A, X86Register.C, X86Register.D};
+    private final String[] resultName;
     private final FunctionHeader header;
-    private X86Param result;
-    public TACFunctionCall(String result, FunctionHeader header, List<String> paramNames) {
+    private X86Param[] result;
+    public TACFunctionCall(FunctionHeader header, List<String> paramNames, String... result) {
         super(paramNames.toArray(new String[paramNames.size()]));
         this.resultName = result;
         this.header = header;
@@ -42,7 +43,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public String toString0() {
-        return (resultName == null ? "" : result + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
+        return (result.length == 0 ? "" : Arrays.asList(result) + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
     public void setVars() {
@@ -51,8 +52,9 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        if (resultName != null) {
-            result = context.getRequired(resultName);
+        result = new X86Param[resultName.length];
+        for (int i = 0; i < resultName.length; i++) {
+            result[i] = context.getRequired(resultName[i]);
         }
     }
     public String calling() {
@@ -73,10 +75,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + registers[i].getRegister(type).x86());
             }
             emit.addStatement("syscall");
-            if (result != null) {
-                TypeNumerical ret = (TypeNumerical) result.getType();
-                emit.addStatement("mov" + ret.x86typesuffix() + " " + X86Register.A.getRegister(ret) + ", " + result.x86());
-            }
+            printRet(emit);
             return;
         }
         emit.addStatement("subq $" + toSubtract + ", %rsp");
@@ -132,10 +131,13 @@ public class TACFunctionCall extends TACStatement {
             stackLocation += type.getSizeBytes();
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + header.name);
-        if (result != null) {
-            TypeNumerical ret = (TypeNumerical) result.getType();
-            emit.addStatement("mov" + ret.x86typesuffix() + " " + X86Register.A.getRegister(ret) + ", " + result.x86());
-        }
+        printRet(emit);
         emit.addStatement("addq $" + toSubtract + ", %rsp");
+    }
+    public void printRet(X86Emitter emit) {
+        for (int i = 0; i < result.length; i++) {
+            TypeNumerical ret = (TypeNumerical) result[i].getType();
+            emit.addStatement("mov" + ret.x86typesuffix() + " " + returnRegisters[i].getRegister(ret) + ", " + result[i].x86());
+        }
     }
 }

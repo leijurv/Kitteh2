@@ -29,12 +29,11 @@ struct bigint{
 		out[count]=lastChar
 		count--
 		for count>=0{
-			dm:=dividemod(b,ten)
+			quotient,remain:=dividemod(b,ten)
 			b.free()
-			b=dm.quotient
-			digi:=(dm.remainder).toLong()
-			(dm.remainder).free()
-			free(dm)
+			b=quotient
+			digi:=remain.toLong()
+			free(remain)
 			digit:=(byte)digi+'0'
 			out[count]=digit
 			count--
@@ -156,8 +155,9 @@ struct bigint{
 	mod(bigint*b)bigint*{
 		return mod(this,b)
 	}
-	dividemod(bigint*b)quotremain*{
-		return dividemod(this,b)
+	dividemod(bigint*b)bigint*,bigint*{
+		q,r:=dividemod(this,b)
+		return q,r //sorry
 	}
 	modpow(bigint*pow,bigint*modulus)bigint*{
 		return modpow(this,pow,modulus)
@@ -369,7 +369,7 @@ struct quotremain{
 	bigint* quotient
 	bigint* remainder
 }
-dividemod(bigint*a,bigint*b)quotremain*{
+dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.trimInPlace()
 	bneg:=b.neg
 	b.neg=false
@@ -391,28 +391,21 @@ dividemod(bigint*a,bigint*b)quotremain*{
 	}
 	res.trimInPlace()
 	d.trimInPlace()
-	qr:=(quotremain*)malloc(sizeof(quotremain))
 	res.neg=aneg!=bneg
-	qr.quotient=res
 	d.neg=aneg
-	qr.remainder=d
 	b.neg=bneg
 	a.neg=aneg
-	return qr
+	return res,d
 }
 divide(bigint*a,bigint*b)bigint*{
-	dm:=dividemod(a,b)
-	res:=dm.quotient
-	(dm.remainder).free()
-	free(dm)
-	return res
+	quotient,remainder:=dividemod(a,b)
+	free(remainder)
+	return quotient
 }
 mod(bigint*a,bigint*b)bigint*{
-	dm:=dividemod(a,b)
-	res:=dm.remainder
-	(dm.quotient).free()
-	free(dm)
-	return res
+	quotient,remainder:=dividemod(a,b)
+	free(quotient)
+	return remainder
 }
 modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	if pow.neg || base.neg || modulus.neg{

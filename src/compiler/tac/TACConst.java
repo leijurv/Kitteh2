@@ -42,8 +42,13 @@ public class TACConst extends TACStatement {
     public void setVars() {
         if (paramNames[1].startsWith(X86Register.REGISTER_PREFIX)) {
             TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
-            params[1] = X86Register.A.getRegister(type);
-            if (!params[1].x86().equals(paramNames[1])) {//verify it was really %rax
+            for (X86Register r : X86Register.values()) {
+                if (r.getRegister1(type, true).equals(paramNames[1])) {
+                    params[1] = r.getRegister(type);
+                    break;
+                }
+            }
+            if (!params[1].x86().equals(paramNames[1])) {//verify
                 throw new IllegalStateException(params[1].x86() + " " + paramNames[1]);
             }
         } else {

@@ -66,8 +66,15 @@ public class Parse {
     public static List<List<Token>> splitList(List<Token> list, TokenType splitOn) {
         List<List<Token>> result = new ArrayList<>();
         List<Token> temp = new ArrayList<>();
+        int numParen = 0;
         for (Token t : list) {
-            if (t.tokenType() == splitOn) {
+            if (t == TokenType.STARTPAREN) {
+                numParen++;
+            }
+            if (t == TokenType.ENDPAREN) {
+                numParen--;
+            }
+            if (t.tokenType() == splitOn && numParen == 0) {
                 result.add(temp);
                 temp = new ArrayList<>();
             } else {

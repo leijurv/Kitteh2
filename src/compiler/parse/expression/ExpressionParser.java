@@ -57,13 +57,15 @@ public class ExpressionParser {
     };
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
-        try {
-            r.getType();
-        } catch (IllegalStateException e) {
-            throw new IllegalStateException("Exception while getting type of " + o, e);
-        }
-        if (desiredType.isPresent() && !desiredType.get().equals(r.getType())) {
-            throw new IllegalStateException(o + " should have been type " + desiredType.get() + " but was actually type " + r.getType());
+        if (desiredType.isPresent()) {
+            try {
+                r.getType();
+            } catch (IllegalStateException e) {
+                throw new IllegalStateException("Exception while getting type of " + o, e);
+            }
+            if (!desiredType.get().equals(r.getType())) {
+                throw new IllegalStateException(o + " should have been type " + desiredType.get() + " but was actually type " + r.getType());
+            }
         }
         return r;
     }

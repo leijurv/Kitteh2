@@ -5,6 +5,7 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
+import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
 import compiler.tac.TempVarUsage;
@@ -150,8 +151,8 @@ public class Context {
     public void setCurrFunc(CommandDefineFunction cdf) {
         this.currentFunction = cdf;
     }
-    public Type getCurrentFunctionReturnType() {
-        return currentFunction.getHeader().getReturnType();
+    public FunctionHeader getCurrentFunction() {
+        return currentFunction.getHeader();
     }
     public TempVarUsage getTempVarUsage() {
         if (currentTempVarUsage == null) {

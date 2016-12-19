@@ -39,6 +39,9 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     public List<Expression> calling() {
         return args;
     }
+    public FunctionHeader header() {
+        return calling;
+    }
     private void verifyTypes() {
         List<Type> expected = calling.inputs();
         if (expected.size() != args.size() && !calling.name.equals("syscall")) {
@@ -68,14 +71,21 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     public String toString() {
         return calling.name + args;
     }
-    @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void multipleReturns(IREmitter emit, TempVarUsage tempVars, String... resultLocation) {
         List<String> argNames = args.stream().map((exp) -> {
             String tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toList());
-        emit.emit(new TACFunctionCall(resultLocation, calling, argNames));
+        emit.emit(new TACFunctionCall(calling, argNames, resultLocation));
+    }
+    @Override
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+        if (resultLocation == null) {
+            multipleReturns(emit, tempVars);
+        } else {
+            multipleReturns(emit, tempVars, resultLocation);
+        }
     }
     @Override
     public int calculateTACLength() {

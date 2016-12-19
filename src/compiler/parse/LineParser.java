@@ -10,11 +10,14 @@ import compiler.Operator;
 import compiler.command.Command;
 import compiler.command.CommandBreak;
 import compiler.command.CommandContinue;
+import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.command.CommandExp;
+import compiler.command.CommandMultiSet;
 import compiler.command.CommandReturn;
 import compiler.command.CommandSetVar;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConstNum;
+import compiler.expression.ExpressionFunctionCall;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionVariable;
 import compiler.expression.Settable;
@@ -30,6 +33,7 @@ import compiler.type.TypeVoid;
 import compiler.util.Parse;
 import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.ProviderMismatchException;
+import java.util.Arrays;
 import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Optional;
@@ -60,21 +64,40 @@ class LineParser {
                     }
                     return new CommandContinue(context);
                 case RETURN:
-                    Expression ex = null;
-                    Type retType = context.getCurrentFunctionReturnType();
-                    if (tokens.size() == 1) {
-                        //you're just doing "return" without a value, which is k
-                        if (!(retType instanceof TypeVoid)) {
-                            throw new IllegalStateException("you can't put a round peg in a square hole. or in this case, a void peg in a " + retType + " hole");
+                    FunctionHeader header = context.getCurrentFunction();
+                    if (!tokens.contains(COMMA)) {
+                        Type[] retTypes = header.getReturnTypes();
+                        if (retTypes.length != 1) {
+                            throw new IllegalStateException("Trying to return only one type when you need to return " + Arrays.asList(retTypes));
+                        }
+                        Type retType = retTypes[0];
+                        if (tokens.size() == 1) {
+                            //you're just doing "return" without a value, which is k
+                            if (!(retType instanceof TypeVoid)) {
+                                throw new IllegalStateException("you can't put a round peg in a square hole. or in this case, a void peg in a " + retType + " hole");
+                            }
+                            return new CommandReturn(context);
+                        } else {
+                            Expression ex;
+                            if (retType instanceof TypeVoid) {
+                                ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context); //we parse it here so that we know the type for the humorous error message
+                                throw new IllegalStateException("you can't put a square peg in a round hole. or in this case, a " + ex.getType() + " peg in a void hole");
+                            }
+                            ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.of(retType), context);
+                            return new CommandReturn(context, ex);
                         }
                     } else {
-                        if (retType instanceof TypeVoid) {
-                            ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context); //we parse it here so that we know the type for the humorous error message
-                            throw new IllegalStateException("you can't put a square peg in a round hole. or in this case, a " + ex.getType() + " peg in a void hole");
+                        List<List<Token>> splitted = Parse.splitList(tokens.subList(1, tokens.size()), COMMA);
+                        Type[] retTypes = header.getReturnTypes();
+                        if (retTypes.length != splitted.size()) {
+                            throw new IllegalStateException("Trying to return " + splitted.size() + " vars when you need to return " + retTypes.length + " " + splitted + " " + Arrays.asList(retTypes));
                         }
-                        ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.of(retType), context);
+                        Expression[] expressions = new Expression[retTypes.length];
+                        for (int i = 0; i < retTypes.length; i++) {
+                            expressions[i] = ExpressionParser.parse(splitted.get(i), Optional.of(retTypes[i]), context);
+                        }
+                        return new CommandReturn(context, expressions);
                     }
-                    return new CommandReturn(context, ex);
             }
         }
         if (tokens.stream().anyMatch(SEMICOLON)) {
@@ -137,6 +160,47 @@ class LineParser {
             return new CommandExp(ex, context);
         }
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
+        boolean inferType = (Boolean) tokens.get(eqLoc).data();
+        if (tokens.subList(0, eqLoc).contains(COMMA)) {
+            List<List<Token>> splitted = Parse.splitList(tokens.subList(0, eqLoc), COMMA);
+            String[] variableNames = new String[splitted.size()];
+            for (int i = 0; i < splitted.size(); i++) {
+                List<Token> item = splitted.get(i);
+                if (item.size() != 1) {
+                    throw new RuntimeException(item + "");
+                }
+                if (item.get(0).tokenType() != VARIABLE) {
+                    throw new RuntimeException(item + "");
+                }
+                variableNames[i] = (String) item.get(0).data();
+            }
+            Expression ex = ExpressionParser.parse(after, Optional.empty(), context);
+            if (!(ex instanceof ExpressionFunctionCall)) {
+                throw new RuntimeException("Multiple sets only for multi return function calls " + tokens);
+            }
+            ExpressionFunctionCall efc = (ExpressionFunctionCall) ex;
+            Type[] types = efc.header().getReturnTypes();
+            if (types.length != variableNames.length) {
+                throw new RuntimeException("Setting " + variableNames.length + " variables to a function that returns " + types.length);
+            }
+            boolean settingNew = false;
+            for (int i = 0; i < types.length; i++) {
+                String name = variableNames[i];
+                Type curr = context.get(name) == null ? null : context.get(name).getType();
+                if (curr == null) {
+                    settingNew = true;
+                    context.setType(name, types[i]);
+                } else {
+                    if (!curr.equals(types[i])) {
+                        throw new IllegalStateException("Trying to set " + curr + " " + name + " to " + types[i]);
+                    }
+                }
+            }
+            if (settingNew ^ inferType) {
+                throw new IllegalStateException(settingNew + " " + inferType);
+            }
+            return new CommandMultiSet(context, (ExpressionFunctionCall) ex, variableNames);
+        }
         if (eqLoc == 1) {
             //ok we just doing something like i=5
             if (tokens.get(0).tokenType() != VARIABLE) {
@@ -144,7 +208,6 @@ class LineParser {
             }
             String ts = (String) tokens.get(0).data();
             Type type = context.get(ts) == null ? null : context.get(ts).getType();
-            boolean inferType = (Boolean) tokens.get(eqLoc).data();
             if (inferType ^ (type == null)) {
                 //look at that arousing use of xor
                 throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));

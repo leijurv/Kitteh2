@@ -74,7 +74,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (isEntryPoint) {
             return getLocalHeader();
         }
-        return new FunctionHeader(headerNameFromPkgAndName(context.packageName, name), header.returnType, header.arguments);
+        return new FunctionHeader(headerNameFromPkgAndName(context.packageName, name), header.arguments, header.returnTypes);
     }
     public String getLocalName() {
         return header.name;
@@ -87,13 +87,19 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (header != null) {
             throw new RuntimeException();
         }
-        Type retType;
-        if (Parse.typeFromTokens(returnType, context) != null) {
-            retType = Parse.typeFromTokens(returnType, context);
-        } else if (returnType.isEmpty()) {
-            retType = new TypeVoid();
+        Type[] retType;
+        if (returnType.isEmpty()) {
+            retType = new Type[]{new TypeVoid()};
         } else {
-            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
+            List<List<Token>> splitted = Parse.splitList(returnType, COMMA);
+            retType = new Type[splitted.size()];
+            for (int i = 0; i < retType.length; i++) {
+                Type type = Parse.typeFromTokens(splitted.get(i), context);
+                if (type == null) {
+                    throw new IllegalStateException("Invalid return type " + splitted.get(i));
+                }
+                retType[i] = type;
+            }
         }
         int endParen = params.indexOf(ENDPAREN);
         List<Pair<String, Type>> args = Parse.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
@@ -111,7 +117,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (methodOf != null) {
             args.add(0, new Pair<>("this", new TypePointer(methodOf)));
         }
-        this.header = new FunctionHeader(name, retType, args.stream().map(Pair::getB).collect(Collectors.toList()));
+        this.header = new FunctionHeader(name, args.stream().map(Pair::getB).collect(Collectors.toList()), retType);
         int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack
         http://eli.thegreenplace.net/2011/09/06/stack-frame-layout-on-x86-64/
         for (Pair<String, Type> arg : args) {
@@ -131,10 +137,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         //System.out.println("wew " + contents);
         checkFrees();
         context.gc = null;
-        boolean returnsVoid = header.getReturnType() instanceof TypeVoid;
+        boolean returnsVoid = header.getReturnTypes().length == 1 && header.getReturnType() instanceof TypeVoid;
         if (contents.isEmpty()) {
             if (returnsVoid) {
-                contents.add(new CommandReturn(context, null));
+                contents.add(new CommandReturn(context));
             } else {
                 throw new RuntimeException("Empty function with non-void return type " + name);
             }
@@ -142,7 +148,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
         if (!endWithReturn) {
             if (returnsVoid) {
-                contents.add(new CommandReturn(context, null));
+                contents.add(new CommandReturn(context));
             } else {
                 throw new RuntimeException("You need a return as the last command");
             }
@@ -187,23 +193,32 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
 
     public static class FunctionHeader {
-        private FunctionHeader(String name, Type returnType, List<Type> arguments) {
+        private FunctionHeader(String name, List<Type> arguments, Type... returnType) {
             this.name = name;
-            this.returnType = returnType;
+            this.returnTypes = returnType;
             this.arguments = arguments;
+            if (returnTypes.length < 1) {
+                throw new IllegalArgumentException();
+            }
         }
         public final String name;
-        private final Type returnType;
+        private final Type[] returnTypes;
         private final List<Type> arguments;
         public Type getReturnType() {
-            return returnType;
+            if (returnTypes.length != 1) {
+                throw new IllegalStateException();
+            }
+            return returnTypes[0];
+        }
+        public Type[] getReturnTypes() {
+            return returnTypes;
         }
         public List<Type> inputs() {
             return arguments;
         }
         @Override
         public String toString() {
-            return "func " + name + arguments + " " + returnType;
+            return "func " + name + arguments + " " + Arrays.asList(returnTypes);
         }
         @Override
         public boolean equals(Object o) {
@@ -218,9 +233,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         }
     }
     //public static final FunctionHeader PRINTINT = new FunctionHeader(Keyword.PRINT.toString(), new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
-    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid()), new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})));
-    public static final FunctionHeader FREE = new FunctionHeader("free", new TypeVoid(), new ArrayList<>(Arrays.asList(new Type[]{new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid())})));
-    public static final FunctionHeader SYSCALL = new FunctionHeader("syscall", new TypeInt64(), new ArrayList<>(Arrays.asList(new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64())));
+    public static final FunctionHeader MALLOC = new FunctionHeader("malloc", new ArrayList<>(Arrays.asList(new Type[]{new TypeInt32()})), new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid()));
+    public static final FunctionHeader FREE = new FunctionHeader("free", new ArrayList<>(Arrays.asList(new Type[]{new <TypeVoid>TypePointer<TypeVoid>(new TypeVoid())})), new TypeVoid());
+    public static final FunctionHeader SYSCALL = new FunctionHeader("syscall", new ArrayList<>(Arrays.asList(new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64(), new TypeInt64())), new TypeInt64());
     public void checkFrees() {
         if (name.endsWith("_free") || name.equals("free")) {
             if (methodOf == null) {

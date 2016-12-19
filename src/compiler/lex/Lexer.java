@@ -41,6 +41,12 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             pop();//pop "ch" because at this point we know we're going to use it
+            if (has2() && TokenMapping.mapsToToken(ch + peek2())) {
+                emit(TokenMapping.getStaticToken(ch + peek2()));
+                pop();
+                pop();
+                continue;
+            }
             if (has() && TokenMapping.mapsToToken(ch + "" + peek())) {
                 //if this character and the next character (if present) forms a token, pop the second character and emit the compound token
                 emit(TokenMapping.getStaticToken(ch + "" + pop()));

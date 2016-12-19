@@ -16,6 +16,9 @@ class StringEmitter {
         this.str = str;
         this.pos = 0;
     }
+    public final String peek2() {
+        return str.charAt(pos) + "" + str.charAt(pos + 1);
+    }
     public final char peek() {
         if (pos >= str.length()) {
             throw new IllegalStateException("Unexpected end of line");
@@ -26,6 +29,9 @@ class StringEmitter {
         char c = peek();
         pos++;
         return c;
+    }
+    public final boolean has2() {
+        return pos + 1 < str.length();
     }
     public final boolean has() {
         return pos < str.length();

@@ -42,6 +42,8 @@ public enum Operator implements Token<Operator> {
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     SHIFT_L("<<", 1500),
     SHIFT_R(">>", 1500),
+    USHIFT_L("<<<", 1500),
+    USHIFT_R(">>>", 1500),
     L_XOR("^", 2000),
     L_AND("&", 1900),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
     L_OR("|", 1800),
@@ -124,6 +126,8 @@ public enum Operator implements Token<Operator> {
                 return a;
             case SHIFT_L:
             case SHIFT_R:
+            case USHIFT_L:
+            case USHIFT_R:
                 if (a instanceof TypeBoolean) {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }

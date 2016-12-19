@@ -3,6 +3,20 @@ struct bigint{
 	int* mag
 	int cap
 	bool neg
+
+debug(){
+		print("Outputting")
+		writeByte(10)
+		print(this.cap)
+		for i:=0; i<this.cap; i++{
+			print(this.mag[i])
+		}
+		print("Longval: ")
+		print(this.toLong())
+		print("End")
+		writeByte(10)
+	
+}
 	tostring(byte lastChar)byte*{
 		zero:=fromLong(0)
 		neg:=this.neg
@@ -251,7 +265,8 @@ addWithCin(bigint* a,bigint* b,bool cin)bigint*{
 		b.neg=true
 		return res
 	}
-	size:=a.size
+
+	/*size:=a.size
 	if b.size>size{
 		size=b.size
 	}
@@ -270,8 +285,42 @@ addWithCin(bigint* a,bigint* b,bool cin)bigint*{
 		ci:=res.bit(i)
 		res.setbit(i,ai^bi^ci)
 		res.setbit(i+1,ai&bi|(ai|bi)&ci)
+	}*/
+
+	return addO(a,b,(int)cin)
+
+
+	/*oth:=addO(a,b,(int)cin)
+	if !equal(oth,res){
+		print("Oh no")
+
+		writeByte(10)
+		a.debug()
+		b.debug()
+		print(a.neg)
+		print(b.neg)
+		print(a.toLong())
+		print(b.toLong())
+		print(b.mag[7])
+		print(b.mag[6])
+		print(a.size)
+		print(b.size)
+		print(a.cap)
+		print(b.cap)
+		a.output()
+		b.output()
+		print(cin)
+		oth.output()
+		res.output()
+		print("=(")
+		writeByte(10)
+		print(*((int*)0))
 	}
-	return res
+	return res*/
+	
+	//return addO(a,b,(int)cin)
+	
+	
 }
 subtract(bigint*aa,bigint*bb)bigint*{
 	a:=aa
@@ -394,10 +443,6 @@ multiply(bigint* a, bigint* bb)bigint*{
 	b.neg=bneg
 	b.free()
 	return res
-}
-struct quotremain{
-	bigint* quotient
-	bigint* remainder
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.trimInPlace()
@@ -545,4 +590,78 @@ charFromHex(byte char) byte{
 		return 10+char-'A'
 	}
 	return char
+}
+addO(bigint* a,bigint* b,int cin)bigint*{
+       // If x is shorter, swap the two arrays
+       if (a.cap < b.cap) {
+       	//print("SWITCHEROO")
+           bigint* tmp = a;
+           a = b;
+           b = tmp;
+       }
+       x:=a.mag
+		y:=b.mag
+       int xIndex = a.cap;
+       int yIndex = b.cap;
+       /*print("Caps")
+       print(xIndex)
+       print(yIndex)*/
+       res:=new(xIndex*32)
+       result:=res.mag
+       
+       long sum = (long)cin<<(long)32;
+       mask:=mask(0)
+       // Add common parts of both numbers
+       for(yIndex > 0) {
+       xIndex--
+       yIndex--
+       /*print("lol")
+       print(mask)
+       print(x[xIndex])
+       print(y[yIndex])
+       print(((long)y[yIndex] & mask))
+       print(((long)x[xIndex] & mask))*/
+           sum = ((long)x[xIndex] & mask) + ((long)y[yIndex] & mask) + (sum >>> (long)32);
+           //print(sum)
+           result[xIndex] = (int)sum;
+       }
+       // Copy remainder of longer number while carry propagation is required
+       bool carry = (sum >>> (long)32 != (long)0);
+       for (xIndex > 0 && carry){
+       	//print("CARRRYRRYRYRYRRY")
+       		xIndex--
+       		tmp:=x[xIndex]+1
+       		result[xIndex]=tmp
+           carry = tmp == 0
+       }
+
+       // Copy remainder of longer number
+       for (xIndex > 0){
+       	//print("COCUCOECI")
+       		xIndex--
+           result[xIndex] = x[xIndex];
+       }
+
+       // Grow result if necessary
+       if (carry) {
+       	//print("WOW LAD")
+           int newLen = res.cap + 1;
+           temp:=(int*)malloc(newLen*4)
+           for int i = 1; i<newLen; i++{
+               temp[i] = result[i-1];
+           }
+           temp[0] = 1;
+           free(result)
+           res.mag = temp;
+           res.cap=newLen
+           res.size=res.size+1
+       }
+       //writeByte(10)
+       //writeByte(10)
+       return res;
+   
+
+}
+mask(int i) long{
+	return (2<<((long)i+31))-1
 }

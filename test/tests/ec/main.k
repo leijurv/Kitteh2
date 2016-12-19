@@ -2,9 +2,11 @@ import base
 import math/bigint
 
 main(){
-
+	
 	x:=basepointX()
 	bigint* y=basepointY()
+	add(x,y).output()
+	addO(x,y,0).output()
 	modulus:=modulus()
 	x.output()
 	y.output()

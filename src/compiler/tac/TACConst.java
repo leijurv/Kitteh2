@@ -43,7 +43,7 @@ public class TACConst extends TACStatement {
         if (paramNames[1].startsWith(X86Register.REGISTER_PREFIX)) {
             TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
             for (X86Register r : X86Register.values()) {
-                if (r.getRegister1(type, true).equals(paramNames[1])) {
+                if (r.getRegister1(type, true).equals(paramNames[1])) {//forgive me father, for i have sinned
                     params[1] = r.getRegister(type);
                     break;
                 }

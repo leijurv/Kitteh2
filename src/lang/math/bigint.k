@@ -489,3 +489,31 @@ modInverse(bigint*a,bigint*b)bigint*{
 	(wewlad).free()
 	return res
 }
+bigintFromHex(byte* str)bigint*{
+	count:=0
+	for copy:=str; *copy!=(byte)0; copy=copy+1{
+		count++
+	}
+	res:=new(count*4)
+	for i:=0; i<count; i++{
+		dest:=res.cont+(i*4)
+		ch:=charFromHex(str[count-i-1])
+		dest[0]=ch&(byte)1!=(byte)0
+		dest[1]=ch&(byte)2!=(byte)0
+		dest[2]=ch&(byte)4!=(byte)0
+		dest[3]=ch&(byte)8!=(byte)0
+	}
+	return res
+}
+charFromHex(byte char) byte{
+	if char>='0' && char<='9'{
+		return char-'0'
+	}
+	if char>='a' && char<='f'{
+		return 10+char-'a'
+	}
+	if char>='A' && char<='F'{
+		return 10+char-'A'
+	}
+	return char
+}

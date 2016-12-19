@@ -47,11 +47,27 @@ struct bigint{
 		this.neg=neg
 		return out
 	}
+	bit(int pos)bool{
+		/*if pos > this.cap{
+			print(pos)
+			print(this.cap)
+			print(*((int*)0))
+		}*/
+		return this.cont[pos]
+	}
+	setbit(int pos,bool val){
+		/*if pos > this.cap{
+			print(pos)
+			print(this.cap)
+			print(*((int*)0))
+		}*/
+		this.cont[pos]=val
+	}
 	toLong()long{
 		long res=0
 		for i:=this.size-1; i>=0; i--{
 			res=res*2
-			if this.cont[i]{
+			if this.bit(i){
 				res++
 			}
 		}
@@ -65,27 +81,28 @@ struct bigint{
 		writeNullTerm(out)
 		free(out)
 	}
-	leftshift(int amount){
-		origsize:=this.size
-		this.size=this.size+amount
-		bool* newCont
-		bool reallocated=this.cap<this.size
-		if reallocated{
-			newCont=(bool*)malloc(this.size*sizeof(bool))
-			this.cap=this.size
-		}else{
-			newCont=this.cont
+	ensure(int s){
+		if s > this.cap{
+			n:=(bool*)malloc(s*sizeof(bool))
+			for i:=0; i<this.size; i++{
+				n[i]=this.bit(i)
+			}
+			free(this.cont)
+			this.cont=n
+			this.cap=s
 		}
+		this.size=s
+	}
+	leftshift(int amount){
+		this.trimInPlace()
+		origsize:=this.size
+		this.ensure(origsize+amount)
 		for i:=origsize-1; i>=0; i--{
-			newCont[i+amount]=this.cont[i]
+			this.setbit(i+amount,this.bit(i))
 		}
 		for i:=0; i<amount; i++{
-			newCont[i]=false
+			this.setbit(i,false)
 		}
-		if reallocated{
-			free(this.cont)
-		}
-		this.cont=newCont
 	}
 	free(){
 		free(this.cont)
@@ -93,8 +110,7 @@ struct bigint{
 	}
 	highestbitset()int{
 		for i:=this.size-1;i>=0;i--{
-			wew:=this.cont[i]
-			if wew{
+			if this.bit(i){
 				return i
 			}
 		}
@@ -104,7 +120,7 @@ struct bigint{
 		this.trimInPlace()
 		res:=new(this.size)
 		for i:=0; i<this.size; i++{
-			res.cont[i]=this.cont[i]
+			res.setbit(i,this.bit(i))
 		}
 		res.neg=this.neg
 		return res
@@ -126,7 +142,7 @@ struct bigint{
 		}
 		res:=new(length)
 		for i:=0; i<this.size && i<length; i++{
-			res.cont[i]=this.cont[i]
+			res.setbit(i,this.bit(i))
 		}
 		res.neg=this.neg
 		return res
@@ -135,7 +151,7 @@ struct bigint{
 		this.trimInPlace()
 		res:=new(this.size-1)
 		for i:=0; i<this.size-1; i++{
-			res.cont[i]=this.cont[i+1]
+			res.setbit(i,this.bit(i+1))
 		}
 		res.neg=this.neg
 		return res
@@ -179,7 +195,7 @@ fromLong(long inp)bigint*{
 	}
 	x:=new(count+1)
 	for i:=0; inp>(long)0; i++{
-		x.cont[i]=inp%(long)2==(long)1
+		x.setbit(i,inp%(long)2==(long)1)
 		inp=inp/2
 	}
 	x.trimInPlace()
@@ -230,19 +246,19 @@ addWithCin(bigint* a,bigint* b,bool cin)bigint*{
 	}
 	size++
 	res:=new(size)
-	res.cont[0]=cin
+	res.setbit(0,cin)
 	for i:=0; i<a.size || i<b.size; i++{
 		ai:=false
 		if i<a.size{
-			ai=a.cont[i]
+			ai=a.bit(i)
 		}
 		bi:=false
 		if i<b.size{
-			bi=b.cont[i]
+			bi=b.bit(i)
 		}
-		ci:=res.cont[i]
-		res.cont[i]=ai^bi^ci
-		res.cont[i+1]=ai&bi|(ai|bi)&ci
+		ci:=res.bit(i)
+		res.setbit(i,ai^bi^ci)
+		res.setbit(i+1,ai&bi|(ai|bi)&ci)
 	}
 	return res
 }
@@ -286,7 +302,7 @@ subtract(bigint*aa,bigint*bb)bigint*{
 	a.trimInPlace()
 	b=b.padtolength(a.size)
 	for i:=0; i<b.size; i++{
-		b.cont[i]=true^b.cont[i]
+		b.setbit(i,true^b.bit(i))
 	}
 	res:=addWithCin(a,b,true)
 	res.size=a.size
@@ -315,8 +331,8 @@ greater(bigint*a,bigint*b)bool{
 		return false
 	}
 	for i:=a.highestbitset(); i>=0; i--{
-		ai:=a.cont[i]
-		bi:=b.cont[i]
+		ai:=a.bit(i)
+		bi:=b.bit(i)
 		if ai && !bi{
 			return true
 		}
@@ -334,7 +350,7 @@ equal(bigint*a,bigint*b)bool{
 		return false
 	}
 	for i:=0; i<a.highestbitset(); i++{
-		if a.cont[i]!=b.cont[i]{
+		if a.bit(i)!=b.bit(i){
 			return false
 		}
 	}
@@ -351,7 +367,7 @@ multiply(bigint* a, bigint* bb)bigint*{
 	b.neg=false
 	res:=new(1)
 	for i:=0; i<a.size; i++{
-		ai:=a.cont[i]
+		ai:=a.bit(i)
 		if ai{
 			old:=res
 			res=add(res,b)
@@ -380,13 +396,13 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	res:=new(a.size)
 	for e:=a.size-1;e>=0;e--{
 		d.leftshift(1)
-		d.cont[0]=a.cont[e]
+		d.setbit(0,a.bit(e))
 		g:=greater(b,d)
 		if(!g){
 			old:=d
 			d=d.subtract(b)
 			old.free()
-			res.cont[e]=true
+			res.setbit(e,true)
 		}
 	}
 	res.trimInPlace()
@@ -415,18 +431,18 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	pow.trimInPlace()
-	if pow.size==1 && pow.cont[0]{
+	if pow.size==1 && pow.bit(0){
 		return base.dup()
 	}
 	if pow.size<2{
 		one:=new(1)
-		one.cont[0]=true
+		one.setbit(0,true)
 		return one
 	}
-	if pow.cont[0]{
+	if pow.bit(0){
 		//odd
 		one:=new(1)
-		one.cont[0]=true
+		one.setbit(0,true)
 		powminus:=pow.subtract(one)
 		(one).free()
 		lol:=modpowInternal(base,powminus,modulus)
@@ -496,12 +512,11 @@ bigintFromHex(byte* str)bigint*{
 	}
 	res:=new(count*4)
 	for i:=0; i<count; i++{
-		dest:=res.cont+(i*4)
 		ch:=charFromHex(str[count-i-1])
-		dest[0]=ch&(byte)1!=(byte)0
-		dest[1]=ch&(byte)2!=(byte)0
-		dest[2]=ch&(byte)4!=(byte)0
-		dest[3]=ch&(byte)8!=(byte)0
+		res.setbit(0+i*4,ch&(byte)1!=(byte)0)
+		res.setbit(1+i*4,ch&(byte)2!=(byte)0)
+		res.setbit(2+i*4,ch&(byte)4!=(byte)0)
+		res.setbit(3+i*4,ch&(byte)8!=(byte)0)
 	}
 	return res
 }

@@ -1,6 +1,6 @@
 struct bigint{
 	int size
-	bool* cont
+	int* mag
 	int cap
 	bool neg
 	tostring(byte lastChar)byte*{
@@ -48,20 +48,19 @@ struct bigint{
 		return out
 	}
 	bit(int pos)bool{
-		/*if pos > this.cap{
-			print(pos)
-			print(this.cap)
-			print(*((int*)0))
-		}*/
-		return this.cont[pos]
+		int n=pos/32
+		long k=(long)this.mag[this.cap-n-1]
+		long m=1<<((long)pos%32)
+		return k&m!=(long)0
 	}
 	setbit(int pos,bool val){
-		/*if pos > this.cap{
-			print(pos)
-			print(this.cap)
-			print(*((int*)0))
-		}*/
-		this.cont[pos]=val
+		int n=pos/32
+		int m=1<<(pos%32)
+		if val{
+			this.mag[this.cap-n-1]=this.mag[this.cap-n-1] | m
+		}else{
+			this.mag[this.cap-n-1] = this.mag[this.cap-n-1] & (0-1 - m)
+		}
 	}
 	toLong()long{
 		long res=0
@@ -82,14 +81,18 @@ struct bigint{
 		free(out)
 	}
 	ensure(int s){
-		if s > this.cap{
-			n:=(bool*)malloc(s*sizeof(bool))
+		sketch:=s/32
+		if s%32!=0{
+			sketch++
+		}
+		if sketch > this.cap{
+			oth:=new(s)
 			for i:=0; i<this.size; i++{
-				n[i]=this.bit(i)
+				oth.setbit(i,this.bit(i))
 			}
-			free(this.cont)
-			this.cont=n
-			this.cap=s
+			free(this.mag)
+			this.mag=oth.mag
+			this.cap=oth.cap
 		}
 		this.size=s
 	}
@@ -105,8 +108,8 @@ struct bigint{
 		}
 	}
 	free(){
-		free(this.cont)
-		this.cont=(bool*)0//make sure we dont have any intermittent use-after-free bugs lurking
+		free(this.mag)
+		this.mag=(int*)0//make sure we dont have any intermittent use-after-free bugs lurking
 	}
 	highestbitset()int{
 		for i:=this.size-1;i>=0;i--{
@@ -129,7 +132,11 @@ struct bigint{
 		return this.padtolength(this.highestbitset()+1)
 	}
 	trimInPlace(){
+		ps:=this.size
 		this.size=this.highestbitset()+1
+		for i:=ps-1; i>=this.size; i--{
+			this.setbit(i,false)
+		}
 		if this.size==0{
 			this.neg=false //cant have negative zero
 			this.size=1
@@ -205,10 +212,14 @@ fromLong(long inp)bigint*{
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))
 	res.size=size
-	res.cap=size
-	res.cont=(bool*)malloc(sizeof(bool)*size)
-	for i:=0; i<size; i++{
-		res.cont[i]=false
+	s:=size/32
+	if size%32!=0{
+		s++
+	}
+	res.cap=s
+	res.mag=(int*)malloc(sizeof(int)*s)
+	for i:=0; i<s; i++{
+		res.mag[i]=0
 	}
 	res.neg=false
 	return res
@@ -305,6 +316,9 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		b.setbit(i,true^b.bit(i))
 	}
 	res:=addWithCin(a,b,true)
+	for i:=res.size-1; i>=a.size; i--{
+		res.setbit(i,false)
+	}
 	res.size=a.size
 	b.free()
 	return res

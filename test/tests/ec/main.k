@@ -105,17 +105,17 @@ struct ecpoint{
 	}
 	multiply(bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
 		pow.trimInPlace()
-		if pow.size==1 && pow.cont[0]{
+		if pow.size==1 && pow.bit(0){
 			return this
 		}
 		if pow.size<2{
 			return (ecpoint*)0
 		}
-		if pow.cont[0]{
+		if pow.bit(0){
 			//odd
 			
 			one:=new(1)
-			one.cont[0]=true
+			one.setbit(0,true)
 			powminus:=subtract(pow,one)
 			one.free()
 

@@ -24,6 +24,18 @@ class TokenMapping {
         map.put("≠", Operator.NOT_EQUAL);
         map.put("≥", Operator.GREATER_OR_EQUAL);
         map.put("≤", Operator.LESS_OR_EQUAL);
+        map.put("≪", Operator.SHIFT_L);
+        map.put("«", Operator.SHIFT_L);
+        map.put("≫", Operator.SHIFT_R);
+        map.put("»", Operator.SHIFT_R);
+        map.put("≪<", Operator.USHIFT_L);
+        map.put("«<", Operator.USHIFT_L);
+        map.put("≫>", Operator.USHIFT_R);
+        map.put("»>", Operator.USHIFT_R);
+        map.put("<≪", Operator.USHIFT_L);
+        map.put("<«", Operator.USHIFT_L);
+        map.put(">≫", Operator.USHIFT_R);
+        map.put(">»", Operator.USHIFT_R);
         put(SETEQUAL.create(false), map);
         put(SETEQUAL.create(true), map);
         for (Operator op : Operator.values()) {

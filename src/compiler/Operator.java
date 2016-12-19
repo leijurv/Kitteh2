@@ -194,9 +194,12 @@ public enum Operator implements Token<Operator> {
             case L_OR:
                 return a | b;
             case SHIFT_L:
+            case USHIFT_L://TIL
                 return a << b;
             case SHIFT_R:
                 return a >> b;
+            case USHIFT_R:
+                return a >>> b;
             case PLUS:
                 return a + b;
             case MINUS:

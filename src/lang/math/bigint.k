@@ -365,7 +365,7 @@ add(bigint* a,bigint* b)bigint*{
        }
        //writeByte(10)
        //writeByte(10)
-       res.trimInPlace()
+       res.stripLeadingZero()
        return res;
    
 

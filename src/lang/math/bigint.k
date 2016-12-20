@@ -62,14 +62,14 @@ debug(){
 		return out
 	}
 	bit(int pos)bool{
-		int n=pos/32
+		int n=pos>>>5
 		long k=(long)this.mag[this.cap-n-1]
-		long m=1<<((long)pos%32)
+		long m=1<<((long)pos&31)
 		return k&m!=(long)0
 	}
 	setbit(int pos,bool val){
-		int n=pos/32
-		int m=1<<(pos%32)
+		int n=pos>>>5
+		int m=1<<(pos&31)
 		if val{
 			this.mag[this.cap-n-1]=this.mag[this.cap-n-1] | m
 		}else{

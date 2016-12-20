@@ -94,22 +94,8 @@ debug(){
 		writeNullTerm(out)
 		free(out)
 	}
-	weirdleftshift(int n){
-		 val:=this.mag
-         int n2 = 32 - n;
-         int i=0
-         c:=val[0]
-         m:=this.cap-1
-         for i<m {
-             int b = c;
-             c = val[i+1];
-             val[i] = (b << n) | (c >>> n2);
-             i++
-         }
-         val[m] = val[m]<<n;
-         this.size=this.size+1
-	}
 	leftshift(int amount){
+
 		this.trimInPlace()
 		nInts:=amount>>>5
 		nBits:=amount&31
@@ -132,21 +118,32 @@ debug(){
 			if highBits!=0{
 				n=(int*)malloc(sizeof(int)*(magLen+nInts+1))
 				nl++
-				for k:=0; k<nl; k++{
-				n[k]=0
-			}
+				for k:=1; k<nl; k++{
+					n[k]=0
+				}
 				n[i]=highBits
 				i++
-				
 			}else{
 				if nInts==0{
-					this.weirdleftshift(amount)
+					val:=this.mag
+			         int n2 = 32 - amount;
+			         int k=0
+			         c:=val[0]
+			         m:=this.cap-1
+			         for k<m {
+			             int b = c;
+			             c = val[k+1];
+			             val[k] = (b << amount) | (c >>> n2);
+			             k++
+			         }
+			         val[m] = val[m]<<amount;
+			         this.size=this.size+1
 					return
 				}
 				n=(int*)malloc(sizeof(int)*(magLen+nInts))
 				for k:=0; k<nl; k++{
-				n[k]=0
-			}
+					n[k]=0
+				}
 			}
 			j:=0
 			for j < magLen-1{
@@ -187,15 +184,14 @@ debug(){
 		return this.padtolength(this.highestbitset()+1)
 	}
 	trimInPlace(){
-		ps:=this.size
-		this.size=this.highestbitset()+1
-		for i:=ps-1; i>=this.size; i--{
-			this.setbit(i,false)
+		for i:=this.size-1;i>=0;i--{
+			if this.bit(i){
+				this.size=i+1
+				return
+			}
 		}
-		if this.size==0{
-			this.neg=false //cant have negative zero
-			this.size=1
-		}
+		this.neg=false //cant have negative zero
+		this.size=1
 	}
 	padtolength(int length1)bigint*{
 		length:=length1
@@ -323,7 +319,8 @@ add(bigint* a,bigint* b)bigint*{
 		b.neg=true
 		return res
 	}
-
+	a.stripLeadingZero()
+	b.stripLeadingZero()
 
 	 // If x is shorter, swap the two arrays
        if (a.cap < b.cap) {
@@ -438,42 +435,64 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		res.neg=true
 		return res
 	}
-
-big:=a.mag
-       little:=b.mag
-int bigIndex = a.cap;
-int littleIndex = b.cap;
-
-	
-       res:=new(bigIndex*32)
-       result := res.mag
-       
-     
-       
-       long difference = 0;
-       mask:=mask(0)
-       // Subtract common parts of both numbers
-       for(littleIndex > 0) {
-       bigIndex--
-       littleIndex--
-           difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> 32);
-           result[bigIndex] = (int)difference;
-       }
-       // Subtract remainder of longer number while borrow propagates
-       bool borrow = (difference >> (long)32 != (long)0);
-       for (bigIndex > 0 && borrow){
-       		bigIndex--
-       		lol:=big[bigIndex] - 1
-       		result[bigIndex]=lol
-           borrow = lol == (0-1);
-       }
-       // Copy remainder of longer number
-       for (bigIndex > 0){
-       bigIndex--
-           result[bigIndex] = big[bigIndex];
-       }
-res.stripLeadingZero()
-       return res
+	big:=a.mag
+	little:=b.mag
+	int bigIndex = a.cap;
+	int littleIndex = b.cap;
+	res:=new(bigIndex*32)
+	result := res.mag
+	long difference = 0;
+	mask:=mask(0)
+	for(littleIndex > 0) {
+		bigIndex--
+		littleIndex--
+		difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> 32);
+		result[bigIndex] = (int)difference;
+	}
+	bool borrow = (difference >> (long)32 != (long)0);
+	for (bigIndex > 0 && borrow){
+		bigIndex--
+		lol:=big[bigIndex] - 1
+		result[bigIndex]=lol
+		borrow = lol == (0-1);
+	}
+	for (bigIndex > 0){
+		bigIndex--
+		result[bigIndex] = big[bigIndex];
+	}
+	res.stripLeadingZero()
+	return res
+}
+trustedSubtract(bigint* a,bigint* b)bigint*{
+	a.stripLeadingZero()
+	b.stripLeadingZero()
+	big:=a.mag
+	little:=b.mag
+	int bigIndex = a.cap;
+	int littleIndex = b.cap;
+	res:=new(bigIndex*32)
+	result := res.mag
+	long difference = 0;
+	mask:=mask(0)
+	for(littleIndex > 0) {
+		bigIndex--
+		littleIndex--
+		difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> 32);
+		result[bigIndex] = (int)difference;
+	}
+	bool borrow = (difference >> (long)32 != (long)0);
+	for (bigIndex > 0 && borrow){
+		bigIndex--
+		lol:=big[bigIndex] - 1
+		result[bigIndex]=lol
+		borrow = lol == (0-1);
+	}
+	for (bigIndex > 0){
+		bigIndex--
+		result[bigIndex] = big[bigIndex];
+	}
+	res.stripLeadingZero()
+	return res
 }
 
 greater(bigint*a,bigint*b)bool{
@@ -556,8 +575,7 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	b.neg=false
 	aneg:=a.neg
 	a.neg=false
-	d:=new(a.size)
-	d.size=0
+	d:=new(1)
 	res:=new(a.size)
 	dhs:=0-1
 	bhs:=b.highestbitset()
@@ -569,7 +587,7 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 			g:=greater(b,d)
 			if(!g){
 				old:=d
-				d=d.subtract(b)
+				d=trustedSubtract(d,b)
 				dhs=d.highestbitset()
 				old.free()
 				res.setbit(e,true)

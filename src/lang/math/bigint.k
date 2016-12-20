@@ -103,24 +103,31 @@ debug(){
 		nl:=magLen+nInts
 		if nBits==0{
 			n=(int*)malloc(sizeof(int)*(magLen+nInts))
-
-			for i:=0; i<magLen; i++{
-				n[i]=this.mag[i]
-			}
 			for i:=magLen; i<nl; i++{
 				n[i]=0
 			}
+			for i:=0; i<magLen; i++{
+				n[i]=this.mag[i]
+			}
+			
 		}else{
 			i:=0
 			nBits2:=32-nBits
 			highBits:=this.mag[0]>>>nBits2
 			if highBits!=0{
 				n=(int*)malloc(sizeof(int)*(magLen+nInts+1))
+				nl++
+				for k:=0; k<nl; k++{
+				n[k]=0
+			}
 				n[i]=highBits
 				i++
-				nl++
+				
 			}else{
 				n=(int*)malloc(sizeof(int)*(magLen+nInts))
+				for k:=0; k<nl; k++{
+				n[k]=0
+			}
 			}
 			j:=0
 			for j < magLen-1{
@@ -365,7 +372,7 @@ add(bigint* a,bigint* b)bigint*{
        }
        //writeByte(10)
        //writeByte(10)
-       res.stripLeadingZero()
+       res.trimInPlace()
        return res;
    
 

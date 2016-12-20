@@ -168,6 +168,29 @@ debug(){
 		res.neg=this.neg
 		return res
 	}
+	stripLeadingZero(){
+		this.trimInPlace()
+		if this.cap==1{
+			return
+		}
+		count:=0
+		for count < this.cap && this.mag[count]==0{
+			count++
+		}
+		if(count==0){
+			return
+		}
+		n:=(int*)malloc(sizeof(int)*(this.cap-count))
+		for i:=this.cap-1; i>=count; i--{
+			n[i-count]=this.mag[i]
+		}
+		free(this.mag)
+		bef:=this.toLong()
+		this.mag=n
+		this.cap=this.cap-count
+		aft:=this.toLong()
+		
+	}
 	rightshiftone()bigint*{
 		this.trimInPlace()
 		res:=new(this.size-1)
@@ -330,6 +353,7 @@ add(bigint* a,bigint* b)bigint*{
        }
        //writeByte(10)
        //writeByte(10)
+       res.trimInPlace()
        return res;
    
 
@@ -368,6 +392,8 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		b.neg=true
 		return res
 	}
+	a.stripLeadingZero()
+	b.stripLeadingZero()
 	g:=greater(b,a)
 	if g {
 		res:=b.subtract(a)
@@ -379,11 +405,7 @@ big:=a.mag
        little:=b.mag
 int bigIndex = a.cap;
 int littleIndex = b.cap;
-if b.cap > a.cap{
-		diff:=b.cap-a.cap
-		little=little+diff*4
-		littleIndex=bigIndex
-	}
+
 	
        res:=new(bigIndex*32)
        result := res.mag
@@ -415,6 +437,7 @@ if b.cap > a.cap{
 res.trimInPlace()
        return res
 }
+
 greater(bigint*a,bigint*b)bool{
 	if a.neg{
 		if b.neg{

@@ -559,15 +559,21 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	d:=new(a.size)
 	d.size=0
 	res:=new(a.size)
+	dhs:=0-1
+	bhs:=b.highestbitset()
 	for e:=a.size-1;e>=0;e--{
 		d.leftshift(1)
+		dhs++
 		d.setbit(0,a.bit(e))
-		g:=greater(b,d)
-		if(!g){
-			old:=d
-			d=d.subtract(b)
-			old.free()
-			res.setbit(e,true)
+		if dhs>=bhs{//keep track of the highest set bit to avoid full greater calc
+			g:=greater(b,d)
+			if(!g){
+				old:=d
+				d=d.subtract(b)
+				dhs=d.highestbitset()
+				old.free()
+				res.setbit(e,true)
+			}
 		}
 	}
 	res.trimInPlace()

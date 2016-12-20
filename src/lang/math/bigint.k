@@ -149,10 +149,10 @@ debug(){
 		return 0-1
 	}
 	dup()bigint*{
-		this.trimInPlace()
+		this.stripLeadingZero()
 		res:=new(this.size)
-		for i:=0; i<this.size; i++{
-			res.setbit(i,this.bit(i))
+		for i:=0; i<res.cap; i++{
+			res.mag[i]=this.mag[i]
 		}
 		res.neg=this.neg
 		return res
@@ -254,7 +254,7 @@ fromLong(long inp)bigint*{
 		x.setbit(i,inp%(long)2==(long)1)
 		inp=inp/2
 	}
-	x.trimInPlace()
+	x.stripLeadingZero()
 	x.neg=neg
 	return x
 }

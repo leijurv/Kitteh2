@@ -112,14 +112,45 @@ debug(){
 	}
 	leftshift(int amount){
 		this.trimInPlace()
-		origsize:=this.size
-		this.ensure(origsize+amount)
-		for i:=origsize-1; i>=0; i--{
-			this.setbit(i+amount,this.bit(i))
+		nInts:=amount>>>5
+		nBits:=amount&31
+		magLen:=this.cap
+		int* n
+		nl:=magLen+nInts
+		if nBits==0{
+			n=(int*)malloc(sizeof(int)*(magLen+nInts))
+
+			for i:=0; i<magLen; i++{
+				n[i]=this.mag[i]
+			}
+			for i:=magLen; i<nl; i++{
+				n[i]=0
+			}
+		}else{
+			i:=0
+			nBits2:=32-nBits
+			highBits:=this.mag[0]>>>nBits2
+			if highBits!=0{
+				n=(int*)malloc(sizeof(int)*(magLen+nInts+1))
+				n[i]=highBits
+				i++
+				nl++
+			}else{
+				n=(int*)malloc(sizeof(int)*(magLen+nInts))
+			}
+			j:=0
+			for j < magLen-1{
+				n[i]=(this.mag[j]<<nBits)|(this.mag[j+1]>>>nBits2)
+				j++
+				i++
+			}
+			n[i]=this.mag[j]<<nBits
 		}
-		for i:=0; i<amount; i++{
-			this.setbit(i,false)
-		}
+		free(this.mag)
+		this.mag=n
+		this.size=nl*32
+		this.cap=nl
+		this.trimInPlace()
 	}
 	free(){
 		free(this.mag)

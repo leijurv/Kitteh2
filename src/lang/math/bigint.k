@@ -412,7 +412,7 @@ if b.cap > a.cap{
        bigIndex--
            result[bigIndex] = big[bigIndex];
        }
-
+res.trimInPlace()
        return res
 }
 greater(bigint*a,bigint*b)bool{
@@ -430,13 +430,15 @@ greater(bigint*a,bigint*b)bool{
 	if b.neg{
 		return true
 	}
-	if a.highestbitset()>b.highestbitset(){
+	ah:=a.highestbitset()
+	bh:=b.highestbitset()
+	if ah>bh{
 		return true
 	}
-	if a.highestbitset()<b.highestbitset(){
+	if ah<bh{
 		return false
 	}
-	for i:=a.highestbitset(); i>=0; i--{
+	for i:=ah; i>=0; i--{
 		ai:=a.bit(i)
 		bi:=b.bit(i)
 		if ai && !bi{

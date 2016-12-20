@@ -94,22 +94,6 @@ debug(){
 		writeNullTerm(out)
 		free(out)
 	}
-	ensure(int s){
-		sketch:=s/32
-		if s%32!=0{
-			sketch++
-		}
-		if sketch > this.cap{
-			oth:=new(s)
-			for i:=0; i<this.size; i++{
-				oth.setbit(i,this.bit(i))
-			}
-			free(this.mag)
-			this.mag=oth.mag
-			this.cap=oth.cap
-		}
-		this.size=s
-	}
 	leftshift(int amount){
 		this.trimInPlace()
 		nInts:=amount>>>5

@@ -369,24 +369,51 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		return res
 	}
 	g:=greater(b,a)
-	if g{
+	if g {
 		res:=b.subtract(a)
 		res.neg=true
 		return res
 	}
-a.trimInPlace()
-	b=b.padtolength(a.size)
-	for i:=0; i<b.size; i++{
-		b.setbit(i,true^b.bit(i))
+
+big:=a.mag
+       little:=b.mag
+int bigIndex = a.cap;
+int littleIndex = b.cap;
+if b.cap > a.cap{
+		diff:=b.cap-a.cap
+		little=little+diff*4
+		littleIndex=bigIndex
 	}
-	res:=add(a,add(b,fromLong(1)))
-	for i:=res.size-1; i>=a.size; i--{
-		res.setbit(i,false)
-	}
-	res.size=a.size
-	b.free()
-	return res
-	return res
+	
+       res:=new(bigIndex*32)
+       result := res.mag
+       
+     
+       
+       long difference = 0;
+       mask:=mask(0)
+       // Subtract common parts of both numbers
+       for(littleIndex > 0) {
+       bigIndex--
+       littleIndex--
+           difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> (long)32);
+           result[bigIndex] = (int)difference;
+       }
+       // Subtract remainder of longer number while borrow propagates
+       bool borrow = (difference >> (long)32 != (long)0);
+       for (bigIndex > 0 && borrow){
+       		bigIndex--
+       		lol:=big[bigIndex] - 1
+       		result[bigIndex]=lol
+           borrow = lol == (0-1);
+       }
+       // Copy remainder of longer number
+       for (bigIndex > 0){
+       bigIndex--
+           result[bigIndex] = big[bigIndex];
+       }
+
+       return res
 }
 greater(bigint*a,bigint*b)bool{
 	if a.neg{

@@ -519,11 +519,57 @@ equal(bigint*a,bigint*b)bool{
 }
 
 multiply(bigint* a, bigint* bb)bigint*{
+bneg:=bb.neg
+	aneg:=a.neg
+	a.neg=false
+	bb.neg=false
+
+
 	a.trimInPlace()
 	bb.trimInPlace()
-	b:=bb.padtolength(a.size+bb.size)
-	bneg:=bb.neg
-	aneg:=a.neg
+	b:=bb
+	mask:=mask(0)
+	x:=a.mag
+	y:=b.mag
+	xlen:=a.cap
+	ylen:=b.cap
+	resultt:=new(32*(xlen+ylen))
+	z:=resultt.mag
+	int xstart = xlen - 1;
+        int ystart = ylen - 1;
+
+        long carry = 0;
+        int j=ystart
+        k:=ystart+1+xstart
+        for (j>=0) {
+            long product = ((long)y[j] & mask) *((long)x[xstart] & mask) + carry;
+            z[k] = (int)product;
+            carry = product >>> 32;
+            j--
+            k--
+        }
+        z[xstart] = (int)carry;
+
+        for int i = xstart-1; i >= 0; i-- {
+            carry = 0;
+             j=ystart
+            k=ystart+1+i
+            for (j>=0) {
+                long product = ((long)y[j] & mask) * ((long)x[i] & mask) +((long)z[k] & mask) + carry;
+                z[k] = (int)product;
+                carry = product >>> 32;
+                j--
+                k--
+            }
+            z[i] = (int)carry;
+        }
+        resultt.neg=aneg!=bneg
+	a.neg=aneg
+	bb.neg=bneg
+	return resultt
+	/*b=bb.padtolength(a.size+bb.size)
+	bneg=bb.neg
+	aneg=a.neg
 	a.neg=false
 	b.neg=false
 	res:=new(1)
@@ -540,7 +586,13 @@ multiply(bigint* a, bigint* bb)bigint*{
 	a.neg=aneg
 	b.neg=bneg
 	b.free()
-	return res
+	if !equal(res,resultt){
+	print("no please")
+		res.output()
+		resultt.output()
+		print("ok")
+	}
+	return res*/
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.trimInPlace()

@@ -94,6 +94,21 @@ debug(){
 		writeNullTerm(out)
 		free(out)
 	}
+	weirdleftshift(int n){
+		 val:=this.mag
+         int n2 = 32 - n;
+         int i=0
+         c:=val[0]
+         m:=this.cap-1
+         for i<m {
+             int b = c;
+             c = val[i+1];
+             val[i] = (b << n) | (c >>> n2);
+             i++
+         }
+         val[m] = val[m]<<n;
+         this.size=this.size+1
+	}
 	leftshift(int amount){
 		this.trimInPlace()
 		nInts:=amount>>>5
@@ -124,6 +139,10 @@ debug(){
 				i++
 				
 			}else{
+				if nInts==0{
+					this.weirdleftshift(amount)
+					return
+				}
 				n=(int*)malloc(sizeof(int)*(magLen+nInts))
 				for k:=0; k<nl; k++{
 				n[k]=0

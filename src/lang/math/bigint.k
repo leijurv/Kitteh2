@@ -293,7 +293,7 @@ add(bigint* a,bigint* b)bigint*{
        print(y[yIndex])
        print(((long)y[yIndex] & mask))
        print(((long)x[xIndex] & mask))*/
-           sum = ((long)x[xIndex] & mask) + ((long)y[yIndex] & mask) + (sum >>> (long)32);
+           sum = ((long)x[xIndex] & mask) + ((long)y[yIndex] & mask) + (sum >>> 32);
            //print(sum)
            result[xIndex] = (int)sum;
        }
@@ -396,7 +396,7 @@ if b.cap > a.cap{
        for(littleIndex > 0) {
        bigIndex--
        littleIndex--
-           difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> (long)32);
+           difference = ((long)big[bigIndex] & mask) -((long)little[littleIndex] & mask) +(difference >> 32);
            result[bigIndex] = (int)difference;
        }
        // Subtract remainder of longer number while borrow propagates

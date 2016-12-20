@@ -170,7 +170,7 @@ debug(){
 	}
 	stripLeadingZero(){
 		this.trimInPlace()
-		if this.cap==1{
+		if this.cap<=1{
 			return
 		}
 		count:=0
@@ -185,11 +185,8 @@ debug(){
 			n[i-count]=this.mag[i]
 		}
 		free(this.mag)
-		bef:=this.toLong()
 		this.mag=n
 		this.cap=this.cap-count
-		aft:=this.toLong()
-		
 	}
 	rightshiftone()bigint*{
 		this.trimInPlace()
@@ -434,7 +431,7 @@ int littleIndex = b.cap;
        bigIndex--
            result[bigIndex] = big[bigIndex];
        }
-res.trimInPlace()
+res.stripLeadingZero()
        return res
 }
 

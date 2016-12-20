@@ -322,79 +322,52 @@ add(bigint* a,bigint* b)bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 
-	 // If x is shorter, swap the two arrays
-       if (a.cap < b.cap) {
-       	//print("SWITCHEROO")
-           bigint* tmp = a;
-           a = b;
-           b = tmp;
-       }
-       x:=a.mag
-		y:=b.mag
-       int xIndex = a.cap;
-       int yIndex = b.cap;
-       /*print("Caps")
-       print(xIndex)
-       print(yIndex)*/
-       res:=new(xIndex*32)
-       result:=res.mag
-       
-       long sum = 0
-       mask:=mask(0)
-       // Add common parts of both numbers
-       for(yIndex > 0) {
-       xIndex--
-       yIndex--
-       /*print("lol")
-       print(mask)
-       print(x[xIndex])
-       print(y[yIndex])
-       print(((long)y[yIndex] & mask))
-       print(((long)x[xIndex] & mask))*/
-           sum = ((long)x[xIndex] & mask) + ((long)y[yIndex] & mask) + (sum >>> 32);
-           //print(sum)
-           result[xIndex] = (int)sum;
-       }
-       // Copy remainder of longer number while carry propagation is required
-       bool carry = (sum >>> (long)32 != (long)0);
-       for (xIndex > 0 && carry){
-       	//print("CARRRYRRYRYRYRRY")
-       		xIndex--
-       		tmp:=x[xIndex]+1
-       		result[xIndex]=tmp
-           carry = tmp == 0
-       }
-
-       // Copy remainder of longer number
-       for (xIndex > 0){
-       	//print("COCUCOECI")
-       		xIndex--
-           result[xIndex] = x[xIndex];
-       }
-
-       // Grow result if necessary
-       if (carry) {
-       	//print("WOW LAD")
-           int newLen = res.cap + 1;
-           temp:=(int*)malloc(newLen*4)
-           for int i = 1; i<newLen; i++{
-               temp[i] = result[i-1];
-           }
-           temp[0] = 1;
-           free(result)
-           res.mag = temp;
-           res.cap=newLen
-           res.size=res.size+1
-       }
-       //writeByte(10)
-       //writeByte(10)
-       res.trimInPlace()
-       return res;
-   
-
-
-	
-	
+ 	// If x is shorter, swap the two arrays
+   	if (a.cap < b.cap) {
+   	//print("SWITCHEROO")
+       bigint* tmp = a;
+       a = b;
+       b = tmp;
+   	}
+	x:=a.mag
+	y:=b.mag
+	int xIndex = a.cap;
+	int yIndex = b.cap;
+	res:=new(xIndex*32)
+	result:=res.mag
+	long sum = 0
+	mask:=mask(0)
+	for yIndex > 0 {
+		xIndex--
+		yIndex--
+		sum = ((long)x[xIndex] & mask) + ((long)y[yIndex] & mask) + (sum >>> 32);
+		result[xIndex] = (int)sum;
+	}
+	bool carry = (sum >>> (long)32 != (long)0);
+	for xIndex > 0 && carry {
+		xIndex--
+		tmp:=x[xIndex]+1
+		result[xIndex]=tmp
+		carry = tmp == 0
+	}
+	for xIndex > 0 {
+		xIndex--
+		result[xIndex] = x[xIndex];
+	}
+	if (carry) {
+		newLen := res.cap + 1;
+		temp:=(int*)malloc(newLen*4)
+		for i := 1; i<newLen; i++{
+			temp[i] = result[i-1]
+		}
+		temp[0] = 1
+		free(result)
+		res.mag = temp
+		res.cap=newLen
+		res.size=res.size+1
+	}
+	res.trimInPlace()
+	return res
 }
 subtract(bigint*aa,bigint*bb)bigint*{
 	a:=aa

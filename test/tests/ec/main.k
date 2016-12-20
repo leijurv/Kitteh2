@@ -93,10 +93,13 @@ struct ecpoint{
 	    (pysx).free()
 	    wrap1:=mod(negpysx,modulus)
 	    (negpysx).free()
-	    wrap2:=add(modulus,wrap1)
-	    (wrap1).free()
-	    yr:=mod(wrap2,modulus)
-	    (wrap2).free()
+	    bigint* yr
+	    if wrap1.neg{
+	    	yr=add(modulus,wrap1)
+	    	free(wrap1)
+	    }else{
+	    	yr=wrap1
+	    }
 	    (s).free()
 	    res:=(ecpoint*)malloc(sizeof(ecpoint))
 	    res.x=xr

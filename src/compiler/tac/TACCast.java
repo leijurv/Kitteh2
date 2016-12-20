@@ -31,6 +31,13 @@ public class TACCast extends TACStatement {
     }
     @Override
     protected void onContextKnown() {
+        X86Param input = params[0];
+        X86Param dest = params[1];
+        TypeNumerical inp = (TypeNumerical) input.getType();
+        TypeNumerical out = (TypeNumerical) dest.getType();
+        if (inp.equals(out)) {
+            throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes() + " " + inp);
+        }
     }
     @Override
     public String toString0() {

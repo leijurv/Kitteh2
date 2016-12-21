@@ -2,7 +2,7 @@ main(){
 	size:=5
 	wolves:=newBoard(size)
 	attacked:=newBoard(size)
-	seed:=(int*)malloc(sizeof(int))
+	seed:=(long*)malloc(sizeof(long))
 	*seed=1
 	for true{
 		for x:=0; x<size; x++{
@@ -62,9 +62,13 @@ main(){
 		}
 	}
 }
-func r(int* seed,int max)int{
+func r(long* seed,int max)int{
 	*seed=(*seed*5023+257)%2147483647
-	return *seed%max
+	res:= *seed%(long)max
+	if res<(long)0{
+		return 0-(int)res
+	}
+	return (int)res
 }
 newBoard(int size) bool**{
 	board:=(bool**)malloc(size*sizeof(bool*))

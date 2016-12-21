@@ -97,7 +97,7 @@ public class Context {
         this.varIndex = null;
         this.imports = new HashMap<>();
         this.packageName = packageName;
-        String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split(".k")[0];
+        String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split("\\.k")[0];
         imports.put(wewlad, wewlad);
     }
     public HashMap<String, TypeStruct> structsCopy() {

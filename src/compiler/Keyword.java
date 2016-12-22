@@ -25,7 +25,7 @@ import java.util.Locale;
 public enum Keyword implements Token<Keyword> {
     FOR("PURR", true),
     IF("BLINK", true),
-    ELSE("SELL", true),
+    ELSE("ELSA", true),
     TRUE("YES", new ExpressionConstBool(true)),
     FALSE("NO", new ExpressionConstBool(false)),
     BREAK("TRIP", false),

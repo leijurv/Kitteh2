@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.parse;
+package compiler.preprocess;
 import compiler.lex.Lexer;
 import compiler.token.Token;
 import java.nio.channels.NonReadableChannelException;
@@ -26,14 +26,14 @@ public class Line {
     private Line(Line other, String newRaw) {
         this(newRaw, other.loadedFrom, other.origLineNumber);
     }
-    public Line(String raw, Path loadedFrom, int origLineNumber) {
+    Line(String raw, Path loadedFrom, int origLineNumber) {
         this.raw = raw;
         this.loadedFrom = loadedFrom;
         this.origLineNumber = origLineNumber;
         source = new ArrayList<>();
         source.add(raw);
     }
-    public Line withModifiedRaw(String newRaw) {
+    Line withModifiedRaw(String newRaw) {
         return new Line(this, newRaw);
     }
     /*public Line(ArrayList<Object> source) {

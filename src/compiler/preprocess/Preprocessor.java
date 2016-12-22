@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
 import compiler.parse.Transform;
 import static compiler.preprocess.StripLocation.*;
 import java.nio.file.Path;

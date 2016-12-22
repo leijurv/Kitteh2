@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;

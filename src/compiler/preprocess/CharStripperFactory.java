@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;

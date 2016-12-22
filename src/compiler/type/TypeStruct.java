@@ -8,7 +8,7 @@ import compiler.Context;
 import compiler.Keyword;
 import compiler.command.CommandDefineFunction;
 import compiler.parse.BlockFinder;
-import compiler.parse.Line;
+import compiler.preprocess.Line;
 import compiler.token.Token;
 import compiler.token.TokenType;
 import static compiler.token.TokenType.STARTPAREN;

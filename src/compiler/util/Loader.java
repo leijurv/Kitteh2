@@ -6,7 +6,7 @@
 package compiler.util;
 import compiler.Context;
 import compiler.command.CommandDefineFunction;
-import compiler.parse.Line;
+import compiler.preprocess.Line;
 import compiler.parse.Processor;
 import compiler.preprocess.Preprocessor;
 import java.io.File;

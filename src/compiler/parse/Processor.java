@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.preprocess.Line;
 import compiler.Context;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;

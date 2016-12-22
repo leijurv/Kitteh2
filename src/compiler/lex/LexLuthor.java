@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.lex;
-import compiler.parse.Line;
+import compiler.preprocess.Line;
 import compiler.parse.Transform;
 import compiler.util.Parse;
 import java.util.ArrayList;

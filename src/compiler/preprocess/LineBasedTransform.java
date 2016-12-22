@@ -32,7 +32,7 @@ public abstract class LineBasedTransform implements Transform<List<Line>> {
         try {
             return transform(line);
         } catch (Exception e) {
-            throw new RuntimeException("Exception on line " + line.num(), e);
+            throw line.exception(e);
         }
     }
 }

@@ -55,8 +55,14 @@ public class Line {
     public String raw() {
         return raw;
     }
-    public int num() {
-        return origLineNumber;
+    public RuntimeException exception(Throwable toWrap) {
+        return exception(toWrap, null);
+    }
+    public RuntimeException exception(Throwable toWrap, String doing) {
+        return new RuntimeException((toWrap == null ? "Exception" : toWrap.getClass()) + " " + (doing == null ? "on" : "while " + doing) + " line " + origLineNumber + " of " + loadedFrom);
+    }
+    public RuntimeException exception() {
+        return exception(null, null);
     }
     public ArrayList<Object> source() {
         return source;

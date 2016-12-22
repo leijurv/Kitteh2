@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.parse;
-import compiler.preprocess.Line;
 import compiler.Context;
 import compiler.Keyword;
 import compiler.command.Command;
+import compiler.preprocess.Line;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -100,10 +100,10 @@ class Parser {
                 return LineParser.parseLine(l.getTokens(), context);
             }
         } catch (RuntimeException e) {
-            if (e.getMessage() != null && e.getMessage().contains(" while parsing line")) {
+            if (e.getMessage() != null && e.getMessage().contains(" while parsing line")) {//TODO have Line.exception return a LineException which extend RuntimeException and here we can just check if e instanceof LineException
                 throw e;
             }
-            throw new RuntimeException(e.getClass().getName() + " while parsing line " + l.num(), e);
+            throw l.exception(e, "parsing");
         }
     }
 }

@@ -23,13 +23,13 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
             }
             String str = (String) strs.get(j);
             if (str.contains("{") || str.contains("}")) {
-                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+                throw line.exception();
             }
         }
         if (shouldEndWithBracket) {
             String str = (String) strs.get(strs.size() - 1);
             if (!str.endsWith(startBracket ? "{" : "}")) {
-                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+                throw line.exception();
             }
         }
     }

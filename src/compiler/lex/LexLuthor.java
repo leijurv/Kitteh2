@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.lex;
-import compiler.preprocess.Line;
 import compiler.parse.Transform;
+import compiler.preprocess.Line;
 import compiler.util.Parse;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
             try {
                 line.lex();
             } catch (Exception ex) {
-                return new RuntimeException("Exception while lexing line " + line.num(), ex);
+                return line.exception(ex, "lexing");
             }
             return null;
         }).filter(ex -> ex != null).findFirst();//get the first non-null exception

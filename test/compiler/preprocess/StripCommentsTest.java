@@ -56,7 +56,7 @@ public class StripCommentsTest {
     }
     public void test(String a, String b) {
         String[] split = b.split("\n", -1);
-        StripComments st = new StripComments();
+        StripComments st = new StripComments(null);
         List<Line> result = st.transform(a);
         assertEquals(result.toString(), split.length, result.size());
         for (int i = 0; i < split.length; i++) {

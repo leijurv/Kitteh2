@@ -7,6 +7,7 @@ package compiler.parse;
 import compiler.lex.Lexer;
 import compiler.token.Token;
 import java.nio.channels.NonReadableChannelException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +22,19 @@ public class Line {
     private List<Token> tokens;
     private final String raw;
     private final int origLineNumber;
-    public Line(String raw, int origLineNumber) {
+    private final Path loadedFrom;
+    private Line(Line other, String newRaw) {
+        this(newRaw, other.loadedFrom, other.origLineNumber);
+    }
+    public Line(String raw, Path loadedFrom, int origLineNumber) {
         this.raw = raw;
+        this.loadedFrom = loadedFrom;
         this.origLineNumber = origLineNumber;
         source = new ArrayList<>();
         source.add(raw);
+    }
+    public Line withModifiedRaw(String newRaw) {
+        return new Line(this, newRaw);
     }
     /*public Line(ArrayList<Object> source) {
         this.source = source;

@@ -7,6 +7,7 @@ package compiler.preprocess;
 import compiler.parse.Line;
 import compiler.parse.Transform;
 import static compiler.preprocess.StripLocation.*;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -28,8 +29,8 @@ public class Preprocessor {
         CHAR_STRIPPER,
         REMOVE_BLANK
     };
-    public static List<Line> preprocess(String rawProgram) {
-        List<Line> program = new StripComments().transform(rawProgram);
+    public static List<Line> preprocess(String rawProgram, Path from) {
+        List<Line> program = new StripComments(from).transform(rawProgram);
         for (Transform<List<Line>> action : PREPROCESSOR_ACTIONS) {
             action.apply(program);
         }

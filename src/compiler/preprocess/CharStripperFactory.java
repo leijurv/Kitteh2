@@ -59,9 +59,9 @@ class CharStripperFactory {
                 stripEnd--;
             }
             if (stripBegin > stripEnd) {
-                return new Line("", lineObj.num());
+                return lineObj.withModifiedRaw("");
             }
-            return new Line(line.substring(stripBegin, stripEnd + 1), lineObj.num());
+            return lineObj.withModifiedRaw(line.substring(stripBegin, stripEnd + 1));
         }
     }
 }

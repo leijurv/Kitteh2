@@ -35,7 +35,7 @@ public class Loader {
                 throw new RuntimeException("Couldn't load " + name);
             }
         }
-        List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"));
+        List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"), name);
         Context context = new Context(name + "");
         List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
         return new Pair<>(cmds, context);

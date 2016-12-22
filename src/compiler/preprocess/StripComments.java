@@ -5,6 +5,7 @@
  */
 package compiler.preprocess;
 import compiler.parse.Line;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,10 @@ import java.util.List;
  * @author leijurv
  */
 class StripComments {
+    private final Path loadingFrom;
+    public StripComments(Path loadingFrom) {
+        this.loadingFrom = loadingFrom;
+    }
     int lineNumber;
     public List<Line> transform(String line) {
         lineNumber = 1;
@@ -35,7 +40,7 @@ class StripComments {
             char ch = line.charAt(i);
             if (ch == '\n') {
                 if (!inComment || commentEndsWithNewLine) {
-                    result.add(new Line(transformed.toString(), lineNumber));
+                    result.add(new Line(transformed.toString(), loadingFrom, lineNumber));
                     transformed = new StringBuilder();
                 }
                 lineNumber++;//doesn't matter if we are in a comment, a string, or whatever, a newline in the raw input means a newline.
@@ -107,7 +112,7 @@ class StripComments {
             throw new IllegalStateException("String not ended - began on line " + lineNumberOfBegin);
         }
         //if (line.charAt(line.length() - 1) != '\n') {
-        result.add(new Line(transformed.toString(), lineNumber));
+        result.add(new Line(transformed.toString(), loadingFrom, lineNumber));
         //}
         return result;
     }

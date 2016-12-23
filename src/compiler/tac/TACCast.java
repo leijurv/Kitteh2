@@ -36,6 +36,11 @@ public class TACCast extends TACStatement {
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (inp.equals(out)) {
+            //this is a really annoying exception
+            //if you do long a=(long)0 for example, that's a long being casted to a long because of integral literal type inference
+            //when static values is OFF, this is an exception, because redundant casts aren't removed, and the code gets to here
+            //so when static values are OFF this shouldn't throw an exception because its normal ish
+            //but we C A N T E V E N T E L L if static values are on or off
             throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes() + " " + inp);
         }
     }
@@ -61,7 +66,7 @@ public class TACCast extends TACStatement {
         if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
             if (inp.equals(out)) {
-                throw new IllegalStateException(input + " " + dest + " " + inp.getSizeBytes() + " " + out.getSizeBytes() + " " + inp);
+                throw new IllegalStateException("literally impossible");
             }
             emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
         } else {

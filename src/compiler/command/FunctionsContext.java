@@ -90,6 +90,7 @@ public class FunctionsContext {
         try {
             return (FunctionHeader) Stream.of(CommandDefineFunction.class).parallel().map(Class::getFields).flatMap(Stream::of).parallel().filter(x -> x.getName().equals(name.toUpperCase())).findAny().get().get(null);
         } catch (IllegalAccessException | RuntimeException ex) {
+            //any exception? oh well, must not be one of the hardcoded ones. proceed as usual
         }
         String actual;
         if (pkg == null) {

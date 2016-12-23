@@ -282,6 +282,6 @@ public class Context {//TODO split off some of this massive functionality into o
     }
     @Override
     public String toString() {
-        return Arrays.asList(values).toString() + " " + structs;
+        return Arrays.asList(values) + " " + structs;
     }
 }

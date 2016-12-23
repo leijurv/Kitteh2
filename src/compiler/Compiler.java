@@ -64,7 +64,7 @@ public class Compiler {
             return compile(f.toPath(), settings);
         } catch (IOException ex) {
             Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
+            throw new RuntimeException(ex);
         }
     }
     private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
@@ -76,9 +76,7 @@ public class Compiler {
             System.out.println("> DONE STATIC VALUES");
         }
         long e = System.currentTimeMillis();
-        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
-                .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
-                .collect(Collectors.toList());
+        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList());
         long f = System.currentTimeMillis();
         if (VERBOSE) {
             System.out.println("TAC generation took " + (f - e) + "ms overall");

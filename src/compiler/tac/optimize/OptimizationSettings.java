@@ -4,7 +4,11 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.command.CommandDefineFunction;
+import compiler.tac.TACStatement;
+import compiler.util.Pair;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -28,4 +32,7 @@ public class OptimizationSettings {
     }
     public static final OptimizationSettings ALL = new OptimizationSettings(true, true);
     public static final OptimizationSettings NONE = new OptimizationSettings(false, false);
+    public Pair<String, List<TACStatement>> coloncolon(CommandDefineFunction com) {
+        return new Pair<>(com.getHeader().name, com.totac(this));
+    }
 }

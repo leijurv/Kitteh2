@@ -24,8 +24,8 @@ import java.util.stream.Stream;
  */
 public class CommandIf extends CommandBlock {
     private Expression condition;
-    private ArrayList<Command> elseBlock;
-    private Context ifFalse;
+    private final ArrayList<Command> elseBlock;
+    private final Context ifFalse;//sadly, ifFalse needs its own context (grrr) because variables in the scope of true block and the false block can take up the same space on the stack for efficiency or whatever i guess
     public CommandIf(Expression condition, ArrayList<Command> contents, Context ifTrue, ArrayList<Command> elseBlock, Context ifFalse) {
         super(ifTrue, contents);
         this.condition = condition;
@@ -61,7 +61,7 @@ public class CommandIf extends CommandBlock {
                 com.generateTAC(emit);
             }
             int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.stream().mapToInt(Command::getTACLength).sum();
-            new TempVarUsage(ifFalse);
+            new TempVarUsage(ifFalse);//dont ask. lol try and remove it
             emit.updateContext(ifFalse);
             emit.emit(new TACJump(jumpTo));
             for (Command com : elseBlock) {
@@ -75,11 +75,11 @@ public class CommandIf extends CommandBlock {
             int sum = contents.stream().mapToInt(Command::getTACLength).sum();
             return sum + ((ExpressionConditionalJumpable) condition).condLength();
         } else {
-            return contents.stream().mapToInt(Command::getTACLength).sum() + elseBlock.stream().mapToInt(Command::getTACLength).sum() + 1 + ((ExpressionConditionalJumpable) condition).condLength();
+            return Stream.of(contents, elseBlock).flatMap(List::stream).mapToInt(Command::getTACLength).sum() + 1 + ((ExpressionConditionalJumpable) condition).condLength();
         }
     }
     @Override
-    public void staticValues() {
+    public void staticValues() {//there's a lot of code duplication in here =(
         condition = condition.insertKnownValues(context);
         condition = condition.calculateConstants();
         List<String> trueMod = super.getAllVarsModified().collect(Collectors.toList());

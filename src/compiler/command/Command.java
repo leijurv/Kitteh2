@@ -12,7 +12,7 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public abstract class Command {
+public abstract class Command {//TODO calling .toString() then reparsing from scratch should yield a .equal Command object /s
     protected final Context context;
     protected Command(Context context) {
         this.context = context;

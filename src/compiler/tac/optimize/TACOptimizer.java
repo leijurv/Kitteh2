@@ -32,8 +32,8 @@ public class TACOptimizer {
             ConditionalDoubleJump.class,
             KnownConditions.class
     ));
-    private static final int[] usefulnessCount = new int[opt.size()];
-    private static volatile int count = 0;
+    transient final static private int[] usefulnessCount = new int[opt.size()];
+    static volatile private int count = 0;
     public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         List<TACStatement> input = emitted.getResult();
         List<TACStatement> prev;

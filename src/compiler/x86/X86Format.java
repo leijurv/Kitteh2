@@ -6,10 +6,14 @@
 package compiler.x86;
 import compiler.tac.TACConstStr;
 import compiler.tac.TACStatement;
+import compiler.util.BetterJoiner;
 import compiler.util.Pair;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -28,12 +32,21 @@ public class X86Format {
     private static final String FOOTER_LINUX = "\n.section .rodata\n" + LLD_FORMAT;
     private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
     private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
-    public static String assembleFinalFile(List<Pair<String, List<TACStatement>>> functions) {
-        String constantStrs = functions.stream().map(Pair::getB).flatMap(Collection::stream)
+    public static String assembleFinalFile(final List<Pair<String, List<TACStatement>>> functions) {
+        Future<String> header = CompletableFuture.supplyAsync(() -> HEADER);//TODO fix this and the next one
+        Future<String> joiner = CompletableFuture.supplyAsync(() -> "\n");//they don't need to be async but I don't know of a now-future and i can't google because i'm on a plane lol
+        Future<String> footer = CompletableFuture.supplyAsync(() -> FOOTER + generateConstantsLabels(functions), Executors.newSingleThreadExecutor());//OH do i LOVE this
+        //footer gets its own executor (separate from the main fork join pool) because a parallel stream may wait for it
+        return BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);
+    }
+    synchronized static private String generateConstantsLabels(List<Pair<String, List<TACStatement>>> functions) {
+        //we call this function as a completablefuture
+        //that way it can run its incredibly long and computationally intensive task of appending and hashing a handful of strings
+        //at the same time as x86 generation for all the other tac statements (that gets its own parallel stream)
+        return functions.stream().map(Pair::getB).flatMap(Collection::stream)//cannot be parallel beacuse it is being called in a newSingleThreadExecutor which would block indefinitely beacuse of the parallel fork join tasks dependencies
                 .filter(TACConstStr.class::isInstance).map(TACConstStr.class::cast)
                 .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")
                 .distinct()
                 .collect(Collectors.joining());
-        return functions.parallelStream().map(X86Function::generateX86).collect(Collectors.joining("\n", HEADER, FOOTER + constantStrs));
     }
 }

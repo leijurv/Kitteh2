@@ -58,7 +58,7 @@ public class Line {
     public RuntimeException exception(Throwable toWrap) {
         return exception(toWrap, null);
     }
-    public RuntimeException exception(Throwable toWrap, String doing) {
+    public RuntimeException exception(Throwable toWrap, String doing) {//TODO specific Throwable that's line based
         return new RuntimeException((toWrap == null ? "Exception" : toWrap.getClass()) + " " + (doing == null ? "on" : "while " + doing) + " line " + origLineNumber + " of " + loadedFrom, toWrap);
     }
     public RuntimeException exception() {
@@ -77,7 +77,7 @@ public class Line {
         tokens = source.stream().flatMap(o -> o instanceof Token ? Stream.of((Token) o) : Lexer.lex((String) o).stream()).collect(Collectors.toList());
     }
     public List<Token> getTokens() {
-        if (tokens == null) {
+        if (tokens == null) {//haha this is a funny exception message i just noticed
             throw new IllegalStateException("Play more arcade games because you don't have enough tokens");
         }
         return tokens;

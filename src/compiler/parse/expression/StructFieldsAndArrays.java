@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 class StructFieldsAndArrays extends TokenBased {
     public StructFieldsAndArrays() {
-        super(o -> o instanceof Token && (o == STARTBRAKT || o == PERIOD));
+        super(o -> o == STARTBRAKT || o == PERIOD);
     }
     @Override
     protected boolean apply(int i, ArrayList<Object> o, Optional<Type> desiredType, Context context) {
@@ -53,7 +53,7 @@ class StructFieldsAndArrays extends TokenBased {
             if (sq != 0) {
                 throw new IllegalStateException("Mismatch " + o);
             }
-            Expression index = ExpressionParser.parseImpl(inBrkts, Optional.of(new TypeInt32()), context);
+            Expression index = ExpressionParser.parseImpl(inBrkts, Optional.of(new TypeInt32()), context);//TODO should array indices be int32s? but pointers are int64s... =(
             Expression array = (Expression) o.remove(i - 1);
             TypePointer tp = (TypePointer) array.getType();
             Type arrayContents = tp.pointingTo();

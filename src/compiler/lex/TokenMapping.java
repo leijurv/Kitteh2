@@ -54,10 +54,10 @@ class TokenMapping {
             switch (s.length()) {
                 case 1:
                     break;
-                case 2:
-                    continue;
                 case 3:
                     break;
+                case 2:
+                    continue;
                 default:
                     throw new IllegalStateException("Length " + s.length() + " illegal for mapping " + s);
             }

@@ -41,7 +41,7 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             pop();//pop "ch" because at this point we know we're going to use it
-            if (has2() && TokenMapping.mapsToToken(ch + peek2())) {
+            if (has2() && TokenMapping.mapsToToken(ch + peek2())) {//TODO this is bad
                 emit(TokenMapping.getStaticToken(ch + peek2()));
                 pop();
                 pop();

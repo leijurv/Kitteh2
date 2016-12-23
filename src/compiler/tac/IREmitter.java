@@ -16,8 +16,8 @@ import java.util.ArrayList;
 public class IREmitter {//extends ArrayList XDDD
     private final ArrayList<TACStatement> result;
     private Context currentContext;
-    Integer breakTo;
-    Integer continueTo;
+    private Integer breakTo;
+    private Integer continueTo;
     public IREmitter() {
         this.result = new ArrayList<>();
         this.currentContext = null;
@@ -30,7 +30,7 @@ public class IREmitter {//extends ArrayList XDDD
     public boolean canContinue() {
         return continueTo != null;
     }
-    public int breakTo() {
+    public int breakTo() {//Don't change this to return an Integer. I want the nullpointerexception if canBreak / canContinue aren't checked first.
         return breakTo;
     }
     public int continueTo() {

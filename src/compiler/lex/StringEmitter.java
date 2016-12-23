@@ -16,7 +16,7 @@ class StringEmitter {
         this.str = str;
         this.pos = 0;
     }
-    public final String peek2() {
+    public final String peek2() {//TODO this is bad
         return str.charAt(pos) + "" + str.charAt(pos + 1);
     }
     public final char peek() {
@@ -30,7 +30,7 @@ class StringEmitter {
         pos++;
         return c;
     }
-    public final boolean has2() {
+    public final boolean has2() {//TODO this is bad
         return pos + 1 < str.length();
     }
     public final boolean has() {

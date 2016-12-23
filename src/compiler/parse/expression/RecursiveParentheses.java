@@ -106,7 +106,9 @@ class RecursiveParentheses extends TokenBased {
             if (i != 1 && o.get(i - 2) == ACCESS) {
                 String accessing = (String) ((Token) o.get(i - 3)).data();
                 pkg = context.reverseAlias(accessing);
-                System.out.println("Accessing " + accessing + " alias for " + pkg + " ::" + funcName);
+                if (compiler.Compiler.verbose()) {
+                    System.out.println("Accessing " + accessing + " alias for " + pkg + " ::" + funcName);
+                }
                 removePreviousTwo = true;
             }
             Expression accessing = null;

@@ -94,8 +94,8 @@ class BlockBeginParser {
         Context ifTrue = context.subContext();
         Context ifFalse = elseBlock == null ? null : context.subContext();
         ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, ifTrue);
-        ArrayList<Command> els = elseBlock == null ? null : Processor.parseRecursive(elseBlock, ifFalse);
-        return new CommandIf(condition, blockCommands, ifTrue, els, ifFalse);
+        ArrayList<Command> elsa = elseBlock == null ? null : Processor.parseRecursive(elseBlock, ifFalse);
+        return new CommandIf(condition, blockCommands, ifTrue, elsa, ifFalse);
     }
     static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {

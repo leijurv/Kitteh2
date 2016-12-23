@@ -58,7 +58,7 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
                 if (numBrkts == 0) {
                     ArrayList<Object> before = new ArrayList<>(lines.subList(0, firstBracket + 1));
                     ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));
-                    if (start) {
+                    if (start) {//TODO fix this steaming pile of
                         if (((String) line.source().get(0)).charAt(0) != '}') {
                             throw new RuntimeException(line + "");
                         }

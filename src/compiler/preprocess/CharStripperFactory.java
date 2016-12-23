@@ -46,9 +46,6 @@ class CharStripperFactory {
         @Override
         public Line transform(Line lineObj) {
             String line = lineObj.raw();
-            if (line.equals("")) {
-                return lineObj;
-            }
             int stripBegin = 0;
             while (stripBegin < line.length() && begin.contains(line.charAt(stripBegin))) {
                 stripBegin++;

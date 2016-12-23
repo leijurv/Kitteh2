@@ -27,7 +27,15 @@ class StripComments {
         }
     }
     private List<Line> actualTransform(String line) {
-        boolean inString = false;
+        //TODO multi line comments that begin and end in the middle of a line have weird exception line numbers
+        //learn by doing:
+        boolean inString /*
+                multi
+                line
+                 */ = false;
+        //if there's a parse error in the "= false" section, it'll list the exception's line number as the line number where the comment was began
+        //while actually the parse error originated in a different source line later on
+        //I think this is going to stay like this for a while, I'm not keeping track of individual characters within lines and their journey through the compiler
         char strType = 0;
         char prevChar = 0;
         StringBuilder transformed = new StringBuilder();

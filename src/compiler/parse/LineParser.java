@@ -63,7 +63,7 @@ class LineParser {
                         throw new IllegalStateException("Continue should be on a line on its own");
                     }
                     return new CommandContinue(context);
-                case RETURN:
+                case RETURN://TODO swaths of this are redundant for multi return vs multi return
                     FunctionHeader header = context.getCurrentFunction();
                     if (!tokens.contains(COMMA)) {
                         Type[] retTypes = header.getReturnTypes();
@@ -93,14 +93,14 @@ class LineParser {
                             throw new IllegalStateException("Trying to return " + splitted.size() + " vars when you need to return " + retTypes.length + " " + splitted + " " + Arrays.asList(retTypes));
                         }
                         Expression[] expressions = new Expression[retTypes.length];
-                        for (int i = 0; i < retTypes.length; i++) {
+                        for (int i = 0; i < retTypes.length; i++) {//resista la temptacion para usar los parallelo streamos
                             expressions[i] = ExpressionParser.parse(splitted.get(i), Optional.of(retTypes[i]), context);
                         }
                         return new CommandReturn(context, expressions);
                     }
             }
         }
-        if (tokens.stream().anyMatch(SEMICOLON)) {
+        if (tokens.stream().anyMatch(SEMICOLON)) {//omg this is so cool. I can either do tokens.contains(SEMICOLON) or tokens.stream().anyMatch(SEMICOLON). 3 guesses which I like more =)
             throw new IllegalStateException("I don't like semicolons");
         }
         int eqLoc = -1;
@@ -138,6 +138,9 @@ class LineParser {
                 String varName = (String) tokens.get(0).data();
                 Type typ = context.get(varName).getType();
                 if (typ instanceof TypePointer) {
+                    if (((TypePointer) typ).pointingTo().getSizeBytes() != 1) {
+                        throw new IllegalStateException("no?    because " + typ + " is pointing to something of size " + ((TypePointer) typ).pointingTo().getSizeBytes() + " bytes, and incrementing the pointer by one would result in an unaligned reference. Use " + varName + "[n] to access the nth element instead. If you really really need to, do " + varName + "=" + varName + "+sizeof(" + ((TypePointer) typ).pointingTo() + ")");
+                    }
                     throw new IllegalStateException("no?");
                 }
                 if (typ instanceof TypeBoolean) {
@@ -210,7 +213,7 @@ class LineParser {
             Type type = context.get(ts) == null ? null : context.get(ts).getType();
             if (inferType ^ (type == null)) {
                 //look at that arousing use of xor
-                throw new IllegalStateException("ur using it wrong " + inferType + " " + type + " " + tokens.get(eqLoc));
+                throw new IllegalStateException("improper usage of " + SETEQUAL.create(true) + " vs " + SETEQUAL.create(false) + " " + inferType + " " + type + " " + tokens.get(eqLoc));
             }
             Expression ex = ExpressionParser.parse(after, Optional.ofNullable(type), context); //if type is null, that's fine because then there's no expected type, so we infer
             if (type != null && !ex.getType().equals(type)) {

@@ -8,6 +8,8 @@ import compiler.parse.Transform;
 import java.util.List;
 
 /**
+ * This is a bit of a "god" class, have to work on cutting it down, refactoring
+ * out functionality, etc
  *
  * @author leijurv
  */

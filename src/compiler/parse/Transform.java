@@ -8,6 +8,7 @@ package compiler.parse;
 /**
  *
  * @author leijurv
+ * @param <E>
  */
 public interface Transform<E> {
     void apply(E lines);

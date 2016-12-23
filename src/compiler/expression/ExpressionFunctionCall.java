@@ -58,6 +58,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
                 return;
             }
             if (calling.name.equals("syscall")) {
+                //good enough
                 return;
             }
             throw new ArithmeticException(calling.name + " expected types " + expected + ", got types " + got);

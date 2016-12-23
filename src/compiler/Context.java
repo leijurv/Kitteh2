@@ -115,7 +115,7 @@ public class Context {//TODO split off some of this massive functionality into o
         //System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
-        Optional<String> reversed = imports.entrySet().stream().filter(entry -> alias.equals(entry.getValue())).map(Map.Entry::getValue).findAny();
+        Optional<String> reversed = imports.entrySet().stream().filter(entry -> alias.equals(entry.getValue())).map(Map.Entry::getKey).findAny();
         if (!reversed.isPresent()) {
             throw new RuntimeException(imports + " " + alias);
         }

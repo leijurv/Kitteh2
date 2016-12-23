@@ -109,7 +109,7 @@ public class Parse {
      * searchingFor
      */
     @SuppressWarnings("unchecked")//.filter(ArrayList.class::isInstance)   then    (ArrayList<Object>) obj doesn't quite work because you can't check if something is an ArrayList<Object>, only if its an ArrayList
-    public static <T, K extends Object> Stream<? extends T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<K> inp) {
+    public static <T, K extends Object> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<K> inp) {
         return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<K>) x)).flatMap(x -> x)).flatMap(x -> x);
     }
     public static <T> Stream<? extends T> flatten(ArrayList<Object> inp, Class<T> searchingFor) {

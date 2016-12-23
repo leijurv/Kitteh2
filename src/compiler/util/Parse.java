@@ -112,7 +112,7 @@ public class Parse {
     public static <T, K extends Object> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<K> inp) {
         return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<K>) x)).flatMap(x -> x)).flatMap(x -> x);
     }
-    public static <T> Stream<? extends T> flatten(ArrayList<Object> inp, Class<T> searchingFor) {
+    public static <SearchingFor, SearchingIn> Stream<SearchingFor> flatten(ArrayList<SearchingIn> inp, Class<SearchingFor> searchingFor) {
         return filteredFlatten(searchingFor, x -> true, inp);
     }
 }

@@ -101,16 +101,14 @@ public class Parse {
      * of all instances of a given class
      *
      * @param <T> The generic type to search for
-     * @param <K> The ArrayList we are searching in
      * @param searchingFor the class to search for
      * @param filter just a PredicateT to filter which elements to return
      * @param inp the arraylist to flatten
      * @return a stream of all items at any depth that are instances of
      * searchingFor
      */
-    @SuppressWarnings("unchecked")//.filter(ArrayList.class::isInstance)   then    (ArrayList<Object>) obj doesn't quite work because you can't check if something is an ArrayList<Object>, only if its an ArrayList
-    public static <T, K extends Object> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<K> inp) {
-        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<K>) x)).flatMap(x -> x)).flatMap(x -> x);
+    public static <T> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<?> inp) {
+        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<?>) x)).flatMap(x -> x)).flatMap(x -> x);
     }
     public static <SearchingFor, SearchingIn> Stream<SearchingFor> flatten(ArrayList<SearchingIn> inp, Class<SearchingFor> searchingFor) {
         return filteredFlatten(searchingFor, x -> true, inp);

@@ -27,9 +27,9 @@ import java.nio.file.ReadOnlyFileSystemException;
  * @author leijurv
  */
 public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable implements Settable {
-    String field;
-    Expression input;
-    TypeStruct struct;
+    private final String field;
+    private Expression input;
+    private final TypeStruct struct;
     public ExpressionStructFieldAccess(Expression input, String field) {
         this.struct = (TypeStruct) input.getType();
         this.input = input;

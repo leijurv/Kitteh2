@@ -98,6 +98,7 @@ public class Compiler {
         if (VERBOSE) {
             System.out.println(loll);
             System.err.println(loll);
+            System.out.println("Completely done, returning x86 asm string of length " + asm.length());
         }
         return asm;
     }

@@ -13,7 +13,7 @@ import compiler.tac.TempVarUsage;
  *
  * @author leijurv
  */
-public class CommandMultiSet extends Command {
+public class CommandMultiSet extends Command {//TODO: merge with CommandExp. both CommandExp and CommandSetMulti do the exact same thing: set variable(s) to the result of a function call
     String[] varNames;
     ExpressionFunctionCall settingTo;
     public CommandMultiSet(Context context, ExpressionFunctionCall settingTo, String... varNames) {

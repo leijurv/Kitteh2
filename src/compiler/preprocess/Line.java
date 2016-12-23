@@ -59,7 +59,7 @@ public class Line {
         return exception(toWrap, null);
     }
     public RuntimeException exception(Throwable toWrap, String doing) {
-        return new RuntimeException((toWrap == null ? "Exception" : toWrap.getClass()) + " " + (doing == null ? "on" : "while " + doing) + " line " + origLineNumber + " of " + loadedFrom);
+        return new RuntimeException((toWrap == null ? "Exception" : toWrap.getClass()) + " " + (doing == null ? "on" : "while " + doing) + " line " + origLineNumber + " of " + loadedFrom, toWrap);
     }
     public RuntimeException exception() {
         return exception(null, null);

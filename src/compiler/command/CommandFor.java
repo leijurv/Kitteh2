@@ -29,6 +29,9 @@ public class CommandFor extends CommandBlock {
         this.initialization = initialization;
         this.condition = condition;
         this.afterthought = afterthought;
+        if (condition == null) {
+            throw new IllegalArgumentException();
+        }
     }
     public CommandFor(ExpressionConditionalJumpable condition, ArrayList<Command> contents, Context context) {
         this(null, condition, null, contents, context);
@@ -53,22 +56,20 @@ public class CommandFor extends CommandBlock {
         //int afterItAll = placeToJumpTo + conditionLen + bodyLen + afterLen;
         //System.out.println(placeToJumpTo + " " + conditionLen + " " + bodyLen + " " + afterLen + " " + afterItAll);
         emit.updateContext(context);//I don't remember why this needs to be here, but if you remove it then compile something with a for loop, there will be an illegal state exception about the fitnessgram pacer test
-        if (condition != null) {
-            condition.generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
-        }
+        condition.generateConditionalJump(emit, new TempVarUsage(context), afterItAll, true);//invert so if the condition isn't satisfied we skip the loop
         //note that the condition uses temp vars from within the for context. that's so it doesn't overwrite for vars between loop iterations
-        int previousBreakTo = emit.canBreak() ? emit.breakTo() : -1;
-        int previousContinueTo = emit.canContinue() ? emit.continueTo() : -1;
+        Integer previousBreakTo = emit.canBreak() ? emit.breakTo() : null;//leave this how it is, and don't change the method signature for breakTo to return boxed. it should return primitive which forces nullpointer if there is no actual break destination
+        Integer previousContinueTo = emit.canContinue() ? emit.continueTo() : null;
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
         emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought
         for (Command com : contents) {//TODOIFIWANTTOKILLMYSELF make this parallel
             com.generateTAC(emit);
         }
         emit.clearBreakContinue();
-        if (previousBreakTo != -1) {
+        if (previousBreakTo != null) {
             emit.setBreak(previousBreakTo);
         }
-        if (previousContinueTo != -1) {
+        if (previousContinueTo != null) {
             emit.setContinue(previousContinueTo);
         }
         if (afterthought != null) {
@@ -81,7 +82,7 @@ public class CommandFor extends CommandBlock {
     protected int calculateTACLength() {
         int bodyLen = contents.stream().mapToInt(Command::getTACLength).sum();
         int init = initialization != null ? initialization.getTACLength() : 0;
-        int cond = condition != null ? condition.condLength() : 0;
+        int cond = condition.condLength();
         int aft = afterthought != null ? afterthought.getTACLength() : 0;
         return init + cond + bodyLen + aft + 1;//+1 for the jump from after the afterthought back to the condition
     }
@@ -99,17 +100,15 @@ public class CommandFor extends CommandBlock {
         for (String s : varsMod) {
             context.clearKnownValue(s);
         }
-        if (condition != null) {
-            condition = (ExpressionConditionalJumpable) condition.insertKnownValues(context);
-            condition = (ExpressionConditionalJumpable) condition.calculateConstants();
-        }
+        condition = (ExpressionConditionalJumpable) condition.insertKnownValues(context);
+        condition = (ExpressionConditionalJumpable) condition.calculateConstants();
         if (afterthought != null) {
             afterthought = afterthought.optimize();
         }
         for (int i = 0; i < contents.size(); i++) {
             contents.set(i, contents.get(i).optimize());
         }
-        if (condition != null && condition instanceof ExpressionConstBool) {
+        if (condition instanceof ExpressionConstBool) {
             boolean wew = ((ExpressionConstBool) condition).getVal();
             if (!wew) {
                 //for false{

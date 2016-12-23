@@ -19,7 +19,7 @@ import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -115,12 +115,11 @@ public class Context {//TODO split off some of this massive functionality into o
         //System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
-        for (Entry<String, String> entry : imports.entrySet()) {
-            if ((alias).equals(entry.getValue())) {
-                return entry.getKey();
-            }
+        Optional<String> reversed = imports.entrySet().stream().filter(entry -> alias.equals(entry.getValue())).map(Map.Entry::getValue).findAny();
+        if (!reversed.isPresent()) {
+            throw new RuntimeException(imports + " " + alias);
         }
-        throw new RuntimeException(imports + " " + alias);
+        return reversed.get();
     }
     public void addImport(String fileName, String alias) {
         if (packageName == null) {

@@ -37,7 +37,7 @@ public class CommandReturn extends Command {
         for (int i = 0; i < toReturn.length; i++) {
             Type should = context.getCurrentFunction().getReturnTypes()[i];
             if (!should.equals(toReturn[i].getType())) {
-                throw new IllegalStateException("Floating point division not yet supported");//lol
+                throw new IllegalStateException("Floating point division not yet supported");//lol this is even funnier now because it really is. its less funny because it can literally never get to here, but...  still.
             }
         }
     }

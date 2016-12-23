@@ -117,10 +117,10 @@ debug(){
 			highBits:=this.mag[0]>>>nBits2
 			if highBits!=0{
 				n=(int*)malloc(sizeof(int)*(magLen+nInts+1))
-				nl++
-				for k:=1; k<nl; k++{
+				for k:=magLen-1; k<nl; k++{
 					n[k]=0
 				}
+				nl++
 				n[i]=highBits
 				i++
 			}else{
@@ -141,7 +141,7 @@ debug(){
 					return
 				}
 				n=(int*)malloc(sizeof(int)*(magLen+nInts))
-				for k:=0; k<nl; k++{
+				for k:=magLen; k<nl; k++{
 					n[k]=0
 				}
 			}

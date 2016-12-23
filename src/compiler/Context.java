@@ -12,13 +12,16 @@ import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeStruct;
 import compiler.util.MutInt;
+import compiler.util.Pair;
 import compiler.x86.X86Param;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -27,13 +30,13 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public class Context {
+public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
     public boolean printFull = true;
 
     public class VarInfo implements X86Param {
         private final String name;
         private final Type type;
-        private ExpressionConst knownValue;
+        private volatile ExpressionConst knownValue;
         private final int stackLocation;
         private final boolean secret;
         public VarInfo(String name, Type type, int stackLocation) {
@@ -104,13 +107,11 @@ public class Context {
         return new HashMap<>(structs);
     }
     public void insertStructsUnderPackage(String alias, HashMap<String, TypeStruct> other) {
-        for (Entry<String, TypeStruct> struct : other.entrySet()) {
-            String name = (alias == null ? "" : alias + "::") + struct.getKey();
-            if (structs.containsKey(name)) {
-                throw new RuntimeException("Overwriting struct " + name);
-            }
-            structs.put(name, struct.getValue());
+        Map<String, TypeStruct> mapt = other.entrySet().stream().map(entry -> new Pair<>((alias == null ? "" : alias + "::") + entry.getKey(), entry.getValue())).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
+        if (mapt.keySet().stream().anyMatch(structs::containsKey)) {
+            throw new RuntimeException("Overwriting struct from " + mapt.keySet() + " into " + structs.keySet());
         }
+        structs.putAll(mapt);
         //System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {

@@ -111,8 +111,8 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
                 throw new RuntimeException();
             }
-            String name = (String) tokenList.get(tokenList.size() - 1).data();
-            return new Pair<>(name, type);
+            String argNemo = (String) tokenList.get(tokenList.size() - 1).data();
+            return new Pair<>(argNemo, type);
         }).collect(Collectors.toList());
         if (methodOf != null) {
             args.add(0, new Pair<>("this", new TypePointer(methodOf)));

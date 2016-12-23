@@ -15,6 +15,7 @@ import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeVoid;
 import compiler.x86.X86Register;
+import java.util.stream.Stream;
 
 /**
  *
@@ -58,11 +59,7 @@ public class CommandReturn extends Command {
     }
     @Override
     protected int calculateTACLength() {
-        int sum = 1;
-        for (int i = 0; i < toReturn.length; i++) {
-            sum += 1 + toReturn[i].getTACLength();
-        }
-        return sum;
+        return 1 + Stream.of(toReturn).mapToInt(Expression::getTACLength).map(x -> x + 1).sum();
     }
     @Override
     public void staticValues() {

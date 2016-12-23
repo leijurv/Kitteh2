@@ -6,6 +6,7 @@
 package compiler.util;
 
 /**
+ * haha i just realized this could be pronounced like "mutant"
  *
  * @author leijurv
  */

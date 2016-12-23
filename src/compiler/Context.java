@@ -71,7 +71,7 @@ public class Context {//TODO split off some of this massive functionality into o
         @Override
         public String x86() {
             if (secret) {
-                throw new RuntimeException();
+                throw new RuntimeException(Context.super.toString());
             }
             return (stackLocation) + ("(%rbp)");
         }

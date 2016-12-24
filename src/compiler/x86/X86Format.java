@@ -33,8 +33,8 @@ public class X86Format {
     private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
     private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
     public static String assembleFinalFile(final List<Pair<String, List<TACStatement>>> functions) {
-        Future<String> header = CompletableFuture.supplyAsync(() -> HEADER);//TODO fix this and the next one
-        Future<String> joiner = CompletableFuture.supplyAsync(() -> "\n");//they don't need to be async but I don't know of a now-future and i can't google because i'm on a plane lol
+        Future<String> header = CompletableFuture.completedFuture(HEADER);
+        Future<String> joiner = CompletableFuture.completedFuture("\n");
         Future<String> footer = CompletableFuture.supplyAsync(() -> FOOTER + generateConstantsLabels(functions), Executors.newSingleThreadExecutor());//OH do i LOVE this
         //footer gets its own executor (separate from the main fork join pool) because a parallel stream may wait for it
         return BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);

@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
  */
 public class X86Format {
     public static final boolean MAC = System.getProperty("os.name").toLowerCase(Locale.US).contains("mac");
-    private static final String LLD_FORMAT
+    private static final String FLOAT_FORMAT
             = "floatformatstring:\n"
             + "	.asciz	\"%f\\n\"\n";
     private static final String HEADER_MAC = "    .section    __TEXT,__text\n"
             + "    .macosx_version_min 10, 10\n";
-    private static final String FOOTER_MAC = "\n.section	__TEXT,__cstring\n" + LLD_FORMAT;
+    private static final String FOOTER_MAC = "\n.section	__TEXT,__cstring\n" + FLOAT_FORMAT;
     private static final String HEADER_LINUX = ".text\n";
-    private static final String FOOTER_LINUX = "\n.section .rodata\n" + LLD_FORMAT;
+    private static final String FOOTER_LINUX = "\n.section .rodata\n" + FLOAT_FORMAT;
     private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
     private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
     public static String assembleFinalFile(final List<Pair<String, List<TACStatement>>> functions) {

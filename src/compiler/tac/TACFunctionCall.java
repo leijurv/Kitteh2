@@ -17,6 +17,7 @@ import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  * @author leijurv
  */
 public class TACFunctionCall extends TACStatement {
-    public static final X86Register[] returnRegisters = {X86Register.A, X86Register.C, X86Register.D};
+    public static final List<X86Register> returnRegisters = Collections.unmodifiableList(Arrays.asList(X86Register.A, X86Register.C, X86Register.D));
     private final String[] resultName;
     private final FunctionHeader header;
     private X86Param[] result;
@@ -137,7 +138,7 @@ public class TACFunctionCall extends TACStatement {
     public void printRet(X86Emitter emit) {
         for (int i = 0; i < result.length; i++) {
             TypeNumerical ret = (TypeNumerical) result[i].getType();
-            emit.addStatement("mov" + ret.x86typesuffix() + " " + returnRegisters[i].getRegister(ret) + ", " + result[i].x86());
+            emit.addStatement("mov" + ret.x86typesuffix() + " " + returnRegisters.get(i).getRegister(ret) + ", " + result[i].x86());
         }
     }
 }

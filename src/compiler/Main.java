@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.tac.optimize.OptimizationSettings;
+import static compiler.tac.optimize.OptimizationSettings.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.IllformedLocaleException;
@@ -27,6 +27,7 @@ public class Main {
     }
     /**
      * @param args the command line arguments
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         http://github.com/leijurv/Kitteh2
@@ -63,11 +64,14 @@ public class Main {
                 case "-m":
                     Compiler.METRICS = true;
                     break;
+                case "-d":
+                    Compiler.DETERMINISTIC = true;
+                    break;
                 default:
                     break;
             }
         }
-        String asm = Compiler.compile(new File(inFile).toPath(), new OptimizationSettings(OPTIMIZE, OPTIMIZE));
+        String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
         try (FileOutputStream lol = new FileOutputStream(outFile)) {
             lol.write(asm.getBytes("UTF-8"));
         }

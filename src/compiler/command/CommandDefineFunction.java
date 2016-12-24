@@ -210,7 +210,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             return returnTypes[0];
         }
         public Type[] getReturnTypes() {
-            return returnTypes;
+            return Arrays.copyOf(returnTypes, returnTypes.length);
         }
         public List<Type> inputs() {
             return arguments;

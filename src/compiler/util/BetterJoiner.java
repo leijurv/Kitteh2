@@ -6,6 +6,7 @@
 package compiler.util;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -21,7 +22,7 @@ import java.util.stream.Stream;
 public class BetterJoiner {
     public static <T extends String> String futuristicJoin(Stream<? extends T> stream, Future<String> header, Future<String> joiner, Future<String> footer) {
         StringBuilder builder = new StringBuilder();
-        stream.parallel().forEach(str -> {
+        Consumer<String> consumer = str -> {
             synchronized (builder) {
                 if (builder.length() == 0) {
                     try {
@@ -40,7 +41,12 @@ public class BetterJoiner {
                 }
                 builder.append(str);
             }
-        });
+        };
+        if (compiler.Compiler.deterministic()) {
+            stream.parallel().forEachOrdered(consumer);
+        } else {
+            stream.parallel().forEach(consumer);
+        }
         try {
             builder.append(footer.get());
         } catch (InterruptedException | ExecutionException ex) {

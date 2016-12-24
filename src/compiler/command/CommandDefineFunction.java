@@ -82,7 +82,6 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public FunctionHeader getLocalHeader() {
         return header;
     }
-    @SuppressWarnings("unchecked")
     public void parseHeader() {
         if (header != null) {
             throw new RuntimeException();
@@ -115,7 +114,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             return new Pair<>(argNemo, type);
         }).collect(Collectors.toList());
         if (methodOf != null) {
-            args.add(0, new Pair<>("this", new TypePointer(methodOf)));
+            args.add(0, new Pair<>("this", new <TypeStruct>TypePointer<Type>(methodOf)));
         }
         this.header = new FunctionHeader(name, args.stream().map(Pair::getB).collect(Collectors.toList()), retType);
         int pos = 16; //args start at *(rbp+16) in order to leave room for rip and rbp on the call stack

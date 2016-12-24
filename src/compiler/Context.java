@@ -92,9 +92,8 @@ public class Context {//TODO split off some of this massive functionality into o
     private CommandDefineFunction currentFunction = null;
     public FunctionsContext gc;
     public final MutInt varIndex;
-    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[]{" so I can't fix this warning
     public Context(String packageName) {
-        this.values = new HashMap[]{new HashMap<>()};
+        this.values = createThatGenericArray(new HashMap<>());
         this.stackSize = 0;
         this.structs = new HashMap<>();
         this.varIndex = null;
@@ -102,6 +101,10 @@ public class Context {//TODO split off some of this massive functionality into o
         this.packageName = packageName;
         String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split("\\.k")[0];
         imports.put(wewlad, wewlad);
+    }
+    @SafeVarargs
+    public static <T> T[] createThatGenericArray(T... inp) {
+        return inp;
     }
     public HashMap<String, TypeStruct> structsCopy() {
         return new HashMap<>(structs);
@@ -206,10 +209,8 @@ public class Context {//TODO split off some of this massive functionality into o
         this.imports = imports;
         this.packageName = packageName;
     }
-    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
-        HashMap<String, X86Param>[] temp = new HashMap[values.length + 1];
-        System.arraycopy(values, 0, temp, 0, values.length);
+        HashMap<String, X86Param>[] temp = Arrays.copyOf(values, values.length + 1);
         temp[values.length] = new HashMap<>();
         Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
         return subContext;

@@ -45,7 +45,8 @@ public class X86Format {
         //at the same time as x86 generation for all the other tac statements (that gets its own parallel stream)
         return functions.stream().map(Pair::getB).flatMap(Collection::stream)//cannot be parallel beacuse it is being called in a newSingleThreadExecutor which would block indefinitely beacuse of the parallel fork join tasks dependencies
                 .filter(TACConstStr.class::isInstance).map(TACConstStr.class::cast)
-                .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")
+                .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")//TODO make sure that all characters are properly escaped
+                //most things that would need to be escaped, like other quotes, need to be escaped anyway to be parsed in kitteh. newlines aren't possible at the moment
                 .distinct()
                 .collect(Collectors.joining());
     }

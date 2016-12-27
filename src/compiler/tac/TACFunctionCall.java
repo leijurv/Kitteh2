@@ -86,8 +86,7 @@ public class TACFunctionCall extends TACStatement {
         if (header.name.equals("syscall")) {
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
-                String lol = params[i].x86();
-                emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + SYSCALL_REGISTERS[i].getRegister(type).x86());
+                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + SYSCALL_REGISTERS[i].getRegister(type).x86());
             }
             emit.addStatement("syscall");
             printRet(emit);

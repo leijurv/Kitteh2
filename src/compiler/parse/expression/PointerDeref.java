@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 class PointerDeref extends TokenBased {
     public PointerDeref() {
-        super(Operator.MULTIPLY);
+        <Operator>super(Operator.MULTIPLY);
     }
     @Override
     protected boolean apply(int i, ArrayList<Object> o, Optional<Type> desiredType, Context context) {

@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class TACPointerDeref extends TACStatement {
+public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to copy of all of *a onto the stack to get b, it can just add that offset to a then do *(a+offset)
     public TACPointerDeref(String deref, String dest) {
         super(deref, dest);
     }

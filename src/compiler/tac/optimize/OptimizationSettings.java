@@ -18,7 +18,9 @@ public class OptimizationSettings {
     private final boolean[] enabled = new boolean[TACOptimizer.opt.size()];
     private final boolean staticValues;
     public OptimizationSettings(boolean tac, boolean staticValues) {
-        Arrays.fill(enabled, tac);
+        if (tac) {
+            Arrays.fill(enabled, true);
+        }
         this.staticValues = staticValues;
     }
     public boolean staticValues() {

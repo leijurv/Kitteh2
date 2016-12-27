@@ -22,7 +22,7 @@ public class TACJump extends TACStatement {
     protected void onContextKnown() {
         if (getClass() != TACJump.class) {
             throw new IllegalStateException("SWIPER NO SWIPING");
-        }
+        }//^yes^
     }
     @Override
     public String toString0() {

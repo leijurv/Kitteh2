@@ -5,9 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.type.TypeNumerical;
-import compiler.type.TypePointer;
-import compiler.type.TypeStruct;
+import compiler.type.*;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -61,13 +59,16 @@ public class TACPointerDeref extends TACStatement {
     public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, String destRegister, TypeStruct struct, X86Emitter emit) {
         int size = struct.getSizeBytes();
         //this is a really bad way to do this
-        for (int i = 0; i + 8 <= size; i += 8) {
-            emit.addStatement("movq " + (i + sourceStackLocation) + "(" + sourceRegister + "), %rcx");
-            emit.addStatement("movq %rcx, " + (destLocation + i) + "(" + destRegister + ")");
-        }
-        for (int i = size - size % 8; i + 1 <= size; i++) {
-            emit.addStatement("movb " + (i + sourceStackLocation) + "(" + sourceRegister + "), %cl");
-            emit.addStatement("movb %cl, " + (destLocation + i) + "(" + destRegister + ")");
+        //still.
+        //even though its a little smarter now
+        int i = 0;
+        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
+            while (i + tn.getSizeBytes() <= size) {
+                String reg = X86Register.R8.getRegister(tn).x86();
+                emit.addStatement("mov" + tn.x86typesuffix() + " " + (i + sourceStackLocation) + "(" + sourceRegister + "), " + reg);
+                emit.addStatement("mov" + tn.x86typesuffix() + " " + reg + ", " + (destLocation + i) + "(" + destRegister + ")");
+                i += tn.getSizeBytes();
+            }
         }
     }
 }

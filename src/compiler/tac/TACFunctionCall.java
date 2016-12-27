@@ -148,7 +148,7 @@ public class TACFunctionCall extends TACStatement {
         printRet(emit);
         emit.addStatement("addq $" + toSubtract + ", %rsp");
     }
-    public void printRet(X86Emitter emit) {
+    private void printRet(X86Emitter emit) {
         for (int i = 0; i < result.length; i++) {
             TypeNumerical ret = (TypeNumerical) result[i].getType();
             emit.addStatement("mov" + ret.x86typesuffix() + " " + RETURN_REGISTERS.get(i).getRegister(ret) + ", " + result[i].x86());

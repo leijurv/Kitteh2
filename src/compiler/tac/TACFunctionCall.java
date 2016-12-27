@@ -25,7 +25,22 @@ import java.util.List;
  * @author leijurv
  */
 public class TACFunctionCall extends TACStatement {
-    public static final List<X86Register> returnRegisters = Collections.unmodifiableList(Arrays.asList(X86Register.A, X86Register.C, X86Register.D));
+    private static final X86Register[] SYSCALL_REGISTERS = {
+        X86Register.A,
+        X86Register.DI,
+        X86Register.SI,
+        X86Register.D,
+        X86Register.R10,
+        X86Register.R8,
+        X86Register.R9
+    };
+    public static final List<X86Register> RETURN_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
+        X86Register.A,
+        //NOT %rbx because apparently that's like not allowed and stuff (system v abi)
+        X86Register.C,
+        X86Register.D
+    //yes you can only have 3 returns, sue me
+    }));
     private final String[] resultName;
     private final FunctionHeader header;
     private X86Param[] result;
@@ -69,11 +84,10 @@ public class TACFunctionCall extends TACStatement {
         toSubtract++;
         toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         if (header.name.equals("syscall")) {
-            X86Register[] registers = {X86Register.A, X86Register.DI, X86Register.SI, X86Register.D, X86Register.R10, X86Register.R8, X86Register.R9};
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
                 String lol = params[i].x86();
-                emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + registers[i].getRegister(type).x86());
+                emit.addStatement("mov" + type.x86typesuffix() + " " + lol + ", " + SYSCALL_REGISTERS[i].getRegister(type).x86());
             }
             emit.addStatement("syscall");
             printRet(emit);
@@ -138,7 +152,7 @@ public class TACFunctionCall extends TACStatement {
     public void printRet(X86Emitter emit) {
         for (int i = 0; i < result.length; i++) {
             TypeNumerical ret = (TypeNumerical) result[i].getType();
-            emit.addStatement("mov" + ret.x86typesuffix() + " " + returnRegisters.get(i).getRegister(ret) + ", " + result[i].x86());
+            emit.addStatement("mov" + ret.x86typesuffix() + " " + RETURN_REGISTERS.get(i).getRegister(ret) + ", " + result[i].x86());
         }
     }
 }

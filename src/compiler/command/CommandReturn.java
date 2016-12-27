@@ -52,7 +52,7 @@ public class CommandReturn extends Command {
             tempVars[i] = var;
         }
         for (int i = 0; i < toReturn.length; i++) {
-            X86Register register = TACFunctionCall.returnRegisters.get(i);
+            X86Register register = TACFunctionCall.RETURN_REGISTERS.get(i);
             emit.emit(new TACConst("" + register.getRegister((TypeNumerical) toReturn[i].getType()), tempVars[i]));
         }
         emit.emit(new TACReturn());

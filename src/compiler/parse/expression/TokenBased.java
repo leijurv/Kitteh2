@@ -16,11 +16,11 @@ import java.util.function.Predicate;
  * @author leijurv
  */
 abstract class TokenBased implements ExpressionParseStep {
-    private final Predicate<Object> filter;
+    private final Predicate<? super Object> filter;
     <T> TokenBased(Token<T> type) {
         this(o -> o instanceof Token && o.equals(type));
     }
-    TokenBased(Predicate<Object> filt) {
+    TokenBased(Predicate<? super Object> filt) {
         this.filter = filt;
     }
     @Override

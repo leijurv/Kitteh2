@@ -34,9 +34,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
         this.struct = (TypeStruct) input.getType();
         this.input = input;
         this.field = field;
-        if (struct.getFieldByName(field) == null) {
-            throw new RuntimeException("Accessing field " + field + " from struct " + struct);
-        }
+        struct.getFieldByName(field);
     }
     @Override
     protected Type calcType() {

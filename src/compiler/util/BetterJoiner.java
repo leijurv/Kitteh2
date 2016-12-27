@@ -7,8 +7,6 @@ package compiler.util;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -28,14 +26,12 @@ public class BetterJoiner {
                     try {
                         builder.append(header.get());
                     } catch (InterruptedException | ExecutionException ex) {
-                        Logger.getLogger(BetterJoiner.class.getName()).log(Level.SEVERE, null, ex);
                         throw new RuntimeException(ex);
                     }
                 } else {
                     try {
                         builder.append(joiner.get());
                     } catch (InterruptedException | ExecutionException ex) {
-                        Logger.getLogger(BetterJoiner.class.getName()).log(Level.SEVERE, null, ex);
                         throw new RuntimeException(ex);
                     }
                 }
@@ -50,7 +46,6 @@ public class BetterJoiner {
         try {
             builder.append(footer.get());
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(BetterJoiner.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }
         return builder.toString();

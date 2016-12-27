@@ -16,7 +16,6 @@ import compiler.util.Pair;
 import compiler.util.Parse;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +44,7 @@ public class TypeStruct extends Type {
         return structName + "___" + methodName;
     }
     @SuppressWarnings("unchecked")
-    public void parseContents() {
+    public void parseContents() {//TODO for separation of concerns, maybe this shouldn't be in the compiler.type package...lol
         if (parsed) {
             throw new RuntimeException();
         }
@@ -111,13 +110,11 @@ public class TypeStruct extends Type {
         if (!parsed) {
             throw new RuntimeException("Out of order struct reference");
         }
-        return fields.get(name);
-    }
-    public Collection<StructField> getFields() {
-        if (!parsed) {
-            throw new RuntimeException("Out of order struct reference");
+        StructField resp = fields.get(name);
+        if (resp == null) {
+            throw new RuntimeException(toString() + " doesn't have a field named '" + name + "'");
         }
-        return fields.values();
+        return resp;
     }
     @Override
     public String toString() {

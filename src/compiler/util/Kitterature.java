@@ -48,7 +48,7 @@ public class Kitterature {
         try {
             URI uri = Kitterature.class.getResource("/lang").toURI();
             List<Path> paths = new ArrayList<>();
-            try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null)) {
+            try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.emptyMap()) : null)) {
                 Path myPath = Paths.get(uri);
                 Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
                     @Override

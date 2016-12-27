@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
@@ -73,6 +74,9 @@ these registers’ values for its caller.
                 case R15:
                     throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
             }
+        }
+        if ((this == XMM0 || this == XMM1) && !(version instanceof TypeFloat)) {
+            throw new IllegalStateException();
         }
         switch (this) {
             case XMM0:

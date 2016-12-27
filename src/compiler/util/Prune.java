@@ -8,10 +8,10 @@ import compiler.Compiler;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACStatement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -20,10 +20,7 @@ import java.util.stream.Collectors;
  */
 public class Prune {
     public static List<Pair<String, List<TACStatement>>> prune(List<Pair<String, List<TACStatement>>> wew) {
-        HashMap<String, List<TACStatement>> mapping = new HashMap<>();
-        for (Pair<String, List<TACStatement>> x : wew) {
-            mapping.put(x.getA(), x.getB());
-        }
+        Map<String, List<TACStatement>> mapping = wew.stream().collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
         List<Pair<String, List<TACStatement>>> result = new ArrayList<>();
         LinkedList<String> toExplore = new LinkedList<>();
         HashSet<String> explored = new HashSet<>();

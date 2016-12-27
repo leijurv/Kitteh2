@@ -28,7 +28,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
         //print out the composition of lines
         //SELECT class,count(*) FROM lines GROUP BY class
         //System.out.println("Lexing " + lines.stream().collect(Collectors.groupingBy(obj -> obj.getClass())).entrySet().stream().map(entry -> new Pair<>(entry.getKey(), entry.getValue().size())).collect(Collectors.toList()) + " lines");
-        List<Line> toLex = Parse.filteredFlatten(Line.class, Line::unlext, lines).collect(Collectors.toList());
+        List<Line> toLex = Parse.filteredFlatten(Line.class, Line::unlexd, lines).collect(Collectors.toList());
         if (toLex.isEmpty()) {
             return;
         }

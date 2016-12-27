@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public abstract class TACStatement {
     protected Context context;
-    protected TempVarUsage tvu;
+    private TempVarUsage tvu;
     public String[] paramNames;
     public X86Param[] params;
     public TACStatement(String... paramNames) {

@@ -67,8 +67,11 @@ public class Line {
     public ArrayList<Object> source() {
         return source;
     }
-    public boolean unlext() {
-        return tokens == null;
+    public boolean lexd() {
+        return tokens != null;
+    }
+    public boolean unlexd() {
+        return !lexd();
     }
     public void lex() {
         if (tokens != null) {

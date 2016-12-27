@@ -39,7 +39,7 @@ public enum Keyword implements Token<Keyword> {
     BYTE("BITE", new TypeInt8()),
     SHORT("CHOMP", new TypeInt16()),
     INT("MEOWNT", new TypeInt32()),
-    LONG("LAWNG", new TypeInt64()),
+    LONG("CATNIP", new TypeInt64()),
     FLOAT("FOOD", new TypeFloat()),
     VOID("MT", new TypeVoid());
     public static final boolean CAT_MODE = false;

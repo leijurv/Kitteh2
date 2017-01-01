@@ -76,7 +76,8 @@ class RecursiveParentheses extends TokenBased {
             }
             Type type = ParseUtil.typeFromObjs(inParen.get(0), context);
             if (type == null) {
-                throw new RuntimeException();
+                type = ExpressionParser.parseImpl(new ArrayList<>(inParen.get(0)), Optional.empty(), context).getType();//not doing sizeof(int), we're doing sizeof(variableWithTypeInt)
+                //throw new RuntimeException();
             }
             for (int j = 0; j < numToRemoveAti; j++) {
                 o.remove(i);

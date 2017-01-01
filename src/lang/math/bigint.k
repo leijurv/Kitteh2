@@ -4,7 +4,7 @@ struct bigint{
 	int cap
 	bool neg
 
-debug(){
+	debug(){
 		print("Outputting")
 		writeByte(10)
 		print(this.cap)
@@ -16,7 +16,7 @@ debug(){
 		print("End")
 		writeByte(10)
 	
-}
+	}
 	tostring(byte lastChar)byte*{
 		zero:=fromLong(0)
 		neg:=this.neg
@@ -63,17 +63,21 @@ debug(){
 	}
 	bit(int pos)bool{
 		int n=pos>>>5
-		long k=(long)this.mag[this.cap-n-1]
+		copy:=*this
+		long k=(long)copy.mag[copy.cap-n-1]
 		long m=1<<((long)pos&31)
 		return k&m!=(long)0
 	}
 	setbit(int pos,bool val){
 		int n=pos>>>5
 		int m=1<<(pos&31)
+		copy:=*this
+		ind:=copy.cap-n-1
+		loc:=copy.mag+ind<<2
 		if val{
-			this.mag[this.cap-n-1]=this.mag[this.cap-n-1] | m
+			*loc=*loc | m
 		}else{
-			this.mag[this.cap-n-1] = this.mag[this.cap-n-1] & (0-1 - m)
+			*loc = *loc & (0-1 - m)
 		}
 	}
 	toLong()long{

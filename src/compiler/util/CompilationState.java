@@ -29,7 +29,6 @@ public class CompilationState {
     private final LinkedList<Path> toLoad = new LinkedList<>();
     private final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
     private final HashMap<Path, Context> ctxts = new HashMap<>();
-    private final ArrayList<Context> allContexts = new ArrayList<>();
     private final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
     private final List<Path> autoImportedStd;
     private List<FunctionsContext> contexts;
@@ -56,7 +55,6 @@ public class CompilationState {
     public void add(Path path, Context context, boolean f, List<CommandDefineFunction> d) {
         ctxts.put(path, context);
         loaded.add(f ? 0 : loaded.size(), new Pair<>(path, d));
-        allContexts.add(f ? 0 : allContexts.size(), context);
         importz.put(path, context.structsCopy());
     }
     /**
@@ -79,7 +77,7 @@ public class CompilationState {
     }
     public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(allContexts.indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
+        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(loaded.stream().map(Pair::getA).map(ctxts::get).collect(Collectors.toList()).indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
         System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }

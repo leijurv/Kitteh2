@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class BetterJoiner {
-    public static <T extends String> String futuristicJoin(Stream<? extends T> stream, Future<String> header, Future<String> joiner, Future<String> footer) {
+    public static <T extends String> String futuristicJoin(Stream<? extends T> stream, Future<T> header, Future<? extends T> joiner, Future<T> footer) {
         StringBuilder builder = new StringBuilder();
         Consumer<String> consumer = str -> {
             synchronized (builder) {

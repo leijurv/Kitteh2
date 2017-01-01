@@ -8,6 +8,7 @@ import compiler.command.CommandDefineFunction;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.CompilationState;
+import compiler.util.MultiThreadedLoader;
 import compiler.util.Pair;
 import compiler.util.Prune;
 import compiler.x86.X86Format;
@@ -40,7 +41,7 @@ public class Compiler {
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();
         CompilationState cs = new CompilationState(main);
-        cs.mainImportLoop();
+        new MultiThreadedLoader(cs).mainImportLoop();
         long b = System.currentTimeMillis();
         cs.insertStructs();
         long c = System.currentTimeMillis();

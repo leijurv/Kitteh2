@@ -5,7 +5,9 @@
  */
 package compiler.x86;
 import compiler.tac.TACStatement;
+import compiler.tac.optimize.TACOptimization;
 import compiler.util.Pair;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -26,8 +28,11 @@ class X86Function {
         //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
+        HashSet<Integer> destinations = TACOptimization.jumpDestinations(stmts, HashSet::new);
         for (int i = 0; i < stmts.size(); i++) {
-            emitter.addStatement(emitter.lineToLabel(i) + ":");//TODO only emit labels for jump destinations
+            if (destinations.contains(i)) {
+                emitter.addStatement(emitter.lineToLabel(i) + ":");
+            }
             emitter.addStatement("#   " + stmts.get(i));//emit the tac statement with it to make it more Readable
             stmts.get(i).printx86(emitter);
             emitter.addStatement(""); //nice blank line makes it more readable =)

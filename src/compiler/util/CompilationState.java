@@ -34,6 +34,8 @@ public class CompilationState {
     private final ArrayList<Context> allContexts = new ArrayList<>();
     private final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
     private final List<Path> autoImportedStd;
+    private final HashSet<Thread> inProgress;
+    private volatile transient Exception thrown;
     private List<FunctionsContext> contexts;
     /**
      * Initialize a compilation state and add all auto-imported standard library
@@ -53,29 +55,103 @@ public class CompilationState {
                 throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
             }
         }
+        this.inProgress = new HashSet<>();
     }
-    /**
-     * Run the main import loop, which consists of calling Loader.importPath on
-     * every item in toLoad until toLoad.isEmpty
-     *
-     * @throws IOException
-     */
-    public void mainImportLoop() throws IOException {
-        while (!toLoad.isEmpty()) {
-            Path path = toLoad.pop();
-            Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);
-            Context context = loadResult.getA();
-            for (String str : context.imports.keySet()) {
-                Path impPath = new File(str).toPath();
-                if (!alrImp.contains(impPath)) {
-                    toLoad.push(impPath);
+    public void mainImportLoop() {
+        for (int i = 0; i < toLoad.size(); i++) {//watch me whip, now watch me iterate over a linked list using indicies which is O(n^2)
+            //rolls right off the tongue doesn't it
+            importFileInNewThread(toLoad.get(i), i == 0);
+        }
+        while (true) {
+            if (Compiler.verbose()) {
+                System.out.println("Before wait");
+            }
+            try {
+                synchronized (loaded) {
+                    loaded.wait();
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+            if (Compiler.verbose()) {
+                System.out.println("Loop after wait");
+            }
+            synchronized (this) {
+                if (thrown != null) {
+                    if (thrown instanceof RuntimeException) {
+                        throw (RuntimeException) thrown;
+                        //if it's a runtimeexception, we can just throw it (but only if we cast it first)
+                    } else {
+                        throw new RuntimeException(thrown);//its a checked exception that we can't just throw
+                    }
+                    //TODO kill all those other threads
+                }
+                if (inProgress.isEmpty()) {
+                    break;
+                }
+            }
+        }
+    }
+    public void importFileInNewThread(Path path, boolean f) {
+        if (Compiler.verbose()) {
+            System.out.println("IFINT " + path);
+        }
+        Thread th = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    importFile(path, f);
+                } catch (IOException | RuntimeException ex) {
+                    synchronized (CompilationState.this) {
+                        if (thrown != null) {
+                            System.out.println("At least two exceptions detected in loader threads, only throwing the first. Discarding " + ex);
+                            return;
+                        }
+                        System.out.println("Got exception while loading " + path + ": " + ex);
+                        thrown = ex;
+                    }
+                    synchronized (loaded) {
+                        loaded.notifyAll();
+                    }
+                    synchronized (CompilationState.this) {
+                        inProgress.remove(this);
+                    }
+                }
+            }
+        };
+        synchronized (this) {
+            inProgress.add(th);
+        }
+        th.start();
+    }
+    public void importFile(Path path, boolean f) throws IOException {
+        Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);
+        Context context = loadResult.getA();
+        for (String str : context.imports.keySet()) {
+            Path impPath = new File(str).toPath();
+            synchronized (this) {
+                if (alrImp.contains(impPath)) {
+                    continue;
+                } else {
                     alrImp.add(impPath);
                 }
             }
+            importFileInNewThread(impPath, false);
+        }
+        synchronized (this) {
             ctxts.put(path, context);
-            loaded.add(new Pair<>(path, loadResult.getB()));
-            allContexts.add(context);
+            loaded.add(f ? 0 : loaded.size(), new Pair<>(path, loadResult.getB()));
+            allContexts.add(f ? 0 : allContexts.size(), context);
             importz.put(path, context.structsCopy());
+        }
+        if (Compiler.verbose()) {
+            System.out.println(path + " done, notifying");
+        }
+        synchronized (this) {
+            inProgress.remove(Thread.currentThread());
+        }
+        synchronized (loaded) {
+            loaded.notifyAll();
         }
     }
     /**

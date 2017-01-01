@@ -19,17 +19,16 @@ import java.util.List;
 public class MultiThreadedLoader {
     private final HashSet<Thread> inProgress = new HashSet<>();
     private final HashSet<Path> alrImp = new HashSet<>();
-    private final Object semaphore = new Object();
     private volatile transient Exception thrown;
-    private final CompilationState cs;
+    private final CompilationState semaphore;
     public MultiThreadedLoader(CompilationState cs) {
-        this.cs = cs;
+        this.semaphore = cs;
         alrImp.addAll(cs.toLoad());
     }
     public void mainImportLoop() {
-        for (int i = 0; i < cs.toLoad().size(); i++) {//watch me whip, now watch me iterate over a linked list using indicies which is O(n^2)
+        for (int i = 0; i < semaphore.toLoad().size(); i++) {//watch me whip, now watch me iterate over a linked list using indicies which is O(n^2)
             //rolls right off the tongue doesn't it
-            importFileInNewThread(cs.toLoad().get(i), i == 0);
+            importFileInNewThread(semaphore.toLoad().get(i), i == 0);
         }
         while (true) {
             try {
@@ -99,7 +98,7 @@ public class MultiThreadedLoader {
             importFileInNewThread(impPath, false);
         }
         synchronized (this) {
-            cs.add(path, context, f, loadResult.getB());
+            semaphore.add(path, context, f, loadResult.getB());
         }
         if (compiler.Compiler.verbose()) {
             System.out.println(path + " done, notifying");

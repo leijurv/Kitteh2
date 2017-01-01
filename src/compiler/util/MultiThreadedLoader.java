@@ -34,7 +34,7 @@ public class MultiThreadedLoader {
         while (true) {
             try {
                 synchronized (semaphore) {
-                    semaphore.wait();
+                    semaphore.wait(100);
                 }
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);

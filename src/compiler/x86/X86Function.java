@@ -27,8 +27,8 @@ class X86Function {
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
         for (int i = 0; i < stmts.size(); i++) {
-            emitter.addStatement(emitter.lineToLabel(i) + ":");
-            emitter.addStatement("#   " + stmts.get(i));
+            emitter.addStatement(emitter.lineToLabel(i) + ":");//TODO only emit labels for jump destinations
+            emitter.addStatement("#   " + stmts.get(i));//emit the tac statement with it to make it more Readable
             stmts.get(i).printx86(emitter);
             emitter.addStatement(""); //nice blank line makes it more readable =)
         }

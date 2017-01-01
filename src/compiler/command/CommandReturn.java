@@ -6,6 +6,7 @@
 package compiler.command;
 import compiler.Context;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionFunctionCall;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
@@ -45,6 +46,11 @@ public class CommandReturn extends Command {
     @Override
     protected void generateTAC0(IREmitter emit) {
         TempVarUsage lol = new TempVarUsage(context);
+        if (toReturn.length == 1 && toReturn[0] instanceof ExpressionFunctionCall) {
+            toReturn[0].generateTAC(emit, lol, null);
+            emit.emit(new TACReturn());
+            return;
+        }
         String[] tempVars = new String[toReturn.length];
         for (int i = 0; i < toReturn.length; i++) {
             String var = lol.getTempVar(toReturn[i].getType());
@@ -59,6 +65,9 @@ public class CommandReturn extends Command {
     }
     @Override
     protected int calculateTACLength() {
+        if (toReturn.length == 1 && toReturn[0] instanceof ExpressionFunctionCall) {
+            return toReturn[0].getTACLength() + 1;
+        }
         return 1 + Stream.of(toReturn).mapToInt(Expression::getTACLength).map(x -> x + 1).sum();
     }
     @Override

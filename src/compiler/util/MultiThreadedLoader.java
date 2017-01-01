@@ -31,13 +31,7 @@ public class MultiThreadedLoader {
             importFileInNewThread(semaphore.toLoad().get(i), i == 0);
         }
         while (true) {
-            try {
-                synchronized (semaphore) {
-                    semaphore.wait(100);
-                }
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
+            boolean done = false;
             synchronized (this) {
                 if (thrown != null) {
                     if (thrown instanceof RuntimeException) {
@@ -49,8 +43,20 @@ public class MultiThreadedLoader {
                     //TODO kill all those other threads
                 }
                 if (inProgress.isEmpty()) {
-                    break;
+                    done = true;
                 }
+            }
+            if (done) {
+                break;
+            }
+            try {
+                synchronized (semaphore) {
+                    if (!done) {
+                        semaphore.wait(100);
+                    }
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             }
         }
     }

@@ -18,7 +18,7 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public abstract class LineBasedTransform implements Transform<List<Line>> {
-    private static final Function<Pair<List<?>, Optional<Predicate<Integer>>>, IntStream> PARALLEL_INTSTREAM_FACTORY = i -> IntStream.range(0, i.getA().size()).parallel().filter(ind -> i.getB().isPresent() ? i.getB().get().test(ind) : true);
+    private static final Function<Pair<List<?>, Optional<Predicate<Integer>>>, IntStream> PARALLEL_INTSTREAM_FACTORY = i -> IntStream.range(0, i.getA().size()).parallel().filter(ind -> i.getB().isPresent() && i.getB().get().test(ind) || !i.getB().isPresent());
     public abstract Line transform(Line line);
     @Override
     public final void apply(List<Line> lines) {

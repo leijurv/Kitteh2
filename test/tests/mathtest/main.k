@@ -1,4 +1,4 @@
-import math wewlad
+import ./math wewlad
 main(){
 	print(fact(5))
 	print(wewlad::fact(5))

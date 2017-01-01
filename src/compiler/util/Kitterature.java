@@ -86,7 +86,7 @@ public class Kitterature {
         }
         int ind = s.indexOf("../");
         if (ind == -1) {
-            return s;
+            return s.replace("./", "");
         }
         if (ind == 0) {
             return "../" + trimPath(s.substring(3));

@@ -52,7 +52,7 @@ public class MultiThreadedLoader {
             try {
                 synchronized (semaphore) {
                     if (!done) {
-                        semaphore.wait(100);
+                        semaphore.wait(5);
                     }
                 }
             } catch (InterruptedException ex) {

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public class Parse {
+public class ParseUtil {
     public static Type typeFromTokens(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             return null;
@@ -94,7 +94,7 @@ public class Parse {
             }
             tmp.add((Token) obj);
         }
-        return Parse.typeFromTokens(tmp, context);
+        return ParseUtil.typeFromTokens(tmp, context);
     }
     /**
      * Recursively flatten an ArrayList of arbitrary depth, returning a stream

@@ -23,7 +23,7 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
 import compiler.util.Pair;
-import compiler.util.Parse;
+import compiler.util.ParseUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,10 +88,10 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
         if (returnType.isEmpty()) {
             retType = new Type[]{new TypeVoid()};
         } else {
-            List<List<Token>> splitted = Parse.splitList(returnType, COMMA);
+            List<List<Token>> splitted = ParseUtil.splitList(returnType, COMMA);
             retType = new Type[splitted.size()];
             for (int i = 0; i < retType.length; i++) {
-                Type type = Parse.typeFromTokens(splitted.get(i), context);
+                Type type = ParseUtil.typeFromTokens(splitted.get(i), context);
                 if (type == null) {
                     throw new IllegalStateException("Invalid return type " + splitted.get(i));
                 }
@@ -99,9 +99,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             }
         }
         int endParen = params.indexOf(ENDPAREN);
-        List<Pair<String, Type>> args = Parse.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
+        List<Pair<String, Type>> args = ParseUtil.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
             List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
-            Type type = Parse.typeFromTokens(typeDefinition, context);
+            Type type = ParseUtil.typeFromTokens(typeDefinition, context);
             if (type == null) {
                 throw new IllegalStateException(typeDefinition + " not a valid type");
             }

@@ -13,7 +13,7 @@ import compiler.token.Token;
 import compiler.token.TokenType;
 import static compiler.token.TokenType.STARTPAREN;
 import compiler.util.Pair;
-import compiler.util.Parse;
+import compiler.util.ParseUtil;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class TypeStruct extends Type {
                 throw new RuntimeException(tokens + "");
             }
             String fieldName = (String) tokens.get(tokens.size() - 1).data();
-            Type fieldType = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
+            Type fieldType = ParseUtil.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             if (fieldType == null) {
                 throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
             }

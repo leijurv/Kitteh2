@@ -30,7 +30,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.type.TypeVoid;
-import compiler.util.Parse;
+import compiler.util.ParseUtil;
 import java.nio.file.ClosedDirectoryStreamException;
 import java.nio.file.ProviderMismatchException;
 import java.util.Arrays;
@@ -87,7 +87,7 @@ class LineParser {
                             return new CommandReturn(context, ex);
                         }
                     } else {
-                        List<List<Token>> splitted = Parse.splitList(tokens.subList(1, tokens.size()), COMMA);
+                        List<List<Token>> splitted = ParseUtil.splitList(tokens.subList(1, tokens.size()), COMMA);
                         Type[] retTypes = header.getReturnTypes();
                         if (retTypes.length != splitted.size()) {
                             throw new IllegalStateException("Trying to return " + splitted.size() + " vars when you need to return " + retTypes.length + " " + splitted + " " + Arrays.asList(retTypes));
@@ -117,7 +117,7 @@ class LineParser {
             throw new IllegalStateException("Line cannot begin with =");
         }
         if (eqLoc == -1) {
-            Type type = Parse.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
+            Type type = ParseUtil.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
             //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
             if (type != null) {
                 if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
@@ -165,7 +165,7 @@ class LineParser {
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
         boolean inferType = (Boolean) tokens.get(eqLoc).data();
         if (tokens.subList(0, eqLoc).contains(COMMA)) {
-            List<List<Token>> splitted = Parse.splitList(tokens.subList(0, eqLoc), COMMA);
+            List<List<Token>> splitted = ParseUtil.splitList(tokens.subList(0, eqLoc), COMMA);
             String[] variableNames = new String[splitted.size()];
             for (int i = 0; i < splitted.size(); i++) {
                 List<Token> item = splitted.get(i);
@@ -229,7 +229,7 @@ class LineParser {
             throw new ClosedDirectoryStreamException();
         }
         //if the first token is a type, we are doing something like int i=5
-        Type type = Parse.typeFromTokens(tokens.subList(0, eqLoc - 1), context);
+        Type type = ParseUtil.typeFromTokens(tokens.subList(0, eqLoc - 1), context);
         if (type != null) {
             if (tokens.get(eqLoc - 1).tokenType() != VARIABLE) {
                 throw new IllegalStateException("You can't set the value of " + tokens.get(eqLoc - 1) + " lol");

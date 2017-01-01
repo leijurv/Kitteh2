@@ -17,7 +17,7 @@ import compiler.type.Type;
 import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
-import compiler.util.Parse;
+import compiler.util.ParseUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,7 +74,7 @@ class RecursiveParentheses extends TokenBased {
             if (inParen.size() != 1) {
                 throw new RuntimeException();
             }
-            Type type = Parse.typeFromObjs(inParen.get(0), context);
+            Type type = ParseUtil.typeFromObjs(inParen.get(0), context);
             if (type == null) {
                 throw new RuntimeException();
             }
@@ -84,7 +84,7 @@ class RecursiveParentheses extends TokenBased {
             o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
             return true;
         }
-        if (inParen.size() == 1 && Parse.typeFromObjs(inParen.get(0), context) != null) {
+        if (inParen.size() == 1 && ParseUtil.typeFromObjs(inParen.get(0), context) != null) {
             //this is a cast, skip the rest and don't modify these parentheses
             return false;
         } else {

@@ -9,6 +9,7 @@ import compiler.tac.TACFunctionCall;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.type.Type;
+import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
@@ -36,11 +37,16 @@ public class RegisterAllocation extends TACOptimization {
                 if (!(lmao instanceof TypeNumerical)) {
                     continue;
                 }
+                if (lmao instanceof TypeFloat) {
+                    continue;
+                }
                 int lastUsage = lastUsage(block, mod);
                 if (lastUsage <= i) {
                     throw new RuntimeException(block + "");
                 }
-                //System.out.println(mod + "  " + (lastUsage - i) + " last usage " + block.get(lastUsage) + " setting " + block.get(i));
+                /*if (block.get(i) instanceof TACCast) {
+                    System.out.println(mod + "  " + (lastUsage - i) + " last usage " + block.get(lastUsage) + " setting " + block.get(i));
+                }*/
                 for (int j = i + 1; j < lastUsage; j++) {
                     if (block.get(j) instanceof TACFunctionCall) {
                         continue wew;
@@ -49,9 +55,11 @@ public class RegisterAllocation extends TACOptimization {
                 if (lastUsage - i == 1) {
                     //ok
                     X86TypedRegister xtr = X86Register.B.getRegister((TypeNumerical) lmao);
-                    System.out.println("REPALCE " + block);
+                    //System.out.println("REPALCE " + block);
                     for (int j = i; j <= lastUsage; j++) {
-                        block.get(j).replace(mod, xtr.x86(), xtr);
+                        if (block.get(j).modifiedVariables().contains(mod) || block.get(j).requiredVariables().contains(mod)) {
+                            block.get(j).replace(mod, xtr.x86(), xtr);
+                        }
                     }
                 }
             }

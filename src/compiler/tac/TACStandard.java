@@ -73,18 +73,20 @@ public class TACStandard extends TACStatement {
         X86Param second = params[1];
         X86Param result = params[2];
         TypeNumerical type;
-        if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
-            type = X86Register.typeFromRegister(firstName);
-        } /*else if (first == null) {
+        //if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
+        //    type = X86Register.typeFromRegister(firstName);
+        //    }
+        /*else if (first == null) {
             if (second == null) {
                 throw new RuntimeException("that optimization related exception again " + this);
                 //type = (TypeNumerical) result.getType(); //this is a workaround for when i'm lazy
             } else {
                 type = (TypeNumerical) second.getType();
             }
-        }*/ else {
-            type = (TypeNumerical) first.getType();
-        }
+       // } else {
+         */
+        type = (TypeNumerical) first.getType();
+        //}
         X86TypedRegister a = X86Register.A.getRegister(type);
         X86TypedRegister c = X86Register.C.getRegister(type);
         X86TypedRegister d = X86Register.D.getRegister(type);

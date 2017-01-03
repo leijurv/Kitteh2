@@ -42,14 +42,14 @@ class X86Function {
         }
         HashSet<Integer> destinations = TACOptimization.jumpDestinations(stmts, HashSet::new);
         for (int i = 0; i < stmts.size(); i++) {
-            if (stmts.get(i) instanceof TACReturn && argsSize.isPresent()) {
-                emitter.addStatement("addq $" + argsSize.getAsInt() + ", %rsp");
-            }
             if (destinations.contains(i)) {
                 emitter.addStatement(emitter.lineToLabel(i) + ":");
             }
             if (compiler.Compiler.verbose()) {//this is a little mean...
                 emitter.addStatement("#   " + stmts.get(i));//emit the tac statement with it to make it more Readable
+            }
+            if (stmts.get(i) instanceof TACReturn && argsSize.isPresent()) {
+                emitter.addStatement("addq $" + argsSize.getAsInt() + ", %rsp");
             }
             stmts.get(i).printx86(emitter);
             if (compiler.Compiler.verbose()) {

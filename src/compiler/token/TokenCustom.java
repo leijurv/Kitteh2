@@ -17,7 +17,7 @@ final class TokenCustom<T> implements Token<T> {
     final Function<T, String> toStr;
     TokenCustom(TokenType tokenType, Object data, Class<T> cl, Function<T, String> toString) {
         this.tokenType = tokenType;
-        this.data = cl == null ? null : cl.cast(data);
+        this.data = cl.cast(data);
         this.toStr = toString;
     }
     @Override

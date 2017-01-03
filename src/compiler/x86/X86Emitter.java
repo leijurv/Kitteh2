@@ -20,7 +20,7 @@ public class X86Emitter {
     }
     public void addStatement(String SSSSS) {
         String ssnek = SSSSS;
-        if (!ssnek.endsWith(":") && !ssnek.startsWith("#")) {
+        if (!ssnek.endsWith(":") && !ssnek.startsWith("#")) {//TODO : and # should call a separate addLabel / addComment function
             ssnek = "    " + ssnek;//dont ask
         }
         statements.add(ssnek);

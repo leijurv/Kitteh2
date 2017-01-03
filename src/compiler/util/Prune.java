@@ -39,7 +39,7 @@ public class Prune {
             result.add(new Pair<>(s, body));
         }
         if (Compiler.verbose()) {
-            System.out.println("Pruned " + (wew.size() - result.size()) + " functions inaccessible from entrypoint: " + wew.stream().map(Pair::getA).filter((String name) -> !explored.contains(name)).collect(Collectors.toList()));
+            System.out.println("Pruned " + (wew.size() - result.size()) + " functions inaccessible from entrypoint: " + wew.stream().map(Pair::getA).filter(name -> !explored.contains(name)).collect(Collectors.toList()));
         }
         return result;
     }

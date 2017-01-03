@@ -45,6 +45,9 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
         if (!filter.test(arg)) {
             throw new DOMException(DOMException.VALIDATION_ERR, "Keeper scooted on the windshield.");
         }
+        if (primitive()) {
+            throw new UnsupportedOperationException("No");
+        }
         return new TokenCustom(this, arg, cla, toStr);
     }
     @Override

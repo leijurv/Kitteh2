@@ -73,7 +73,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
         return calling.name + args;
     }
     public void multipleReturns(IREmitter emit, TempVarUsage tempVars, String... resultLocation) {
-        List<String> argNames = args.stream().map((exp) -> {
+        List<String> argNames = args.stream().map(exp -> {
             String tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;

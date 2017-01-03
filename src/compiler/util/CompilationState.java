@@ -52,7 +52,7 @@ public class CompilationState {
     LinkedList<Path> toLoad() {
         return toLoad;
     }
-    void add(Path path, Context context, boolean f, List<CommandDefineFunction> d) {
+    synchronized void add(Path path, Context context, boolean f, List<CommandDefineFunction> d) {
         ctxts.put(path, context);
         loaded.add(f ? 0 : loaded.size(), new Pair<>(path, d));
         importz.put(path, context.structsCopy());

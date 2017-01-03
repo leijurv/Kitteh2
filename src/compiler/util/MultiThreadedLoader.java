@@ -103,9 +103,7 @@ public class MultiThreadedLoader {
             }
             importFileInNewThread(impPath, false);
         }
-        synchronized (this) {
-            semaphore.add(path, context, f, loadResult.getB());
-        }
+        semaphore.add(path, context, f, loadResult.getB());
         if (compiler.Compiler.verbose()) {
             System.out.println(path + " done, notifying");
         }

@@ -4,12 +4,12 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.Context.VarInfo;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
 import compiler.x86.X86FunctionArg;
@@ -123,12 +123,12 @@ public class TACFunctionCall extends TACStatement {
             if (!type.equals(params[i].getType())) {
                 if (header.name.endsWith("__print")) {
                     if (params[i].getType().getSizeBytes() != 8) {
-                        if (params[i] instanceof VarInfo) {
-                            emit.addStatement("movs" + ((TypeNumerical) params[i].getType()).x86typesuffix() + "q " + params[i].x86() + ", %rsi");
+                        if (params[i] instanceof X86Const) {
+                            emit.addStatement("movq " + params[i].x86() + ", %rax");
                         } else {
-                            emit.addStatement("movq " + params[i].x86() + ", %rsi");
+                            emit.addStatement("movs" + ((TypeNumerical) params[i].getType()).x86typesuffix() + "q " + params[i].x86() + ", %rax");
                         }
-                        emit.addStatement("movq %rsi, " + stackLocation + "(%rsp)");
+                        emit.addStatement("movq %rax, " + stackLocation + "(%rsp)");
                         stackLocation += 8;
                         continue;
                     }

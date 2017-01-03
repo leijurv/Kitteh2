@@ -67,7 +67,7 @@ these registers’ values for its caller.
          */
         if (!allowSpills) {
             switch (this) {
-                case B:
+                //case B:
                 case R12:
                 case R13:
                 case R14:

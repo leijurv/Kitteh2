@@ -76,6 +76,7 @@ public class TACOptimizer {
                 System.out.println(opt.get(i) + " " + usefulnessCount[i] + "/" + count + " " + lol);
             }
         }
+        input = new RegisterAllocation().go(input);
         return input;
     }
 }

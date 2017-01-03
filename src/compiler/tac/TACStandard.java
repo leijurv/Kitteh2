@@ -94,7 +94,7 @@ public class TACStandard extends TACStatement {
             c = X86Register.XMM1.getRegister(type);
         }
         TACConst.move(a, first, emit);
-        if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
+        if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const || second instanceof X86TypedRegister)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
             if (!(second.getType() instanceof TypeNumerical)) {

@@ -33,9 +33,13 @@ class X86Function {
             if (destinations.contains(i)) {
                 emitter.addStatement(emitter.lineToLabel(i) + ":");
             }
-            emitter.addStatement("#   " + stmts.get(i));//emit the tac statement with it to make it more Readable
+            if (compiler.Compiler.verbose()) {//this is a little mean...
+                emitter.addStatement("#   " + stmts.get(i));//emit the tac statement with it to make it more Readable
+            }
             stmts.get(i).printx86(emitter);
-            emitter.addStatement(""); //nice blank line makes it more readable =)
+            if (compiler.Compiler.verbose()) {
+                emitter.addStatement(""); //nice blank line makes it more readable =)
+            }
         }
         StringBuilder resp = new StringBuilder();
         if (X86Format.MAC) {

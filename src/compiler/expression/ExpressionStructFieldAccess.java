@@ -40,10 +40,26 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     protected Type calcType() {
         return struct.getFieldByName(field).getType();
     }
+    private Expression getDeref() {
+        int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
+        //input.field=rvalue
+        //(*deref).field=rvalue
+        Expression deref = ((ExpressionPointerDeref) input).deReferencing;
+        //*(deref + offsetOfThisFieldWithinStruct) = rvalue
+        Expression fieldLoc = new ExpressionOperator(deref, Operator.PLUS, new ExpressionConstNum(offsetOfThisFieldWithinStruct, new TypeInt64()));
+        fieldLoc = new ExpressionCast(fieldLoc, new TypePointer<>(struct.getFieldByName(field).getType()));
+        //*(fieldLoc) = rvalue
+        // System.out.println("bcdua " + struct + " " + field + " " + fieldLoc + " " + deref + " " + rvalue);
+        return fieldLoc;
+    }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        String fieldLabel = generateFieldLabel(emit, tempVars);
-        emit.emit(new TACConst(resultLocation, fieldLabel));
+        if (input instanceof ExpressionPointerDeref) {
+            new ExpressionPointerDeref(getDeref()).generateTAC(emit, tempVars, resultLocation);
+        } else {
+            String fieldLabel = generateFieldLabel(emit, tempVars);
+            emit.emit(new TACConst(resultLocation, fieldLabel));
+        }
     }
     public String generateFieldLabel(IREmitter emit, TempVarUsage tempVars) {
         String temp = tempVars.getTempVar(input.getType());
@@ -59,7 +75,11 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     }
     @Override
     protected int calculateTACLength() {
-        return input.getTACLength() + 1;
+        if (input instanceof ExpressionPointerDeref) {
+            return new ExpressionPointerDeref(getDeref()).getTACLength();//lol
+        } else {
+            return input.getTACLength() + 1;
+        }
     }
     @Override
     public Expression calculateConstants() {
@@ -75,14 +95,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     public Command setValue(Expression rvalue, Context context) {
         int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
         if (input instanceof ExpressionPointerDeref) {
-            //input.field=rvalue
-            //(*deref).field=rvalue
-            Expression deref = ((ExpressionPointerDeref) input).deReferencing;
-            //*(deref + offsetOfThisFieldWithinStruct) = rvalue
-            Expression fieldLoc = new ExpressionOperator(deref, Operator.PLUS, new ExpressionConstNum(offsetOfThisFieldWithinStruct, new TypeInt64()));
-            fieldLoc = new ExpressionCast(fieldLoc, new TypePointer<>(struct.getFieldByName(field).getType()));
-            //*(fieldLoc) = rvalue
-            // System.out.println("bcdua " + struct + " " + field + " " + fieldLoc + " " + deref + " " + rvalue);
+            Expression fieldLoc = getDeref();
             if (!(rvalue.getType().equals(((TypePointer) fieldLoc.getType()).pointingTo()))) {
                 throw new RasterFormatException(rvalue.getType() + " " + fieldLoc.getType());
             }
@@ -125,10 +138,18 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     }
     @Override
     public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        emit.emit(new TACJumpBoolVar(generateFieldLabel(emit, tempVars), jumpTo, invert));
+        if (input instanceof ExpressionPointerDeref) {
+            new ExpressionPointerDeref(getDeref()).generateConditionalJump(emit, tempVars, jumpTo, invert);
+        } else {
+            emit.emit(new TACJumpBoolVar(generateFieldLabel(emit, tempVars), jumpTo, invert));
+        }
     }
     @Override
     public int condLength() {
-        return getTACLength();
+        if (input instanceof ExpressionPointerDeref) {
+            return new ExpressionPointerDeref(getDeref()).condLength();
+        } else {
+            return input.getTACLength() + 1;
+        }
     }
 }

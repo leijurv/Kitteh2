@@ -54,6 +54,7 @@ public class RedundantCalculations extends TACOptimization {
                         continue;
                     }
                 }
+                //TODO shifting x by 1, or shifting 0 by x
             }
         }
     }

@@ -4,11 +4,14 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.tac.TACFunctionCall;
+import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimization;
 import compiler.util.Pair;
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalInt;
 
 /**
  *
@@ -28,8 +31,20 @@ class X86Function {
         //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(name);
+        OptionalInt argsSize = stmts.stream().filter(ts -> ts instanceof TACFunctionCall).map(ts -> (TACFunctionCall) ts).mapToInt(ts -> -ts.totalStack() + ts.argsSize() + 10).max();
+        if (argsSize.isPresent()) {
+            int toSubtract = argsSize.getAsInt();
+            toSubtract /= 16;
+            toSubtract++;
+            toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
+            argsSize = OptionalInt.of(toSubtract);
+            emitter.addStatement("subq $" + argsSize.getAsInt() + ", %rsp");
+        }
         HashSet<Integer> destinations = TACOptimization.jumpDestinations(stmts, HashSet::new);
         for (int i = 0; i < stmts.size(); i++) {
+            if (stmts.get(i) instanceof TACReturn && argsSize.isPresent()) {
+                emitter.addStatement("addq $" + argsSize.getAsInt() + ", %rsp");
+            }
             if (destinations.contains(i)) {
                 emitter.addStatement(emitter.lineToLabel(i) + ":");
             }

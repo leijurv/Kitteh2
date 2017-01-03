@@ -76,13 +76,14 @@ public class TACFunctionCall extends TACStatement {
     public String calling() {
         return header.name;
     }
+    public int argsSize() {
+        return header.inputs().stream().mapToInt(Type::getSizeBytes).sum();
+    }
+    public int totalStack() {
+        return context.getTotalStackSize();
+    }
     @Override
     public void printx86(X86Emitter emit) {
-        int argsSize = header.inputs().stream().mapToInt(Type::getSizeBytes).sum();
-        int toSubtract = -context.getTotalStackSize() + argsSize + 10;//The +10 puts in a little more space than is strictly necesary, but it made it work in an unknown edge case I can't remember
-        toSubtract /= 16;
-        toSubtract++;
-        toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
         if (header.name.equals("syscall")) {
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
@@ -92,7 +93,6 @@ public class TACFunctionCall extends TACStatement {
             printRet(emit);
             return;
         }
-        emit.addStatement("subq $" + toSubtract + ", %rsp");
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
@@ -114,7 +114,6 @@ public class TACFunctionCall extends TACStatement {
                 emit.addStatement("movb $1, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
-                emit.addStatement("addq $" + toSubtract + ", %rsp");
                 return;
             }
         }
@@ -146,7 +145,6 @@ public class TACFunctionCall extends TACStatement {
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + header.name);
         printRet(emit);
-        emit.addStatement("addq $" + toSubtract + ", %rsp");
     }
     private void printRet(X86Emitter emit) {
         for (int i = 0; i < result.length; i++) {

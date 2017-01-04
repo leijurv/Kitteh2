@@ -57,10 +57,14 @@ class StructFieldsAndArrays extends TokenBased {
             Expression array = (Expression) o.remove(i - 1);
             TypePointer tp = (TypePointer) array.getType();
             Type arrayContents = tp.pointingTo();
-            ExpressionConstNum sizeofArrayContents = new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32());
             //so we want...
             //*(array + index * sizeof(arrayContents))
-            Expression finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, sizeofArrayContents);//TODO leftshift for powers of two array element sizes
+            Expression finalIndex;
+            if (arrayContents.getSizeBytes() == 1) {
+                finalIndex = index;
+            } else {
+                finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32()));//TODO leftshift for powers of two array element sizes
+            }
             //*(array+finalIndex)
             Expression ptr = new ExpressionOperator(array, Operator.PLUS, finalIndex);
             //*(ptr)

@@ -8,8 +8,10 @@ import compiler.Context;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
@@ -48,9 +50,21 @@ public class TACPointerRef extends TACStatement {
     public void printx86(X86Emitter emit) {
         if (params[0].getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) ((TypePointer) params[1].getType()).pointingTo();
-            emit.addStatement("mov" + d.x86typesuffix() + " " + params[0].x86() + ", " + X86Register.C.getRegister(d));
-            emit.addStatement("movq " + params[1].x86() + ", %rax");
-            emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", (%rax)");
+            String source;
+            if (params[0] instanceof X86Const || params[0] instanceof X86TypedRegister) {
+                source = params[0].x86();
+            } else {
+                source = X86Register.C.getRegister(d).x86();
+                emit.addStatement("mov" + d.x86typesuffix() + " " + params[0].x86() + ", " + source);
+            }
+            String othersource;
+            if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
+                othersource = params[1].x86();
+            } else {
+                othersource = "%rax";
+                emit.addStatement("movq " + params[1].x86() + ", %rax");
+            }
+            emit.addStatement("mov" + d.x86typesuffix() + " " + source + ", (" + othersource + ")");
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
             emit.addStatement("movq " + params[1].x86() + ", %rax");

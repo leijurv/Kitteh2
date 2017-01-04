@@ -6,6 +6,7 @@
 package compiler.tac.optimize;
 import compiler.tac.TACCast;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACPointerDeref;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
 import compiler.type.Type;
@@ -24,7 +25,7 @@ public class RegisterAllocation extends TACOptimization {
     protected void run(List<TACStatement> block, int blockBegin) {
         wew:
         for (int i = 0; i < block.size(); i++) {
-            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast) {
+            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref) {
                 List<String> modVars = block.get(i).modifiedVariables();
                 if (modVars.size() != 1) {
                     throw new RuntimeException();

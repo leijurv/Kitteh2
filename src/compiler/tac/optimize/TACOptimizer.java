@@ -77,6 +77,7 @@ public class TACOptimizer {
             }
         }
         input = new RegisterAllocation().go(input);
+        input = new RegisterCasting().go(input);
         return input;
     }
 }

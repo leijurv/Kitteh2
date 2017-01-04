@@ -151,10 +151,20 @@ public class TACStandard extends TACStatement {
         }
         switch (op) {
             case PLUS:
+                if (c.equals("$1")) {
+                    emit.addStatement("inc" + type.x86typesuffix() + " " + a);
+                    emit.addStatement(mov + a + ", " + result.x86());
+                    break;
+                }
                 emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MINUS:
+                if (c.equals("$1")) {
+                    emit.addStatement("dec" + type.x86typesuffix() + " " + a);
+                    emit.addStatement(mov + a + ", " + result.x86());
+                    break;
+                }
                 emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;

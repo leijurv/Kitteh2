@@ -18,6 +18,9 @@ public class X86TypedRegister implements X86Param {
         this.register = register;
         this.type = type;
     }
+    public X86Register getRegister() {
+        return register;
+    }
     @Override
     public String x86() {
         return register.getRegister1(type);

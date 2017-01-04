@@ -10,6 +10,7 @@ import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,16 +64,33 @@ public class TACCast extends TACStatement {
             emit.addStatement("movss %xmm2, " + dest.x86());
             return;
         }
+        String dst;
+        if (dest instanceof X86TypedRegister) {
+            dst = dest.x86();
+        } else {
+            dst = X86Register.C.getRegister(out).x86();
+        }
         if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
             if (inp.equals(out)) {
                 throw new IllegalStateException("literally impossible");
             }
-            emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
+            if (dest instanceof X86TypedRegister) {
+                emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + ((X86TypedRegister) dest).getRegister().getRegister(inp).x86());
+            } else {
+                if (input instanceof X86TypedRegister) {
+                    emit.addStatement("mov" + out.x86typesuffix() + " " + ((X86TypedRegister) input).getRegister().getRegister(out).x86() + ", " + dest.x86());
+                    return;
+                } else {
+                    emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
+                }
+            }
         } else {
             //up cast
-            emit.addStatement("movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(out));
+            emit.addStatement("movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + input.x86() + ", " + dst);
         }
-        emit.addStatement("mov" + out.x86typesuffix() + " " + X86Register.C.getRegister(out) + ", " + dest.x86());
+        if (!(dest instanceof X86TypedRegister)) {
+            emit.addStatement("mov" + out.x86typesuffix() + " " + dst + ", " + dest.x86());
+        }
     }
 }

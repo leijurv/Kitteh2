@@ -134,7 +134,7 @@ public class TACStandard extends TACStatement {
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
                 thing = true;
             } else {
-                emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
+                emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + ", " + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
             thing = true;

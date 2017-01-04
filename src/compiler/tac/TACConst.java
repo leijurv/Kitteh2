@@ -95,7 +95,7 @@ public class TACConst extends TACStatement {
         if (type.getSizeBytes() != source.getType().getSizeBytes()) {
             throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
         }
-        if (source instanceof X86Const || dest instanceof X86TypedRegister) {
+        if (source instanceof X86Const || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
             emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + dest.x86());
         } else {
             X86Param r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);

@@ -113,6 +113,8 @@ public class TACStandard extends TACStatement {
         String c = cc.x86();
         String d = type instanceof TypeFloat ? null : dd.x86();
         TACConst.move(aa, first, emit);
+        String shaft = X86Register.C.getRegister(new TypeInt8()).x86();
+        boolean thing = false;
         if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const || second instanceof X86TypedRegister)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
@@ -130,17 +132,17 @@ public class TACStandard extends TACStatement {
                 //since its literally a const number, just change the type
             }
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
-                if ((second instanceof X86Const || second instanceof X86TypedRegister) && (op != Operator.MOD && op != Operator.DIVIDE && op != Operator.USHIFT_L && op != Operator.USHIFT_R && op != Operator.SHIFT_L && op != Operator.SHIFT_R)) {
-                    c = second.x86();
-                } else {
-                    TACConst.move(X86Register.C.getRegister(type), second, emit);
-                }
+                thing = true;
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
-            if ((second instanceof X86Const || second instanceof X86TypedRegister) && (op != Operator.MOD && op != Operator.DIVIDE && op != Operator.USHIFT_L && op != Operator.USHIFT_R && op != Operator.SHIFT_L && op != Operator.SHIFT_R)) {
+            thing = true;
+        }
+        if (thing) {
+            if ((second instanceof X86Const || second instanceof X86TypedRegister) && !(op == Operator.MOD || op == Operator.DIVIDE || ((second instanceof X86TypedRegister) && (op == Operator.USHIFT_L || op == Operator.USHIFT_R || op == Operator.SHIFT_L || op == Operator.SHIFT_R)))) {
                 c = second.x86();
+                shaft = c;
             } else {
                 try {
                     TACConst.move(cc, second, emit);
@@ -175,19 +177,19 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
             case USHIFT_L:
-                emit.addStatement("shl" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
+                emit.addStatement("shl" + type.x86typesuffix() + " " + shaft + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case USHIFT_R:
-                emit.addStatement("shr" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
+                emit.addStatement("shr" + type.x86typesuffix() + " " + shaft + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case SHIFT_L:
-                emit.addStatement("sal" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
+                emit.addStatement("sal" + type.x86typesuffix() + " " + shaft + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case SHIFT_R:
-                emit.addStatement("sar" + type.x86typesuffix() + " " + X86Register.C.getRegister(new TypeInt8()) + ", " + a);
+                emit.addStatement("sar" + type.x86typesuffix() + " " + shaft + ", " + a);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case L_XOR:

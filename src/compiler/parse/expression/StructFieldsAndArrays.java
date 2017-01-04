@@ -63,7 +63,17 @@ class StructFieldsAndArrays extends TokenBased {
             if (arrayContents.getSizeBytes() == 1) {
                 finalIndex = index;
             } else {
-                finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32()));//TODO leftshift for powers of two array element sizes
+                int l = arrayContents.getSizeBytes();
+                if ((l & (l - 1)) == 0) {
+                    int k = 0;
+                    while (l > 1) {
+                        l >>>= 1;
+                        k++;
+                    }
+                    finalIndex = new ExpressionOperator(index, Operator.SHIFT_L, new ExpressionConstNum(k, new TypeInt32()));
+                } else {
+                    finalIndex = new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(arrayContents.getSizeBytes(), new TypeInt32()));
+                }
             }
             //*(array+finalIndex)
             Expression ptr = new ExpressionOperator(array, Operator.PLUS, finalIndex);

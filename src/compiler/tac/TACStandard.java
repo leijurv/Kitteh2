@@ -87,15 +87,18 @@ public class TACStandard extends TACStatement {
          */
         type = (TypeNumerical) first.getType();
         //}
-        X86TypedRegister a = X86Register.A.getRegister(type);
-        X86TypedRegister c = X86Register.C.getRegister(type);
-        X86TypedRegister d = X86Register.D.getRegister(type);
+        X86TypedRegister aa = X86Register.A.getRegister(type);
+        X86TypedRegister cc = X86Register.C.getRegister(type);
+        X86TypedRegister dd = X86Register.D.getRegister(type);
         String mov = "mov" + type.x86typesuffix() + " ";
         if (type instanceof TypeFloat) {
-            a = X86Register.XMM0.getRegister(type);
-            c = X86Register.XMM1.getRegister(type);
+            aa = X86Register.XMM0.getRegister(type);
+            cc = X86Register.XMM1.getRegister(type);
         }
-        TACConst.move(a, first, emit);
+        String a = aa.x86();
+        String c = cc.x86();
+        String d = type instanceof TypeFloat ? null : dd.x86();
+        TACConst.move(aa, first, emit);
         if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const || second instanceof X86TypedRegister)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
@@ -113,15 +116,23 @@ public class TACStandard extends TACStatement {
                 //since its literally a const number, just change the type
             }
             if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
-                TACConst.move(X86Register.C.getRegister(type), second, emit);
+                if ((second instanceof X86Const || second instanceof X86TypedRegister) && (op != Operator.MOD && op != Operator.DIVIDE && op != Operator.USHIFT_L && op != Operator.USHIFT_R && op != Operator.SHIFT_L && op != Operator.SHIFT_R)) {
+                    c = second.x86();
+                } else {
+                    TACConst.move(X86Register.C.getRegister(type), second, emit);
+                }
             } else {
                 emit.addStatement("movs" + ((TypeNumerical) second.getType()).x86typesuffix() + "q " + second.x86() + "," + X86Register.C.getRegister(new TypeInt64()));
             }
         } else {
-            try {
-                TACConst.move(c, second, emit);
-            } catch (Exception e) {
-                throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
+            if ((second instanceof X86Const || second instanceof X86TypedRegister) && (op != Operator.MOD && op != Operator.DIVIDE && op != Operator.USHIFT_L && op != Operator.USHIFT_R && op != Operator.SHIFT_L && op != Operator.SHIFT_R)) {
+                c = second.x86();
+            } else {
+                try {
+                    TACConst.move(cc, second, emit);
+                } catch (Exception e) {
+                    throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
+                }
             }
         }
         switch (op) {

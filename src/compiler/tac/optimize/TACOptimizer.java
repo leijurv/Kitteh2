@@ -76,8 +76,10 @@ public class TACOptimizer {
                 System.out.println(opt.get(i) + " " + usefulnessCount[i] + "/" + count + " " + lol);
             }
         }
-        input = new RegisterAllocation().go(input);
-        input = new RegisterCasting().go(input);
+        if (settings.staticValues()) {//TODO better flag for these final register optimizations
+            input = new RegisterAllocation().go(input);
+            input = new RegisterCasting().go(input);
+        }
         return input;
     }
 }

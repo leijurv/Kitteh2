@@ -9,6 +9,7 @@ import compiler.type.*;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
@@ -44,11 +45,21 @@ public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        emit.addStatement("movq " + source.x86() + ", %rax");
+        String loc;
+        if (source instanceof X86TypedRegister) {
+            loc = source.x86();
+        } else {
+            emit.addStatement("movq " + source.x86() + ", %rax");
+            loc = "%rax";
+        }
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
-            emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.C.getRegister(d));
-            emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+            if (dest instanceof X86TypedRegister) {
+                emit.addStatement("mov" + d.x86typesuffix() + " (" + loc + "), " + dest.x86());
+            } else {
+                emit.addStatement("mov" + d.x86typesuffix() + " (" + loc + "), " + X86Register.C.getRegister(d));
+                emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+            }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
             moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);

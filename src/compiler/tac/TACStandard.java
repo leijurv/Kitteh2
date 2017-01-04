@@ -71,7 +71,6 @@ public class TACStandard extends TACStatement {
         String secondName = paramNames[1];
         X86Param first = params[0];
         X86Param second = params[1];
-        X86Param result = params[2];
         TypeNumerical type;
         //if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
         //    type = X86Register.typeFromRegister(firstName);
@@ -87,6 +86,21 @@ public class TACStandard extends TACStatement {
          */
         type = (TypeNumerical) first.getType();
         //}
+        X86Param result = params[2];
+        if (secondName.equals("1") && firstName.equals(paramNames[2])) {
+            if (op == Operator.PLUS) {
+                emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
+                return;
+            }
+            if (op == Operator.MINUS) {
+                emit.addStatement("dec" + type.x86typesuffix() + " " + result.x86());
+                return;
+            }
+        }
+        if (firstName.equals("1") && secondName.equals(paramNames[2]) && op == Operator.PLUS) {
+            emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
+            return;
+        }
         X86TypedRegister aa = X86Register.A.getRegister(type);
         X86TypedRegister cc = X86Register.C.getRegister(type);
         X86TypedRegister dd = X86Register.D.getRegister(type);

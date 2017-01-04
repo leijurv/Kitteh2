@@ -511,10 +511,11 @@ equal(bigint*a,bigint*b)bool{
 	if a.neg!=b.neg{
 		return false
 	}
-	if a.highestbitset()!=b.highestbitset(){
+	ah:=a.highestbitset()
+	if ah!=b.highestbitset(){
 		return false
 	}
-	for i:=0; i<a.highestbitset(); i++{
+	for i:=ah; i>=0; i--{
 		if a.bit(i)!=b.bit(i){
 			return false
 		}
@@ -731,10 +732,10 @@ bigintFromHex(byte* str)bigint*{
 	res:=new(count*4)
 	for i:=0; i<count; i++{
 		ch:=charFromHex(str[count-i-1])
-		res.setbit(0+i*4,ch&(byte)1!=(byte)0)
-		res.setbit(1+i*4,ch&(byte)2!=(byte)0)
-		res.setbit(2+i*4,ch&(byte)4!=(byte)0)
-		res.setbit(3+i*4,ch&(byte)8!=(byte)0)
+		res.setbit(0+i<<2,ch&(byte)1!=(byte)0)
+		res.setbit(1+i<<2,ch&(byte)2!=(byte)0)
+		res.setbit(2+i<<2,ch&(byte)4!=(byte)0)
+		res.setbit(3+i<<2,ch&(byte)8!=(byte)0)
 	}
 	return res
 }

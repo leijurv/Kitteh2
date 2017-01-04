@@ -48,7 +48,11 @@ public class TACJumpCmp extends TACJump {
         }
         TypeNumerical type = (TypeNumerical) first.getType();
         X86TypedRegister noplease = type instanceof TypeFloat ? X86Register.XMM0.getRegister(type) : X86Register.C.getRegister(type);
-        emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease);
+        if (first instanceof X86TypedRegister) {
+            noplease = (X86TypedRegister) first;
+        } else {
+            emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease);
+        }
         String comparison = "cmp" + type.x86typesuffix();
         if (first.getType() instanceof TypeFloat) {
             comparison = "ucomiss";//please, x86, why

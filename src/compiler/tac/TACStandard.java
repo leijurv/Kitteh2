@@ -171,8 +171,12 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
             case MOD:
-                emit.addStatement("mov" + type.x86typesuffix() + " " + a + ", " + d);
-                emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                if (type.getSizeBytes() == 8) {
+                    emit.addStatement(signExtend(type.getSizeBytes()));
+                } else {
+                    emit.addStatement("mov" + type.x86typesuffix() + " " + a + ", " + d);
+                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + d + ", " + result.x86());
                 break;
@@ -210,8 +214,12 @@ public class TACStandard extends TACStatement {
                     emit.addStatement(mov + a + ", " + result.x86());
                     break;
                 }
-                emit.addStatement("mov" + type.x86typesuffix() + " " + a + ", " + d);
-                emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                if (type.getSizeBytes() == 8) {
+                    emit.addStatement(signExtend(type.getSizeBytes()));
+                } else {
+                    emit.addStatement("mov" + type.x86typesuffix() + " " + a + ", " + d);
+                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
                 emit.addStatement(mov + a + ", " + result.x86());
                 break;
@@ -239,6 +247,20 @@ public class TACStandard extends TACStatement {
                 break;
             default:
                 throw new IllegalStateException(op + "");
+        }
+    }
+    private static String signExtend(int size) {
+        switch (size) {
+            case 8:
+                return "cqto";
+            case 4:
+                return "cltq";
+            case 2:
+                return "cwtl";
+            case 1:
+                return "cbtw";
+            default:
+                throw new RuntimeException();
         }
     }
 }

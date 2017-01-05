@@ -107,7 +107,7 @@ struct ecpoint{
 	    return res
 	}
 	multiply(bigint* pow,bigint* MOD,ecpoint* bp)ecpoint*{
-		pow.trimInPlace()
+		pow.stripLeadingZero()
 		if pow.size==1 && pow.bit(0){
 			return this
 		}

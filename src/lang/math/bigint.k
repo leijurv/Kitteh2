@@ -97,26 +97,26 @@ struct bigint{
 		free(out)
 	}
 	leftshift(int amount){
-
-		this.trimInPlace()
+		this.stripLeadingZero()
 		nInts:=amount>>>5
 		nBits:=amount&31
 		magLen:=this.cap
 		int* n
 		nl:=magLen+nInts
+		val:=this.mag
 		if nBits==0{
 			n=(int*)malloc((magLen+nInts)<<2)
 			for i:=magLen; i<nl; i++{
 				n[i]=0
 			}
 			for i:=0; i<magLen; i++{
-				n[i]=this.mag[i]
+				n[i]=val[i]
 			}
 			
 		}else{
 			i:=0
 			nBits2:=32-nBits
-			highBits:=this.mag[0]>>>nBits2
+			highBits:=val[0]>>>nBits2
 			if highBits!=0{
 				n=(int*)malloc((magLen+nInts+1)<<2)
 				for k:=magLen-1; k<nl; k++{
@@ -127,7 +127,7 @@ struct bigint{
 				i++
 			}else{
 				if nInts==0{
-					val:=this.mag
+					
 			         int n2 = 32 - amount;
 			         int k=0
 			         c:=val[0]
@@ -139,7 +139,7 @@ struct bigint{
 			             k++
 			         }
 			         val[m] = val[m]<<amount;
-			         this.size=this.size+1
+			         this.size=this.size+amount
 					return
 				}
 				n=(int*)malloc((magLen+nInts)<<2)
@@ -148,7 +148,6 @@ struct bigint{
 				}
 			}
 			j:=0
-			val:=this.mag
 			for j < magLen-1{
 				n[i]=(val[j]<<nBits)|(val[j+1]>>>nBits2)
 				j++
@@ -156,11 +155,11 @@ struct bigint{
 			}
 			n[i]=val[j]<<nBits
 		}
-		free(this.mag)
+		free(val)
 		this.mag=n
 		this.size=nl<<5
 		this.cap=nl
-		this.trimInPlace()
+		this.stripLeadingZero()
 	}
 	free(){
 		free(this.mag)
@@ -183,7 +182,7 @@ struct bigint{
 		res.neg=this.neg
 		return res
 	}
-	trim()bigint*{
+	/*trim()bigint*{
 		return this.padtolength(this.highestbitset()+1)
 	}
 	trimInPlace(){
@@ -207,29 +206,49 @@ struct bigint{
 		}
 		res.neg=this.neg
 		return res
-	}
+	}*/
 	stripLeadingZero(){
-		this.trimInPlace()
-		if this.cap<=1{
+		mc:=this.mag
+		tc:=this.cap
+		s:=false
+		for i:=this.size-1;i>=0;i--{
+			int n=i>>>5//inlined this.bit
+			//why? because it made ec 30% faster
+			long k=(long)mc[tc-n-1]
+			long m=1<<((long)i&31)
+			if k&m!=(long)0{
+				this.size=i+1
+				s=true
+				break
+			}
+		}
+		if !s{
+			this.neg=false //cant have negative zero
+			this.size=1
+		}
+		if tc<=1{
 			return
 		}
 		count:=0
-		for count < this.cap && this.mag[count]==0{
+		for count < tc && mc[count]==0{
 			count++
 		}
 		if(count==0){
 			return
 		}
-		n:=(int*)malloc((this.cap-count)<<2)
-		for i:=this.cap-1; i>=count; i--{
-			n[i-count]=this.mag[i]
+		if count==this.cap{
+			count--
 		}
-		free(this.mag)
+		n:=(int*)malloc((tc-count)<<2)
+		for i:=this.cap-1; i>=count; i--{
+			n[i-count]=mc[i]
+		}
+		free(mc)
 		this.mag=n
-		this.cap=this.cap-count
+		this.cap=tc-count
 	}
 	rightshiftone()bigint*{
-		this.trimInPlace()
+		this.stripLeadingZero()
 		res:=new(this.size-1)
 		for i:=0; i<this.size-1; i++{
 			res.setbit(i,this.bit(i+1))
@@ -271,12 +290,12 @@ fromLong(long inp)bigint*{
 	count:=0
 	copy:=inp
 	for copy>(long)0{
-		copy=copy/2
+		copy=copy>>1
 		count++
 	}
 	x:=new(count+1)
 	for i:=0; inp>(long)0; i++{
-		x.setbit(i,inp%(long)2==(long)1)
+		x.setbit(i,inp&(long)1==(long)1)
 		inp=inp/2
 	}
 	x.stripLeadingZero()
@@ -369,7 +388,7 @@ add(bigint* a,bigint* b)bigint*{
 		res.cap=newLen
 		res.size=res.size+1
 	}
-	res.trimInPlace()
+	res.stripLeadingZero()
 	return res
 }
 subtract(bigint*aa,bigint*bb)bigint*{
@@ -529,8 +548,8 @@ bneg:=bb.neg
 	bb.neg=false
 
 
-	a.trimInPlace()
-	bb.trimInPlace()
+	a.stripLeadingZero()
+	bb.stripLeadingZero()
 	b:=bb
 	mask:=mask(0)
 	x:=a.mag
@@ -599,7 +618,7 @@ bneg:=bb.neg
 	return res*/
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
-	a.trimInPlace()
+	a.stripLeadingZero()
 	bneg:=b.neg
 	b.neg=false
 	aneg:=a.neg
@@ -623,8 +642,8 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 			}
 		}
 	}
-	res.trimInPlace()
-	d.trimInPlace()
+	res.stripLeadingZero()
+	d.stripLeadingZero()
 	res.neg=aneg!=bneg
 	d.neg=aneg
 	b.neg=bneg
@@ -648,7 +667,7 @@ modpow(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	return modpowInternal(base,pow,modulus)
 }
 modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
-	pow.trimInPlace()
+	pow.stripLeadingZero()
 	if pow.size==1 && pow.bit(0){
 		return base.dup()
 	}
@@ -677,7 +696,7 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 	wewwew:=multiply(wew,wew)
 	(wew).free()
 	res:=mod(wewwew,modulus)
-	res.trimInPlace()
+	res.stripLeadingZero()
 	(wewwew).free()
 	return res
 }

@@ -21,9 +21,9 @@ struct bigint{
 		zero:=fromLong(0)
 		neg:=this.neg
 		this.neg=false
-		b:=add(this,zero)
+		b:=this.dup()
 		ten:=fromLong(10)
-		copy:=add(b,zero)
+		copy:=this.dup()
 		count:=0
 		for greater(copy,zero){
 			wew:=divide(copy,ten)
@@ -63,17 +63,15 @@ struct bigint{
 	}
 	bit(int pos)bool{
 		int n=pos>>>5
-		copy:=*this
-		long k=(long)copy.mag[copy.cap-n-1]
+		long k=(long)this.mag[this.cap-n-1]
 		long m=1<<((long)pos&31)
 		return k&m!=(long)0
 	}
 	setbit(int pos,bool val){
 		int n=pos>>>5
 		int m=1<<(pos&31)
-		copy:=*this
-		ind:=copy.cap-n-1
-		loc:=copy.mag+ind<<2
+		ind:=this.cap-n-1
+		loc:=this.mag+ind<<2
 		if val{
 			*loc=*loc | m
 		}else{
@@ -133,7 +131,7 @@ struct bigint{
 			         int n2 = 32 - amount;
 			         int k=0
 			         c:=val[0]
-			         m:=this.cap-1
+			         m:=magLen-1
 			         for k<m {
 			             int b = c;
 			             c = val[k+1];
@@ -150,12 +148,13 @@ struct bigint{
 				}
 			}
 			j:=0
+			val:=this.mag
 			for j < magLen-1{
-				n[i]=(this.mag[j]<<nBits)|(this.mag[j+1]>>>nBits2)
+				n[i]=(val[j]<<nBits)|(val[j+1]>>>nBits2)
 				j++
 				i++
 			}
-			n[i]=this.mag[j]<<nBits
+			n[i]=val[j]<<nBits
 		}
 		free(this.mag)
 		this.mag=n

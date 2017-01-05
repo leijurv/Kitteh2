@@ -97,7 +97,6 @@ struct bigint{
 		free(out)
 	}
 	leftshift(int amount){
-	print(1234)
 		this.stripLeadingZero()
 		nInts:=amount>>>5
 		nBits:=amount&31
@@ -619,7 +618,6 @@ bneg:=bb.neg
 	return res*/
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
-	//print(50211)
 	a.stripLeadingZero()
 	bneg:=b.neg
 	b.neg=false

@@ -105,6 +105,9 @@ struct bigint{
 		nl:=magLen+nInts
 		val:=this.mag
 		if nBits==0{
+			if nInts==0{
+				return
+			}
 			n=(int*)malloc((magLen+nInts)<<2)
 			for i:=magLen; i<nl; i++{
 				n[i]=0
@@ -112,7 +115,6 @@ struct bigint{
 			for i:=0; i<magLen; i++{
 				n[i]=val[i]
 			}
-			
 		}else{
 			i:=0
 			nBits2:=32-nBits

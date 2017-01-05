@@ -97,6 +97,7 @@ struct bigint{
 		free(out)
 	}
 	leftshift(int amount){
+	print(1234)
 		this.stripLeadingZero()
 		nInts:=amount>>>5
 		nBits:=amount&31
@@ -296,7 +297,7 @@ fromLong(long inp)bigint*{
 	x:=new(count+1)
 	for i:=0; inp>(long)0; i++{
 		x.setbit(i,inp&(long)1==(long)1)
-		inp=inp/2
+		inp=inp>>1
 	}
 	x.stripLeadingZero()
 	x.neg=neg
@@ -618,6 +619,7 @@ bneg:=bb.neg
 	return res*/
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
+	//print(50211)
 	a.stripLeadingZero()
 	bneg:=b.neg
 	b.neg=false

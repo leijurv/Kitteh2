@@ -47,7 +47,7 @@ public abstract class TACStatement {
             }
         }
     }
-    public final void replace(String toReplace, String replaceWith, X86Param infoWith) {
+    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
         if (infoWith == null || replaceWith == null || toReplace == null) {
             throw new IllegalStateException(this + " " + toReplace + " " + replaceWith + " " + infoWith);
         }
@@ -61,7 +61,7 @@ public abstract class TACStatement {
                 return;
             }
         }
-        throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames));
+        throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames) + " " + modifiedVariables() + " " + requiredVariables() + " " + Arrays.asList(params) + " " + this);
     }
     abstract protected void onContextKnown();
     final public String toString(boolean printFull) {

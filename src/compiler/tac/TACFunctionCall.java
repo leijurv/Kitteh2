@@ -25,15 +25,13 @@ import java.util.List;
  * @author leijurv
  */
 public class TACFunctionCall extends TACStatement {
-    private static final X86Register[] SYSCALL_REGISTERS = {
+    public static final List<X86Register> SYSCALL_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
         X86Register.A,
         X86Register.DI,
         X86Register.SI,
-        X86Register.D,
-        X86Register.R10,
+        X86Register.D, /*X86Register.R10,
         X86Register.R8,
-        X86Register.R9
-    };
+        X86Register.R9*/}));
     public static final List<X86Register> RETURN_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
         X86Register.A,
         //NOT %rbx because apparently that's like not allowed and stuff (system v abi)
@@ -67,6 +65,17 @@ public class TACFunctionCall extends TACStatement {
         onContextKnown();
     }
     @Override
+    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
+        for (int i = 0; i < resultName.length; i++) {
+            if (resultName[i].equals(toReplace)) {
+                resultName[i] = replaceWith;
+                result[i] = infoWith;
+                return;
+            }
+        }
+        super.replace(toReplace, replaceWith, infoWith);
+    }
+    @Override
     public void onContextKnown() {
         result = new X86Param[resultName.length];
         for (int i = 0; i < resultName.length; i++) {
@@ -87,7 +96,10 @@ public class TACFunctionCall extends TACStatement {
         if (header.name.equals("syscall")) {
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + SYSCALL_REGISTERS[i].getRegister(type).x86());
+                if (i >= SYSCALL_REGISTERS.size()) {
+                    throw new IllegalStateException("Syscall only takes " + SYSCALL_REGISTERS.size() + " arguments, in registers " + SYSCALL_REGISTERS);
+                }
+                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + SYSCALL_REGISTERS.get(i).getRegister(type).x86());
             }
             emit.addStatement("syscall");
             printRet(emit);

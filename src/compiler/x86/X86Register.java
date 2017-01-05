@@ -65,16 +65,18 @@ required to preserve their values. In other words, a called function must preser
 these registers’ values for its caller.
         from the system V abi
          */
-        if (!allowSpills) {
+        //Actually, let's USE THESE REGISTERS ANYWAY =D
+        //because live life on the edge
+        /*if (!allowSpills) {
             switch (this) {
-                //case B:
+                case B:
                 case R12:
                 case R13:
                 case R14:
                 case R15:
                     throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
             }
-        }
+        }*/
         if ((this == XMM0 || this == XMM1) && !(version instanceof TypeFloat)) {
             throw new IllegalStateException();
         }

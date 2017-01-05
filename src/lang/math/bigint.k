@@ -240,7 +240,7 @@ struct bigint{
 			count--
 		}
 		n:=(int*)malloc((tc-count)<<2)
-		for i:=this.cap-1; i>=count; i--{
+		for i:=tc-1; i>=count; i--{
 			n[i-count]=mc[i]
 		}
 		free(mc)

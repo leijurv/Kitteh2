@@ -83,7 +83,7 @@ struct bigint{
 	toLong()long{
 		long res=0
 		for i:=this.size-1; i>=0; i--{
-			res=res*2
+			res=res<<1
 			if this.bit(i){
 				res++
 			}
@@ -159,7 +159,7 @@ struct bigint{
 		}
 		free(this.mag)
 		this.mag=n
-		this.size=nl*32
+		this.size=nl<<5
 		this.cap=nl
 		this.trimInPlace()
 	}
@@ -337,7 +337,7 @@ add(bigint* a,bigint* b)bigint*{
 	y:=b.mag
 	int xIndex = a.cap;
 	int yIndex = b.cap;
-	res:=new(xIndex*32)
+	res:=new(xIndex<<5)
 	result:=res.mag
 	long sum = 0
 	mask:=mask(0)
@@ -360,7 +360,7 @@ add(bigint* a,bigint* b)bigint*{
 	}
 	if (carry) {
 		newLen := res.cap + 1;
-		temp:=(int*)malloc(newLen*4)
+		temp:=(int*)malloc(newLen<<2)
 		for i := 1; i<newLen; i++{
 			temp[i] = result[i-1]
 		}
@@ -416,7 +416,7 @@ subtract(bigint*aa,bigint*bb)bigint*{
 	little:=b.mag
 	int bigIndex = a.cap;
 	int littleIndex = b.cap;
-	res:=new(bigIndex*32)
+	res:=new(bigIndex<<5)
 	result := res.mag
 	long difference = 0;
 	mask:=mask(0)
@@ -447,7 +447,7 @@ trustedSubtract(bigint* a,bigint* b)bigint*{
 	little:=b.mag
 	int bigIndex = a.cap;
 	int littleIndex = b.cap;
-	res:=new(bigIndex*32)
+	res:=new(bigIndex<<5)
 	result := res.mag
 	long difference = 0;
 	mask:=mask(0)
@@ -729,7 +729,7 @@ bigintFromHex(byte* str)bigint*{
 	for copy:=str; *copy!=(byte)0; copy=copy+1{
 		count++
 	}
-	res:=new(count*4)
+	res:=new(count<<2)
 	for i:=0; i<count; i++{
 		ch:=charFromHex(str[count-i-1])
 		res.setbit(0+i<<2,ch&(byte)1!=(byte)0)

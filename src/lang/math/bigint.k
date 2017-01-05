@@ -107,7 +107,7 @@ struct bigint{
 		int* n
 		nl:=magLen+nInts
 		if nBits==0{
-			n=(int*)malloc(sizeof(int)*(magLen+nInts))
+			n=(int*)malloc((magLen+nInts)<<2)
 			for i:=magLen; i<nl; i++{
 				n[i]=0
 			}
@@ -120,7 +120,7 @@ struct bigint{
 			nBits2:=32-nBits
 			highBits:=this.mag[0]>>>nBits2
 			if highBits!=0{
-				n=(int*)malloc(sizeof(int)*(magLen+nInts+1))
+				n=(int*)malloc((magLen+nInts+1)<<2)
 				for k:=magLen-1; k<nl; k++{
 					n[k]=0
 				}
@@ -144,7 +144,7 @@ struct bigint{
 			         this.size=this.size+1
 					return
 				}
-				n=(int*)malloc(sizeof(int)*(magLen+nInts))
+				n=(int*)malloc((magLen+nInts)<<2)
 				for k:=magLen; k<nl; k++{
 					n[k]=0
 				}
@@ -221,7 +221,7 @@ struct bigint{
 		if(count==0){
 			return
 		}
-		n:=(int*)malloc(sizeof(int)*(this.cap-count))
+		n:=(int*)malloc((this.cap-count)<<2)
 		for i:=this.cap-1; i>=count; i--{
 			n[i-count]=this.mag[i]
 		}
@@ -287,12 +287,12 @@ fromLong(long inp)bigint*{
 new(int size)bigint*{
 	res:=(bigint*)malloc(sizeof(bigint))
 	res.size=size
-	s:=size/32
-	if size%32!=0{
+	s:=size>>>5
+	if size&31!=0{
 		s++
 	}
 	res.cap=s
-	res.mag=(int*)malloc(sizeof(int)*s)
+	res.mag=(int*)malloc(s<<2)
 	for i:=0; i<s; i++{
 		res.mag[i]=0
 	}

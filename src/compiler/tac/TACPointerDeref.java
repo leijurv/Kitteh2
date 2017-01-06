@@ -75,7 +75,7 @@ public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to
         int i = 0;
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
             while (i + tn.getSizeBytes() <= size) {
-                String reg = X86Register.R8.getRegister(tn).x86();
+                String reg = X86Register.C.getRegister(tn).x86();
                 emit.addStatement("mov" + tn.x86typesuffix() + " " + (i + sourceStackLocation) + "(" + sourceRegister + "), " + reg);
                 emit.addStatement("mov" + tn.x86typesuffix() + " " + reg + ", " + (destLocation + i) + "(" + destRegister + ")");
                 i += tn.getSizeBytes();

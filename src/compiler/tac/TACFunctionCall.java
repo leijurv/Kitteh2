@@ -93,7 +93,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        if (header.name.equals("syscall")) {
+        if (header.name.equals("syscall")) {//TODO maybe a TACSyscall separate from TACFunctionCall
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
                 if (i >= SYSCALL_REGISTERS.size()) {

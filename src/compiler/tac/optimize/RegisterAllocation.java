@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class RegisterAllocation extends TACOptimization {
     @Override
-    protected void run(List<TACStatement> block, int blockBegin) {
+    protected void run(List<TACStatement> block, int blockBegin) {//TODO store the names of temp variables before they are replaced with registers for verbose / debug
         //requirements for these registers:
         //shouldn't be any of the syscall registers
         //if they are a syscall register, lastUsage cannot be a function call to syscall
@@ -40,7 +40,7 @@ public class RegisterAllocation extends TACOptimization {
         allocate(block, 1, X86Register.B);
         allocate(block, 2, X86Register.R8);
         allocate(block, 3, X86Register.R9);
-        for (X86Register r : new X86Register[]{R10, R11, R13, R14, R15}) {
+        for (X86Register r : new X86Register[]{R10, R12, R13, R14, R15}) {
             allocate(block, -1, r);
         }
     }
@@ -78,6 +78,17 @@ public class RegisterAllocation extends TACOptimization {
                 }*/
                 for (int j = i + 1; j < lastUsage; j++) {//i itself can't be a function call, and it doesn't matter if lastUsage is
                     if (block.get(j) instanceof TACFunctionCall) {//TODO it may possibly be OK for there to be a function in the middle if it's a syscall, depends on which registers it clobbers
+                        TACFunctionCall tfc = (TACFunctionCall) block.get(j);
+                        if (tfc.calling().equals("syscall") && register != R11 && register != C) {
+                            //we already know that register isn't one of the syscall arg registers
+                            //so just make sure it isn't R11 or C because syscall clobbers RCX and R11 of all registers for some ungodly reason
+                            continue;
+                        }
+                        if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && (register == B || register == R12 || register == R13 || register == R14 || register == R15)) {
+                            //malloc and free follow the ABI (unlike kitteh2 ahem)
+                            //so they preserve B and R12 through R15
+                            continue;
+                        }
                         continue wew;
                     }
                 }

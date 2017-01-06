@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -35,7 +36,9 @@ public class X86Format {
     public static String assembleFinalFile(final List<Pair<String, List<TACStatement>>> functions) {
         Future<String> header = CompletableFuture.completedFuture(HEADER);
         Future<String> joiner = CompletableFuture.completedFuture("\n");
-        Future<String> footer = CompletableFuture.supplyAsync(() -> FOOTER + generateConstantsLabels(functions), Executors.newSingleThreadExecutor());//OH do i LOVE this
+        ExecutorService ex = Executors.newSingleThreadExecutor();
+        Future<String> footer = CompletableFuture.supplyAsync(() -> FOOTER + generateConstantsLabels(functions), ex);//OH do i LOVE this
+        ex.shutdown();
         //footer gets its own executor (separate from the main fork join pool) because a parallel stream may wait for it
         return BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);
     }

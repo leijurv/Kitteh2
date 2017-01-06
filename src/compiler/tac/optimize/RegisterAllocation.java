@@ -40,7 +40,7 @@ public class RegisterAllocation extends TACOptimization {
         allocate(block, 1, X86Register.B);
         allocate(block, 2, X86Register.R8);
         allocate(block, 3, X86Register.R9);
-        for (X86Register r : new X86Register[]{R10, R12, R13, R14, R15}) {
+        for (X86Register r : new X86Register[]{R10, R11, R12, R13, R14, R15}) {
             allocate(block, -1, r);
         }
     }

@@ -113,7 +113,7 @@ public class RegAllocation {
                     if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
                         //TODO this may not be necesary
                         //the last usage is being passed to malloc / free, and it's *already in* rdi
-                        //however, movslq may be required, so check for that
+                        //movslq to the same register is actually allowed, so no worries there
                         //otherwise, it's fine to use rdi (since it's already the argument for its last usage)
                         continue;
                     }

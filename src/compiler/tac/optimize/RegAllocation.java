@@ -33,7 +33,7 @@ public class RegAllocation {
             throw new IllegalStateException(register + "");
         }
         HashSet<String> encountered = new HashSet<>();
-        wew:
+        https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {
             if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst) {
                 List<String> modVars = block.get(i).modifiedVariables();
@@ -102,7 +102,7 @@ public class RegAllocation {
                             bc = true;
                             continue;
                         }
-                        continue wew;
+                        continue https;
                     }
                 }
                 if (block.get(lastUsage) instanceof TACFunctionCall) {
@@ -130,14 +130,14 @@ public class RegAllocation {
                             System.out.println(block.subList(i, lastUsage + 1));*/
                             while (true) {
                                 if (block.get(lastUsage) instanceof TACFunctionCall) {//yes, there are NO function calls of any kind allowed in the extension
-                                    continue wew;
+                                    continue https;
                                 }
                                 if (!externalJumps(block, i, lastUsage)) {
                                     break;
                                 }
                                 lastUsage++;
                                 if (lastUsage >= block.size()) {
-                                    continue wew;
+                                    continue https;
                                 }
                             }
                             if (compiler.Compiler.verbose()) {

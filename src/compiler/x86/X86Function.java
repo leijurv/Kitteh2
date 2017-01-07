@@ -9,6 +9,7 @@ import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimization;
 import compiler.util.Pair;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
@@ -40,7 +41,7 @@ class X86Function {
             argsSize = OptionalInt.of(toSubtract);
             emitter.addStatement("subq $" + argsSize.getAsInt() + ", %rsp");
         }
-        HashSet<Integer> destinations = TACOptimization.jumpDestinations(stmts, HashSet::new);
+        Collection<Integer> destinations = TACOptimization.jumpDestinations(stmts, HashSet::new);
         for (int i = 0; i < stmts.size(); i++) {
             if (destinations.contains(i)) {
                 emitter.addStatement(emitter.lineToLabel(i) + ":");

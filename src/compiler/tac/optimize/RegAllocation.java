@@ -39,16 +39,16 @@ public class RegAllocation {
                 List<String> modVars = block.get(i).modifiedVariables();
                 if (modVars.size() != 1) {
                     if (block.get(i) instanceof TACFunctionCall) {
-                        encountered.addAll(modVars);
+                        encountered.addAll(modVars);//all are being set
                         continue; //lets leave multiple returns alone for now
                     }
                     throw new RuntimeException();
                 }
                 String mod = modVars.get(0);
-                if (encountered.contains(mod)) {
+                if (encountered.contains(mod)) {//not our first time seeing this variable, and previous passes failed
                     continue;
                 }
-                if (mod.contains("%")) {
+                if (mod.contains("%")) {//we've already got this one =D
                     continue;
                 }
                 encountered.add(mod);
@@ -60,17 +60,19 @@ public class RegAllocation {
                     continue;
                 }
                 X86Param vf = block.get(i).modifiedVariableInfos().get(0);
-                if (!(vf instanceof VarInfo)) {
-                    continue;
+                if (!(vf instanceof VarInfo)) {//idk
+                    throw new IllegalStateException(vf.getClass() + " " + vf);
                 }
-                if (((VarInfo) vf).getStackLocation() > 0) {
+                if (((VarInfo) vf).getStackLocation() > 0) {// an argument
+                    //TODO if we can replace an argument with a register, do so, and make all calling functions go along
+                    //will work, because function calls to other kitteh functions don't assume anything about register preservation
                     continue;
                 }
                 Type lmao = vf.getType();
-                if (!(lmao instanceof TypeNumerical)) {
+                if (!(lmao instanceof TypeNumerical)) {//a struct or something idk
                     continue;
                 }
-                if (lmao instanceof TypeFloat) {
+                if (lmao instanceof TypeFloat) {//that can only be on the XMM registers
                     continue;
                 }
                 int lastUsage = lastUsage(block, mod);
@@ -78,14 +80,14 @@ public class RegAllocation {
                     if (!isTemp) {
                         continue;
                     }
-                    throw new RuntimeException(block + mod);
+                    throw new RuntimeException(block + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
                 }
                 /*if (block.get(i) instanceof TACCast) {
                 System.out.println(mod + "  " + (lastUsage - i) + " last usage " + block.get(lastUsage) + " setting " + block.get(i));
                 }*/
                 boolean bc = false;
                 for (int j = i + 1; j < lastUsage; j++) {
-                    //i itself can't be a function call, and it doesn't matter if lastUsage is
+                    //it doesn't matter if i or lastUsage is a function call
                     if (block.get(j) instanceof TACFunctionCall) {
                         TACFunctionCall tfc = (TACFunctionCall) block.get(j);
                         if (tfc.calling().equals("syscall") && register != X86Register.R11 && register != X86Register.C && !TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
@@ -98,9 +100,7 @@ public class RegAllocation {
                             //malloc and free follow the ABI (unlike kitteh2 ahem)
                             //so they preserve B and R12 through R15
                             bc = true;
-                            //if (!allowNonTemp) {//idk why
                             continue;
-                            //}
                         }
                         continue wew;
                     }
@@ -108,6 +108,7 @@ public class RegAllocation {
                 if (block.get(lastUsage) instanceof TACFunctionCall) {
                     TACFunctionCall tfc = (TACFunctionCall) block.get(lastUsage);
                     if (tfc.calling().equals("syscall") && TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
+                        //TODO check which argument it is. if we're considering replacing with RDI, and it's about to be passed *as RDI*, that's fine lol
                         continue;
                     }
                     if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
@@ -159,12 +160,12 @@ public class RegAllocation {
                             block.get(j).replace(mod, xtr.x86(), xtr);
                         }
                     }
-                    if (lastUsage > i) {
+                    if (lastUsage > i) {//respect the extension, because it assumes that this register will remain unchanged for the extended section
                         i = lastUsage - 1; //-1 because i++
                     }                    //setting i to lastUsage-1 ensures that two overlapping sections won't use the same register
                 }
             } else {
-                encountered.addAll(block.get(i).modifiedVariables());
+                encountered.addAll(block.get(i).modifiedVariables());//don't miss any sets not covered in the if
             }
         }
     }
@@ -189,27 +190,10 @@ public class RegAllocation {
                 if (dest <= start) {
                     continue;
                 }
-                if (dest <= end && i >= start) {
-                    //return true;
-                }
-                if (dest < i) {
-                    //return true;
-                }
                 boolean outside = i < start || i > end + 1;//TODO make sure that this +1 doesn't cause weird behavior when lastUsage is expanding
-                boolean inside = i >= start && i <= end;//last statement can be a jump
-                if (dest >= start && dest <= end) {
-                    // return true;
-                }
-                if (inside) {
-                    // return true;
-                }
                 if (dest > start && dest <= end && outside) {
                     //jumps to the internal region, after the setting and before or at the usage, from outside, are not ok
                     return true;
-                }
-                if ((dest < start || dest > end) && inside) {
-                    //System.out.println("Jump from " + i + " to " + dest + " where start is " + start + " and end is " + end);
-                    //return true;
                 }
             }
         }

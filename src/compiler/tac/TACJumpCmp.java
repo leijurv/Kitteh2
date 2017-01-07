@@ -51,13 +51,13 @@ public class TACJumpCmp extends TACJump {
         if (first instanceof X86TypedRegister) {
             noplease = (X86TypedRegister) first;
         } else {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease);
+            emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease.x86());
         }
         String comparison = "cmp" + type.x86typesuffix();
         if (first.getType() instanceof TypeFloat) {
             comparison = "ucomiss";//please, x86, why
         }
-        emit.addStatement(comparison + " " + second.x86() + ", " + noplease);
+        emit.addStatement(comparison + " " + second.x86() + ", " + noplease.x86());
         String jump = X86Comparison.tox86jump(op);
         if (first.getType() instanceof TypeFloat) {
             jump = jump.replace("l", "b").replace("g", "a");//i actually want to die

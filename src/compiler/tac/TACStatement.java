@@ -54,14 +54,17 @@ public abstract class TACStatement {
         if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
             throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
         }
+        boolean f = false;
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {
                 paramNames[i] = replaceWith;
                 params[i] = infoWith;
-                return;
+                f = true;
             }
         }
-        throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames) + " " + modifiedVariables() + " " + requiredVariables() + " " + Arrays.asList(params) + " " + this);
+        if (!f) {
+            throw new IllegalStateException(toReplace + " not found in " + Arrays.asList(paramNames) + " " + modifiedVariables() + " " + requiredVariables() + " " + Arrays.asList(params) + " " + this);
+        }
     }
     abstract protected void onContextKnown();
     final public String toString(boolean printFull) {

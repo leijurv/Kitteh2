@@ -77,7 +77,8 @@ public class TACOptimizer {
             }
         }
         if (settings.staticValues()) {//TODO better flag for these final register optimizations
-            input = new RegisterAllocation().go(input);
+            input = new TmpAllocation().go(input);
+            input = new VarAllocation().go(input);
             input = new RegisterCasting().go(input);
         }
         return input;

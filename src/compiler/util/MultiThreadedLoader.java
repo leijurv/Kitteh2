@@ -61,7 +61,7 @@ public class MultiThreadedLoader {
         }
     }
     public void importFileInNewThread(Path path, boolean f) {
-        Thread th = new Thread() {
+        Thread th = new Thread() {//TODO use an executor cached thread pool
             @Override
             public void run() {
                 try {

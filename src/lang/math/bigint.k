@@ -705,8 +705,8 @@ modpowInternal(bigint*base,bigint*pow,bigint*modulus)bigint*{
 modInverse(bigint*a,bigint*b)bigint*{
 	s:=fromLong(0)
 	olds:=fromLong(1)
-	t:=fromLong(1)
-	oldt:=fromLong(0)
+	//t:=fromLong(1)
+	//oldt:=fromLong(0)
 	r:=b.dup()
 	oldr:=a.dup()
 	zero:=fromLong(0)
@@ -714,30 +714,30 @@ modInverse(bigint*a,bigint*b)bigint*{
 		quotient:=divide(oldr,r)
 		qr:=multiply(quotient,r)
 		qs:=multiply(quotient,s)
-		qt:=multiply(quotient,t)
+		//qt:=multiply(quotient,t)
 		newr:=oldr.subtract(qr)
 		news:=olds.subtract(qs)
-		newt:=oldt.subtract(qt)
+		//newt:=oldt.subtract(qt)
 		(quotient).free()
 		(qr).free()
 		(qs).free()
-		(qt).free()
+		//(qt).free()
 		(oldr).free()
 		(olds).free()
-		(oldt).free()
+		//(oldt).free()
 		oldr=r
 		olds=s
-		oldt=t
+		//oldt=t
 		r=newr
 		s=news
-		t=newt
+		//t=newt
 	}
 	(zero).free()
 	(r).free()
 	(s).free()
-	(t).free()
+	//(t).free()
 	(oldr).free()
-	(oldt).free()
+	//(oldt).free()
 	wewlad:=add(olds,b)
 	free(olds)
 	res:= mod(wewlad,b)

@@ -18,6 +18,6 @@ public class X86TempRegister extends X86TypedRegister {
     }
     @Override
     public String toString() {
-        return compiler.Compiler.verbose() ? (varFrom + "--" + super.toString()) : super.toString();
+        return compiler.Compiler.verbose() ? (varFrom + "_" + super.toString()) : super.toString();
     }
 }

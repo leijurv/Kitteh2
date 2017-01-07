@@ -93,6 +93,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        boolean stack = true;
         if (header.name.equals("syscall")) {//TODO maybe a TACSyscall separate from TACFunctionCall
             for (int i = 0; i < params.length; i++) {
                 TypeNumerical type = (TypeNumerical) params[i].getType();
@@ -108,12 +109,11 @@ public class TACFunctionCall extends TACStatement {
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
             emit.addStatement("movl " + params[0].x86() + ", %edi");
-            /*emit.addStatement("callq _malloc");
-            emit.addStatement("addq $" + toSubtract + ", %rsp");
-            return;*/
+            stack = false;
         }
         if (header.name.equals("free")) {
             emit.addStatement("movq " + params[0].x86() + ", %rdi");
+            stack = false;
         }
         if (header.name.endsWith("__print")) {
             //this is some 100% top quality code right here btw. it's not a hack i PROMISE
@@ -130,7 +130,7 @@ public class TACFunctionCall extends TACStatement {
             }
         }
         int stackLocation = 0;
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; stack && i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
             if (!type.equals(params[i].getType())) {
                 if (header.name.endsWith("__print")) {

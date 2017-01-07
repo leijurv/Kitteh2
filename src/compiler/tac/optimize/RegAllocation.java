@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class RegAllocation {
     static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp) {
-        if (TACFunctionCall.RETURN_REGISTERS.contains(register) || TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
+        if (TACFunctionCall.RETURN_REGISTERS.contains(register)) {
             //this dynamic check is here in case i add a return / syscall register and forget
             throw new IllegalStateException(register + "");
         }
@@ -88,7 +88,7 @@ public class RegAllocation {
                     //i itself can't be a function call, and it doesn't matter if lastUsage is
                     if (block.get(j) instanceof TACFunctionCall) {
                         TACFunctionCall tfc = (TACFunctionCall) block.get(j);
-                        if (tfc.calling().equals("syscall") && register != X86Register.R11 && register != X86Register.C) {
+                        if (tfc.calling().equals("syscall") && register != X86Register.R11 && register != X86Register.C && !TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
                             //we already know that register isn't one of the syscall arg registers
                             //so just make sure it isn't R11 or C because syscall clobbers RCX and R11 of all registers for some ungodly reason
                             bc = true;
@@ -105,6 +105,20 @@ public class RegAllocation {
                         continue wew;
                     }
                 }
+                if (block.get(lastUsage) instanceof TACFunctionCall) {
+                    TACFunctionCall tfc = (TACFunctionCall) block.get(lastUsage);
+                    if (tfc.calling().equals("syscall") && TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
+                        continue;
+                    }
+                    if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
+                        //TODO this may not be necesary
+                        //the last usage is being passed to malloc / free, and it's *already in* rdi
+                        //however, movslq may be required, so check for that
+                        //otherwise, it's fine to use rdi (since it's already the argument for its last usage)
+                        continue;
+                    }
+                }
+                //TODO print of a float clobbers A register
                 if (lastUsage - i <= maxDistance || maxDistance == -1) {
                     if (!isTemp) {
                         if (externalJumps(block, i, lastUsage)) {
@@ -113,25 +127,26 @@ public class RegAllocation {
                             System.out.println(i);
                             System.out.println(lastUsage);
                             System.out.println(block.subList(i, lastUsage + 1));*/
-                            while (lastUsage < block.size()) {
-                                if (block.get(lastUsage) instanceof TACFunctionCall) {
-                                    lastUsage--;
-                                    break;
+                            while (true) {
+                                if (block.get(lastUsage) instanceof TACFunctionCall) {//yes, there are NO function calls of any kind allowed in the extension
+                                    continue wew;
                                 }
                                 if (!externalJumps(block, i, lastUsage)) {
-                                    //System.out.println("Expanded to allow");
                                     break;
                                 }
                                 lastUsage++;
+                                if (lastUsage >= block.size()) {
+                                    continue wew;
+                                }
                             }
-                            if (lastUsage == block.size()) {
-                                continue;
+                            if (compiler.Compiler.verbose()) {
+                                System.out.println("Expanded to allow");
                             }
+                            //only way to get to here is if the break in no external jumps fires
                         }
-                        if (externalJumps(block, i, lastUsage)) {
-                            continue;
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println("Allowing " + mod + " " + i + " " + lastUsage + " " + register + " " + bc);
                         }
-                        //System.out.println("Allowing " + mod + " " + i + " " + lastUsage + " " + register + " " + bc);
                     }
                     /*if (maxDistance != 1) {
                     System.out.println("REPLACING " + maxDistance + " " + register);

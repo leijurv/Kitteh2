@@ -7,6 +7,7 @@ package compiler;
 import static compiler.tac.optimize.OptimizationSettings.*;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.IllformedLocaleException;
 import java.util.stream.IntStream;
 import org.w3c.dom.ls.LSException;
@@ -35,6 +36,7 @@ public class Main {
         System.out.println("Second stream: " + streamTime()); //almost always zero
         String inFile = DEFAULT_IN_FILE;
         String outFile = DEFAULT_OUT_FILE;
+        boolean executable = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-i":
@@ -67,13 +69,26 @@ public class Main {
                 case "-d":
                     Compiler.DETERMINISTIC = true;
                     break;
+                case "-e":
+                case "-E":
+                case "--e":
+                case "--E":
+                case "-executable":
+                case "--executable":
+                    executable = true;
                 default:
                     break;
             }
         }
         String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
-        try (FileOutputStream lol = new FileOutputStream(outFile)) {
+        File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
+        try (FileOutputStream lol = new FileOutputStream(asmFile)) {
             lol.write(asm.getBytes("UTF-8"));
         }
+        if (!executable) {
+            return;
+        }
+        Process gcc = new ProcessBuilder("/usr/bin/gcc", "-o", outFile, asmFile.getAbsolutePath()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start();
+        System.out.println("GCC return value: " + gcc.waitFor());
     }
 }

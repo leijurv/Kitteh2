@@ -18,9 +18,11 @@ import java.util.List;
  *
  * @author leijurv
  */
-public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to copy of all of *a onto the stack to get b, it can just add that offset to a then do *(a+offset)
-    public TACPointerDeref(String deref, String dest) {
+public class TACPointerDeref extends TACStatement {
+    int offset;
+    public TACPointerDeref(String deref, String dest, int offset) {
         super(deref, dest);
+        this.offset = offset;
     }
     @Override
     protected void onContextKnown() {
@@ -39,7 +41,7 @@ public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to
     @Override
     public String toString0() {
         //return "Dereference " + source + " into " + dest;
-        return params[1] + " = *" + params[0];
+        return params[1] + " = *" + params[0] + (offset == 0 ? "" : "+" + offset);
     }
     @Override
     public void printx86(X86Emitter emit) {
@@ -52,17 +54,18 @@ public class TACPointerDeref extends TACStatement {//TODO (*a).b doesn't need to
             emit.addStatement("movq " + source.x86() + ", %rax");
             loc = "%rax";
         }
+        String off = offset == 0 ? "" : offset + "";
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
-                emit.addStatement("mov" + d.x86typesuffix() + " (" + loc + "), " + dest.x86());
+                emit.addStatement("mov" + d.x86typesuffix() + " " + off + "(" + loc + "), " + dest.x86());
             } else {
-                emit.addStatement("mov" + d.x86typesuffix() + " (" + loc + "), " + X86Register.C.getRegister(d));
+                emit.addStatement("mov" + d.x86typesuffix() + " " + off + "(" + loc + "), " + X86Register.C.getRegister(d));
                 emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
+            moveStruct(offset, "%rax", ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }

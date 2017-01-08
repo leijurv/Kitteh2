@@ -29,9 +29,11 @@ public class TACFunctionCall extends TACStatement {
         X86Register.A,
         X86Register.DI,
         X86Register.SI,
-        X86Register.D, /*X86Register.R10,
+        X86Register.D,
+        X86Register.R10,
         X86Register.R8,
-        X86Register.R9*/}));
+        X86Register.R9
+    }));
     public static final List<X86Register> RETURN_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
         X86Register.A,
         //NOT %rbx because apparently that's like not allowed and stuff (system v abi)

@@ -48,7 +48,7 @@ public class RegAllocation {
                 if (encountered.contains(mod)) {//not our first time seeing this variable, and previous passes failed
                     continue;
                 }
-                if (mod.contains("%")) {//we've already got this one =D
+                if (mod.contains(X86Register.REGISTER_PREFIX)) {//we've already got this one =D
                     continue;
                 }
                 encountered.add(mod);
@@ -90,9 +90,14 @@ public class RegAllocation {
                     //it doesn't matter if i or lastUsage is a function call
                     if (block.get(j) instanceof TACFunctionCall) {
                         TACFunctionCall tfc = (TACFunctionCall) block.get(j);
-                        if (tfc.calling().equals("syscall") && register != X86Register.R11 && register != X86Register.C && !TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
-                            //we already know that register isn't one of the syscall arg registers
-                            //so just make sure it isn't R11 or C because syscall clobbers RCX and R11 of all registers for some ungodly reason
+                        if (tfc.calling().equals("syscall")) {
+                            if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
+                                continue https;
+                            }
+                            List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.argsSize());//if this syscall only uses 1 argument register, the rest are actually ok to use
+                            if (args.contains(register)) {//just make sure this register isn't one of the ones this syscall is using
+                                continue https;
+                            }
                             bc = true;
                             continue;
                         }
@@ -129,15 +134,12 @@ public class RegAllocation {
                             System.out.println(lastUsage);
                             System.out.println(block.subList(i, lastUsage + 1));*/
                             while (true) {
-                                if (block.get(lastUsage) instanceof TACFunctionCall) {//yes, there are NO function calls of any kind allowed in the extension
+                                lastUsage++;
+                                if (lastUsage >= block.size() || block.get(lastUsage) instanceof TACFunctionCall) {//yes, there are NO function calls of any kind allowed in the extension
                                     continue https;
                                 }
                                 if (!externalJumps(block, i, lastUsage)) {
                                     break;
-                                }
-                                lastUsage++;
-                                if (lastUsage >= block.size()) {
-                                    continue https;
                                 }
                             }
                             if (compiler.Compiler.verbose()) {

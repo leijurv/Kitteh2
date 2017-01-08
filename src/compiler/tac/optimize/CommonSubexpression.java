@@ -25,6 +25,7 @@ import java.util.List;
 public class CommonSubexpression extends TACOptimization {
     @Override
     protected void run(final List<TACStatement> block, int blockBegin) {
+        https://en.wikipedia.org/wiki/Common_subexpression_elimination
         for (int i = 0; i < block.size(); i++) {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) block.get(i);
@@ -44,7 +45,6 @@ public class CommonSubexpression extends TACOptimization {
                             return;
                         }
                     }
-                    boolean shouldBreak = false;
                     for (X86Param vi : block.get(j).modifiedVariableInfos()) {
                         if (!(vi instanceof VarInfo)) {
                             continue;
@@ -53,24 +53,18 @@ public class CommonSubexpression extends TACOptimization {
                         int viBegin = ((VarInfo) vi).getStackLocation();//inclusive
                         int viEnd = ((VarInfo) vi).getStackLocation() + vi.getType().getSizeBytes() - 1;//inclusive
                         if (viBegin >= begin && viBegin <= end) {//if there is any overlap, at least one end of one of them needs to be within the other
-                            shouldBreak = true;
-                            break;
+                            continue https;
                         }
                         if (viEnd >= begin && viEnd <= end) {
-                            shouldBreak = true;
-                            break;
+                            continue https;
                         }
                         if (begin >= viBegin && begin <= viEnd) {
-                            shouldBreak = true;
-                            break;
+                            continue https;
                         }
-                        if (end >= viBegin && end <= viEnd) {
-                            shouldBreak = true;
-                            break;
+                        if (end < viBegin || end > viEnd) {
+                            continue;
                         }
-                    }
-                    if (shouldBreak) {
-                        break;
+                        continue https;
                     }
                 }
             }

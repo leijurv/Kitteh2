@@ -40,7 +40,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
     protected Type calcType() {
         return struct.getFieldByName(field).getType();
     }
-    private Expression getDeref() {
+    private Expression getDeref() {//TODO use syntax like 23(%rax) to get a static offset from a register pointer
         int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
         //input.field=rvalue
         //(*deref).field=rvalue

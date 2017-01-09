@@ -5,7 +5,6 @@
  */
 package compiler.expression;
 import compiler.Context;
-import compiler.Operator;
 import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
@@ -31,27 +30,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
         return tp.pointingTo();
     }
     private Expression[] tryOffsetBased() {
-        if (deReferencing instanceof ExpressionCast && ((ExpressionCast) deReferencing).input instanceof ExpressionOperator) {
-            ExpressionOperator eo = (ExpressionOperator) ((ExpressionCast) deReferencing).input;
-            if (eo.getOP() == Operator.PLUS) {
-                if (eo.getA() instanceof ExpressionConstNum) {
-                    return new Expression[]{eo.getA(), new ExpressionCast(eo.getB(), deReferencing.getType())};
-                } else if (eo.getB() instanceof ExpressionConstNum) {
-                    return new Expression[]{eo.getB(), new ExpressionCast(eo.getA(), deReferencing.getType())};
-                }
-            }
-        }
-        if (deReferencing instanceof ExpressionOperator) {
-            ExpressionOperator eo = (ExpressionOperator) deReferencing;
-            if (eo.getOP() == Operator.PLUS) {
-                if (eo.getA() instanceof ExpressionConstNum) {
-                    return new Expression[]{eo.getA(), eo.getB()};
-                } else if (eo.getB() instanceof ExpressionConstNum) {
-                    return new Expression[]{eo.getB(), eo.getA()};
-                }
-            }
-        }
-        return null;
+        return CommandSetPtr.tryOffsetBased(deReferencing);
     }
     @Override
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {

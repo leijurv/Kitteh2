@@ -39,13 +39,13 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         //System.out.println("Getting type of " + A + " " + op + " " + B + ": " + result);
         return result;
     }
-    Operator getOP() {
+    public Operator getOP() {
         return op;
     }
-    Expression getA() {
+    public Expression getA() {
         return a;
     }
-    Expression getB() {
+    public Expression getB() {
         return b;
     }
     @Override

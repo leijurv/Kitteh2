@@ -16,7 +16,7 @@ import compiler.type.Type;
  */
 public class ExpressionCast extends Expression {
     private final Type castTo;
-    Expression input;
+    public Expression input;
     public ExpressionCast(Expression input, Type castTo) {
         this.input = input;
         this.castTo = castTo;

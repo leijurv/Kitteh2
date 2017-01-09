@@ -21,8 +21,10 @@ import java.util.List;
  * @author leijurv
  */
 public class TACPointerRef extends TACStatement {
-    public TACPointerRef(String source, String dest) {
+    int offset;
+    public TACPointerRef(String source, String dest, int offset) {
         super(source, dest);
+        this.offset = offset;
     }
     @Override
     protected void onContextKnown() {
@@ -64,11 +66,12 @@ public class TACPointerRef extends TACStatement {
                 othersource = "%rax";
                 emit.addStatement("movq " + params[1].x86() + ", %rax");
             }
-            emit.addStatement("mov" + d.x86typesuffix() + " " + source + ", (" + othersource + ")");
+            String o = offset == 0 ? "" : "" + offset;
+            emit.addStatement("mov" + d.x86typesuffix() + " " + source + ", " + o + "(" + othersource + ")");
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
             emit.addStatement("movq " + params[1].x86() + ", %rax");
-            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), "%rbp", 0, "%rax", ts, emit);
+            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), "%rbp", offset, "%rax", ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }

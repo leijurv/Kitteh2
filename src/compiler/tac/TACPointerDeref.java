@@ -47,21 +47,21 @@ public class TACPointerDeref extends TACStatement {
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        String loc;
+        X86Param loc;
         if (source instanceof X86TypedRegister) {
-            loc = source.x86();
+            loc = source;
         } else {
-            emit.addStatement("movq " + source.x86() + ", %rax");
-            loc = "%rax";
+            loc = X86Register.A.getRegister((TypeNumerical) source.getType());
+            emit.move(source, loc);
         }
         String off = offset == 0 ? "" : offset + "";
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
-                emit.addStatement("mov" + d.x86typesuffix() + " " + off + "(" + loc + "), " + dest.x86());
+                emit.moveStr(off + "(" + loc.x86() + ")", dest);
             } else {
-                emit.addStatement("mov" + d.x86typesuffix() + " " + off + "(" + loc + "), " + X86Register.C.getRegister(d));
-                emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+                emit.moveStr(off + "(" + loc.x86() + ")", X86Register.C.getRegister(d));
+                emit.move(X86Register.C, dest);
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
@@ -78,9 +78,9 @@ public class TACPointerDeref extends TACStatement {
         int i = 0;
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
             while (i + tn.getSizeBytes() <= size) {
-                String reg = X86Register.C.getRegister(tn).x86();
-                emit.addStatement("mov" + tn.x86typesuffix() + " " + (i + sourceStackLocation) + "(" + sourceRegister + "), " + reg);
-                emit.addStatement("mov" + tn.x86typesuffix() + " " + reg + ", " + (destLocation + i) + "(" + destRegister + ")");
+                X86TypedRegister reg = X86Register.C.getRegister(tn);
+                emit.moveStr((i + sourceStackLocation) + "(" + sourceRegister + ")", reg);
+                emit.moveStr(reg, (destLocation + i) + "(" + destRegister + ")");
                 i += tn.getSizeBytes();
             }
         }

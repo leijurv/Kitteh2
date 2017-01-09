@@ -7,6 +7,9 @@ package compiler.tac;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Const;
@@ -98,11 +101,10 @@ public class TACFunctionCall extends TACStatement {
         boolean stack = true;
         if (header.name.equals("syscall")) {//TODO maybe a TACSyscall separate from TACFunctionCall
             for (int i = 0; i < params.length; i++) {
-                TypeNumerical type = (TypeNumerical) params[i].getType();
                 if (i >= SYSCALL_REGISTERS.size()) {
                     throw new IllegalStateException("Syscall only takes " + SYSCALL_REGISTERS.size() + " arguments, in registers " + SYSCALL_REGISTERS);
                 }
-                emit.addStatement("mov" + type.x86typesuffix() + " " + params[i].x86() + ", " + SYSCALL_REGISTERS.get(i).getRegister(type).x86());
+                emit.move(params[i], SYSCALL_REGISTERS.get(i));
             }
             emit.addStatement("syscall");
             printRet(emit);
@@ -110,11 +112,11 @@ public class TACFunctionCall extends TACStatement {
         }
         if (header.name.equals("malloc")) {
             emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
-            emit.addStatement("movl " + params[0].x86() + ", %edi");
+            emit.move(params[0], X86Register.DI.getRegister(new TypeInt32()));
             stack = false;
         }
         if (header.name.equals("free")) {
-            emit.addStatement("movq " + params[0].x86() + ", %rdi");
+            emit.move(params[0], X86Register.DI);
             stack = false;
         }
         if (header.name.endsWith("__print")) {
@@ -125,7 +127,7 @@ public class TACFunctionCall extends TACStatement {
             TypeNumerical type = (TypeNumerical) params[0].getType();
             if (type instanceof TypeFloat) {
                 emit.addStatement("leaq floatformatstring(%rip), %rdi");//lol rip
-                emit.addStatement("movb $1, %al");//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
+                emit.move(new X86Const("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
                 return;
@@ -134,15 +136,16 @@ public class TACFunctionCall extends TACStatement {
         int stackLocation = 0;
         for (int i = 0; stack && i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
+            X86Param dest = new X86FunctionArg(stackLocation, type);
             if (!type.equals(params[i].getType())) {
                 if (header.name.endsWith("__print")) {
                     if (params[i].getType().getSizeBytes() != 8) {
                         if (params[i] instanceof X86Const) {
-                            emit.addStatement("movq " + params[i].x86() + ", %rax");
+                            emit.move(new X86Const(((X86Const) params[i]).getValue(), new TypeInt64()), X86Register.A);
                         } else {
-                            emit.addStatement("movs" + ((TypeNumerical) params[i].getType()).x86typesuffix() + "q " + params[i].x86() + ", %rax");
+                            emit.cast(params[i], X86Register.A.getRegister(new TypeInt64()));
                         }
-                        emit.addStatement("movq %rax, " + stackLocation + "(%rsp)");
+                        emit.move(X86Register.A, dest);
                         stackLocation += 8;
                         continue;
                     }
@@ -152,7 +155,6 @@ public class TACFunctionCall extends TACStatement {
                     throw new RuntimeException(this + " was " + params[i].getType() + " expected " + type);
                 }
             }
-            X86Param dest = new X86FunctionArg(stackLocation, type);
             TACConst.move(dest, params[i], emit);
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();
@@ -162,8 +164,7 @@ public class TACFunctionCall extends TACStatement {
     }
     private void printRet(X86Emitter emit) {
         for (int i = 0; i < result.length; i++) {
-            TypeNumerical ret = (TypeNumerical) result[i].getType();
-            emit.addStatement("mov" + ret.x86typesuffix() + " " + RETURN_REGISTERS.get(i).getRegister(ret) + ", " + result[i].x86());
+            emit.move(RETURN_REGISTERS.get(i), result[i]);
         }
     }
 }

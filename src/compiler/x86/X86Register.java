@@ -82,9 +82,8 @@ these registers’ values for its caller.
         }
         switch (this) {
             case XMM0:
-                return "%xmm0";
             case XMM1:
-                return "%xmm1";
+                return REGISTER_PREFIX + toString().toLowerCase(Locale.US);
             case A:
             case B:
             case C:

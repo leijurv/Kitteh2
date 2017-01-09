@@ -51,7 +51,7 @@ public class TACJumpCmp extends TACJump {
         if (first instanceof X86TypedRegister) {
             noplease = (X86TypedRegister) first;
         } else {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + first.x86() + ", " + noplease.x86());
+            emit.move(first, noplease);
         }
         String comparison = "cmp" + type.x86typesuffix();
         if (first.getType() instanceof TypeFloat) {

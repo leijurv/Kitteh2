@@ -10,6 +10,7 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
@@ -52,25 +53,25 @@ public class TACPointerRef extends TACStatement {
     public void printx86(X86Emitter emit) {
         if (params[0].getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) ((TypePointer) params[1].getType()).pointingTo();
-            String source;
+            X86Param source;
             if (params[0] instanceof X86Const || params[0] instanceof X86TypedRegister) {
-                source = params[0].x86();
+                source = params[0];
             } else {
-                source = X86Register.C.getRegister(d).x86();
-                emit.addStatement("mov" + d.x86typesuffix() + " " + params[0].x86() + ", " + source);
+                source = X86Register.C.getRegister(d);
+                emit.move(params[0], source);
             }
-            String othersource;
+            X86Param othersource;
             if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
-                othersource = params[1].x86();
+                othersource = params[1];
             } else {
-                othersource = X86Register.A.getRegister((TypeNumerical) params[1].getType()).x86();
-                emit.addStatement("movq " + params[1].x86() + ", " + othersource);
+                othersource = X86Register.A.getRegister((TypeNumerical) params[1].getType());
+                emit.move(params[1], othersource);
             }
             String o = offset == 0 ? "" : "" + offset;
-            emit.addStatement("mov" + d.x86typesuffix() + " " + source + ", " + o + "(" + othersource + ")");
+            emit.moveStr(source, o + "(" + othersource + ")");
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
-            emit.addStatement("movq " + params[1].x86() + ", %rax");
+            emit.move(params[1], X86Register.A);
             TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), "%rbp", offset, "%rax", ts, emit);
         } else {
             throw new InvalidPathException("", "");

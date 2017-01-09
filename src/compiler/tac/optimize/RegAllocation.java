@@ -34,7 +34,7 @@ public class RegAllocation {
         }
         HashSet<String> encountered = new HashSet<>();
         https://en.wikipedia.org/wiki/Register_allocation
-        for (int i = 0; i < block.size(); i++) {
+        for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees
             if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst) {
                 List<String> modVars = block.get(i).modifiedVariables();
                 if (modVars.size() != 1) {
@@ -133,7 +133,7 @@ public class RegAllocation {
                             System.out.println(i);
                             System.out.println(lastUsage);
                             System.out.println(block.subList(i, lastUsage + 1));*/
-                            while (true) {
+                            while (true) {//TODO this is greedy
                                 lastUsage++;
                                 if (lastUsage >= block.size() || block.get(lastUsage) instanceof TACFunctionCall) {//yes, there are NO function calls of any kind allowed in the extension
                                     continue https;

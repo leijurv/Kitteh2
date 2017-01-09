@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Register;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class TACConstStr extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         emit.addStatement("leaq " + getLabel() + "(%rip), %rax");
-        emit.addStatement("movq %rax, " + params[0].x86());
+        emit.move(X86Register.A.getRegister((TypeNumerical) params[0].getType()), params[0]);
     }
     public String getLabel() {
         return ("str" + value.hashCode()).replace("-", "_");

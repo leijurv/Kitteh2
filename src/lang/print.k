@@ -16,22 +16,24 @@ print(long input){
 	result:=(byte*)malloc(count+1)
 	result[count]=10
 	count--
-	neg:=input<(long)0
+	inputCopy=input
+	neg:=inputCopy<(long)0
 	if neg{//if we are doing a negative number
-		input=0-input//make it positive
+		inputCopy=0-inputCopy//make it positive
 	}
 	for count>=0{
-		dig:=(byte)(input%(long)10)//the digit as a byte from 0 to 9
+		dig:=(byte)(inputCopy%(long)10)//the digit as a byte from 0 to 9
 		dig=dig+'0'//make it a real ascii character by adding '0' to it
 		result[count]=dig//set it in the output
-		input=input/10
+		inputCopy=inputCopy/10
 		count=count-1
 	}
 	if neg{
 		result[0]='-'//but add the minus sign to the beginning of the output
 	}
-	write(result,totalSize)
-	free(result)
+	aoeu:=result+1-1
+	write(aoeu,totalSize)
+	free(aoeu)
 }
 writeByte(byte b){
 	arr:=(byte*)malloc(1)

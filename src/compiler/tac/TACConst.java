@@ -96,11 +96,11 @@ public class TACConst extends TACStatement {
             throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
         }
         if (source instanceof X86Const || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
-            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + dest.x86());
+            emit.uncheckedMove(source, dest);
         } else {
             X86Param r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);
-            emit.addStatement("mov" + type.x86typesuffix() + " " + source.x86() + ", " + r);
-            emit.addStatement("mov" + type.x86typesuffix() + " " + r + ", " + dest.x86());
+            emit.move(source, r);
+            emit.move(r, dest);
         }
     }
 }

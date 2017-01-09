@@ -60,15 +60,16 @@ public class TACCast extends TACStatement {
             if (!(inp instanceof TypeInt32)) {
                 throw new RuntimeException("noplease");
             }
-            emit.addStatement("cvtsi2ssl " + input.x86() + ", %xmm2");//kill me
-            emit.addStatement("movss %xmm2, " + dest.x86());
+            X86Param aoeu = X86Register.XMM0.getRegister(new TypeFloat());
+            emit.addStatement("cvtsi2ssl " + input.x86() + ", " + aoeu.x86());//kill me
+            emit.move(aoeu, dest);
             return;
         }
-        String dst;
+        X86Param dst;
         if (dest instanceof X86TypedRegister) {
-            dst = dest.x86();
+            dst = dest;
         } else {
-            dst = X86Register.C.getRegister(out).x86();
+            dst = X86Register.C.getRegister(out);
         }
         if (inp.getSizeBytes() >= out.getSizeBytes()) {
             //down cast
@@ -76,21 +77,21 @@ public class TACCast extends TACStatement {
                 throw new IllegalStateException("literally impossible");
             }
             if (dest instanceof X86TypedRegister) {
-                emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + ((X86TypedRegister) dest).getRegister().getRegister(inp).x86());
+                emit.move(input, ((X86TypedRegister) dest).getRegister().getRegister(inp));
             } else {
                 if (input instanceof X86TypedRegister) {
-                    emit.addStatement("mov" + out.x86typesuffix() + " " + ((X86TypedRegister) input).getRegister().getRegister(out).x86() + ", " + dest.x86());
+                    emit.move(((X86TypedRegister) input).getRegister().getRegister(out), dest);
                     return;
                 } else {
-                    emit.addStatement("mov" + inp.x86typesuffix() + " " + input.x86() + ", " + X86Register.C.getRegister(inp));
+                    emit.move(input, X86Register.C.getRegister(inp));
                 }
             }
         } else {
             //up cast
-            emit.addStatement("movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + input.x86() + ", " + dst);
+            emit.cast(input, dst);
         }
         if (!(dest instanceof X86TypedRegister)) {
-            emit.addStatement("mov" + out.x86typesuffix() + " " + dst + ", " + dest.x86());
+            emit.uncheckedMove(dst, dest);
         }
     }
 }

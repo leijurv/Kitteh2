@@ -63,8 +63,8 @@ public class TACPointerRef extends TACStatement {
             if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
                 othersource = params[1].x86();
             } else {
-                othersource = "%rax";
-                emit.addStatement("movq " + params[1].x86() + ", %rax");
+                othersource = X86Register.A.getRegister((TypeNumerical) params[1].getType()).x86();
+                emit.addStatement("movq " + params[1].x86() + ", " + othersource);
             }
             String o = offset == 0 ? "" : "" + offset;
             emit.addStatement("mov" + d.x86typesuffix() + " " + source + ", " + o + "(" + othersource + ")");

@@ -46,7 +46,7 @@ public class TACPointerRef extends TACStatement {
     @Override
     public String toString0() {
         //return "Put the value " + source + " into the location specified by " + dest;
-        return "*" + params[1] + " = " + params[0];
+        return "*" + params[1] + (offset == 0 ? "" : "+" + offset) + " = " + params[0];
     }
     @Override
     public void printx86(X86Emitter emit) {

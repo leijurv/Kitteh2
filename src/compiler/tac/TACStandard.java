@@ -88,7 +88,10 @@ public class TACStandard extends TACStatement {
         type = (TypeNumerical) first.getType();
         //}
         X86Param result = params[2];
-        if (secondName.equals("1") && firstName.equals(paramNames[2])) {
+        if (secondName.equals("1")) {
+            if (!firstName.equals(paramNames[2]) && (op == Operator.PLUS || op == Operator.MINUS)) {
+                TACConst.move(result, first, emit);
+            }
             if (op == Operator.PLUS) {
                 emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
                 return;
@@ -98,7 +101,10 @@ public class TACStandard extends TACStatement {
                 return;
             }
         }
-        if (firstName.equals("1") && secondName.equals(paramNames[2]) && op == Operator.PLUS) {
+        if (firstName.equals("1") && op == Operator.PLUS) {
+            if (!secondName.equals(paramNames[2])) {
+                TACConst.move(result, second, emit);
+            }
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
             return;
         }

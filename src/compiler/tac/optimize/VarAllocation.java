@@ -16,7 +16,7 @@ import java.util.List;
 public class VarAllocation extends TACOptimization {
     @Override
     public List<TACStatement> go(List<TACStatement> stmts) {
-        for (X86Register r : new X86Register[]{DI, R10, R11, SI, B, R13, R14, R15}) {
+        for (X86Register r : new X86Register[]{DI, R10, R9, R11, R8, SI, B, R12, R13, R14, R15}) {
             RegAllocation.allocate(stmts, -1, r, true, true);
         }
         return stmts;

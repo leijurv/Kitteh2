@@ -29,7 +29,6 @@ public class TmpAllocation extends TACOptimization {
         //
         //in case you were wondering, there really is no rhyme or reason to these choices for maxDistance and register
         RegAllocation.allocate(block, 1, X86Register.A, false, true);
-        RegAllocation.allocate(block, -1, X86Register.R9, false, true);
-        RegAllocation.allocate(block, -1, X86Register.R12, false, true);
+        RegAllocation.allocate(block, -1, X86Register.D, false, true);
     }
 }

@@ -68,6 +68,21 @@ public class TACStandard extends TACStatement {
         }
     }
     @Override
+    public boolean usesDRegister() {//I'm sorry. I'm really really sorry.
+        if (op == MOD) {
+            return true;
+        }
+        X86Emitter emit = new X86Emitter("");
+        printx86(emit);
+        String aoeu = emit.toX86();
+        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+            if (aoeu.contains(X86Register.D.getRegister(tn).x86())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
     public void printx86(X86Emitter emit) {
         String firstName = paramNames[0];//i literally can't be bothered
         String secondName = paramNames[1];
@@ -178,14 +193,21 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
-        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister()) {
-            aa = X86Register.D.getRegister(type);
-            a = aa.x86();
-        }
         if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2]) && op != MOD && op != DIVIDE) {
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;
+        }
+        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister() && !ma) {
+            emit.addComment(cc + "" + c);
+            if (cc instanceof X86TypedRegister && ((X86TypedRegister) cc).getRegister() == X86Register.C) {
+                if (cc.x86().equals(c)) {
+                    aa = X86Register.D.getRegister(type);
+                } else {
+                    aa = X86Register.C.getRegister(type);
+                }
+                a = aa.x86();
+            }
         }
         TACConst.move(aa, first, emit);
         switch (op) {

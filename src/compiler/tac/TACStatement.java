@@ -105,4 +105,7 @@ public abstract class TACStatement {
         }
         throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);
     }
+    public boolean usesDRegister() {
+        return false;
+    }
 }

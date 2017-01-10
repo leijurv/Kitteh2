@@ -64,7 +64,11 @@ public class TACPointerRef extends TACStatement {
             if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
                 othersource = params[1];
             } else {
-                othersource = X86Register.D.getRegister((TypeNumerical) params[1].getType());
+                X86Register ohno = X86Register.A;
+                if (params[0] instanceof X86TypedRegister && ((X86TypedRegister) params[0]).getRegister() == X86Register.A) {
+                    ohno = X86Register.C;
+                }
+                othersource = ohno.getRegister((TypeNumerical) params[1].getType());
                 emit.move(params[1], othersource);
             }
             String o = offset == 0 ? "" : "" + offset;

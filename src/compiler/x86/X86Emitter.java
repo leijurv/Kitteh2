@@ -44,6 +44,10 @@ public class X86Emitter {
         if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {//honestly, there's so much sketchy code calling this that... whatever
             throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
         }
+        if (a instanceof X86Const && a.x86().equals("$0") && b instanceof X86TypedRegister) {
+            addStatement("xor" + ((TypeNumerical) a.getType()).x86typesuffix() + " " + b.x86() + ", " + b.x86());
+            return;
+        }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
     private void move(String a, String b, TypeNumerical type) {

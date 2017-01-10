@@ -167,7 +167,6 @@ public class TACStandard extends TACStatement {
             }
         }
         if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2])) {
-            emit.addComment("WOW");
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

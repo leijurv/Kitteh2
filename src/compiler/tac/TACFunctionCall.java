@@ -110,7 +110,12 @@ public class TACFunctionCall extends TACStatement {
             return;
         }
         if (header.name.equals("malloc")) {
-            emit.cast(params[0], X86Register.DI.getRegister(new TypeInt64()));
+            X86Param t = X86Register.DI.getRegister(new TypeInt64());
+            if (params[0] instanceof X86Const) {
+                emit.moveStr(params[0].x86(), t);
+            } else {
+                emit.cast(params[0], t);
+            }
             stack = false;
         }
         if (header.name.equals("free")) {

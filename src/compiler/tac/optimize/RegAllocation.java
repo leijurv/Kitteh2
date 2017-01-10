@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class RegAllocation {
     static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp) {
-        if (TACFunctionCall.RETURN_REGISTERS.contains(register)) {
+        if (TACFunctionCall.RETURN_REGISTERS.contains(register) && maxDistance != 1) {
             //this dynamic check is here in case i add a return / syscall register and forget
             throw new IllegalStateException(register + "");
         }

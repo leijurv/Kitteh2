@@ -178,6 +178,10 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
+        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister()) {
+            aa = X86Register.D.getRegister(type);
+            a = aa.x86();
+        }
         if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2]) && op != MOD && op != DIVIDE) {
             aa = (X86TypedRegister) result;
             a = result.x86();
@@ -200,6 +204,8 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
                 break;
             case MOD:
+                emit.move(aa, X86Register.A);
+                emit.move(cc, X86Register.C);
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement(signExtend(type.getSizeBytes()));
                 } else {
@@ -207,7 +213,7 @@ public class TACStandard extends TACStatement {
                     emit.move(aa, d);
                     emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }
-                emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
+                emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.move(X86Register.D, result);
                 return;
             case USHIFT_L:
@@ -236,6 +242,8 @@ public class TACStandard extends TACStatement {
                     emit.addStatement("div" + type.x86typesuffix() + " " + c + ", " + a);
                     break;
                 }
+                emit.move(aa, X86Register.A);
+                emit.move(cc, X86Register.C);
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement(signExtend(type.getSizeBytes()));
                 } else {
@@ -243,7 +251,7 @@ public class TACStandard extends TACStatement {
                     emit.move(aa, d);
                     emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }
-                emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
+                emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.move(X86Register.A, result);
                 return;
             case MULTIPLY:

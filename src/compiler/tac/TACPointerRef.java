@@ -64,15 +64,15 @@ public class TACPointerRef extends TACStatement {
             if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
                 othersource = params[1];
             } else {
-                othersource = X86Register.A.getRegister((TypeNumerical) params[1].getType());
+                othersource = X86Register.D.getRegister((TypeNumerical) params[1].getType());
                 emit.move(params[1], othersource);
             }
             String o = offset == 0 ? "" : "" + offset;
             emit.moveStr(source, o + "(" + othersource.x86() + ")");
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
-            emit.move(params[1], X86Register.A);
-            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), "%rbp", offset, "%rax", ts, emit);
+            emit.move(params[1], X86Register.C);
+            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), "%rbp", offset, "%rcx", ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }

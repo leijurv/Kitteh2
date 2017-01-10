@@ -98,31 +98,30 @@ struct bigint{
 	}
 	leftshift(int amount){
 		this.stripLeadingZero()
-		nInts:=amount>>>5
-		nBits:=amount&31
-		magLen:=this.cap
-		int* n
-		nl:=magLen+nInts
+		n:=(int*)0
 		val:=this.mag
+		magLen:=this.cap
+		nBits:=amount&31
+		i:=0
+		nl:=magLen+amount>>>5
+		nInts:=amount>>>5
 		if nBits==0{
 			if nInts==0{
 				return
 			}
 			n=(int*)malloc((magLen+nInts)<<2)
-			for i:=magLen; i<nl; i++{
-				n[i]=0
+			for i2:=magLen; i2<nl; i2++{
+				n[i2]=0
 			}
-			for i:=0; i<magLen; i++{
-				n[i]=val[i]
+			for i3:=0; i3<magLen; i3++{
+				n[i3]=val[i3]
 			}
 		}else{
-			i:=0
-			nBits2:=32-nBits
-			highBits:=val[0]>>>nBits2
+			highBits:=val[0]>>>(32-nBits)
 			if highBits!=0{
 				n=(int*)malloc((magLen+nInts+1)<<2)
-				for k:=magLen-1; k<nl; k++{
-					n[k]=0
+				for k4:=magLen-1; k4<nl; k4++{
+					n[k4]=0
 				}
 				nl++
 				n[i]=highBits
@@ -131,36 +130,37 @@ struct bigint{
 				if nInts==0{
 					
 			         int n2 = 32 - amount;
-			         int k=0
+			         int k2=0
 			         c:=val[0]
 			         m:=magLen-1
-			         for k<m {
+			         for k2<m {
 			             int b = c;
-			             c = val[k+1];
-			             val[k] = (b << amount) | (c >>> n2);
-			             k++
+			             c = val[k2+1];
+			             val[k2] = (b << amount) | (c >>> n2);
+			             k2++
 			         }
 			         val[m] = val[m]<<amount;
 			         this.size=this.size+amount
 					return
 				}
 				n=(int*)malloc((magLen+nInts)<<2)
-				for k:=magLen; k<nl; k++{
-					n[k]=0
+				for k3:=nl-1; k3>=magLen; k3--{
+					n[k3]=0
 				}
 			}
-			j:=0
-			for j < magLen-1{
-				n[i]=(val[j]<<nBits)|(val[j+1]>>>nBits2)
-				j++
+			jj:=0
+			nBits2:=32-nBits
+			for jj < magLen-1{
+				n[i]=(val[jj]<<nBits)|(val[jj+1]>>>nBits2)
+				jj++
 				i++
 			}
-			n[i]=val[j]<<nBits
+			n[i]=val[jj]<<nBits
 		}
-		free(val)
 		this.mag=n
 		this.size=nl<<5
 		this.cap=nl
+		free(val)
 		this.stripLeadingZero()
 	}
 	free(){

@@ -4,10 +4,12 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Comparison;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -46,22 +48,33 @@ public class TACJumpCmp extends TACJump {
         if (!first.getType().equals(second.getType())) {
             throw new IllegalStateException("an apple and an orange snuck in");
         }
+        Operator o = createCompare(first, second, op, emit);
+        String jump = X86Comparison.tox86jump(o);
+        if (first.getType() instanceof TypeFloat) {
+            jump = jump.replace("l", "b").replace("g", "a");//i actually want to die
+        }
+        emit.addStatement(jump + " " + emit.lineToLabel(jumpTo));
+    }
+    public static Operator createCompare(X86Param first, X86Param second, Operator op, X86Emitter emit) {
+        Operator o = op;
+        if (first instanceof X86Const && second instanceof VarInfo) {
+            X86Param tmp = first;
+            first = second;
+            second = tmp;
+            o = o.invert();
+        }
         TypeNumerical type = (TypeNumerical) first.getType();
-        X86TypedRegister noplease = type instanceof TypeFloat ? X86Register.XMM0.getRegister(type) : X86Register.C.getRegister(type);
-        if (first instanceof X86TypedRegister) {
-            noplease = (X86TypedRegister) first;
+        X86Param fst = type instanceof TypeFloat ? X86Register.XMM0.getRegister(type) : X86Register.C.getRegister(type);
+        if (first instanceof X86TypedRegister || second instanceof X86Const) {
+            fst = first;
         } else {
-            emit.move(first, noplease);
+            emit.move(first, fst);
         }
         String comparison = "cmp" + type.x86typesuffix();
         if (first.getType() instanceof TypeFloat) {
             comparison = "ucomiss";//please, x86, why
         }
-        emit.addStatement(comparison + " " + second.x86() + ", " + noplease.x86());
-        String jump = X86Comparison.tox86jump(op);
-        if (first.getType() instanceof TypeFloat) {
-            jump = jump.replace("l", "b").replace("g", "a");//i actually want to die
-        }
-        emit.addStatement(jump + " " + emit.lineToLabel(jumpTo));
+        emit.addStatement(comparison + " " + second.x86() + ", " + fst.x86());
+        return o;
     }
 }

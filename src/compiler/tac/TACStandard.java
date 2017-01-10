@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.Operator;
+import static compiler.Operator.*;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeFloat;
@@ -60,7 +61,7 @@ public class TACStandard extends TACStatement {
             throw new IllegalThreadStateException();
         }
         if (!params[0].getType().equals(params[1].getType())) {
-            if (params[0].getType() instanceof TypePointer && (op == Operator.PLUS || op == Operator.MINUS)) {
+            if (params[0].getType() instanceof TypePointer && (op == PLUS || op == MINUS)) {
                 return;
             }
             throw new IllegalStateException(this + "");
@@ -89,23 +90,33 @@ public class TACStandard extends TACStatement {
         //}
         X86Param result = params[2];
         if (secondName.equals("1")) {
-            if (!firstName.equals(paramNames[2]) && (op == Operator.PLUS || op == Operator.MINUS)) {
+            if (!firstName.equals(paramNames[2]) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
             }
-            if (op == Operator.PLUS) {
+            if (op == PLUS) {
                 emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
                 return;
             }
-            if (op == Operator.MINUS) {
+            if (op == MINUS) {
                 emit.addStatement("dec" + type.x86typesuffix() + " " + result.x86());
                 return;
             }
         }
-        if (firstName.equals("1") && op == Operator.PLUS) {
+        if (firstName.equals("1") && op == PLUS) {
             if (!secondName.equals(paramNames[2])) {
                 TACConst.move(result, second, emit);
             }
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
+            return;
+        }
+        if (op == LESS || op == GREATER || op == EQUAL || op == NOT_EQUAL || op == GREATER_OR_EQUAL || op == LESS_OR_EQUAL) {
+            Operator o = TACJumpCmp.createCompare(first, second, op, emit);
+            String set = X86Comparison.tox86set(o);
+            if (first.getType() instanceof TypeFloat) {
+                set = set.replace("l", "b").replace("g", "a");//i actually want to die
+            }
+            emit.addStatement(set + " %cl");
+            emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
             return;
         }
         X86TypedRegister aa = X86Register.A.getRegister(type);
@@ -146,7 +157,7 @@ public class TACStandard extends TACStatement {
             thing = true;
         }
         if (thing) {
-            if ((second instanceof X86Const || second instanceof X86TypedRegister) && !(op == Operator.MOD || op == Operator.DIVIDE || ((second instanceof X86TypedRegister) && (op == Operator.USHIFT_L || op == Operator.USHIFT_R || op == Operator.SHIFT_L || op == Operator.SHIFT_R)))) {
+            if ((second instanceof X86Const || second instanceof X86TypedRegister) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
                 c = second.x86();
                 shaft = c;
             } else {
@@ -232,24 +243,6 @@ public class TACStandard extends TACStatement {
             case MULTIPLY:
                 emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);
                 emit.move(aa, result);
-                break;
-            case LESS:
-            case GREATER:
-            case EQUAL:
-            case NOT_EQUAL:
-            case GREATER_OR_EQUAL:
-            case LESS_OR_EQUAL:
-                String comparison = "cmp" + type.x86typesuffix();
-                if (type instanceof TypeFloat) {
-                    comparison = "ucomiss";//please, x86, why
-                }
-                emit.addStatement(comparison + " " + c + ", " + a);
-                String set = X86Comparison.tox86set(op);
-                if (first.getType() instanceof TypeFloat) {
-                    set = set.replace("l", "b").replace("g", "a");//i actually want to die
-                }
-                emit.addStatement(set + " %cl");
-                emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
                 break;
             default:
                 throw new IllegalStateException(op + "");

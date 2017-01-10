@@ -156,7 +156,6 @@ public class TACStandard extends TACStatement {
                 if (c.equals("$1")) {
                     emit.addStatement("inc" + type.x86typesuffix() + " " + a);
                     emit.move(aa, result);
-                    emit.move(aa, result);
                     break;
                 }
                 emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);

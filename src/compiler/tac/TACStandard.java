@@ -69,7 +69,7 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public boolean usesDRegister() {//I'm sorry. I'm really really sorry.
-        if (op == MOD) {
+        if (op == MOD || op == DIVIDE) {//even though the x86 string for divide won't contain the d register, it will overwrite the d register (via cqto)
             return true;
         }
         X86Emitter emit = new X86Emitter("");

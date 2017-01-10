@@ -89,6 +89,9 @@ public class TACFunctionCall extends TACStatement {
     public String calling() {
         return header.name;
     }
+    public int numArgs() {
+        return header.inputs().size();
+    }
     public int argsSize() {
         return header.inputs().stream().mapToInt(Type::getSizeBytes).sum();
     }

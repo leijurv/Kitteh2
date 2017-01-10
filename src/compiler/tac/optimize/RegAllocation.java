@@ -94,7 +94,7 @@ public class RegAllocation {
                             if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
                                 continue https;
                             }
-                            List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.argsSize());//if this syscall only uses 1 argument register, the rest are actually ok to use
+                            List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs());//if this syscall only uses 1 argument register, the rest are actually ok to use
                             if (args.contains(register)) {//just make sure this register isn't one of the ones this syscall is using
                                 continue https;
                             }

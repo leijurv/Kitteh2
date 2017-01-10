@@ -31,9 +31,12 @@ print(long input){
 	if neg{
 		result[0]='-'//but add the minus sign to the beginning of the output
 	}
-	aoeu:=result+1-1
-	write(aoeu,totalSize)
-	free(aoeu)
+	if MACOSX{
+		syscall(2<<24+4,1,result,totalSize)
+	}else{
+		syscall(1,1,result,totalSize)
+	}
+	free(result)
 }
 writeByte(byte b){
 	arr:=(byte*)malloc(1)

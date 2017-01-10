@@ -119,6 +119,14 @@ public class TACStandard extends TACStatement {
             emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
             return;
         }
+        if (result instanceof X86TypedRegister && secondName.equals(paramNames[2]) && op.inputsReversible()) {
+            X86Param tmp = first;
+            String tmp2 = firstName;
+            first = second;
+            firstName = secondName;
+            second = tmp;
+            secondName = tmp2;
+        }
         X86TypedRegister aa = X86Register.A.getRegister(type);
         X86TypedRegister cc = X86Register.C.getRegister(type);
         if (type instanceof TypeFloat) {

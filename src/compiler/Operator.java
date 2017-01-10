@@ -70,6 +70,22 @@ public enum Operator implements Token<Operator> {
         //reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
         //return ops;
     }
+    public boolean inputsReversible() {
+        switch (this) {
+            case PLUS:
+            case MULTIPLY:
+            case L_OR:
+            case L_AND:
+            case L_XOR:
+            case EQUAL:
+            case NOT_EQUAL:
+            case OR:
+            case AND:
+                return true;
+            default:
+                return false;
+        }
+    }
     public Type onApplication(Type a, Type b) {
         switch (this) {
             case PLUS:

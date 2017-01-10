@@ -7,7 +7,6 @@ package compiler.tac;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
-import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
@@ -111,8 +110,7 @@ public class TACFunctionCall extends TACStatement {
             return;
         }
         if (header.name.equals("malloc")) {
-            emit.addStatement("xorq %rdi, %rdi");//clear out the top of the register
-            emit.move(params[0], X86Register.DI.getRegister(new TypeInt32()));
+            emit.cast(params[0], X86Register.DI.getRegister(new TypeInt64()));
             stack = false;
         }
         if (header.name.equals("free")) {

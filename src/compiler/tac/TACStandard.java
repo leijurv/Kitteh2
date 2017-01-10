@@ -121,15 +121,13 @@ public class TACStandard extends TACStatement {
         }
         X86TypedRegister aa = X86Register.A.getRegister(type);
         X86TypedRegister cc = X86Register.C.getRegister(type);
-        X86TypedRegister dd = X86Register.D.getRegister(type);
         if (type instanceof TypeFloat) {
             aa = X86Register.XMM0.getRegister(type);
             cc = X86Register.XMM1.getRegister(type);
         }
         String a = aa.x86();
         String c = cc.x86();
-        String d = type instanceof TypeFloat ? null : dd.x86();
-        TACConst.move(aa, first, emit);
+        boolean ma = false;
         String shaft = X86Register.C.getRegister(new TypeInt8()).x86();
         boolean thing = false;
         if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const || second instanceof X86TypedRegister)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
@@ -168,84 +166,83 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
+        if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2])) {
+            emit.addComment("WOW");
+            aa = (X86TypedRegister) result;
+            a = result.x86();
+            ma = true;
+        }
+        TACConst.move(aa, first, emit);
         switch (op) {
             case PLUS:
                 if (c.equals("$1")) {
                     emit.addStatement("inc" + type.x86typesuffix() + " " + a);
-                    emit.move(aa, result);
                     break;
                 }
                 emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             case MINUS:
                 if (c.equals("$1")) {
                     emit.addStatement("dec" + type.x86typesuffix() + " " + a);
-                    emit.move(aa, result);
                     break;
                 }
                 emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             case MOD:
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement(signExtend(type.getSizeBytes()));
                 } else {
-                    emit.move(aa, dd);
-                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                    X86Param d = X86Register.D.getRegister(type);
+                    emit.move(aa, d);
+                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
-                emit.move(dd, result);
-                break;
+                emit.move(X86Register.D, result);
+                return;
             case USHIFT_L:
                 emit.addStatement("shl" + type.x86typesuffix() + " " + shaft + ", " + a);
-                emit.move(aa, result);
                 break;
             case USHIFT_R:
                 emit.addStatement("shr" + type.x86typesuffix() + " " + shaft + ", " + a);
-                emit.move(aa, result);
                 break;
             case SHIFT_L:
                 emit.addStatement("sal" + type.x86typesuffix() + " " + shaft + ", " + a);
-                emit.move(aa, result);
                 break;
             case SHIFT_R:
                 emit.addStatement("sar" + type.x86typesuffix() + " " + shaft + ", " + a);
-                emit.move(aa, result);
                 break;
             case L_XOR:
                 emit.addStatement("xor" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             case L_AND:
                 emit.addStatement("and" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             case L_OR:
                 emit.addStatement("or" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             case DIVIDE:
                 if (type instanceof TypeFloat) {
                     emit.addStatement("div" + type.x86typesuffix() + " " + c + ", " + a);
-                    emit.move(aa, result);
                     break;
                 }
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement(signExtend(type.getSizeBytes()));
                 } else {
-                    emit.move(aa, dd);
-                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d);
+                    X86Param d = X86Register.D.getRegister(type);
+                    emit.move(aa, d);
+                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + c);
-                emit.move(aa, result);
-                break;
+                emit.move(X86Register.A, result);
+                return;
             case MULTIPLY:
                 emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);
-                emit.move(aa, result);
                 break;
             default:
                 throw new IllegalStateException(op + "");
+        }
+        if (!ma) {
+            emit.move(aa, result);
         }
     }
     private static String signExtend(int size) {

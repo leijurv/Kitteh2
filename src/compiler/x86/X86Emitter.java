@@ -48,6 +48,9 @@ public class X86Emitter {
             addStatement("xor" + ((TypeNumerical) a.getType()).x86typesuffix() + " " + b.x86() + ", " + b.x86());
             return;
         }
+        if (a.x86().equals(b.x86())) {
+            return;
+        }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
     private void move(String a, String b, TypeNumerical type) {

@@ -178,7 +178,7 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
-        if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2])) {
+        if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2]) && op != MOD && op != DIVIDE) {
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

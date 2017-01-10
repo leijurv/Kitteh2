@@ -68,7 +68,7 @@ public class TACPointerRef extends TACStatement {
                 emit.move(params[1], othersource);
             }
             String o = offset == 0 ? "" : "" + offset;
-            emit.moveStr(source, o + "(" + othersource + ")");
+            emit.moveStr(source, o + "(" + othersource.x86() + ")");
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
             emit.move(params[1], X86Register.A);

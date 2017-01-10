@@ -553,12 +553,13 @@ bneg:=bb.neg
 	a.stripLeadingZero()
 	bb.stripLeadingZero()
 	b:=bb
+	resultt:=new((a.cap+b.cap)<<5)
 	mask:=mask(0)
 	x:=a.mag
 	y:=b.mag
 	xlen:=a.cap
 	ylen:=b.cap
-	resultt:=new((xlen+ylen)<<5)
+	
 	z:=resultt.mag
 	int xstart = xlen - 1;
         int ystart = ylen - 1;
@@ -580,9 +581,9 @@ bneg:=bb.neg
              j=ystart
             k=ystart+1+i
             for (j>=0) {
-                long product = ((long)y[j] & mask) * ((long)x[i] & mask) +((long)z[k] & mask) + carry;
-                z[k] = (int)product;
-                carry = product >>> 32;
+                long product2 = ((long)y[j] & mask) * ((long)x[i] & mask) +((long)z[k] & mask) + carry;
+                z[k] = (int)product2;
+                carry = product2 >>> 32;
                 j--
                 k--
             }

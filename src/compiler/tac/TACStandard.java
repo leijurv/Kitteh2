@@ -198,16 +198,13 @@ public class TACStandard extends TACStatement {
             a = result.x86();
             ma = true;
         }
-        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister() && !ma) {
-            emit.addComment(cc + "" + c);
-            if (cc instanceof X86TypedRegister && ((X86TypedRegister) cc).getRegister() == X86Register.C) {
-                if (cc.x86().equals(c)) {
-                    aa = X86Register.D.getRegister(type);
-                } else {
-                    aa = X86Register.C.getRegister(type);
-                }
-                a = aa.x86();
+        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister() && !ma && cc instanceof X86TypedRegister && ((X86TypedRegister) cc).getRegister() == X86Register.C) {
+            if (cc.x86().equals(c)) {
+                aa = X86Register.D.getRegister(type);
+            } else {
+                aa = X86Register.C.getRegister(type);
             }
+            a = aa.x86();
         }
         TACConst.move(aa, first, emit);
         switch (op) {

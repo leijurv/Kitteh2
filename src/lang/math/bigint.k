@@ -97,11 +97,42 @@ struct bigint{
 		free(out)
 	}
 	leftshift(int amount){
+		vval:=this.mag
+		c:=vval[0]
+		if (amount&31)!=0 && (amount>>>5)==0 && c>>>(32-(amount&31))==0{
+			tc:=this.cap
+			s:=false
+			for iiii:=this.size-1;iiii>=0;iiii--{
+				if ((long)vval[tc-iiii>>>5-1])&((long)1<<((long)iiii&(long)31))!=(long)0{
+					this.size=iiii+1+amount
+					s=true
+					break
+				}
+			}
+			if !s{
+				this.neg=false //cant have negative zero
+				this.size=1
+				return
+			}
+			int n2 = 32 - amount;
+	        int k2=0
+	        
+	        m:=tc-1
+	        bbb:=32-n2
+	        for k2<m {
+	            int b = c;
+	            c = vval[k2+1];
+	            vval[k2] = (b << bbb) | (c >>> n2);
+	            k2++
+	        }
+	        vval[m] = vval[m]<<bbb;
+			return
+		}
 		this.stripLeadingZero()
-		n:=(int*)0
 		val:=this.mag
 		magLen:=this.cap
 		nBits:=amount&31
+		n:=(int*)0
 		i:=0
 		nl:=magLen+amount>>>5
 		nInts:=amount>>>5
@@ -117,6 +148,7 @@ struct bigint{
 				n[i3]=val[i3]
 			}
 		}else{
+
 			highBits:=val[0]>>>(32-nBits)
 			if highBits!=0{
 				n=(int*)malloc((magLen+nInts+1)<<2)
@@ -127,22 +159,7 @@ struct bigint{
 				n[i]=highBits
 				i++
 			}else{
-				if nInts==0{
-					
-			         int n2 = 32 - amount;
-			         int k2=0
-			         c:=val[0]
-			         m:=magLen-1
-			         for k2<m {
-			             int b = c;
-			             c = val[k2+1];
-			             val[k2] = (b << amount) | (c >>> n2);
-			             k2++
-			         }
-			         val[m] = val[m]<<amount;
-			         this.size=this.size+amount
-					return
-				}
+			
 				n=(int*)malloc((magLen+nInts)<<2)
 				for k3:=nl-1; k3>=magLen; k3--{
 					n[k3]=0
@@ -150,7 +167,8 @@ struct bigint{
 			}
 			jj:=0
 			nBits2:=32-nBits
-			for jj < magLen-1{
+			aaa:=magLen-1
+			for jj < aaa{
 				n[i]=(val[jj]<<nBits)|(val[jj+1]>>>nBits2)
 				jj++
 				i++
@@ -653,6 +671,73 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.neg=aneg
 	return res,d
 }
+/*dividemod(bigint*a,bigint*b)bigint*,bigint*{
+	a.stripLeadingZero()
+	bneg:=b.neg
+	b.neg=false
+	aneg:=a.neg
+	a.neg=false
+	d:=new(1)
+	res:=new(a.size)
+	dhs:=d.highestbitset()
+	bhs:=b.highestbitset()
+	e:=a.size-1
+	for  e>=0{
+		d.leftshift(1)
+				aoeu:=a.bit(e)
+				d.setbit(0,aoeu)
+				if dhs==0-1{
+					if aoeu{
+						dhs=0
+					}
+
+				}else{
+					dhs++
+					if(dhs!=d.highestbitset()){
+				print("wew")
+
+					print(dhs)
+				print(d.highestbitset())
+				dhs=d.highestbitset()
+				}
+				}
+				
+				
+		if dhs<bhs{
+			if dhs==bhs-1{
+				
+			}else{
+				if(e-(bhs-dhs)>=0-1){
+					d.leftshift(bhs-dhs)
+					dhs=bhs
+					df:=bhs-dhs
+					for jj:=0; jj<df; jj++{
+						d.setbit(df-jj-1,a.bit(e-jj))
+					}
+					e=e-df+1
+				}
+			}
+		}
+		if dhs>=bhs{//keep track of the highest set bit to avoid full greater calc
+			g:=greater(b,d)
+			if(!g){
+				old:=d
+				d=trustedSubtract(d,b)
+				dhs=d.highestbitset()
+				old.free()
+				res.setbit(e,true)
+			}
+		}
+		e--
+	}
+	res.stripLeadingZero()
+	d.stripLeadingZero()
+	res.neg=aneg!=bneg
+	d.neg=aneg
+	b.neg=bneg
+	a.neg=aneg
+	return res,d
+}*/
 divide(bigint*a,bigint*b)bigint*{
 	quotient,remainder:=dividemod(a,b)
 	free(remainder)

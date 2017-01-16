@@ -96,6 +96,38 @@ struct bigint{
 		writeNullTerm(out)
 		free(out)
 	}
+	leftshiftone(){
+		vval:=this.mag
+		c:=vval[0]
+		if c>>>31==0{
+			tc:=this.cap
+			s:=false
+			for iiii:=this.size-1;iiii>=0;iiii--{
+				if ((long)vval[tc-iiii>>>5-1])&((long)1<<((long)iiii&(long)31))!=(long)0{
+					this.size=iiii+2
+					s=true
+					break
+				}
+			}
+			if !s{
+				this.neg=false //cant have negative zero
+				this.size=1
+				return
+			}
+	        int k2=0
+	        
+	        m:=tc-1
+	        for k2<m {
+	            int b = c;
+	            c = vval[k2+1];
+	            vval[k2] = (b << 1) | (c >>> 31);
+	            k2++
+	        }
+	        vval[m] = vval[m]<<1;
+			return
+		}
+		this.leftshift(1)
+	}
 	leftshift(int amount){
 		vval:=this.mag
 		c:=vval[0]
@@ -624,7 +656,7 @@ bneg:=bb.neg
 			res=add(res,b)
 			old.free()
 		}
-		b.leftshift(1)
+		b.leftshiftone()
 	}
 	res.neg=aneg!=bneg
 	a.neg=aneg
@@ -649,7 +681,7 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	dhs:=0-1
 	bhs:=b.highestbitset()
 	for e:=a.size-1;e>=0;e--{
-		d.leftshift(1)
+		d.leftshiftone()
 		dhs++
 		d.setbit(0,a.bit(e))
 		if dhs>=bhs{//keep track of the highest set bit to avoid full greater calc
@@ -783,10 +815,10 @@ charFromHex(byte char) byte{
 		return char-'0'
 	}
 	if char>='a' && char<='f'{
-		return 10+char-'a'
+		return char+(10-'a')
 	}
 	if char>='A' && char<='F'{
-		return 10+char-'A'
+		return char+(10-'A')
 	}
 	return char
 }

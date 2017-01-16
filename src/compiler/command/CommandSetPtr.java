@@ -51,14 +51,14 @@ public class CommandSetPtr extends Command {
                 }
             }
         }
-        return null;
+        return new Expression[0];
     }
     @Override
     protected void generateTAC0(IREmitter emit) {
         Expression[] eo = tryOffsetBased(pointer);
         Expression der;
         int offset;
-        if (eo != null) {
+        if (eo.length != 0) {
             ExpressionConstNum cons = (ExpressionConstNum) eo[0];
             offset = cons.getVal().intValue();
             der = eo[1];
@@ -75,7 +75,7 @@ public class CommandSetPtr extends Command {
     }
     @Override
     protected int calculateTACLength() {
-        return (tryOffsetBased(pointer) != null ? tryOffsetBased(pointer)[1] : pointer).getTACLength() + value.getTACLength() + 1;
+        return (tryOffsetBased(pointer).length != 0 ? tryOffsetBased(pointer)[1] : pointer).getTACLength() + value.getTACLength() + 1;
     }
     @Override
     public void staticValues() {

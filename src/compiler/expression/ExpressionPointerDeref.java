@@ -37,7 +37,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
         Expression[] eo = tryOffsetBased();
         Expression der;
         int offset;
-        if (eo != null) {
+        if (eo.length != 0) {
             ExpressionConstNum cons = (ExpressionConstNum) eo[0];
             offset = cons.getVal().intValue();
             der = eo[1];
@@ -51,7 +51,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
     }
     @Override
     protected int calculateTACLength() {
-        return tryOffsetBased() == null ? deReferencing.getTACLength() + 1 : tryOffsetBased()[1].getTACLength() + 1;
+        return tryOffsetBased().length == 0 ? deReferencing.getTACLength() + 1 : tryOffsetBased()[1].getTACLength() + 1;
     }
     @Override
     public Expression calculateConstants() {

@@ -39,6 +39,8 @@ public class Main {
         boolean executable = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
+                default:
+                    continue;
                 case "-i":
                     if (i + 1 == args.length) {
                         throw new IllformedLocaleException("You gotta give a file");
@@ -76,8 +78,6 @@ public class Main {
                 case "-executable":
                 case "--executable":
                     executable = true;
-                default:
-                    break;
             }
         }
         String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);

@@ -50,7 +50,7 @@ public class X86Emitter {
             return;
         }
         if (a.x86().equals(b.x86())) {
-            addComment("redundant move omitted");
+            addComment("redundant move omitted: " + a.x86() + " to " + b.x86());
             return;
         }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
@@ -77,7 +77,7 @@ public class X86Emitter {
         statements.add(lbl + ":");
     }
     public void addComment(String cmt) {
-        statements.add("#" + cmt);
+        statements.add("#    " + cmt);
     }
     public String lineToLabel(int line) {
         String rsp = prefix + line;

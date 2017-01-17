@@ -49,12 +49,11 @@ public class TypeStruct extends Type {
             throw new RuntimeException();
         }
         new BlockFinder().apply(rawBlock);
-        for (int i = 0; i < rawBlock.size(); i++) {
-            Line thisLine = (Line) rawBlock.get(i);
-            if (i != rawBlock.size() - 1 && rawBlock.get(i + 1) instanceof ArrayList) {
-                ArrayList<Object> functionContents = (ArrayList<Object>) rawBlock.remove(i + 1);
-                rawBlock.remove(i);
-                i = -1;
+        while (!rawBlock.isEmpty()) {
+            Line thisLine = (Line) rawBlock.get(0);
+            if (rawBlock.size() != 1 && rawBlock.get(1) instanceof ArrayList) {
+                ArrayList<Object> functionContents = (ArrayList<Object>) rawBlock.remove(1);
+                rawBlock.remove(0);
                 List<Token> params = thisLine.getTokens();
                 if (params.get(0) == Keyword.FUNC) {
                     //optional
@@ -71,8 +70,7 @@ public class TypeStruct extends Type {
                 structMethods.add(new CommandDefineFunction(this, subContext, params, functionName, functionContents));
                 continue;
             }
-            rawBlock.remove(i);
-            i = -1;
+            rawBlock.remove(0);
             List<Token> tokens = thisLine.getTokens();
             if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
                 throw new RuntimeException(tokens + "");

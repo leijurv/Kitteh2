@@ -40,15 +40,15 @@ public enum Operator implements Token<Operator> {
     LESS("<", 10),
     GREATER_OR_EQUAL(">=", 10),
     LESS_OR_EQUAL("<=", 10),
-    OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     SHIFT_L("<<", 1500, "sal"),
     SHIFT_R(">>", 1500, "sar"),
     USHIFT_L("<<<", 1500, "shl"),
     USHIFT_R(">>>", 1500, "shr"),
     L_XOR("^", 2000, "xor"),
-    L_AND("&", 1900, "and"),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
     L_OR("|", 1800, "or"),
-    AND("&&", 5);
+    L_AND("&", 1900, "and"),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
+    OR("||", 4),
+    AND("&&", 5);//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
     public static final List<List<Operator>> ORDER;//sorry this can't be the first line
     private final String str;
     private final int precedence;

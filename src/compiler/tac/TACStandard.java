@@ -222,19 +222,6 @@ public class TACStandard extends TACStatement {
             case MINUS:
                 emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
                 break;
-            case MOD:
-                emit.move(aa, X86Register.A);
-                emit.move(cc, X86Register.C);
-                if (type.getSizeBytes() == 8) {
-                    emit.addStatement(signExtend(type.getSizeBytes()));
-                } else {
-                    X86Param d = X86Register.D.getRegister(type);
-                    emit.move(aa, d);
-                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
-                }
-                emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
-                emit.move(X86Register.D, result);
-                return;
             case USHIFT_L:
                 emit.addStatement("shl" + type.x86typesuffix() + " " + shaft + ", " + a);
                 break;
@@ -272,6 +259,19 @@ public class TACStandard extends TACStatement {
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.move(X86Register.A, result);
+                return;
+            case MOD:
+                emit.move(aa, X86Register.A);
+                emit.move(cc, X86Register.C);
+                if (type.getSizeBytes() == 8) {
+                    emit.addStatement(signExtend(type.getSizeBytes()));
+                } else {
+                    X86Param d = X86Register.D.getRegister(type);
+                    emit.move(aa, d);
+                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
+                }
+                emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
+                emit.move(X86Register.D, result);
                 return;
             case MULTIPLY:
                 emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);

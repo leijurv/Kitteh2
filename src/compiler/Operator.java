@@ -20,6 +20,7 @@ import java.nio.file.FileSystemAlreadyExistsException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,8 +29,8 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public enum Operator implements Token<Operator> {
-    PLUS("+", 50),
-    MINUS("-", 50),
+    PLUS("+", 50, "add"),
+    MINUS("-", 50, "sub"),
     MULTIPLY("*", 100),
     DIVIDE("/", 100),
     MOD("%", 1000),
@@ -40,20 +41,31 @@ public enum Operator implements Token<Operator> {
     GREATER_OR_EQUAL(">=", 10),
     LESS_OR_EQUAL("<=", 10),
     OR("||", 4),//OR has less precedence than AND.   so a || b && c will actually be a || (b && c)
-    SHIFT_L("<<", 1500),
-    SHIFT_R(">>", 1500),
-    USHIFT_L("<<<", 1500),
-    USHIFT_R(">>>", 1500),
-    L_XOR("^", 2000),
-    L_AND("&", 1900),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
-    L_OR("|", 1800),
+    SHIFT_L("<<", 1500, "sal"),
+    SHIFT_R(">>", 1500, "sar"),
+    USHIFT_L("<<<", 1500, "shl"),
+    USHIFT_R(">>>", 1500, "shr"),
+    L_XOR("^", 2000, "xor"),
+    L_AND("&", 1900, "and"),//or has less precedence than and.   so a | b & c will actually be a | (b & c)
+    L_OR("|", 1800, "or"),
     AND("&&", 5);
     public static final List<List<Operator>> ORDER;//sorry this can't be the first line
     private final String str;
     private final int precedence;
+    private final Optional<String> x86;
     private Operator(String str, int precedence) {
+        this(str, precedence, Optional.empty());
+    }
+    private Operator(String str, int precedence, String x86) {
+        this(str, precedence, Optional.of(x86));
+    }
+    private Operator(String str, int precedence, Optional<String> x86) {
         this.str = str;
         this.precedence = precedence;
+        this.x86 = x86;
+    }
+    public String x86() {
+        return x86.get();
     }
     @Override
     public String toString() {

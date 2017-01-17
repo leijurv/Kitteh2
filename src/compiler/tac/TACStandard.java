@@ -201,48 +201,7 @@ public class TACStandard extends TACStatement {
             a = aa.x86();
         }
         TACConst.move(aa, first, emit);
-        if (op == Operator.PLUS && c.equals("$1")) {
-            emit.addStatement("inc" + type.x86typesuffix() + " " + a);
-            if (!ma) {
-                emit.move(aa, result);
-            }
-            return;
-        }
-        if (op == Operator.MINUS && c.equals("$1")) {
-            emit.addStatement("dec" + type.x86typesuffix() + " " + a);
-            if (!ma) {
-                emit.move(aa, result);
-            }
-            return;
-        }
         switch (op) {
-            case PLUS:
-                emit.addStatement("add" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
-            case MINUS:
-                emit.addStatement("sub" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
-            case USHIFT_L:
-                emit.addStatement("shl" + type.x86typesuffix() + " " + shaft + ", " + a);
-                break;
-            case USHIFT_R:
-                emit.addStatement("shr" + type.x86typesuffix() + " " + shaft + ", " + a);
-                break;
-            case SHIFT_L:
-                emit.addStatement("sal" + type.x86typesuffix() + " " + shaft + ", " + a);
-                break;
-            case SHIFT_R:
-                emit.addStatement("sar" + type.x86typesuffix() + " " + shaft + ", " + a);
-                break;
-            case L_XOR:
-                emit.addStatement("xor" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
-            case L_AND:
-                emit.addStatement("and" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
-            case L_OR:
-                emit.addStatement("or" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
             case DIVIDE:
                 if (type instanceof TypeFloat) {
                     emit.addStatement("div" + type.x86typesuffix() + " " + c + ", " + a);
@@ -276,8 +235,19 @@ public class TACStandard extends TACStatement {
             case MULTIPLY:
                 emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);
                 break;
+            case PLUS:
+                if (c.equals("$1")) {
+                    emit.addStatement("inc" + type.x86typesuffix() + " " + a);
+                    break;
+                }
+            case MINUS:
+                if (c.equals("$1")) {
+                    emit.addStatement("dec" + type.x86typesuffix() + " " + a);
+                    break;
+                }
             default:
-                throw new IllegalStateException(op + "");
+                emit.addStatement(op.x86() + type.x86typesuffix() + " " + (op.name().contains("SHIFT") ? shaft : c) + ", " + a);
+                break;
         }
         if (!ma) {
             emit.move(aa, result);

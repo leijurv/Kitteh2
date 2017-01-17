@@ -52,13 +52,13 @@ public class Main {
                         throw new LSException((short) "urmum".hashCode(), "You gotta give a file");
                     }
                     outFile = args[++i];
-                    break;
+                    continue;
                 case "-I":
                     inFile = "/dev/stdin";
                     break;
                 case "-O":
                     outFile = "/dev/stdout";
-                    break;
+                    continue;
                 case "-v":
                 case "-V":
                 case "-verbose":
@@ -67,7 +67,7 @@ public class Main {
                     break;
                 case "-m":
                     Compiler.METRICS = true;
-                    break;
+                    continue;
                 case "-d":
                     Compiler.DETERMINISTIC = true;
                     break;
@@ -78,6 +78,11 @@ public class Main {
                 case "-executable":
                 case "--executable":
                     executable = true;
+                    continue;
+                case "-obf":
+                case "--obf":
+                    Compiler.OBFUSCATE = true;
+                    break;
             }
         }
         String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);

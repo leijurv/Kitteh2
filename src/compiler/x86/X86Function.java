@@ -8,6 +8,7 @@ import compiler.tac.TACFunctionCall;
 import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimization;
+import compiler.util.Obfuscator;
 import compiler.util.Pair;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,6 +29,9 @@ class X86Function {
     private static final String FUNC_FOOTER = "\n	.cfi_endproc\n";
     public static String generateX86(Pair<String, List<TACStatement>> pair) {
         String name = pair.getA();
+        if (compiler.Compiler.obfuscate()) {
+            name = Obfuscator.obfuscate(name);
+        }
         List<TACStatement> stmts = pair.getB();
         //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);

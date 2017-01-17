@@ -26,9 +26,10 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    static transient boolean VERBOSE = false;//TODO these three should be in some form of CLI args object passed around, a la OptimizationSettings
+    static transient boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
     static transient boolean METRICS = false;
     static transient boolean DETERMINISTIC = false;
+    static transient boolean OBFUSCATE = false;
     public static boolean deterministic() {
         return DETERMINISTIC;
     }
@@ -37,6 +38,9 @@ public class Compiler {
     }
     public static boolean metrics() {
         return METRICS;
+    }
+    public static boolean obfuscate() {
+        return OBFUSCATE;
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();

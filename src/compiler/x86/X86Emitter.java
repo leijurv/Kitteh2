@@ -5,6 +5,7 @@
  */
 package compiler.x86;
 import compiler.type.TypeNumerical;
+import compiler.util.Obfuscator;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -74,7 +75,11 @@ public class X86Emitter {
         statements.add("#" + cmt);
     }
     public String lineToLabel(int line) {
-        return prefix + line;
+        String rsp = prefix + line;
+        if (compiler.Compiler.obfuscate()) {
+            rsp = "_" + Obfuscator.obfuscate(rsp);
+        }
+        return rsp;
     }
     public String toX86() {
         return statements.stream().collect(Collectors.joining("\n", "", ""));

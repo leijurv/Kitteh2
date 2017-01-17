@@ -11,6 +11,7 @@ import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.util.Obfuscator;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
@@ -165,7 +166,11 @@ public class TACFunctionCall extends TACStatement {
             //move onto stack pointer in increasing order
             stackLocation += type.getSizeBytes();
         }
-        emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + header.name);
+        String name = header.name;
+        if (compiler.Compiler.obfuscate()) {
+            name = Obfuscator.obfuscate(name);
+        }
+        emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);
         printRet(emit);
     }
     private void printRet(X86Emitter emit) {

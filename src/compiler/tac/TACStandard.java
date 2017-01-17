@@ -8,7 +8,6 @@ import compiler.Context.VarInfo;
 import compiler.Operator;
 import static compiler.Operator.*;
 import compiler.type.Type;
-import compiler.type.TypeBoolean;
 import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
@@ -134,12 +133,7 @@ public class TACStandard extends TACStatement {
             if (first.getType() instanceof TypeFloat) {
                 set = set.replace("l", "b").replace("g", "a");//i actually want to die
             }
-            if (result instanceof X86TypedRegister) {
-                emit.addStatement(set + " " + result.x86());
-            } else {
-                emit.addStatement(set + " %cl");
-                emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
-            }
+            emit.addStatement(set + " " + result.x86());
             return;
         }
         if (result instanceof X86TypedRegister && secondName.equals(paramNames[2]) && op.inputsReversible()) {

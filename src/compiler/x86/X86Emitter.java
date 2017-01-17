@@ -50,7 +50,9 @@ public class X86Emitter {
             return;
         }
         if (a.x86().equals(b.x86())) {
-            addComment("redundant move omitted: " + a.x86() + " to " + b.x86());
+            if (compiler.Compiler.verbose()) {
+                addComment("redundant move omitted: " + a.x86() + " to " + b.x86());
+            }
             return;
         }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());

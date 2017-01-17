@@ -233,15 +233,17 @@ public class TACStandard extends TACStatement {
                 emit.move(X86Register.D, result);
                 return;
             case MULTIPLY:
-                emit.addStatement((type instanceof TypeFloat ? "" : "i") + "mul" + type.x86typesuffix() + " " + c + ", " + a);
-                break;
+                if (!(type instanceof TypeFloat)) {
+                    emit.addStatement("imul" + type.x86typesuffix() + " " + c + ", " + a);
+                    break;
+                }
             case PLUS:
-                if (c.equals("$1")) {
-                    emit.addStatement("inc" + type.x86typesuffix() + " " + a);
+                if (c.equals("$1")) {//you can never multiply the $1 literal by a float (0x00 00 00 01 isn't a valid packed float anyway), so this is okay
+                    emit.addStatement("inc" + type.x86typesuffix() + " " + a);//even if it does somehow happen, "incss" isn't valid x86 so it won't fail silently *shrug*
                     break;
                 }
             case MINUS:
-                if (c.equals("$1")) {
+                if (c.equals("$1")) {//same scenario
                     emit.addStatement("dec" + type.x86typesuffix() + " " + a);
                     break;
                 }

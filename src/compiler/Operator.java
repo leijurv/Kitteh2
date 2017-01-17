@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 public enum Operator implements Token<Operator> {
     PLUS("+", 50, "add"),
     MINUS("-", 50, "sub"),
-    MULTIPLY("*", 100),
+    MULTIPLY("*", 100, "mul"),
     DIVIDE("/", 100),
     MOD("%", 1000),
     EQUAL("==", 10),

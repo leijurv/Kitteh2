@@ -83,7 +83,7 @@ public class TACStandard extends TACStatement {
         return false;
     }
     @Override
-    public void printx86(X86Emitter emit) {
+    public void printx86(X86Emitter emit) {//oh god, this function.
         String firstName = paramNames[0];//i literally can't be bothered
         String secondName = paramNames[1];
         X86Param first = params[0];

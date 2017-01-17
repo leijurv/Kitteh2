@@ -60,7 +60,11 @@ public class X86Emitter {
     public void cast(X86Param a, X86Param b) {
         TypeNumerical inp = (TypeNumerical) a.getType();
         TypeNumerical out = (TypeNumerical) b.getType();
-        addStatement("movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + a.x86() + ", " + b.x86());
+        String cast = "movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + a.x86() + ", " + b.x86();
+        if (cast.equals("movslq %eax, %rax")) {//lol
+            cast = "cltq";//lol
+        }
+        addStatement(cast);
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {

@@ -134,8 +134,12 @@ public class TACStandard extends TACStatement {
             if (first.getType() instanceof TypeFloat) {
                 set = set.replace("l", "b").replace("g", "a");//i actually want to die
             }
-            emit.addStatement(set + " %cl");
-            emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
+            if (result instanceof X86TypedRegister) {
+                emit.addStatement(set + " " + result.x86());
+            } else {
+                emit.addStatement(set + " %cl");
+                emit.move(X86Register.C.getRegister(new TypeBoolean()), result);
+            }
             return;
         }
         if (result instanceof X86TypedRegister && secondName.equals(paramNames[2]) && op.inputsReversible()) {

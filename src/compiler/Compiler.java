@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,7 +83,7 @@ public class Compiler {
             System.out.println("> DONE STATIC VALUES");
         }
         long e = System.currentTimeMillis();
-        HashSet<X86Function> reachables = X86Function.gen(commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList()));
+        List<X86Function> reachables = X86Function.gen(commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList()));
         long f = System.currentTimeMillis();
         if (VERBOSE) {
             System.out.println("TAC generation took " + (f - e) + "ms overall");

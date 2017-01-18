@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.x86.VarAllocation;
 import compiler.Compiler;
 import compiler.tac.IREmitter;
 import compiler.tac.TACStatement;
@@ -79,7 +80,6 @@ public class TACOptimizer {
         if (settings.staticValues()) {//TODO better flag for these final register optimizations
             input = new TmpAllocation().go(input);
             input = new VarAllocation().go(input);
-            input = new RegisterCasting().go(input);
         }
         return input;
     }

@@ -10,6 +10,7 @@ import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimization;
 import compiler.util.Obfuscator;
 import compiler.util.Pair;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,12 +42,12 @@ public class X86Function {
     public HashSet<String> directCalls() {
         return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
     }
-    public static HashSet<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {
+    public static List<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {
         HashMap<String, X86Function> map = new HashMap<>();
         for (Pair<String, List<TACStatement>> pair : inp) {
             map.put(pair.getA(), new X86Function(pair.getA(), pair.getB(), map));
         }
-        HashSet<X86Function> reachables = map.get("main").allDescendants();
+        List<X86Function> reachables = map.get("main").allDescendants();
         reachables.add(map.get("main"));
         return reachables;
     }
@@ -56,14 +57,14 @@ public class X86Function {
     public List<TACStatement> getStatements() {
         return stmts;
     }
-    private HashSet<X86Function> descendants = null;
-    public HashSet<X86Function> allDescendants() {
+    private List<X86Function> descendants = null;
+    public List<X86Function> allDescendants() {
         if (descendants != null) {
             return descendants;
         }
         LinkedList<String> toExplore = new LinkedList<>();
         HashSet<X86Function> explored = new HashSet<>();
-        toExplore.push(name);
+        toExplore.addAll(directCalls());
         while (!toExplore.isEmpty()) {
             String s = toExplore.pop();
             X86Function body = map.get(s);
@@ -76,8 +77,8 @@ public class X86Function {
             explored.add(body);
             toExplore.addAll(body.directCalls());
         }
-        descendants = explored;
-        return explored;
+        descendants = new ArrayList<>(explored);
+        return descendants;
     }
     public String generateX86() {
         String modName = this.name;

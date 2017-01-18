@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.x86.RegAllocation;
 import compiler.tac.TACStatement;
 import compiler.x86.X86Register;
 import java.util.List;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.tac.optimize;
+package compiler.x86;
 import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
@@ -12,13 +12,10 @@ import compiler.tac.TACJump;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
+import compiler.tac.optimize.UselessTempVars;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
-import compiler.x86.X86Param;
-import compiler.x86.X86Register;
-import compiler.x86.X86TempRegister;
-import compiler.x86.X86TypedRegister;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,7 +24,7 @@ import java.util.List;
  * @author leijurv
  */
 public class RegAllocation {
-    static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp) {
+    public static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp) {
         HashSet<String> encountered = new HashSet<>();
         https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees

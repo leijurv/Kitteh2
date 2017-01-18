@@ -5,6 +5,7 @@
  */
 package compiler.x86;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -12,8 +13,20 @@ import java.util.List;
  */
 public class RegisterAllocator {
     public static void allocate(List<X86Function> fns) {
-        for (X86Function fn : fns) {
-            new VarAllocation().go(fn.getStatements());
+        while (true) {
+            List<X86Function> ta = fns.stream().filter(X86Function::canAllocate).collect(Collectors.toList());
+            if (compiler.Compiler.verbose()) {
+                System.out.println("Allocating " + ta);
+            }
+            if (ta.isEmpty()) {
+                return;
+            }
+            for (X86Function fn : ta) {
+                if (compiler.Compiler.verbose()) {
+                    System.out.println("Doing " + fn);
+                }
+                fn.allocate();
+            }
         }
     }
 }

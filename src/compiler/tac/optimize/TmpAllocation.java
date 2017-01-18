@@ -4,8 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
-import compiler.x86.RegAllocation;
 import compiler.tac.TACStatement;
+import compiler.x86.RegAllocation;
 import compiler.x86.X86Register;
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class TmpAllocation extends TACOptimization {
         //can't be any of the return registers (which are currently A, C, and D)
         //
         //in case you were wondering, there really is no rhyme or reason to these choices for maxDistance and register
-        RegAllocation.allocate(block, 1, X86Register.A, false, true);
-        RegAllocation.allocate(block, -1, X86Register.D, false, true);
+        RegAllocation.allocate(block, 1, X86Register.A, false, true, null);
+        RegAllocation.allocate(block, -1, X86Register.D, false, true, null);
     }
 }

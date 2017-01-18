@@ -98,12 +98,13 @@ public class Compiler {
                 System.out.println();
             }
         }
-        RegisterAllocator.allocate(reachables);
         long g = System.currentTimeMillis();
-        String asm = X86Format.assembleFinalFile(reachables);
+        RegisterAllocator.allocate(reachables);
         long h = System.currentTimeMillis();
-        String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        if (VERBOSE) {
+        String asm = X86Format.assembleFinalFile(reachables);
+        long i = System.currentTimeMillis();
+        String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " allocation " + (h - g) + " x86gen " + (i - h));
+        if (true) {
             System.out.println(loll);
             System.err.println(loll);
             System.out.println("Completely done, returning x86 asm string of length " + asm.length());

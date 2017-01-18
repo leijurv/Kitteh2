@@ -24,8 +24,10 @@ import java.util.List;
  * @author leijurv
  */
 public class RegAllocation {
-    public static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp) {
+    public static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp, X86Function in) {
         HashSet<String> encountered = new HashSet<>();
+        HashSet<Integer> used = new HashSet<>();
+        boolean mode = false;
         https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees
             if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst) {
@@ -86,7 +88,8 @@ public class RegAllocation {
                     //it doesn't matter if i or lastUsage is a function call
                     if (block.get(j) instanceof TACFunctionCall) {
                         TACFunctionCall tfc = (TACFunctionCall) block.get(j);
-                        if (tfc.calling().equals("syscall")) {
+                        String calling = tfc.calling();
+                        if (calling.equals("syscall")) {
                             if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
                                 continue https;
                             }
@@ -102,6 +105,27 @@ public class RegAllocation {
                             //so they preserve B and R12 through R15
                             bc = true;
                             continue;
+                        }
+                        if (in != null) {
+                            X86Function call = in.map.get(calling);
+                            if (call == null || call == in) {
+                                continue https;
+                            }
+                            if (call.allDescendants().contains(in)) {
+                                continue https;
+                            }
+                            if (!call.allocated) {
+                                throw new IllegalStateException(in + " calls " + call);//if we depend on something that couldn't lead back to me yet is unallocated, that's bad
+                            }
+                            if (!call.allUsed().contains(register)) {
+                                bc = true;
+                                if (mode) {
+                                    if (compiler.Compiler.verbose()) {
+                                        System.out.println("CONSIDERING permitting " + register + " across call to " + call + " which only uses " + call.allUsed());
+                                    }
+                                    continue;
+                                }
+                            }
                         }
                         continue https;
                     }
@@ -155,8 +179,23 @@ public class RegAllocation {
                     }*/
                     //ok
                     X86TypedRegister xtr = new X86TempRegister(register, (TypeNumerical) lmao, mod);
+                    for (int j = i + 1; j <= lastUsage; j++) {
+                        if (used.contains(j)) {
+                            if (!mode) {
+                                throw new IllegalStateException();
+                            }
+                            continue https;
+                        }
+                    }
+                    if (in != null) {
+                        in.used.add(register);
+                    }
+                    if (mode && compiler.Compiler.verbose()) {
+                        System.out.println("Allocating because of cross-call permit " + mod);
+                    }
                     //System.out.println("REPALCE " + block);
                     for (int j = i; j <= lastUsage; j++) {
+                        used.add(j);
                         if (block.get(j).modifiedVariables().contains(mod) || block.get(j).requiredVariables().contains(mod)) {
                             block.get(j).replace(mod, xtr.x86(), xtr);
                         }
@@ -167,6 +206,11 @@ public class RegAllocation {
                 }
             } else {
                 encountered.addAll(block.get(i).modifiedVariables());//don't miss any sets not covered in the if
+            }
+            if (i >= block.size() - 1 && !mode && in != null) {
+                i = -1;
+                mode = true;
+                encountered.clear();
             }
         }
     }

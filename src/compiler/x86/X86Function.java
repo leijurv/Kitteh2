@@ -10,7 +10,9 @@ import compiler.tac.TACStatement;
 import compiler.tac.optimize.TACOptimization;
 import compiler.util.Obfuscator;
 import compiler.util.Pair;
+import static compiler.x86.X86Register.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,13 +36,70 @@ public class X86Function {
     private final String name;
     private final List<TACStatement> stmts;
     final HashMap<String, X86Function> map;
+    HashSet<X86Register> used;
+    boolean allocated;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;
         this.stmts = stmts;
         this.map = map;
     }
+    public HashSet<X86Register> allUsed() {
+        HashSet<X86Register> result = new HashSet<>(used);
+        for (String fn : allDescendants0()) {
+            if (map.get(fn) != null) {
+                result.addAll(map.get(fn).used);
+                continue;
+            }
+            switch (fn) {
+                case "malloc":
+                case "free":
+                    result.addAll(Arrays.asList(A, C, D, SI, DI, R8, R9, R10, R11, XMM0, XMM1));
+                    break;
+                case "syscall":
+                    result.addAll(TACFunctionCall.SYSCALL_REGISTERS);//TODO not all syscalls use all registers
+                    result.add(R11);
+                    result.add(C);
+                    break;
+                default:
+                    throw new IllegalStateException(fn);
+            }
+        }
+        return result;
+    }
     public HashSet<String> directCalls() {
         return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
+    }
+    public boolean canAllocate() {
+        if (allocated) {
+            return false;//already did
+        }
+        List<X86Function> dsc = allDescendants();
+        for (X86Function fn : dsc) {
+            if (!fn.allocated && !fn.allDescendants().contains(this) && fn != this) {
+                //if i depend on an unallocated function
+                //and that function couldn't lead back to me and isn't me
+                //then i'll wait for that one to be done
+                //System.out.println("Can't do " + name + " because depends upon " + fn);
+                return false;
+            }
+        }
+        return true;
+    }
+    public String toString() {
+        return name;
+    }
+    public void allocate() {
+        if (allocated) {
+            throw new IllegalStateException();
+        }
+        used = new HashSet<>();
+        for (X86Register r : new X86Register[]{DI, R10, R9, R11, R8, SI, B, R12, R13, R14, R15}) {
+            RegAllocation.allocate(stmts, -1, r, true, true, this);
+        }
+        used.add(D);//these are considered to be used by default
+        used.add(A);
+        used.add(C);
+        allocated = true;
     }
     public static List<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {
         HashMap<String, X86Function> map = new HashMap<>();
@@ -57,31 +116,39 @@ public class X86Function {
     public List<TACStatement> getStatements() {
         return stmts;
     }
-    private List<X86Function> descendants = null;
+    private List<String> descendants = null;
     public List<X86Function> allDescendants() {
+        return allDescendants0().stream().map(map::get).filter(x -> x != null).collect(Collectors.toList());
+    }
+    public List<String> allDescendants0() {
         if (descendants != null) {
-            return descendants;
+            return new ArrayList<>(descendants);
         }
         descendants = new ArrayList<>();
         LinkedList<String> toExplore = new LinkedList<>();
-        HashSet<X86Function> explored = new HashSet<>();
+        HashSet<String> explored = new HashSet<>();
         toExplore.addAll(directCalls());
         while (!toExplore.isEmpty()) {
             String s = toExplore.pop();
+            if (!descendants.contains(s)) {
+                descendants.add(s);
+            }
             X86Function body = map.get(s);
             if (body == null) {
                 continue;
             }
-            if (explored.contains(body)) {
+            if (explored.contains(s)) {
                 continue;
             }
-            explored.add(body);
-            descendants.add(body);
+            explored.add(s);
             toExplore.addAll(body.directCalls());
         }
-        return descendants;
+        return new ArrayList<>(descendants);
     }
     public String generateX86() {
+        if (!allocated) {
+            throw new IllegalStateException();
+        }
         String modName = this.name;
         if (compiler.Compiler.obfuscate()) {
             modName = Obfuscator.obfuscate(modName);

@@ -5,17 +5,16 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
-import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.CompilationState;
 import compiler.util.MultiThreadedLoader;
-import compiler.util.Pair;
-import compiler.util.Prune;
 import compiler.x86.X86Format;
+import compiler.x86.X86Function;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,23 +84,22 @@ public class Compiler {
             System.out.println("> DONE STATIC VALUES");
         }
         long e = System.currentTimeMillis();
-        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList());
+        HashSet<X86Function> reachables = X86Function.gen(commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList()));
         long f = System.currentTimeMillis();
         if (VERBOSE) {
             System.out.println("TAC generation took " + (f - e) + "ms overall");
         }
         if (VERBOSE) {
-            for (Pair<String, List<TACStatement>> pair : wew) {
-                System.out.println("TAC FOR " + pair.getA());
-                for (int i = 0; i < pair.getB().size(); i++) {
-                    System.out.println(i + ":     " + pair.getB().get(i).toString(false));
+            for (X86Function pair : reachables) {
+                System.out.println("TAC FOR " + pair.getName());
+                for (int i = 0; i < pair.getStatements().size(); i++) {
+                    System.out.println(i + ":     " + pair.getStatements().get(i).toString(false));
                 }
                 System.out.println();
             }
         }
-        wew = Prune.prune(wew);
         long g = System.currentTimeMillis();
-        String asm = X86Format.assembleFinalFile(wew);
+        String asm = X86Format.assembleFinalFile(reachables);
         long h = System.currentTimeMillis();
         String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
         if (VERBOSE) {

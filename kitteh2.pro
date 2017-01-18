@@ -14,6 +14,9 @@
 -allowaccessmodification
 -mergeinterfacesaggressively
 -overloadaggressively
+-flattenpackagehierarchy
+-repackageclasses
+-dontusemixedcaseclassnames
 
 -keeppackagenames lang
 -keepdirectories  lang

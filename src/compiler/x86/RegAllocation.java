@@ -82,51 +82,7 @@ public class RegAllocation {
                 }*/
                 boolean bc = false;
                 for (int j = i + 1; j < lastUsage; j++) {
-                    if (register == X86Register.D && block.get(j).usesDRegister()) {
-                        continue https;
-                    }
-                    //it doesn't matter if i or lastUsage is a function call
-                    if (block.get(j) instanceof TACFunctionCall) {
-                        TACFunctionCall tfc = (TACFunctionCall) block.get(j);
-                        String calling = tfc.calling();
-                        if (calling.equals("syscall")) {
-                            if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
-                                continue https;
-                            }
-                            List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs());//if this syscall only uses 1 argument register, the rest are actually ok to use
-                            if (args.contains(register)) {//just make sure this register isn't one of the ones this syscall is using
-                                continue https;
-                            }
-                            bc = true;
-                            continue;
-                        }
-                        if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && (register == X86Register.B || register == X86Register.R12 || register == X86Register.R13 || register == X86Register.R14 || register == X86Register.R15)) {
-                            //malloc and free follow the ABI (unlike kitteh2 ahem)
-                            //so they preserve B and R12 through R15
-                            bc = true;
-                            continue;
-                        }
-                        if (in != null) {
-                            X86Function call = in.map.get(calling);
-                            if (call == null || call == in) {
-                                continue https;
-                            }
-                            if (call.allDescendants().contains(in)) {
-                                continue https;
-                            }
-                            if (!call.allocated) {
-                                throw new IllegalStateException(in + " calls " + call);//if we depend on something that couldn't lead back to me yet is unallocated, that's bad
-                            }
-                            if (!call.allUsed().contains(register)) {
-                                bc = true;
-                                if (mode) {
-                                    if (compiler.Compiler.verbose()) {
-                                        System.out.println("CONSIDERING permitting " + register + " across call to " + call + " which only uses " + call.allUsed());
-                                    }
-                                    continue;
-                                }
-                            }
-                        }
+                    if (!allowed(block, j, register, in, mode)) {
                         continue https;
                     }
                 }
@@ -151,6 +107,9 @@ public class RegAllocation {
                 if (lastUsage - i <= maxDistance || maxDistance == -1) {
                     if (!isTemp) {
                         if (externalJumps(block, i, lastUsage)) {
+                            if (!mode) {
+                                continue;
+                            }
                             /* System.out.println(mod);
                             System.out.println(block);
                             System.out.println(i);
@@ -213,6 +172,53 @@ public class RegAllocation {
                 encountered.clear();
             }
         }
+    }
+    private static boolean allowed(List<TACStatement> block, int j, X86Register register, X86Function in, boolean mode) {
+        if (register == X86Register.D && block.get(j).usesDRegister()) {
+            return false;
+        }
+        //it doesn't matter if i or lastUsage is a function call
+        if (block.get(j) instanceof TACFunctionCall) {
+            TACFunctionCall tfc = (TACFunctionCall) block.get(j);
+            String calling = tfc.calling();
+            if (calling.equals("syscall")) {
+                if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
+                    return false;
+                }
+                List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs());//if this syscall only uses 1 argument register, the rest are actually ok to use
+                if (args.contains(register)) {//just make sure this register isn't one of the ones this syscall is using
+                    return false;
+                }
+                return true;
+            }
+            if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && (register == X86Register.B || register == X86Register.R12 || register == X86Register.R13 || register == X86Register.R14 || register == X86Register.R15)) {
+                //malloc and free follow the ABI (unlike kitteh2 ahem)
+                //so they preserve B and R12 through R15
+                return true;
+            }
+            if (in != null) {
+                X86Function call = in.map.get(calling);
+                if (call == null || call == in) {
+                    return false;
+                }
+                if (call.allDescendants().contains(in)) {
+                    return false;
+                }
+                if (!call.allocated) {
+                    throw new IllegalStateException(in + " calls " + call);//if we depend on something that couldn't lead back to me yet is unallocated, that's bad
+                }
+                if (!call.allUsed().contains(register)) {
+                    if (mode) {
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println("CONSIDERING permitting " + register + " across call to " + call + " which only uses " + call.allUsed());
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
     }
     private static int lastUsage(List<TACStatement> block, String varName) {
         for (int i = block.size() - 1; i >= 0; i--) {

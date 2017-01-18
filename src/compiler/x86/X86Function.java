@@ -33,7 +33,7 @@ public class X86Function {
     private static final String FUNC_FOOTER = "\n	.cfi_endproc\n";
     private final String name;
     private final List<TACStatement> stmts;
-    private final HashMap<String, X86Function> map;
+    final HashMap<String, X86Function> map;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;
         this.stmts = stmts;
@@ -62,6 +62,7 @@ public class X86Function {
         if (descendants != null) {
             return descendants;
         }
+        descendants = new ArrayList<>();
         LinkedList<String> toExplore = new LinkedList<>();
         HashSet<X86Function> explored = new HashSet<>();
         toExplore.addAll(directCalls());
@@ -75,9 +76,9 @@ public class X86Function {
                 continue;
             }
             explored.add(body);
+            descendants.add(body);
             toExplore.addAll(body.directCalls());
         }
-        descendants = new ArrayList<>(explored);
         return descendants;
     }
     public String generateX86() {

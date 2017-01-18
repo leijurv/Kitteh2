@@ -23,7 +23,7 @@ import java.util.List;
 public class KnownConditions extends TACOptimization {
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
-        HashMap<String, Boolean> known = new HashMap<>();
+        HashMap<String, Boolean> known = new HashMap<>();//TODO variables with the same name but different scope...? might be weird...? seems unlikely
         for (int i = 0; i < block.size(); i++) {
             for (String str : block.get(i).modifiedVariables()) {
                 known.remove(str);

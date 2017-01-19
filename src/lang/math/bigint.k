@@ -68,15 +68,14 @@ struct bigint{
 		return k&m!=(long)0
 	}
 	setbit(int pos,bool val){
-		int n=pos>>>5
-		int m=1<<(pos&31)
-		ind:=this.cap-n-1
-		loc:=this.mag+ind<<2
+		loc:=this.mag+(this.cap-(pos>>>5)-1)<<2
+		/*int m=1<<(pos&31)
 		if val{
 			*loc=*loc | m
 		}else{
 			*loc = *loc & (0-1 - m)
-		}
+		}*/
+		*loc=(*loc&(0-1 - (1<<(pos&31))))|(((int)val)<<(pos&31)) //excessive parentheses because i don't remember order of operations
 	}
 	toLong()long{
 		long res=0

@@ -121,7 +121,7 @@ public class RegAllocation {
                             System.out.println(block.subList(i, lastUsage + 1));*/
                             while (true) {//TODO this is greedy
                                 lastUsage++;
-                                if (lastUsage >= block.size() || block.get(lastUsage) instanceof TACFunctionCall || (register == X86Register.D && block.get(lastUsage).usesDRegister())) {//yes, there are NO function calls of any kind allowed in the extension
+                                if (lastUsage >= block.size() || !allowed(block, lastUsage, register, in, mode)) {//TODO should this call with lastUsage or lastUsage-1...
                                     continue https;
                                 }
                                 if (!externalJumps(block, i, lastUsage)) {

@@ -97,9 +97,11 @@ public class X86Function {
         for (X86Register r : new X86Register[]{DI, R10, R9, R11, R8, SI, B, R12, R13, R14, R15}) {
             RegAllocation.allocate(stmts, -1, r, true, true, this);
         }
-        used.add(D);//these are considered to be used by default
-        used.add(A);
-        used.add(C);
+        if (stmts.stream().anyMatch(TACStatement::usesDRegister)) {
+            used.add(D);
+        }
+        used.add(A);//literally every nonempty function uses A somehow. and it doesn't matter because A is only allocated for maxDistance being 1
+        used.add(C);//almost everything uses the C register, and we don't register allocate over C anyway, so might as well consider it used
         allocated = true;
     }
     public static List<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {

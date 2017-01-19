@@ -180,7 +180,7 @@ public class TACStandard extends TACStatement {
             thing = true;
         }
         if (thing) {
-            if ((second instanceof X86Const || second instanceof X86TypedRegister) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
+            if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
                 c = second.x86();
                 shaft = c;
             } else {

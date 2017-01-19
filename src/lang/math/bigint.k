@@ -361,10 +361,11 @@ new(int size)bigint*{
 		s++
 	}
 	res.cap=s
-	res.mag=(int*)malloc(s<<2)
+	cc:=(int*)malloc(s<<2)
 	for i:=0; i<s; i++{
-		res.mag[i]=0
+		cc[i]=0
 	}
+	res.mag=cc
 	res.neg=false
 	return res
 }
@@ -811,13 +812,13 @@ bigintFromHex(byte* str)bigint*{
 }
 charFromHex(byte char) byte{
 	if char>='0' && char<='9'{
-		return char-'0'
+		return (0-'0')+char
 	}
 	if char>='a' && char<='f'{
-		return char+(10-'a')
+		return (10-'a')+char
 	}
 	if char>='A' && char<='F'{
-		return char+(10-'A')
+		return (10-'A')+char
 	}
 	return char
 }

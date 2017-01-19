@@ -9,7 +9,6 @@ import compiler.Keyword;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstBool;
-import compiler.expression.ExpressionConstChar;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionConstStr;
 import compiler.expression.ExpressionVariable;
@@ -19,6 +18,7 @@ import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeFloat;
 import compiler.type.TypeInt32;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Format;
@@ -77,7 +77,7 @@ class FirstPass implements ExpressionParseStep {
                     o.set(i, new ExpressionConstStr((String) ob.data()));
                     break;
                 case CHAR:
-                    o.set(i, new ExpressionConstChar((Character) ob.data()));
+                    o.set(i, new ExpressionConstNum(0 + (Character) ob.data(), new TypeInt8()));
                     break;
                 case VARIABLE:
                     if (i != o.size() - 1 && (o.get(i + 1) == STARTPAREN || o.get(i + 1) == ACCESS)) {

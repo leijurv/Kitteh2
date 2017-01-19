@@ -683,7 +683,8 @@ dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	for e:=a.size-1;e>=0;e--{
 		d.leftshiftone()
 		dhs++
-		d.setbit(0,a.bit(e))
+		loc:=d.mag+(d.cap-1)<<2
+		*loc=(*loc&(0-2))|(((int)(a.bit(e))))
 		if dhs>=bhs{//keep track of the highest set bit to avoid full greater calc
 			g:=greater(b,d)
 			if(!g){

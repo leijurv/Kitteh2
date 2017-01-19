@@ -672,10 +672,18 @@ bneg:=bb.neg
 }
 dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.stripLeadingZero()
+	b.stripLeadingZero()
 	bneg:=b.neg
 	b.neg=false
 	aneg:=a.neg
 	a.neg=false
+	if(greater(b,a)){
+		rss:=new(1)
+		b.neg=bneg
+		a.neg=aneg
+		rss.neg=aneg!=bneg
+		return rss, a.dup()
+	}
 	d:=new(1)
 	res:=new(a.size)
 	dhs:=0-1

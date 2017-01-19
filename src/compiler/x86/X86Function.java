@@ -43,11 +43,23 @@ public class X86Function {
         this.stmts = stmts;
         this.map = map;
     }
+    private static void coalesce(List<TACStatement> stmts, HashSet<X86Register> wew) {
+        for (TACStatement ts : stmts) {
+            if (ts instanceof TACFunctionCall) {
+                TACFunctionCall tfc = (TACFunctionCall) ts;
+                if (tfc.calling().equals("syscall")) {
+                    wew.addAll(TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs()));
+                }
+            }
+        }
+    }
     public HashSet<X86Register> allUsed() {
         HashSet<X86Register> result = new HashSet<>(used);
+        coalesce(stmts, result);
         for (String fn : allDescendants0()) {
             if (map.get(fn) != null) {
                 result.addAll(map.get(fn).used);
+                coalesce(map.get(fn).stmts, result);
                 continue;
             }
             switch (fn) {
@@ -56,7 +68,6 @@ public class X86Function {
                     result.addAll(Arrays.asList(A, C, D, SI, DI, R8, R9, R10, R11));
                     break;
                 case "syscall":
-                    result.addAll(TACFunctionCall.SYSCALL_REGISTERS);//TODO not all syscalls use all registers
                     result.add(R11);
                     result.add(C);
                     break;

@@ -12,7 +12,7 @@ import compiler.type.TypeNumerical;
  */
 public class X86TempRegister extends X86TypedRegister {
     String varFrom;
-    public X86TempRegister(X86Register register, TypeNumerical type, String variableFrom) {
+    public X86TempRegister(X86Register register, TypeNumerical type, String variableFrom) {//TODO maybe pass the VarInfo it's from to assist with spilling in the future
         super(register, type);
         this.varFrom = variableFrom;
     }

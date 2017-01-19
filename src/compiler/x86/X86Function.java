@@ -53,7 +53,7 @@ public class X86Function {
             switch (fn) {
                 case "malloc":
                 case "free":
-                    result.addAll(Arrays.asList(A, C, D, SI, DI, R8, R9, R10, R11, XMM0, XMM1));
+                    result.addAll(Arrays.asList(A, C, D, SI, DI, R8, R9, R10, R11));
                     break;
                 case "syscall":
                     result.addAll(TACFunctionCall.SYSCALL_REGISTERS);//TODO not all syscalls use all registers
@@ -85,6 +85,7 @@ public class X86Function {
         }
         return true;
     }
+    @Override
     public String toString() {
         return name;
     }
@@ -156,6 +157,15 @@ public class X86Function {
         //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
         X86Emitter emitter = new X86Emitter(modName);
+        if (compiler.Compiler.verbose()) {
+            String au;
+            if (compiler.Compiler.deterministic()) {
+                au = allUsed().stream().sorted().map(Enum::toString).collect(Collectors.toList()).toString();//oh the things I do for deterministic builds
+            } else {
+                au = allUsed().toString();
+            }
+            emitter.addComment("Registers used: " + au);
+        }
         OptionalInt argsSize = stmts.stream().filter(ts -> ts instanceof TACFunctionCall).map(ts -> (TACFunctionCall) ts).mapToInt(ts -> -ts.totalStack() + ts.argsSize() + 10).max();
         if (argsSize.isPresent()) {
             int toSubtract = argsSize.getAsInt();

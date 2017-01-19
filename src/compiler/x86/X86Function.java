@@ -44,14 +44,7 @@ public class X86Function {
         this.map = map;
     }
     private static void coalesce(List<TACStatement> stmts, HashSet<X86Register> wew) {
-        for (TACStatement ts : stmts) {
-            if (ts instanceof TACFunctionCall) {
-                TACFunctionCall tfc = (TACFunctionCall) ts;
-                if (tfc.calling().equals("syscall")) {
-                    wew.addAll(TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs()));
-                }
-            }
-        }
+        wew.addAll(stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).filter(tfc -> tfc.calling().equals("syscall")).flatMap(tfc -> TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs()).stream()).collect(Collectors.toCollection(HashSet::new)));
     }
     public HashSet<X86Register> allUsed() {
         HashSet<X86Register> result = new HashSet<>(used);

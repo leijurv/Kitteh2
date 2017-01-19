@@ -65,7 +65,7 @@ public class TACPointerDeref extends TACStatement {
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(offset, "%rax", ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
+            moveStruct(offset, loc.x86(), ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }

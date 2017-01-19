@@ -12,6 +12,7 @@ import compiler.tac.TACJump;
 import compiler.tac.TACPointerDeref;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
+import compiler.tac.TempVarUsage;
 import compiler.tac.optimize.UselessTempVars;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
@@ -44,6 +45,9 @@ public class RegAllocation {
                     continue;
                 }
                 if (mod.contains(X86Register.REGISTER_PREFIX)) {//we've already got this one =D
+                    continue;
+                }
+                if (mod.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;
                 }
                 encountered.add(mod);

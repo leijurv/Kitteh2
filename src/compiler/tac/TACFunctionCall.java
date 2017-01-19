@@ -75,10 +75,12 @@ public class TACFunctionCall extends TACStatement {
             if (resultName[i].equals(toReplace)) {
                 resultName[i] = replaceWith;
                 result[i] = infoWith;
-                return;
             }
         }
-        super.replace(toReplace, replaceWith, infoWith);
+        try {
+            super.replace(toReplace, replaceWith, infoWith);
+        } catch (RuntimeException ex) {//TODO fix hack
+        }
     }
     @Override
     public void onContextKnown() {

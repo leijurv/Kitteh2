@@ -267,7 +267,7 @@ public class RegAllocation {
     public static void allocate(List<X86Function> fns) {
         while (true) {
             List<X86Function> ta = fns.stream().filter(X86Function::canAllocate).collect(Collectors.toList());
-            if (Compiler.verbose()) {
+            if (compiler.Compiler.verbose()) {
                 System.out.println("Allocating " + ta);
             }
             if (ta.isEmpty()) {

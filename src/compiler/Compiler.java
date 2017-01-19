@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
-    static transient boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
-    static transient boolean METRICS = false;
-    static transient boolean DETERMINISTIC = false;
-    static transient boolean OBFUSCATE = false;
+    static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
+    static boolean METRICS = false;
+    static boolean DETERMINISTIC = false;
+    static boolean OBFUSCATE = false;
     public static boolean deterministic() {
         return DETERMINISTIC;
     }

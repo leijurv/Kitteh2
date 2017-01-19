@@ -169,7 +169,7 @@ public class TACFunctionCall extends TACStatement {
             stackLocation += type.getSizeBytes();
         }
         String name = header.name;
-        if (compiler.Compiler.obfuscate()) {
+        if (!compiler.Main.ALLOW_CLI || compiler.Compiler.obfuscate()) {
             name = Obfuscator.obfuscate(name);
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);

@@ -20,6 +20,7 @@ public class Main {
     protected static final String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
     protected static final String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
     private static final boolean OPTIMIZE = true; //if it's being bad, see if changing this to false fixes it
+    public static final boolean ALLOW_CLI = true;
     public static long streamTime() {
         long a = System.currentTimeMillis();
         IntStream.range(0, 5).map((int x) -> x + 1).parallel().sum();
@@ -63,13 +64,19 @@ public class Main {
                 case "-V":
                 case "-verbose":
                 case "--verbose":
-                    Compiler.VERBOSE = true;
+                    if (ALLOW_CLI) {
+                        Compiler.VERBOSE = true;
+                    }
                     break;
                 case "-m":
-                    Compiler.METRICS = true;
+                    if (ALLOW_CLI) {
+                        Compiler.METRICS = true;
+                    }
                     continue;
                 case "-d":
-                    Compiler.DETERMINISTIC = true;
+                    if (ALLOW_CLI) {
+                        Compiler.DETERMINISTIC = true;
+                    }
                     break;
                 case "-e":
                 case "-E":
@@ -81,7 +88,9 @@ public class Main {
                     continue;
                 case "-obf":
                 case "--obf":
-                    Compiler.OBFUSCATE = true;
+                    if (ALLOW_CLI) {
+                        Compiler.OBFUSCATE = true;
+                    }
                     break;
             }
         }

@@ -83,7 +83,7 @@ public class X86Emitter {
     }
     public String lineToLabel(int line) {
         String rsp = prefix + line;
-        if (compiler.Compiler.obfuscate()) {
+        if (!compiler.Main.ALLOW_CLI || compiler.Compiler.obfuscate()) {
             rsp = "_" + Obfuscator.obfuscate(rsp);
         }
         return rsp;

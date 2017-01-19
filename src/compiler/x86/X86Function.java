@@ -157,7 +157,7 @@ public class X86Function {
             throw new IllegalStateException();
         }
         String modName = this.name;
-        if (compiler.Compiler.obfuscate()) {
+        if (!compiler.Main.ALLOW_CLI || compiler.Compiler.obfuscate()) {
             modName = Obfuscator.obfuscate(modName);
         }
         //long start = System.currentTimeMillis();

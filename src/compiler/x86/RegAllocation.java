@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.x86;
-import compiler.Compiler;
 import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
@@ -274,12 +273,7 @@ public class RegAllocation {
             if (ta.isEmpty()) {
                 return;
             }
-            for (X86Function fn : ta) {
-                if (Compiler.verbose()) {
-                    System.out.println("Doing " + fn);
-                }
-                fn.allocate();
-            }
+            ta.parallelStream().forEach(X86Function::allocate);
         }
     }
 }

@@ -8,7 +8,7 @@ import compiler.command.CommandDefineFunction;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.CompilationState;
 import compiler.util.MultiThreadedLoader;
-import compiler.x86.RegisterAllocator;
+import compiler.x86.RegAllocation;
 import compiler.x86.X86Format;
 import compiler.x86.X86Function;
 import java.io.File;
@@ -99,7 +99,7 @@ public class Compiler {
             }
         }
         long g = System.currentTimeMillis();
-        RegisterAllocator.allocate(reachables);
+        RegAllocation.allocate(reachables);
         long h = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(reachables);
         long i = System.currentTimeMillis();

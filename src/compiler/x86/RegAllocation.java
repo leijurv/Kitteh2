@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.Compiler;
 import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
@@ -17,8 +18,10 @@ import compiler.tac.optimize.UselessTempVars;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -97,14 +100,21 @@ public class RegAllocation {
                     TACFunctionCall tfc = (TACFunctionCall) block.get(lastUsage);
                     if (tfc.calling().equals("syscall") && TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
                         //TODO check which argument it is. if we're considering replacing with RDI, and it's about to be passed *as RDI*, that's fine lol
-                        continue;
+                        int fi = Arrays.asList(tfc.paramNames).indexOf(mod);
+                        int li = Arrays.asList(tfc.paramNames).indexOf(mod);
+                        if (fi != li || fi == -1 || li == -1) {
+                            throw new IllegalStateException(tfc + " " + fi + " " + li + " " + mod);
+                        }
+                        if (register != TACFunctionCall.SYSCALL_REGISTERS.get(fi)) {
+                            return;
+                        }
+                        throw new IllegalStateException("ALLOWING " + register + " " + mod + " " + tfc);//if this ever happens, throw an exception because i want to notice it and be happy
                     }
                     if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
-                        //TODO this may not be necesary
                         //the last usage is being passed to malloc / free, and it's *already in* rdi
                         //movslq to the same register is actually allowed, so no worries there
                         //otherwise, it's fine to use rdi (since it's already the argument for its last usage)
-                        continue;
+                        System.out.print(compiler.Compiler.verbose() ? "Allocating up to malloc / free " + mod : "");
                     }
                 }
                 //TODO print of a float clobbers A register
@@ -254,5 +264,22 @@ public class RegAllocation {
             }
         }
         return false;
+    }
+    public static void allocate(List<X86Function> fns) {
+        while (true) {
+            List<X86Function> ta = fns.stream().filter(X86Function::canAllocate).collect(Collectors.toList());
+            if (Compiler.verbose()) {
+                System.out.println("Allocating " + ta);
+            }
+            if (ta.isEmpty()) {
+                return;
+            }
+            for (X86Function fn : ta) {
+                if (Compiler.verbose()) {
+                    System.out.println("Doing " + fn);
+                }
+                fn.allocate();
+            }
+        }
     }
 }

@@ -36,7 +36,7 @@ public class X86Function {
     private final String name;
     private final List<TACStatement> stmts;
     final HashMap<String, X86Function> map;
-    HashSet<X86Register> used;
+    HashSet<X86Register> used = null;
     boolean allocated;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;

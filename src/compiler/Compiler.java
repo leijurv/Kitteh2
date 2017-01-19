@@ -104,7 +104,7 @@ public class Compiler {
         String asm = X86Format.assembleFinalFile(reachables);
         long i = System.currentTimeMillis();
         String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " allocation " + (h - g) + " x86gen " + (i - h));
-        if (true) {
+        if (VERBOSE) {
             System.out.println(loll);
             System.err.println(loll);
             System.out.println("Completely done, returning x86 asm string of length " + asm.length());

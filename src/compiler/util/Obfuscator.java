@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.util;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
@@ -34,7 +35,12 @@ public class Obfuscator {
         if (!compiler.Compiler.deterministic()) {
             str += NANO_TIME;
         }
-        return bytesToHex(SHA.digest(str.getBytes()));
+        try {
+            return bytesToHex(SHA.digest(str.getBytes("UTF-8")));
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(Obfuscator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("doesn't support utf-8?????", ex);
+        }
     }
     final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
     private static String bytesToHex(byte[] bytes) {

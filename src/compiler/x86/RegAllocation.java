@@ -211,13 +211,11 @@ public class RegAllocation {
                 if (!call.allocated) {
                     throw new IllegalStateException(in + " calls " + call);//if we depend on something that couldn't lead back to me yet is unallocated, that's bad
                 }
-                if (!call.allUsed().contains(register)) {
-                    if (mode) {
-                        if (compiler.Compiler.verbose()) {
-                            System.out.println("CONSIDERING permitting " + register + " across call to " + call + " which only uses " + call.allUsed());
-                        }
-                        return true;
+                if (!call.allUsed().contains(register) && mode) {
+                    if (compiler.Compiler.verbose()) {
+                        System.out.println("CONSIDERING permitting " + register + " across call to " + call + " which only uses " + call.allUsed());
                     }
+                    return true;
                 }
             }
             return false;

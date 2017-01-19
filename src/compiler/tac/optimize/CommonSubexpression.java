@@ -61,10 +61,9 @@ public class CommonSubexpression extends TACOptimization {
                         if (begin >= viBegin && begin <= viEnd) {
                             continue https;
                         }
-                        if (end < viBegin || end > viEnd) {
-                            continue;
+                        if (end >= viBegin && end <= viEnd) {
+                            continue https;
                         }
-                        continue https;
                     }
                 }
             }

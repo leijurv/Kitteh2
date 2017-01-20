@@ -513,11 +513,11 @@ subtract(bigint*aa,bigint*bb)bigint*{
 trustedSubtract(bigint* a,bigint* b)bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
+	res:=new(a.cap<<5)
 	big:=a.mag
 	little:=b.mag
 	int bigIndex = a.cap;
 	int littleIndex = b.cap;
-	res:=new(bigIndex<<5)
 	result := res.mag
 	long difference = 0;
 	mask:=mask(0)

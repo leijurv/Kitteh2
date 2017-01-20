@@ -83,6 +83,23 @@ public class TACStandard extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        if (op.inputsReversible()) {
+            X86Emitter ns = new X86Emitter("");
+            x86(ns, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
+            X86Emitter s = new X86Emitter("");
+            x86(s, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
+            if (s.withoutComments().length() < ns.withoutComments().length()) {//heuristic of the actual x86 length is pretty good. if it's actully an instruction shorter, the x86 will def be shorter. and if it can replace with cltq, that's also shorter
+                if (compiler.Compiler.verbose()) {
+                    emit.addComment("Operands swapped");
+                    /*System.out.println("SWAPPING FROM");
+                    System.out.println(ns.withoutComments());
+                    System.out.println("TO");
+                    System.out.println(s.withoutComments());*/ // a little spammy
+                }
+                x86(emit, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
+                return;
+            }
+        }
         x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
     }
     public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param first, X86Param second, X86Param result, Operator op) {//oh god, this function.
@@ -100,7 +117,7 @@ public class TACStandard extends TACStatement {
             }
        // } else {
          */
-        type = (TypeNumerical) first.getType();
+        type = (TypeNumerical) result.getType();
         //}
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
             if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
@@ -135,14 +152,6 @@ public class TACStandard extends TACStatement {
             emit.addStatement(set + " " + result.x86());
             return;
         }
-        if (result instanceof X86TypedRegister && secondName.equals(resultName) && op.inputsReversible()) {
-            X86Param tmp = first;
-            String tmp2 = firstName;
-            first = second;
-            firstName = secondName;
-            second = tmp;
-            secondName = tmp2;
-        }
         X86TypedRegister aa = X86Register.A.getRegister(type);
         X86TypedRegister cc = X86Register.C.getRegister(type);
         if (type instanceof TypeFloat) {
@@ -153,44 +162,44 @@ public class TACStandard extends TACStatement {
         String c = cc.x86();
         boolean ma = false;
         String shaft = X86Register.C.getRegister(new TypeInt8()).x86();
-        boolean thing = false;
-        if (type instanceof TypePointer && (second instanceof VarInfo || second instanceof X86Const || second instanceof X86TypedRegister)) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
+        if (type instanceof TypePointer) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
-            if (!(second.getType() instanceof TypeNumerical)) {
+            X86Param nonPointer = first.getType() instanceof TypePointer ? second : first;
+            if (!(nonPointer.getType() instanceof TypeNumerical)) {
                 throw new ClosedSelectorException();
             }
-            Type secondType = second.getType();
+            Type secondType = nonPointer.getType();
             if (!(secondType instanceof TypeInt8 || secondType instanceof TypeInt16 || secondType instanceof TypeInt32 || secondType instanceof TypeInt64)) {
-                throw new IllegalStateException(second.getType().toString() + " " + second.getClass());
+                throw new IllegalStateException(nonPointer.getType().toString() + " " + nonPointer.getClass());
             }
             //we put the pointer in A
             //and the integer in C
-            if (second instanceof X86Const) {
-                second = new X86Const(((X86Const) second).getValue(), new TypeInt64());//its probably a const int that we are trying to add to an 8 byte pointer
+            if (nonPointer instanceof X86Const) {
+                nonPointer = new X86Const(((X86Const) second).getValue(), type);//its probably a const int that we are trying to add to an 8 byte pointer
                 //since its literally a const number, just change the type
-            }
-            if (second.getType().getSizeBytes() == first.getType().getSizeBytes() || second instanceof X86Const) {
-                thing = true;
-            } else {
-                emit.cast(second, X86Register.C.getRegister(new TypeInt64()));
-            }
-        } else {
-            thing = true;
-        }
-        if (thing) {
-            if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
-                c = second.x86();
-                shaft = c;
-            } else {
-                try {
-                    TACConst.move(cc, second, emit);
-                } catch (Exception e) {
-                    throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
+                if (first.getType() instanceof TypePointer) {
+                    second = nonPointer;
+                } else {
+                    first = nonPointer;
                 }
             }
         }
-        if (result instanceof X86TypedRegister && !secondName.equals(resultName) && op != MOD && op != DIVIDE) {
+        if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
+            if (second.getType().getSizeBytes() == cc.getType().getSizeBytes()) {
+                c = second.x86();
+                shaft = c;
+            } else {
+                TACCast.cast(second, cc, emit);
+            }
+        } else {
+            try {
+                TACConst.move(cc, second, emit);
+            } catch (Exception e) {
+                throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
+            }
+        }
+        if (result instanceof X86TypedRegister && !secondName.equals(resultName) && op != MOD && op != DIVIDE) {//TODO secondName.equals(resultName) may cause unintended behavior...
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;
@@ -199,7 +208,11 @@ public class TACStandard extends TACStatement {
             aa = (cc.x86().equals(c) ? X86Register.D : X86Register.C).getRegister(type);
             a = aa.x86();
         }
-        TACConst.move(aa, first, emit);
+        if (aa.getType().getSizeBytes() == first.getType().getSizeBytes()) {
+            TACConst.move(aa, first, emit);
+        } else {
+            TACCast.cast(first, aa, emit);
+        }
         switch (op) {
             case DIVIDE:
                 if (type instanceof TypeFloat) {

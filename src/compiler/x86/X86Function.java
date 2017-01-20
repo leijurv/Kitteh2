@@ -46,7 +46,11 @@ public class X86Function {
     private static void coalesce(List<TACStatement> stmts, HashSet<X86Register> wew) {
         wew.addAll(stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).filter(tfc -> tfc.calling().equals("syscall")).flatMap(tfc -> TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs()).stream()).collect(Collectors.toCollection(HashSet::new)));
     }
+    HashSet<X86Register> allUsed = null;
     public HashSet<X86Register> allUsed() {
+        if (allUsed != null) {
+            return allUsed;
+        }
         HashSet<X86Register> result = new HashSet<>(used);
         coalesce(stmts, result);
         for (String fn : allDescendants0()) {
@@ -68,7 +72,8 @@ public class X86Function {
                     throw new IllegalStateException(fn);
             }
         }
-        return result;
+        allUsed = result;
+        return allUsed;
     }
     public HashSet<String> directCalls() {
         return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));

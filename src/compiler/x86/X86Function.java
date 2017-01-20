@@ -55,6 +55,9 @@ public class X86Function {
         coalesce(stmts, result);
         for (String fn : allDescendants0()) {
             if (map.get(fn) != null) {
+                if (map.get(fn).used == null) {
+                    throw new IllegalStateException();
+                }
                 result.addAll(map.get(fn).used);
                 coalesce(map.get(fn).stmts, result);
                 continue;

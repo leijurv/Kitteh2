@@ -82,12 +82,11 @@ public class TACStandard extends TACStatement {
         return false;
     }
     @Override
-    public void printx86(X86Emitter emit) {//oh god, this function.
-        String firstName = paramNames[0];//i literally can't be bothered
-        String secondName = paramNames[1];
-        String resultName = paramNames[2];
-        X86Param first = params[0];
-        X86Param second = params[1];
+    public void printx86(X86Emitter emit) {
+        x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
+    }
+    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param first, X86Param second, X86Param result, Operator op) {//oh god, this function.
+        //i literally can't be bothered
         TypeNumerical type;
         //if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
         //    type = X86Register.typeFromRegister(firstName);
@@ -103,7 +102,6 @@ public class TACStandard extends TACStatement {
          */
         type = (TypeNumerical) first.getType();
         //}
-        X86Param result = params[2];
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
             if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
@@ -164,7 +162,7 @@ public class TACStandard extends TACStatement {
             }
             Type secondType = second.getType();
             if (!(secondType instanceof TypeInt8 || secondType instanceof TypeInt16 || secondType instanceof TypeInt32 || secondType instanceof TypeInt64)) {
-                throw new IllegalStateException(this + " " + second.getType().toString() + " " + second.getClass());
+                throw new IllegalStateException(second.getType().toString() + " " + second.getClass());
             }
             //we put the pointer in A
             //and the integer in C
@@ -188,7 +186,7 @@ public class TACStandard extends TACStatement {
                 try {
                     TACConst.move(cc, second, emit);
                 } catch (Exception e) {
-                    throw new UnsupportedOperationException(this + " " + type + " " + firstName + " " + secondName, e);
+                    throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
                 }
             }
         }

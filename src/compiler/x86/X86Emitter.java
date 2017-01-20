@@ -91,4 +91,7 @@ public class X86Emitter {
     public String toX86() {
         return statements.stream().collect(Collectors.joining("\n", "", ""));
     }
+    public String withoutComments() {
+        return statements.stream().filter(x -> !x.startsWith("#")).collect(Collectors.joining("\n", "", ""));
+    }
 }

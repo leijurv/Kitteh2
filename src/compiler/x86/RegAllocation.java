@@ -100,7 +100,7 @@ public class RegAllocation {
                     if (tfc.calling().equals("syscall") && TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
                         //TODO check which argument it is. if we're considering replacing with RDI, and it's about to be passed *as RDI*, that's fine lol
                         int fi = Arrays.asList(tfc.paramNames).indexOf(mod);
-                        int li = Arrays.asList(tfc.paramNames).indexOf(mod);
+                        int li = Arrays.asList(tfc.paramNames).lastIndexOf(mod);
                         if (fi != li || fi == -1 || li == -1) {
                             throw new IllegalStateException(tfc + " " + fi + " " + li + " " + mod);
                         }

@@ -190,6 +190,9 @@ public class TACStandard extends TACStatement {
                 c = second.x86();
                 shaft = c;
             } else {
+                if (second instanceof X86Const) {
+                    throw new IllegalStateException();
+                }
                 TACCast.cast(second, cc, emit);
             }
         } else {
@@ -199,7 +202,7 @@ public class TACStandard extends TACStatement {
                 throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
             }
         }
-        if (result instanceof X86TypedRegister && !secondName.equals(resultName) && op != MOD && op != DIVIDE) {//TODO secondName.equals(resultName) may cause unintended behavior...
+        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!secondName.equals(resultName) || op.name().contains("SHIFT"))) {//TODO secondName.equals(resultName) may cause unintended behavior...
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

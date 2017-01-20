@@ -129,13 +129,13 @@ public class RegAllocation {
                             System.out.println(lastUsage);
                             System.out.println(block.subList(i, lastUsage + 1));*/
                             while (true) {//TODO this is greedy
-                                lastUsage++;
-                                if (lastUsage >= block.size() || !allowed(block, lastUsage, register, in, mode)) {//TODO should this call with lastUsage or lastUsage-1...
+                                if (lastUsage >= block.size() || !allowed(block, lastUsage, register, in, mode)) {
                                     continue https;
                                 }
                                 if (!externalJumps(block, i, lastUsage)) {
                                     break;
                                 }
+                                lastUsage++;
                             }
                             if (lastUsage - i > maxDistance && maxDistance != -1) {
                                 continue;

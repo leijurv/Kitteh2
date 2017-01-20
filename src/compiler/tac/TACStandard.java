@@ -85,6 +85,7 @@ public class TACStandard extends TACStatement {
     public void printx86(X86Emitter emit) {//oh god, this function.
         String firstName = paramNames[0];//i literally can't be bothered
         String secondName = paramNames[1];
+        String resultName = paramNames[2];
         X86Param first = params[0];
         X86Param second = params[1];
         TypeNumerical type;
@@ -103,8 +104,8 @@ public class TACStandard extends TACStatement {
         type = (TypeNumerical) first.getType();
         //}
         X86Param result = params[2];
-        if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(paramNames[2]))) {
-            if (!firstName.equals(paramNames[2]) && (op == PLUS || op == MINUS)) {
+        if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
+            if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
             }
             if (op == PLUS) {
@@ -116,14 +117,14 @@ public class TACStandard extends TACStatement {
                 return;
             }
         }
-        if (firstName.equals("1") && op == PLUS && !(result instanceof VarInfo && !firstName.equals(paramNames[2]))) {
-            if (!secondName.equals(paramNames[2])) {
+        if (firstName.equals("1") && op == PLUS && !(result instanceof VarInfo && !firstName.equals(resultName))) {
+            if (!secondName.equals(resultName)) {
                 TACConst.move(result, second, emit);
             }
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
             return;
         }
-        if (firstName.equals("0") && op == MINUS && paramNames[2].equals(secondName)) {
+        if (firstName.equals("0") && op == MINUS && resultName.equals(secondName)) {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
             return;
         }
@@ -136,7 +137,7 @@ public class TACStandard extends TACStatement {
             emit.addStatement(set + " " + result.x86());
             return;
         }
-        if (result instanceof X86TypedRegister && secondName.equals(paramNames[2]) && op.inputsReversible()) {
+        if (result instanceof X86TypedRegister && secondName.equals(resultName) && op.inputsReversible()) {
             X86Param tmp = first;
             String tmp2 = firstName;
             first = second;
@@ -191,7 +192,7 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
-        if (result instanceof X86TypedRegister && !secondName.equals(paramNames[2]) && op != MOD && op != DIVIDE) {
+        if (result instanceof X86TypedRegister && !secondName.equals(resultName) && op != MOD && op != DIVIDE) {
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

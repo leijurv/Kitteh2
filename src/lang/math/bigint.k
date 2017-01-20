@@ -593,55 +593,43 @@ equal(bigint*a,bigint*b)bool{
 	return true
 }
 
-multiply(bigint* a, bigint* bb)bigint*{
-bneg:=bb.neg
-	aneg:=a.neg
-	a.neg=false
-	bb.neg=false
-
-
+multiply(bigint* a, bigint* b)bigint*{
 	a.stripLeadingZero()
-	bb.stripLeadingZero()
-	b:=bb
+	b.stripLeadingZero()
 	resultt:=new((a.cap+b.cap)<<5)
 	mask:=mask(0)
 	x:=a.mag
 	y:=b.mag
-	xlen:=a.cap
-	ylen:=b.cap
 	
 	z:=resultt.mag
-	int xstart = xlen - 1;
-        int ystart = ylen - 1;
+	int xstart = a.cap - 1;
+    
 
-        long carry = 0;
-        int j=ystart
-        k:=ystart+1+xstart
-        for (j>=0) {
-            long product = ((long)y[j] & mask) *((long)x[xstart] & mask) + carry;
-            z[k] = (int)product;
-            carry = product >>> 32;
-            j--
-            k--
+    long carry = 0;
+    int j=b.cap-1
+    k:=b.cap+xstart
+    for (j>=0) {
+        long product = ((long)y[j] & mask) *((long)x[xstart] & mask) + carry;
+        z[k] = (int)product;
+        carry = product >>> 32;
+        j--
+        k--
+    }
+    z[xstart] = (int)carry;
+    for int i = xstart-1; i >= 0; i-- {
+        carry = 0;
+         jj:=b.cap-1
+        kk:=jj+1+i
+        for (jj>=0) {
+            long product2 = ((long)y[jj] & mask) * ((long)x[i] & mask) +((long)z[kk] & mask) + carry;
+            z[kk] = (int)product2;
+            carry = product2 >>> 32;
+            jj--
+            kk--
         }
-        z[xstart] = (int)carry;
-
-        for int i = xstart-1; i >= 0; i-- {
-            carry = 0;
-             j=ystart
-            k=ystart+1+i
-            for (j>=0) {
-                long product2 = ((long)y[j] & mask) * ((long)x[i] & mask) +((long)z[k] & mask) + carry;
-                z[k] = (int)product2;
-                carry = product2 >>> 32;
-                j--
-                k--
-            }
-            z[i] = (int)carry;
-        }
-        resultt.neg=aneg!=bneg
-	a.neg=aneg
-	bb.neg=bneg
+        z[i] = (int)carry;
+    }
+    resultt.neg=a.neg!=b.neg
 	return resultt
 	/*b=bb.padtolength(a.size+bb.size)
 	bneg=bb.neg

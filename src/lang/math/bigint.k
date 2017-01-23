@@ -4,19 +4,6 @@ struct bigint{
 	int cap
 	bool neg
 
-	debug(){
-		print("Outputting")
-		writeByte(10)
-		print(this.cap)
-		for i:=0; i<this.cap; i++{
-			print(this.mag[i])
-		}
-		print("Longval: ")
-		print(this.toLong())
-		print("End")
-		writeByte(10)
-	
-	}
 	tostring(byte lastChar)byte*{
 		zero:=fromLong(0)
 		neg:=this.neg

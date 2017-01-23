@@ -143,9 +143,15 @@ public class TACStandard extends TACStatement {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
             return;
         }
-        if (op == PLUS && first instanceof X86TypedRegister && second instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
-            emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
-            return;
+        if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
+            if (second instanceof X86TypedRegister) {
+                emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
+                return;
+            }
+            if (second instanceof X86Const) {
+                emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
+                return;
+            }
         }
         if (op == LESS || op == GREATER || op == EQUAL || op == NOT_EQUAL || op == GREATER_OR_EQUAL || op == LESS_OR_EQUAL) {
             Operator o = TACJumpCmp.createCompare(first, second, op, emit);

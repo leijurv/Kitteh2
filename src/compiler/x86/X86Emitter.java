@@ -49,17 +49,17 @@ public class X86Emitter {
             addStatement("xor" + ((TypeNumerical) a.getType()).x86typesuffix() + " " + b.x86() + ", " + b.x86());
             return;
         }
-        if (a.x86().equals(b.x86())) {
-            if (compiler.Compiler.verbose()) {
-                addComment("redundant move omitted: " + a.x86() + " to " + b.x86());
-            }
-            return;
-        }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
     String prevMove1 = null;//TODO keep track more than 1 mov in the past, and actually figure out what instructions modify what registers
     String prevMove2 = null;
     private void move(String a, String b, TypeNumerical type) {
+        if (a.equals(b)) {
+            if (compiler.Compiler.verbose()) {
+                addComment("redundant move omitted: " + a + " to " + b);
+            }
+            return;
+        }
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         if (prevMove1 != null) {
             if (a.equals(prevMove2) && b.equals(prevMove1)) {

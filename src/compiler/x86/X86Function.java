@@ -195,7 +195,7 @@ public class X86Function {
                 emitter.addLabel(emitter.lineToLabel(i));
             }
             if (compiler.Compiler.verbose()) {//this is a little mean...
-                emitter.addComment(stmts.get(i).toString());//emit the tac statement with it to make it more Readable
+                emitter.addAlignedComment(' ' + stmts.get(i).toString());//emit the tac statement with it to make it more Readable
             }
             if (stmts.get(i) instanceof TACReturn && argsSize.isPresent()) {
                 emitter.addStatement("addq $" + argsSize.getAsInt() + ", %rsp");

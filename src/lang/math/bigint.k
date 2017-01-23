@@ -453,40 +453,40 @@ subtract(bigint*aa,bigint*bb)bigint*{
 			//b-a
 			b.neg=false
 			a.neg=false
-			res:=b.subtract(a)
+			res1:=b.subtract(a)
 			b.neg=true
 			a.neg=true
-			return res
+			return res1
 		}
 		//-a - b
 		//-(a+b)
 		a.neg=false
-		res:=add(a,b)
+		res2:=add(a,b)
 		a.neg=true
-		res.neg=true
-		return res
+		res2.neg=true
+		return res2
 	}
 	if b.neg{
 		//a - -b
 		//a+b
 		b.neg=false
-		res:=add(a,b)
+		res3:=add(a,b)
 		b.neg=true
-		return res
+		return res3
 	}
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 	g:=greater(b,a)
 	if g {
-		res:=b.subtract(a)
-		res.neg=true
-		return res
+		res4:=b.subtract(a)
+		res4.neg=true
+		return res4
 	}
 	big:=a.mag
 	little:=b.mag
+	res:=new(a.cap<<5)
 	int bigIndex = a.cap;
 	int littleIndex = b.cap;
-	res:=new(bigIndex<<5)
 	result := res.mag
 	long difference = 0;
 	mask:=mask(0)

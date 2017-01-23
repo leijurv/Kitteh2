@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.util.Obfuscator;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Register;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class TACConstStr extends TACStatement {
         emit.move(X86Register.A.getRegister((TypeNumerical) params[0].getType()), params[0]);
     }
     public String getLabel() {
-        return ("str" + value.hashCode()).replace("-", "_");
+        return "str" + Obfuscator.obfuscate(value);
     }
     public String getValue() {
         return value;

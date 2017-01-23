@@ -64,7 +64,7 @@ public class X86Emitter {
         }
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         if (prevMove1 != null) {
-            if (a.equals(prevMove2) && b.equals(prevMove1)) {
+            if ((a.equals(prevMove2) && b.equals(prevMove1)) || (a.equals(prevMove1) && b.equals(prevMove2))) {
                 if (compiler.Compiler.verbose()) {
                     addComment("redundant because of previous statement:");
                     addComment(moveStmt);

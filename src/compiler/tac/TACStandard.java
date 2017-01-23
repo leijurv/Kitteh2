@@ -104,21 +104,7 @@ public class TACStandard extends TACStatement {
     }
     public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param first, X86Param second, X86Param result, Operator op) {//oh god, this function.
         //i literally can't be bothered
-        TypeNumerical type;
-        //if (firstName.startsWith(X86Register.REGISTER_PREFIX)) {
-        //    type = X86Register.typeFromRegister(firstName);
-        //    }
-        /*else if (first == null) {
-            if (second == null) {
-                throw new RuntimeException("that optimization related exception again " + this);
-                //type = (TypeNumerical) result.getType(); //this is a workaround for when i'm lazy
-            } else {
-                type = (TypeNumerical) second.getType();
-            }
-       // } else {
-         */
-        type = (TypeNumerical) result.getType();
-        //}
+        TypeNumerical type = (TypeNumerical) result.getType();
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
             if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
@@ -236,7 +222,7 @@ public class TACStandard extends TACStatement {
                 emit.move(aa, X86Register.A);
                 emit.move(cc, X86Register.C);
                 if (type.getSizeBytes() == 8) {
-                    emit.addStatement(signExtend(type.getSizeBytes()));
+                    emit.addStatement("cqto");
                 } else {
                     X86Param d = X86Register.D.getRegister(type);
                     emit.move(aa, d);
@@ -249,7 +235,7 @@ public class TACStandard extends TACStatement {
                 emit.move(aa, X86Register.A);
                 emit.move(cc, X86Register.C);
                 if (type.getSizeBytes() == 8) {
-                    emit.addStatement(signExtend(type.getSizeBytes()));
+                    emit.addStatement("cqto");
                 } else {
                     X86Param d = X86Register.D.getRegister(type);
                     emit.move(aa, d);
@@ -279,20 +265,6 @@ public class TACStandard extends TACStatement {
         }
         if (!ma) {
             emit.move(aa, result);
-        }
-    }
-    private static String signExtend(int size) {
-        switch (size) {
-            case 8:
-                return "cqto";
-            case 4:
-                return "cltq";
-            case 2:
-                return "cwtl";
-            case 1:
-                return "cbtw";
-            default:
-                throw new RuntimeException();
         }
     }
 }

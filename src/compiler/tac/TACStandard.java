@@ -176,7 +176,7 @@ public class TACStandard extends TACStatement {
             //we put the pointer in A
             //and the integer in C
             if (nonPointer instanceof X86Const) {
-                nonPointer = new X86Const(((X86Const) second).getValue(), type);//its probably a const int that we are trying to add to an 8 byte pointer
+                nonPointer = new X86Const(((X86Const) nonPointer).getValue(), type);//its probably a const int that we are trying to add to an 8 byte pointer
                 //since its literally a const number, just change the type
                 if (first.getType() instanceof TypePointer) {
                     second = nonPointer;
@@ -185,7 +185,7 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
-        if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
+        if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister || second instanceof VarInfo) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
             if (second.getType().getSizeBytes() == cc.getType().getSizeBytes()) {
                 c = second.x86();
                 shaft = c;

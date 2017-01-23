@@ -143,6 +143,10 @@ public class TACStandard extends TACStatement {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
             return;
         }
+        if (op == PLUS && first instanceof X86TypedRegister && second instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
+            emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
+            return;
+        }
         if (op == LESS || op == GREATER || op == EQUAL || op == NOT_EQUAL || op == GREATER_OR_EQUAL || op == LESS_OR_EQUAL) {
             Operator o = TACJumpCmp.createCompare(first, second, op, emit);
             String set = X86Comparison.tox86set(o);

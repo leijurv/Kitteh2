@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class X86Emitter {
     }
     String prevMove1 = null;//TODO keep track more than 1 mov in the past, and actually figure out what instructions modify what registers
     String prevMove2 = null;
+    Type prevType = null;
     private void move(String a, String b, TypeNumerical type) {
         if (a.equals(b)) {
             if (compiler.Compiler.verbose()) {
@@ -69,9 +71,10 @@ public class X86Emitter {
                 }
                 prevMove1 = null;
                 prevMove2 = null;
+                prevType = null;
                 return;
             }
-            if (!a.startsWith(X86Register.REGISTER_PREFIX) && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX)))) {
+            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && a.contains("rbp") && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX)))) {
                 if (compiler.Compiler.verbose()) {
                     addComment("Replacing move with more efficient one given previous move. Move was previously:");
                     addComment(moveStmt);
@@ -80,12 +83,14 @@ public class X86Emitter {
                 addStatement("mov" + type.x86typesuffix() + " " + (a.equals(prevMove2) ? prevMove1 : prevMove2) + ", " + b);
                 prevMove1 = null;
                 prevMove2 = null;
+                prevType = null;
                 return;
             }
         }
         addStatement(moveStmt);
         prevMove1 = a;
         prevMove2 = b;
+        prevType = type;
     }
     public void cast(X86Param a, X86Param b) {
         TypeNumerical inp = (TypeNumerical) a.getType();
@@ -104,6 +109,7 @@ public class X86Emitter {
         if (!ssnek.equals("")) {
             prevMove1 = null;
             prevMove2 = null;
+            prevType = null;
         }
     }
     public void addLabel(String lbl) {

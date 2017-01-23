@@ -144,6 +144,7 @@ public class TACStandard extends TACStatement {
             return;
         }
         if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
+            //TODO more benchmarks to determine if/when this is a performance boost
             if (second instanceof X86TypedRegister) {
                 emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
                 return;

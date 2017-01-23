@@ -482,9 +482,9 @@ subtract(bigint*aa,bigint*bb)bigint*{
 		res4.neg=true
 		return res4
 	}
+	res:=new(a.cap<<5)
 	big:=a.mag
 	little:=b.mag
-	res:=new(a.cap<<5)
 	int bigIndex = a.cap;
 	int littleIndex = b.cap;
 	result := res.mag

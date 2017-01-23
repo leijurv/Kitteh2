@@ -236,7 +236,7 @@ public class RegAllocation {
     }
     private static int lastUsage(List<TACStatement> block, String varName) {
         for (int i = block.size() - 1; i >= 0; i--) {
-            if (block.get(i).requiredVariables().contains(varName)) {
+            if (block.get(i).requiredVariables().contains(varName) || block.get(i).modifiedVariables().contains(varName)) {
                 return i;
             }
         }

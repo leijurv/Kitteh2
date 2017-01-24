@@ -31,7 +31,7 @@ public class TACArrayRef extends TACStatement {
     }
     @Override
     public String toString0() {
-        return paramNames[0] + "[" + paramNames[1] + "] = " + paramNames[2];
+        return params[0] + "[" + params[1] + "] = " + params[2];
     }
     @Override
     public boolean usesDRegister() {//I'm sorry. I'm really really sorry.

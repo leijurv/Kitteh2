@@ -25,7 +25,7 @@ public class TACArrayDeref extends TACStatement {
     }
     @Override
     public String toString0() {
-        return paramNames[2] + " = " + paramNames[0] + "[" + paramNames[1] + "]";
+        return params[2] + " = " + params[0] + "[" + params[1] + "]";
     }
     @Override
     public void printx86(X86Emitter emit) {

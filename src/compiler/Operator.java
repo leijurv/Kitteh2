@@ -17,6 +17,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.file.FileSystemAlreadyExistsException;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +78,7 @@ public enum Operator implements Token<Operator> {
         //so, a-b+c might be parsed as a-(b+c)
         //having it be a 2d array fixes that
         Map<Integer, List<Operator>> precToOp = Stream.of(values()).collect(Collectors.groupingBy(op -> op.precedence));
-        ORDER = Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(precToOp::get).collect(Collectors.toList());
+        ORDER = Collections.unmodifiableList(Stream.of(values()).map(op -> op.precedence).distinct().sorted(Comparator.comparingInt(prec -> -prec)).map(precToOp::get).map(Collections::unmodifiableList).collect(Collectors.toList()));
         //ArrayList<Operator> ops = new ArrayList<>(Arrays.asList(values()));
         //reverse order, so that the most important comes first (%) and least important comes last (&&, ||)
         //return ops;

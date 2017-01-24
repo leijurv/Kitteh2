@@ -590,7 +590,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	
 	z:=resultt.mag
 	int xstart = a.cap - 1;
-    
+    ystart:=b.cap-1
 
     long carry = 0;
     int j=b.cap-1
@@ -605,7 +605,7 @@ multiply(bigint* a, bigint* b)bigint*{
     z[xstart] = (int)carry;
     for int i = xstart-1; i >= 0; i-- {
         carry = 0;
-         jj:=b.cap-1
+         jj:=ystart
         kk:=jj+1+i
         for (jj>=0) {
             long product2 = ((long)y[jj] & mask) * ((long)x[i] & mask) +((long)z[kk] & mask) + carry;

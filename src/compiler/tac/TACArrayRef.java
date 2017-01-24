@@ -4,6 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Const;
@@ -30,6 +34,18 @@ public class TACArrayRef extends TACStatement {
         return paramNames[0] + "[" + paramNames[1] + "] = " + paramNames[2];
     }
     @Override
+    public boolean usesDRegister() {//I'm sorry. I'm really really sorry.
+        X86Emitter emit = new X86Emitter("");
+        printx86(emit);
+        String aoeu = emit.toX86();
+        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+            if (aoeu.contains(X86Register.D.getRegister(tn).x86())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    @Override
     public void printx86(X86Emitter emit) {
         //emit.addComment("cancer");
         TypeNumerical pointingTo = (TypeNumerical) ((TypePointer) params[0].getType()).pointingTo();
@@ -44,14 +60,23 @@ public class TACArrayRef extends TACStatement {
         if (params[1] instanceof X86TypedRegister) {
             ind = (X86TypedRegister) params[1];
         } else {
-            ind = (arr.getRegister() == X86Register.C ? X86Register.A : X86Register.C).getRegister((TypeNumerical) params[1].getType());
+            X86Register t;
+            //i'm sorry
+            if (params[2] instanceof X86TypedRegister) {
+                X86Register xr = ((X86TypedRegister) params[2]).getRegister();
+                t = (arr.getRegister() == X86Register.C ? (xr == X86Register.A ? X86Register.D : X86Register.A) : X86Register.C);
+            } else {
+                t = (arr.getRegister() == X86Register.C ? X86Register.A : X86Register.C);
+            }
+            ind = t.getRegister((TypeNumerical) params[1].getType());
             emit.move(params[1], ind);
         }
         X86Param source;
         if (params[2] instanceof X86TypedRegister || params[2] instanceof X86Const) {
             source = params[2];
         } else {
-            source = (arr.getRegister() == X86Register.C ? (ind.getRegister() == X86Register.A ? X86Register.D : X86Register.A) : X86Register.C).getRegister(pointingTo);
+            //i'm sorry
+            source = (arr.getRegister() == X86Register.C ? (ind.getRegister() == X86Register.A ? X86Register.D : X86Register.A) : ind.getRegister() == X86Register.C ? X86Register.D : X86Register.C).getRegister(pointingTo);
             emit.move(params[2], source);
         }
         if (arr.getRegister() == ind.getRegister() || (source instanceof X86TypedRegister && (ind.getRegister() == ((X86TypedRegister) source).getRegister() || ((X86TypedRegister) source).getRegister() == arr.getRegister()))) {

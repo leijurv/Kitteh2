@@ -129,6 +129,8 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
                 }
                 @Override
                 public void staticValues() {
+                    insert = insert.insertKnownValues(context);
+                    insert = insert.calculateConstants();
                 }
             }
             return new CommandSetStructField(context, ((VarInfo) thisVariable).getStackLocation() + offsetOfThisFieldWithinStruct, rvalue);

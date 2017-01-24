@@ -6,9 +6,9 @@
 package compiler.expression;
 import compiler.Context;
 import compiler.command.Command;
+import compiler.command.CommandSetArray;
 import compiler.tac.IREmitter;
 import compiler.tac.TACArrayDeref;
-import compiler.tac.TACArrayRef;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -19,8 +19,8 @@ import compiler.type.TypePointer;
  * @author leijurv
  */
 public class ExpressionArrayAccess extends ExpressionConditionalJumpable implements Settable {
-    Expression array;
-    Expression index;
+    private Expression array;
+    private Expression index;
     public ExpressionArrayAccess(Expression array, Expression index) {
         this.array = array;
         this.index = index;
@@ -56,38 +56,8 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
     }
     @Override
     public Command setValue(Expression rvalue, Context context) {
-        class CommandSetArray extends Command {
-            Expression value;
-            public CommandSetArray(Expression value, Context context) {
-                super(context);
-                this.value = value;
-            }
-            @Override
-            protected void generateTAC0(IREmitter emit) {
-                TempVarUsage tempVars = new TempVarUsage(context);
-                String arr = tempVars.getTempVar(array.getType());
-                array.generateTAC(emit, tempVars, arr);
-                String ind = tempVars.getTempVar(index.getType());
-                index.generateTAC(emit, tempVars, ind);
-                String source = tempVars.getTempVar(value.getType());
-                value.generateTAC(emit, tempVars, source);
-                emit.emit(new TACArrayRef(arr, ind, source));
-            }
-            @Override
-            protected int calculateTACLength() {
-                return 1 + index.getTACLength() + array.getTACLength() + value.getTACLength();
-            }
-            @Override
-            protected void staticValues() {
-                array = array.insertKnownValues(context);
-                array = array.calculateConstants();
-                value = value.insertKnownValues(context);
-                value = value.calculateConstants();
-                index = index.insertKnownValues(context);
-                index = index.calculateConstants();
-            }
-        }
-        return new CommandSetArray(rvalue, context);
+        return new CommandSetArray(array, index, rvalue, context);
+        //alternate implementation from before i had commandsetarray:
         //Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(((TypePointer) array.getType()).pointingTo().getSizeBytes(), new TypeInt32())));
         //return new CommandSetPtr(context, ptr, rvalue);
     }

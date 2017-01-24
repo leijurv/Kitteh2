@@ -5,6 +5,7 @@
  */
 package compiler.x86;
 import compiler.Context.VarInfo;
+import compiler.tac.TACArrayDeref;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACFunctionCall;
@@ -33,7 +34,7 @@ public class RegAllocation {
         boolean mode = false;
         https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees
-            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst) {
+            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst || block.get(i) instanceof TACArrayDeref) {
                 List<String> modVars = block.get(i).modifiedVariables();
                 if (modVars.size() != 1) {
                     if (block.get(i) instanceof TACFunctionCall) {

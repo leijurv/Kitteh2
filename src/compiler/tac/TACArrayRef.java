@@ -60,15 +60,8 @@ public class TACArrayRef extends TACStatement {
         if (params[1] instanceof X86TypedRegister) {
             ind = (X86TypedRegister) params[1];
         } else {
-            X86Register t;
             //i'm sorry
-            if (params[2] instanceof X86TypedRegister) {
-                X86Register xr = ((X86TypedRegister) params[2]).getRegister();
-                t = (arr.getRegister() == X86Register.C ? (xr == X86Register.A ? X86Register.D : X86Register.A) : X86Register.C);
-            } else {
-                t = (arr.getRegister() == X86Register.C ? X86Register.A : X86Register.C);
-            }
-            ind = t.getRegister((TypeNumerical) params[1].getType());
+            ind = (arr.getRegister() == X86Register.C ? (params[2] instanceof X86TypedRegister ? (((X86TypedRegister) params[2]).getRegister() == X86Register.A ? X86Register.D : X86Register.A) : X86Register.A) : X86Register.C).getRegister((TypeNumerical) params[1].getType());
             emit.move(params[1], ind);
         }
         if (ind.getType().getSizeBytes() < 8) {

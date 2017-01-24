@@ -199,7 +199,7 @@ public class TACStandard extends TACStatement {
                 throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
             }
         }
-        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!secondName.equals(resultName) || op.name().contains("SHIFT"))) {//TODO secondName.equals(resultName) may cause unintended behavior...
+        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!secondName.equals(resultName) || op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)) {//TODO secondName.equals(resultName) may cause unintended behavior...
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;
@@ -260,7 +260,7 @@ public class TACStandard extends TACStatement {
                     break;
                 }
             default:
-                emit.addStatement(op.x86() + type.x86typesuffix() + " " + (op.name().contains("SHIFT") ? shaft : c) + ", " + a);
+                emit.addStatement(op.x86() + type.x86typesuffix() + " " + (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R ? shaft : c) + ", " + a);
                 break;
         }
         if (!ma) {

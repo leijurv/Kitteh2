@@ -25,9 +25,9 @@ public class X86Format {
             + "	.asciz	\"%f\\n\"\n";
     private static final String HEADER_MAC = "    .section    __TEXT,__text\n"
             + "    .macosx_version_min 10, 10\n";
-    private static final String FOOTER_MAC = "\n.section	__TEXT,__cstring\n" + FLOAT_FORMAT;
+    private static final String FOOTER_MAC = "\n.section	__TEXT,__cstring\n";
     private static final String HEADER_LINUX = ".text\n";
-    private static final String FOOTER_LINUX = "\n.section .rodata\n" + FLOAT_FORMAT;
+    private static final String FOOTER_LINUX = "\n.section .rodata\n";
     private static final String HEADER = MAC ? HEADER_MAC : HEADER_LINUX;
     private static final String FOOTER = MAC ? FOOTER_MAC : FOOTER_LINUX;
     public static String assembleFinalFile(final Collection<X86Function> functions) {
@@ -37,7 +37,8 @@ public class X86Format {
         Future<String> footer = CompletableFuture.supplyAsync(() -> FOOTER + generateConstantsLabels(functions), ex);//OH do i LOVE this
         ex.shutdown();
         //footer gets its own executor (separate from the main fork join pool) because a parallel stream may wait for it
-        return BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);
+        String tmp = BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);
+        return tmp.contains("floatformatstring") ? tmp + FLOAT_FORMAT : tmp;//lol
     }
     synchronized static private String generateConstantsLabels(Collection<X86Function> functions) {
         //we call this function as a completablefuture
@@ -48,6 +49,6 @@ public class X86Format {
                 .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")//TODO make sure that all characters are properly escaped
                 //most things that would need to be escaped, like other quotes, need to be escaped anyway to be parsed in kitteh. newlines aren't possible at the moment
                 .distinct()
-                .collect(Collectors.joining());
+                .collect(Collectors.joining());//TODO ".section	__TEXT,__cstring" is unnecesary if there are actually no strings
     }
 }

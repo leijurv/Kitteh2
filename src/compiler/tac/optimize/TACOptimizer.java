@@ -17,6 +17,8 @@ import java.util.List;
  * @author leijurv
  */
 public class TACOptimizer {
+    private TACOptimizer() {
+    }
     public static final List<Class<? extends TACOptimization>> opt = Collections.unmodifiableList(Arrays.asList(
             UselessTempVars.class,
             RedundantCalculations.class,

@@ -49,7 +49,7 @@ public class X86Function {
     HashSet<X86Register> allUsed = null;
     public HashSet<X86Register> allUsed() {
         if (allUsed != null) {
-            return allUsed;
+            return new HashSet<>(allUsed);
         }
         HashSet<X86Register> result = new HashSet<>(used);
         coalesce(stmts, result);
@@ -76,7 +76,7 @@ public class X86Function {
             }
         }
         allUsed = result;
-        return allUsed;
+        return new HashSet<>(allUsed);
     }
     public HashSet<String> directCalls() {
         return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
@@ -86,16 +86,11 @@ public class X86Function {
             return false;//already did
         }
         List<X86Function> dsc = allDescendants();
-        for (X86Function fn : dsc) {
-            if (!fn.allocated && !fn.allDescendants().contains(this) && fn != this) {
-                //if i depend on an unallocated function
-                //and that function couldn't lead back to me and isn't me
-                //then i'll wait for that one to be done
-                //System.out.println("Can't do " + name + " because depends upon " + fn);
-                return false;
-            }
-        }
-        return true;
+        return dsc.stream().noneMatch(fn -> !fn.allocated && !fn.allDescendants().contains(this) && fn != this);
+        //if i depend on an unallocated function
+        //and that function couldn't lead back to me and isn't me
+        //then i'll wait for that one to be done
+        //System.out.println("Can't do " + name + " because depends upon " + fn);
     }
     @Override
     public String toString() {
@@ -118,9 +113,9 @@ public class X86Function {
     }
     public static List<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {
         HashMap<String, X86Function> map = new HashMap<>();
-        for (Pair<String, List<TACStatement>> pair : inp) {
+        inp.forEach(pair -> {//sadly this cannot be replaced with a sketchy stream collector map creation thingy, because the resulting map needs to be passed to each constructor
             map.put(pair.getA(), new X86Function(pair.getA(), pair.getB(), map));
-        }
+        });
         List<X86Function> reachables = map.get("main").allDescendants();
         reachables.add(map.get("main"));
         return reachables;
@@ -129,7 +124,7 @@ public class X86Function {
         return name;
     }
     public List<TACStatement> getStatements() {
-        return stmts;
+        return new ArrayList<>(stmts);
     }
     private List<String> descendants = null;
     public List<X86Function> allDescendants() {

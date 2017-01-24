@@ -22,7 +22,7 @@ class Operations implements ExpressionParseStep {
     public boolean apply(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         for (List<Operator> op : Operator.ORDER) {//order of operations
             for (int i = 0; i < o.size(); i++) {
-                if (o.get(i) instanceof Operator && op.contains((Operator) o.get(i))) {
+                if (o.get(i) instanceof Operator && op.contains((Operator) o.get(i))) {//I can't win. Whether casting o.get(i) to operator or not, netbeans has a worning
                     if (i == 0 || i == o.size() - 1) {
                         throw new IllegalStateException("Operator on edge. 411 hangs up on you.");//TODO negative numbers like i := -1
                     }

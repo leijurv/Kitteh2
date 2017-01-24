@@ -14,6 +14,8 @@ import java.util.List;
  * @author leijurv
  */
 public class Preprocessor {
+    private Preprocessor() {
+    }
     static final LineBasedTransform CHAR_STRIPPER = new CharStripperFactory()
             .addChar(' ', BOTH)//remove spaces from both ends of each line
             .addChar(';', END)//remove semicolons from the end, they are optional lol (yes you can have something like "x=5;;;;;;  ; ; ;; " and it'll be valid

@@ -45,9 +45,9 @@ public class CommandIf extends CommandBlock {
         if (elseBlock == null) {
             int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
-            for (Command com : contents) {
+            contents.forEach((com) -> {
                 com.generateTAC(emit);
-            }
+            });
         } else {
             //condition, jump to 1 if false
             //iftrue
@@ -57,16 +57,16 @@ public class CommandIf extends CommandBlock {
             //2:
             int jumpToIfFalse = emit.lineNumberOfNextStatement() + contents.stream().mapToInt(Command::getTACLength).sum() + ((ExpressionConditionalJumpable) condition).condLength() + 1;
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToIfFalse, true);//invert is true
-            for (Command com : contents) {
+            contents.forEach((com) -> {
                 com.generateTAC(emit);
-            }
+            });
             int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.stream().mapToInt(Command::getTACLength).sum();
             new TempVarUsage(ifFalse);//dont ask. lol try and remove it
             emit.updateContext(ifFalse);
             emit.emit(new TACJump(jumpTo));
-            for (Command com : elseBlock) {
+            elseBlock.forEach((com) -> {
                 com.generateTAC(emit);
-            }
+            });
         }
     }
     @Override
@@ -104,9 +104,9 @@ public class CommandIf extends CommandBlock {
             //if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if false -> we just reset the known values to what they were before because it is guaranteed to not run
         } else {
-            for (String s : trueMod) {
+            trueMod.forEach((s) -> {
                 context.clearKnownValue(s);
-            }
+            });
         }
         if (elseBlock == null) {
             return;
@@ -135,9 +135,9 @@ public class CommandIf extends CommandBlock {
             return;//if false -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if true -> we just reset the known values to what they were before because it is guaranteed to not run
         }
-        for (String s : elseMod) {
+        elseMod.forEach((s) -> {
             context.clearKnownValue(s);
-        }
+        });
     }
     @Override
     public Stream<String> getAllVarsModified() {

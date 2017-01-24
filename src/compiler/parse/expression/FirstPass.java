@@ -107,7 +107,10 @@ class FirstPass implements ExpressionParseStep {
                 case KEYWORD:
                     ExpressionConst ec = ((Keyword) ob).getConstVal();
                     if (ec != null) {
-                        o.set(i, (Expression) ec);
+                        if (!(ec instanceof Expression)) {
+                            throw new IllegalStateException();
+                        }
+                        o.set(i, ec);
                     }
                     break;
                 case INCREMENT:

@@ -27,7 +27,10 @@ import java.util.List;
  * @author leijurv
  */
 public class Kitterature {
-    public static InputStream getResourceAsStream(String name) throws IOException {
+    private Kitterature() {
+    }
+    public static InputStream getResourceAsStream(String n) throws IOException {
+        String name = n;
         if (!name.endsWith(".k")) {
             name += ".k";
         }
@@ -73,9 +76,10 @@ public class Kitterature {
         int size = 1024;
         byte[] buf = new byte[size];
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        int len;
-        while ((len = is.read(buf, 0, size)) != -1) {
+        int len = is.read(buf, 0, size);
+        while (len != -1) {
             bos.write(buf, 0, len);
+            len = is.read(buf, 0, size);
         }
         buf = bos.toByteArray();
         return buf;

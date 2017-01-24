@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author leijurv
  */
 class PointerDeref extends TokenBased {
-    public PointerDeref() {
+    PointerDeref() {
         <Operator>super(Operator.MULTIPLY);
     }
     @Override

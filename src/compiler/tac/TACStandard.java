@@ -102,7 +102,9 @@ public class TACStandard extends TACStatement {
         }
         x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
     }
-    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param first, X86Param second, X86Param result, Operator op) {//oh god, this function.
+    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param fst, X86Param snd, X86Param result, Operator op) {//oh god, this function.
+        X86Param first = fst;
+        X86Param second = snd;
         //i literally can't be bothered
         TypeNumerical type = (TypeNumerical) result.getType();
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {

@@ -28,6 +28,8 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  * @author leijurv
  */
 class BlockBeginParser {
+    private BlockBeginParser() {
+    }
     static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //ok this is going to be fun
         //func main(int i) int {

@@ -106,7 +106,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
             class CommandSetStructField extends Command {
                 Expression insert;
                 int stackLoc;
-                public CommandSetStructField(Context aids, int stackLoc, Expression insert) {
+                CommandSetStructField(Context aids, int stackLoc, Expression insert) {
                     super(aids);
                     this.stackLoc = stackLoc;
                     this.insert = insert;

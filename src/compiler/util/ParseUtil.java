@@ -22,6 +22,8 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class ParseUtil {
+    private ParseUtil() {
+    }
     public static Type typeFromTokens(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             return null;

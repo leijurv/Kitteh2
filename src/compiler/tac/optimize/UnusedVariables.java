@@ -35,14 +35,14 @@ public class UnusedVariables extends TACOptimization {
             TACStatement ts = block.get(i);
             int pos = blockBegin + i;
             if (ts instanceof TACConst) {
-                String dest = ((TACConst) ts).paramNames[1];
+                String dest = ts.paramNames[1];
                 if (dest.startsWith(X86Register.REGISTER_PREFIX)) {
                     continue;
                 }
                 if (dest.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;//if you comment out this line, the tests fail.
                 }
-                if (((TACConst) ts).params[1].getType() instanceof TypeStruct) {
+                if (ts.params[1].getType() instanceof TypeStruct) {
                     continue;
                 }
                 if (!isUsedAtOrAfter(pos, dest)) {

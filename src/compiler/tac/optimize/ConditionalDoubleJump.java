@@ -21,6 +21,7 @@ public class ConditionalDoubleJump extends TACOptimization {
     protected void run(List<TACStatement> block, int blockBegin) {
         throw new UnsupportedOperationException();
     }
+    @Override
     public List<TACStatement> go(List<TACStatement> stmts) {
         go0(stmts);
         return stmts;

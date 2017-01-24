@@ -17,6 +17,8 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
+    private ExpressionParser() {
+    }
     static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         https://en.wikipedia.org/wiki/Parsing_expression_grammar
         while (true) {

@@ -7,10 +7,10 @@ package compiler.parse.expression;
 import compiler.Context;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
-import compiler.util.ParseUtil;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import compiler.type.Type;
+import compiler.util.ParseUtil;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ import java.util.Optional;
  * @author leijurv
  */
 class Casting extends TokenBased {
-    public Casting() {
+    Casting() {
         super(STARTPAREN);
     }
     @Override

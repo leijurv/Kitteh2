@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class RegAllocation {
+    private RegAllocation() {
+    }
     public static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp, X86Function in) {
         HashSet<String> encountered = new HashSet<>();
         HashSet<Integer> used = new HashSet<>();
@@ -203,10 +205,7 @@ public class RegAllocation {
                     return false;
                 }
                 List<X86Register> args = TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs());//if this syscall only uses 1 argument register, the rest are actually ok to use
-                if (args.contains(register)) {//just make sure this register isn't one of the ones this syscall is using
-                    return false;
-                }
-                return true;
+                return !args.contains(register);//just make sure this register isn't one of the ones this syscall is using
             }
             if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && (register == X86Register.B || register == X86Register.R12 || register == X86Register.R13 || register == X86Register.R14 || register == X86Register.R15)) {
                 //malloc and free follow the ABI (unlike kitteh2 ahem)

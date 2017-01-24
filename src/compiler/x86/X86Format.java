@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class X86Format {
+    private X86Format() {
+    }
     public static final boolean MAC = System.getProperty("os.name").toLowerCase(Locale.US).contains("mac");
     private static final String FLOAT_FORMAT
             = "floatformatstring:\n"

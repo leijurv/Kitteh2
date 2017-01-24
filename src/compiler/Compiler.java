@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Compiler {
+    private Compiler() {
+    }
     static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
     static boolean METRICS = false;
     static boolean DETERMINISTIC = false;
@@ -90,13 +92,13 @@ public class Compiler {
             System.out.println("TAC generation took " + (f - e) + "ms overall");
         }
         if (VERBOSE) {
-            for (X86Function pair : reachables) {
+            reachables.forEach(pair -> {
                 System.out.println("TAC FOR " + pair.getName());
                 for (int i = 0; i < pair.getStatements().size(); i++) {
                     System.out.println(i + ":     " + pair.getStatements().get(i).toString(false));
                 }
                 System.out.println();
-            }
+            });
         }
         long g = System.currentTimeMillis();
         RegAllocation.allocate(reachables);

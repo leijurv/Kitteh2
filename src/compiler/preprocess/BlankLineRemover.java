@@ -17,7 +17,7 @@ class BlankLineRemover implements Transform<List<Line>> {
     @Override
     public void apply(List<Line> lines) {
         for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).raw() == null || lines.get(i).raw().equals("")) {
+            if (lines.get(i).raw() == null || lines.get(i).raw().isEmpty()) {
                 lines.remove(i);
                 i--;
             }

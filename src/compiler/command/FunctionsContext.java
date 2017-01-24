@@ -27,7 +27,7 @@ public class FunctionsContext {
         functionDefinitions = new ArrayList<>(definitions.size());
         this.path = thisPath;
         //System.out.println("Local imports for " + thisPath + ": " + defineLocally);
-        for (CommandDefineFunction cdf : definitions) {
+        definitions.forEach(cdf -> {
             functionDefinitions.add(cdf);
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
@@ -35,17 +35,17 @@ public class FunctionsContext {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
-        }
-        for (CommandDefineFunction cdf : structMethods) {
+        });
+        structMethods.forEach(cdf -> {
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
                 throw new EnumConstantNotPresentException(Operator.class, "   error: Two struct methods with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
-        }
-        for (Pair<Path, List<CommandDefineFunction>> file : otherFiles) {
-            for (CommandDefineFunction cdf : file.getB()) {
+        });
+        otherFiles.forEach(file -> {
+            file.getB().forEach(cdf -> {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
@@ -59,8 +59,8 @@ public class FunctionsContext {
                     }
                     functionMap.put(name1, header);
                 }
-            }
-        }
+            });
+        });
     }
     public void setEntryPoint() {
         for (CommandDefineFunction cdf : functionDefinitions) {

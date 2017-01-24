@@ -174,9 +174,9 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             System.out.println("> BEGIN TAC GENERATION FOR " + name);
         }
         IREmitter emit = new IREmitter();
-        for (Command com : contents) {
+        contents.forEach(com -> {
             com.generateTAC(emit);
-        }
+        });
         long middle = System.currentTimeMillis();
         if (Compiler.metrics()) {
             System.out.println(name);
@@ -211,7 +211,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             return Arrays.copyOf(returnTypes, returnTypes.length);
         }
         public List<Type> inputs() {
-            return arguments;
+            return new ArrayList<>(arguments);
         }
         @Override
         public String toString() {

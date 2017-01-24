@@ -5,7 +5,13 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.type.*;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
+import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;

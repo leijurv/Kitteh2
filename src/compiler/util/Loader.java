@@ -6,8 +6,8 @@
 package compiler.util;
 import compiler.Context;
 import compiler.command.CommandDefineFunction;
-import compiler.preprocess.Line;
 import compiler.parse.Processor;
+import compiler.preprocess.Line;
 import compiler.preprocess.Preprocessor;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import java.util.Map;
  * @author leijurv
  */
 public class Loader {
+    private Loader() {
+    }
     private static Pair<List<CommandDefineFunction>, Context> load(Path name) throws IOException {
         byte[] program;
         try {

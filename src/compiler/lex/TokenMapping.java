@@ -18,6 +18,8 @@ import javax.xml.ws.WebServiceException;
  * @author leijurv
  */
 class TokenMapping {
+    private TokenMapping() {
+    }
     private static final Map<String, Token> MAPPINGS;
     static {
         HashMap<String, Token> map = new HashMap<>();

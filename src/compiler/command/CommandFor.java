@@ -62,9 +62,10 @@ public class CommandFor extends CommandBlock {
         Integer previousContinueTo = emit.canContinue() ? emit.continueTo() : null;
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
         emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought
-        for (Command com : contents) {//TODOIFIWANTTOKILLMYSELF make this parallel
+        contents.forEach((com) -> {
+            //TODOIFIWANTTOKILLMYSELF make this parallel
             com.generateTAC(emit);
-        }
+        });
         emit.clearBreakContinue();
         if (previousBreakTo != null) {
             emit.setBreak(previousBreakTo);
@@ -97,9 +98,9 @@ public class CommandFor extends CommandBlock {
         List<String> varsMod = getAllVarsModified().collect(Collectors.toList());
         List<ExpressionConst> preKnown = varsMod.stream().map(context::knownValue).collect(Collectors.toList());
         //System.out.println("CLEARING " + varsMod);
-        for (String s : varsMod) {
+        varsMod.forEach((s) -> {
             context.clearKnownValue(s);
-        }
+        });
         condition = (ExpressionConditionalJumpable) condition.insertKnownValues(context);
         condition = (ExpressionConditionalJumpable) condition.calculateConstants();
         if (afterthought != null) {
@@ -122,9 +123,10 @@ public class CommandFor extends CommandBlock {
                 return;//return before we clear all modified vars, because this for loop won't even run once.
             }
         }
-        for (String s : varsMod) {//we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
+        varsMod.forEach((s) -> {
+            //we gotta do it after too. if you set i=5 in the loop, you don't know if it's gonna be 5 later because it might not have executed
             context.clearKnownValue(s);
-        }
+        });
     }
     @Override
     public Stream<String> getAllVarsModified() {

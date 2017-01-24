@@ -15,6 +15,8 @@ import java.util.logging.Logger;
  * @author leijurv
  */
 public class Obfuscator {
+    private Obfuscator() {
+    }
     static final private long NANO_TIME = System.nanoTime();
     final private static MessageDigest SHA;
     static {

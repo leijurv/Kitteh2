@@ -4,11 +4,11 @@
  * and open the template in the editor.
  */
 package compiler.parse;
-import compiler.preprocess.Line;
 import compiler.Context;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.lex.LexLuthor;
+import compiler.preprocess.Line;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class Processor {
+    private Processor() {
+    }
     /**
      * Top level parsing, only parses the function headers and returns a list of
      * CommandDefineFunctions.

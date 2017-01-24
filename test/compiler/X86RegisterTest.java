@@ -92,11 +92,11 @@ public class X86RegisterTest {
     public void testGetRegisterR15() {
         testRegister(X86Register.R15, "%r15", "%r15d", "%r15w", "%r15b");
     }
-    static final TypeNumerical[] types = {new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()};
+    static final TypeNumerical[] TYPES = {new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()};
     public void testRegister(X86Register reg, String... requiredValues) {
-        assertEquals(types.length, requiredValues.length);
-        for (int i = 0; i < types.length; i++) {
-            assertEquals(requiredValues[i], reg.getRegister1(types[i], true));
+        assertEquals(TYPES.length, requiredValues.length);
+        for (int i = 0; i < TYPES.length; i++) {
+            assertEquals(requiredValues[i], reg.getRegister1(TYPES[i], true));
         }
     }
 }

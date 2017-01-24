@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 class RecursiveParentheses extends TokenBased {
-    public RecursiveParentheses() {
+    RecursiveParentheses() {
         super(STARTPAREN);
     }
     @Override
@@ -128,10 +128,7 @@ class RecursiveParentheses extends TokenBased {
             final String funcNameCopy = funcName;
             List<Type> desiredTypes = context.gc.getHeader(pkg, funcName).inputs();
             //System.out.println("Expecting inputs: " + desiredTypes);
-            ArrayList<ArrayList<Object>> args = new ArrayList<>();
-            for (ArrayList<Object> wew : inParen) {
-                args.add(wew);
-            }
+            ArrayList<ArrayList<Object>> args = new ArrayList<>(inParen);
             if (accessing != null) {
                 args.add(0, new ArrayList<>(Arrays.asList(accessing)));
             }

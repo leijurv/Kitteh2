@@ -46,13 +46,15 @@ public class Main {
                     if (i + 1 == args.length) {
                         throw new IllformedLocaleException("You gotta give a file");
                     }
-                    inFile = args[++i];
+                    i++;
+                    inFile = args[i];
                     break;
                 case "-o":
                     if (i + 1 == args.length) {
                         throw new LSException((short) "urmum".hashCode(), "You gotta give a file");
                     }
-                    outFile = args[++i];
+                    i++;
+                    outFile = args[i];
                     continue;
                 case "-I":
                     inFile = "/dev/stdin";

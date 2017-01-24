@@ -14,7 +14,7 @@ import java.util.List;
  */
 class StripComments {
     private final Path loadingFrom;
-    public StripComments(Path loadingFrom) {
+    StripComments(Path loadingFrom) {
         this.loadingFrom = loadingFrom;
     }
     int lineNumber;

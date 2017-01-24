@@ -51,10 +51,10 @@ public class RedundantCalculations extends TACOptimization {
                         repl.copyFrom(ts);
                         repl.setVars();
                         block.set(i, repl);
-                        continue;
+                        continue;//unnecesary continue, I know, its here for Symmetry
                     }
                 }
-                //TODO shifting x by 1, or shifting 0 by x
+                //TODO shifting x by 0, or shifting 0 by x
             }
         }
     }

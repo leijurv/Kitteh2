@@ -92,7 +92,7 @@ public class MultiThreadedLoader {
     public void importFile(Path path, boolean f) throws IOException {
         Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);
         Context context = loadResult.getA();
-        for (String str : context.imports.keySet()) {
+        for (String str : context.imports.keySet()) {//netbeans thinks i can use a functional operation, but i can't: this for loop uses a continue
             Path impPath = new File(str).toPath();
             synchronized (this) {
                 if (alrImp.contains(impPath)) {

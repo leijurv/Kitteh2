@@ -27,7 +27,7 @@ import java.util.Optional;
  * @author leijurv
  */
 class StructFieldsAndArrays extends TokenBased {
-    public StructFieldsAndArrays() {
+    StructFieldsAndArrays() {
         super(o -> o == STARTBRAKT || o == PERIOD);
     }
     @Override

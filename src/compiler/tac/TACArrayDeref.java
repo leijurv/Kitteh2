@@ -47,7 +47,9 @@ public class TACArrayDeref extends TACStatement {
         }
         if (ind.getType().getSizeBytes() < 8) {
             X86TypedRegister n = ind.getRegister().getRegister((TypeNumerical) params[0].getType());
-            emit.cast(ind, n);
+            //apparently this cast is unnecesary
+            //negative array indicies aren't supported anyway
+            //emit.cast(ind, n);
             ind = n;
         }
         X86TypedRegister dest;

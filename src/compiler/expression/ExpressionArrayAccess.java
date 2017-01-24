@@ -23,7 +23,7 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
     Expression index;
     public ExpressionArrayAccess(Expression array, Expression index) {
         this.array = array;
-        this.index = new ExpressionCast(index, array.getType());
+        this.index = index;
         if (!(array.getType() instanceof TypePointer)) {
             throw new IllegalStateException();
         }
@@ -46,7 +46,7 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
     public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
         String arr = tempVars.getTempVar(array.getType());
         array.generateTAC(emit, tempVars, arr);
-        String ind = tempVars.getTempVar(array.getType());
+        String ind = tempVars.getTempVar(index.getType());
         index.generateTAC(emit, tempVars, ind);
         emit.emit(new TACArrayDeref(arr, ind, resultLocation));
     }
@@ -67,7 +67,7 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
                 TempVarUsage tempVars = new TempVarUsage(context);
                 String arr = tempVars.getTempVar(array.getType());
                 array.generateTAC(emit, tempVars, arr);
-                String ind = tempVars.getTempVar(array.getType());
+                String ind = tempVars.getTempVar(index.getType());
                 index.generateTAC(emit, tempVars, ind);
                 String source = tempVars.getTempVar(value.getType());
                 value.generateTAC(emit, tempVars, source);

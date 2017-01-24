@@ -71,6 +71,11 @@ public class TACArrayRef extends TACStatement {
             ind = t.getRegister((TypeNumerical) params[1].getType());
             emit.move(params[1], ind);
         }
+        if (ind.getType().getSizeBytes() < 8) {
+            X86TypedRegister n = ind.getRegister().getRegister((TypeNumerical) params[0].getType());
+            emit.cast(ind, n);
+            ind = n;
+        }
         X86Param source;
         if (params[2] instanceof X86TypedRegister || params[2] instanceof X86Const) {
             source = params[2];

@@ -5,16 +5,13 @@
  */
 package compiler.expression;
 import compiler.Context;
-import compiler.Operator;
 import compiler.command.Command;
-import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
 import compiler.tac.TACArrayDeref;
 import compiler.tac.TACArrayRef;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
-import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 
 /**
@@ -88,8 +85,8 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
             protected void staticValues() {
             }
         }
-        //return new CommandSetArray(array, index, rvalue, context);
-        Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(((TypePointer) array.getType()).pointingTo().getSizeBytes(), new TypeInt32())));
-        return new CommandSetPtr(context, ptr, rvalue);
+        return new CommandSetArray(array, index, rvalue, context);
+        //Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(((TypePointer) array.getType()).pointingTo().getSizeBytes(), new TypeInt32())));
+        //return new CommandSetPtr(context, ptr, rvalue);
     }
 }

@@ -29,7 +29,7 @@ public class TACArrayDeref extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        emit.addStatement("kancer");
+        //emit.addComment("kancer");
         TypeNumerical pointingTo = (TypeNumerical) ((TypePointer) params[0].getType()).pointingTo();
         X86TypedRegister arr;
         if (params[0] instanceof X86TypedRegister) {

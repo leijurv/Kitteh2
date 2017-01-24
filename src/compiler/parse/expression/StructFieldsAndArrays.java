@@ -8,7 +8,6 @@ import compiler.Context;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionArrayAccess;
-import compiler.expression.ExpressionConst;
 import compiler.expression.ExpressionConstNum;
 import compiler.expression.ExpressionOperator;
 import compiler.expression.ExpressionPointerDeref;
@@ -61,7 +60,7 @@ class StructFieldsAndArrays extends TokenBased {
             TypePointer tp = (TypePointer) array.getType();
             Type arrayContents = tp.pointingTo();
             int s = arrayContents.getSizeBytes();
-            if (arrayContents instanceof TypeNumerical && (s == 1 || s == 2 || s == 4 || s == 8) && !(index instanceof ExpressionConst)) {
+            if (arrayContents instanceof TypeNumerical && (s == 1 || s == 2 || s == 4 || s == 8)) {
                 //array deref
                 o.add(i - 1, new ExpressionArrayAccess(array, index));
                 return true;

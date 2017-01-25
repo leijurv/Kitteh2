@@ -149,9 +149,8 @@ struct bigint{
 		this.stripLeadingZero()
 		val:=this.mag
 		magLen:=this.cap
-		
+		//i:=0
 		n:=(int*)0
-		i:=0
 		nl:=magLen+amount>>>5
 		if amount&31==0{
 			if amount>>>5==0{
@@ -173,15 +172,16 @@ struct bigint{
 					n[k4]=0
 				}
 				nl++
-				n[i]=highBits
-				i++
+				n[0]=highBits
+				//i++
 			}else{
 			
 				n=(int*)malloc((nl)<<2)
-				for k3:=nl-1; k3>=magLen; k3--{
+				for k3:=magLen; k3<nl; k3++{
 					n[k3]=0
 				}
 			}
+			i:=nl-(magLen+amount>>>5)
 			jj:=0
 			nBits:=amount&31
 			nBits2:=32-nBits

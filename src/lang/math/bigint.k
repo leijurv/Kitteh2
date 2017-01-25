@@ -150,41 +150,31 @@ struct bigint{
 		val:=this.mag
 		magLen:=this.cap
 		//i:=0
-		n:=(int*)0
 		nl:=magLen+amount>>>5
 		if amount&31==0{
 			if amount>>>5==0{
 				return
 			}
-			n=(int*)malloc((nl)<<2)
+			n22:=(int*)malloc((nl)<<2)
 			for i2:=magLen; i2<nl; i2++{
-				n[i2]=0
+				n22[i2]=0
 			}
 			for i3:=0; i3<magLen; i3++{
-				n[i3]=val[i3]
+				n22[i3]=val[i3]
 			}
+			this.mag=n22
 		}else{
-
-			highBits:=val[0]>>>(32-(amount&31))
-			if highBits!=0{
-				n=(int*)malloc((nl+1)<<2)
-				for k4:=magLen-1; k4<nl; k4++{
-					n[k4]=0
-				}
-				nl++
-				n[0]=highBits
-				//i++
-			}else{
-			
-				n=(int*)malloc((nl)<<2)
-				for k3:=magLen; k3<nl; k3++{
-					n[k3]=0
-				}
-			}
-			i:=nl-(magLen+amount>>>5)
-			jj:=0
+			n:=(int*)malloc((nl+1)<<2)
 			nBits:=amount&31
 			nBits2:=32-nBits
+			highBits:=val[0]>>>nBits2
+			i:=(int)(highBits!=0)
+			for k4:=magLen-i; k4<nl; k4++{
+				n[k4]=0
+			}
+			nl=nl+i
+			n[0]=highBits
+			jj:=0
 			aaa:=magLen-1
 			for jj < aaa{
 				n[i]=(val[jj]<<nBits)|(val[jj+1]>>>nBits2)
@@ -192,8 +182,8 @@ struct bigint{
 				i++
 			}
 			n[i]=val[jj]<<nBits
+			this.mag=n
 		}
-		this.mag=n
 		this.size=nl<<5
 		this.cap=nl
 		free(val)

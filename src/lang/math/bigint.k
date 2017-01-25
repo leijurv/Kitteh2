@@ -149,16 +149,15 @@ struct bigint{
 		this.stripLeadingZero()
 		val:=this.mag
 		magLen:=this.cap
-		nBits:=amount&31
+		
 		n:=(int*)0
 		i:=0
 		nl:=magLen+amount>>>5
-		nInts:=amount>>>5
-		if nBits==0{
-			if nInts==0{
+		if amount&31==0{
+			if amount>>>5==0{
 				return
 			}
-			n=(int*)malloc((magLen+nInts)<<2)
+			n=(int*)malloc((nl)<<2)
 			for i2:=magLen; i2<nl; i2++{
 				n[i2]=0
 			}
@@ -167,9 +166,9 @@ struct bigint{
 			}
 		}else{
 
-			highBits:=val[0]>>>(32-nBits)
+			highBits:=val[0]>>>(32-(amount&31))
 			if highBits!=0{
-				n=(int*)malloc((magLen+nInts+1)<<2)
+				n=(int*)malloc((nl+1)<<2)
 				for k4:=magLen-1; k4<nl; k4++{
 					n[k4]=0
 				}
@@ -178,12 +177,13 @@ struct bigint{
 				i++
 			}else{
 			
-				n=(int*)malloc((magLen+nInts)<<2)
+				n=(int*)malloc((nl)<<2)
 				for k3:=nl-1; k3>=magLen; k3--{
 					n[k3]=0
 				}
 			}
 			jj:=0
+			nBits:=amount&31
 			nBits2:=32-nBits
 			aaa:=magLen-1
 			for jj < aaa{
@@ -277,12 +277,13 @@ struct bigint{
 		if count==this.cap{
 			count--
 		}
-		n:=(int*)malloc((tc-count)<<2)
-		for i:=tc-1; i>=count; i--{
-			n[i-count]=mc[i]
+		n2:=(int*)malloc((tc-count)<<2)
+		for i2:=tc-1; i2>=count; i2--{
+			n2[i2-count]=mc[i2]
 		}
+		
+		this.mag=n2
 		free(mc)
-		this.mag=n
 		this.cap=tc-count
 	}
 	rightshiftone()bigint*{
@@ -361,24 +362,24 @@ add(bigint* a,bigint* b)bigint*{
 		if b.neg{
 			a.neg=false
 			b.neg=false
-			res:=add(a,b)
-			res.neg=true
+			res1:=add(a,b)
+			res1.neg=true
 			a.neg=true
 			b.neg=true
-			return res
+			return res1
 		}
 		//b-a
 		a.neg=false
-		res:=b.subtract(a)
+		res2:=b.subtract(a)
 		a.neg=true
-		return res
+		return res2
 	}
 	if b.neg{
 		//a-b
 		b.neg=false
-		res:=a.subtract(b)
+		res3:=a.subtract(b)
 		b.neg=true
-		return res
+		return res3
 	}
 	a.stripLeadingZero()
 	b.stripLeadingZero()
@@ -386,15 +387,15 @@ add(bigint* a,bigint* b)bigint*{
  	// If x is shorter, swap the two arrays
    	if (a.cap < b.cap) {
    	//print("SWITCHEROO")
-       bigint* tmp = a;
+       bigint* copy1= a;
        a = b;
-       b = tmp;
+       b = copy1;
    	}
+   	res:=new(a.cap<<5)
 	x:=a.mag
 	y:=b.mag
 	int xIndex = a.cap;
 	int yIndex = b.cap;
-	res:=new(xIndex<<5)
 	result:=res.mag
 	long sum = 0
 	mask:=mask(0)

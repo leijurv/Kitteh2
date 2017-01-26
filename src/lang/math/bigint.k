@@ -1326,15 +1326,17 @@ struct mutbig{
      	return res
      }
 }
-dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
-	aIn.stripLeadingZero()
-	bIn.stripLeadingZero()
-	queueueuue:=greater(bIn,aIn)
+dividemod(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
+	aIn8.stripLeadingZero()
+	bIn8.stripLeadingZero()
+	aIn:=aIn8.dup()
+	bIn:=bIn8.dup()
+	//queueueuue:=greater(bIn,aIn)
 	bneg:=bIn.neg
 	bIn.neg=false
 	aneg:=aIn.neg
 	aIn.neg=false
-	literallywhat:=greater(bIn,aIn)
+	//literallywhat:=greater(bIn,aIn)
 	if(greater(bIn,aIn)){
 		rss:=new(1)
 		bIn.neg=bneg
@@ -1351,18 +1353,18 @@ dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
 	for i:=0; i<bIn.cap; i++{
 		b.value[i]=bIn.mag[i]
 	}
-	dont:=greater(bIn,aIn)
+	//dont:=greater(bIn,aIn)
 	q:=create(1)
 	q.clear()
 	r:=create(1)
 	r.clear()
 	cancer:=greater(bIn,aIn)
-	ahh:=aIn.mag[0]
-	bhh:=bIn.mag[0]
+	//ahh:=aIn.mag[0]
+	//bhh:=bIn.mag[0]
 	a.divide(b,q,r)
-	aha:=aIn.mag[0]
-	bha:=bIn.mag[0]
-	howw:=greater(bIn,aIn)
+	//aha:=aIn.mag[0]
+	//bha:=bIn.mag[0]
+	//howw:=greater(bIn,aIn)
 	qOut:=q.toBigint()
 	rOut:=r.toBigint()
 
@@ -1370,11 +1372,11 @@ dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
 	//rOut.stripLeadingZero()
 	qOut.neg=aneg!=bneg
 	rOut.neg=aneg
-	sketchy:=greater(bIn,aIn)
-	bIn.neg=bneg
-	aIn.neg=aneg
+	//sketchy:=greater(bIn,aIn)
+	//bIn.neg=bneg
+	//aIn.neg=aneg
 
-	qReal, rReal := dividemodOLD(aIn,bIn)
+	/*qReal, rReal := dividemodOLD(aIn,bIn)
 	if !equal(qReal,qOut) || !equal(rReal,rOut){
 		print("Oh no")
 		print(aneg)
@@ -1415,6 +1417,6 @@ dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
 		qReal.output()
 		rReal.output()
 		print("man")
-	}
+	}*/
 	return qOut, rOut
 }

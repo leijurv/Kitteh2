@@ -13,7 +13,7 @@ struct bigint{
 		copy:=this.dup()
 		count:=0
 		for greater(copy,zero){
-			wew,rem:=dividemodOLD(copy,ten)
+			wew,rem:=dividemod(copy,ten)
 			rem.free()
 			copy.free()
 			copy=wew
@@ -31,7 +31,7 @@ struct bigint{
 		out[count]=lastChar
 		count--
 		for count>=0{
-			quotient,remain:=dividemodOLD(b,ten)
+			quotient,remain:=dividemod(b,ten)
 			b.free()
 			b=quotient
 			digi:=remain.toLong()
@@ -637,7 +637,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	}
 	return res*/
 }
-dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
+/*dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 	bneg:=b.neg
@@ -678,7 +678,7 @@ dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
 	b.neg=bneg
 	a.neg=aneg
 	return res,d
-}
+}*/
 divide(bigint*a,bigint*b)bigint*{
 	quotient,remainder:=dividemod(a,b)
 	free(remainder)
@@ -938,6 +938,10 @@ struct mutbig{
 	int intLen
 	int cap
 	int offset
+	free(){
+		free(this.value)
+		this.value=(int*)0
+	}
 	normalize() {
         if (this.intLen == 0) {
             this.offset = 0;
@@ -1016,6 +1020,7 @@ struct mutbig{
             for int i = 0; i < this.intLen; i++ {
                 result[i] = this.value[this.offset + i];
             }
+         //   free(this.value)
             this.value=result
             this.cap=newLen
             this.intLen=newLen
@@ -1081,6 +1086,7 @@ struct mutbig{
             return;
         }
         if (quotient.cap < this.intLen) {
+        	//free(quotient.value)
             quotient.value = (int*)malloc(this.intLen<<2)
             for i:=0; i<this.intLen; i++{
             	quotient.value[i]=0
@@ -1139,6 +1145,7 @@ struct mutbig{
     copyValue(mutbig* val) {
         int len = val.intLen;
         if (this.cap< len) {
+        	//free(this.value)
             this.value = (int*)malloc(len<<2)
             this.cap=len
         }
@@ -1208,6 +1215,7 @@ struct mutbig{
         
         // Remainder starts as dividend with space for a leading zero
         if (rem.cap < this.intLen + 1) {
+        	//free(rem.value)
             rem.value =(int*)malloc((this.intLen + 1)<<2);
             for int i=0; i<this.intLen+1; i++{
             	rem.value[i]=0
@@ -1223,6 +1231,7 @@ struct mutbig{
         // Set the quotient size
         int limit = nlen - dlen + 1;
         if (quotient.cap < limit) {
+        	//free(quotient.value)
             quotient.value = (int*)malloc(limit<<2);
             for i:=0; i<limit; i++{
             	quotient.value[i]=0
@@ -1358,7 +1367,7 @@ dividemod(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 	q.clear()
 	r:=create(1)
 	r.clear()
-	cancer:=greater(bIn,aIn)
+	//cancer:=greater(bIn,aIn)
 	//ahh:=aIn.mag[0]
 	//bhh:=bIn.mag[0]
 	a.divide(b,q,r)

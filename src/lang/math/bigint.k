@@ -13,7 +13,8 @@ struct bigint{
 		copy:=this.dup()
 		count:=0
 		for greater(copy,zero){
-			wew:=divide(copy,ten)
+			wew,rem:=dividemodOLD(copy,ten)
+			rem.free()
 			copy.free()
 			copy=wew
 			count++
@@ -30,7 +31,7 @@ struct bigint{
 		out[count]=lastChar
 		count--
 		for count>=0{
-			quotient,remain:=dividemod(b,ten)
+			quotient,remain:=dividemodOLD(b,ten)
 			b.free()
 			b=quotient
 			digi:=remain.toLong()
@@ -636,7 +637,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	}
 	return res*/
 }
-dividemod(bigint*a,bigint*b)bigint*,bigint*{
+dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 	bneg:=b.neg
@@ -799,4 +800,602 @@ charFromHex(byte char) byte{
 }
 mask(int i) long{
 	return (2<<((long)i+31))-1
+}
+
+
+
+bitLen(int w) int{
+        // Binary search - decision tree (5 tests, rarely 6)
+        if (w < 0) {
+            return 32;
+        }
+        for int i = 0; i < 32; i++ {
+            if (w < (1 << i)) {
+                return i;
+            }
+        }
+        return 31;
+    }
+ unsignedLongCompare(long one, long two) bool{
+ mv:=minval(0)
+        return (one + mv) > (two + mv);
+    }
+minval(long inp)long{
+	return (inp+1)<<63
+}
+/*main(){
+print(minval(0)+(long)80)
+	a:=new(96)
+	a.mag[0]=5021
+	a.mag[1]=5021
+	a.mag[2]=5021
+	a.size=96
+	a.output()
+	b:=new(32)
+	b.mag[0]=420
+	b.size=32
+	b.output()
+	res:=a.divide(b)
+
+	for i:=0; i<res.cap; i++{
+		print(res.mag[i])
+	}
+	print("rem")
+	rem:=a.mod(b)
+	for i:=0; i<rem.cap; i++{
+		print(rem.mag[i])
+	}
+
+}*/
+create(int lenInts)mutbig*{
+	a:=(mutbig*)malloc(sizeof(mutbig))
+	a.value=(int*)malloc(lenInts<<2)
+	for i:=0; i<lenInts; i++{
+		a.value[i]=0
+	}
+	a.offset=0
+	a.cap=lenInts
+	a.intLen=lenInts
+	return a
+}
+intmin(int i)int{
+	return i<<31
+}
+BprimitiveRightShift(int* a, int len, int n) {
+        int n2 = 32 - n;
+        int i=len-1
+        for int c = a[i]; i > 0; i-- {
+            int b = c;
+            c = a[i - 1];
+            a[i] = (c << n2) | (b >>> n);
+        }
+        a[0] =a[0]>>> n;
+    }
+    // shifts a up to len left n bits assumes no leading zeros, 0<=n<32
+ BprimitiveLeftShift(int* a, int len, int n) {
+        if (len == 0 || n == 0) {
+            return;
+        }
+        int n2 = 32 - n;
+        int i=0
+        int c=a[i]
+        for int m = i + len - 1; i < m; i++ {
+            int b = c;
+            c = a[i + 1];
+            a[i] = (b << n) | (c >>> n2);
+        }
+        a[len - 1] =a[len-1]<< n;
+    }
+ mulsub(int* q, int* a, int x, int len, int offset) int{
+ LONGMASK:=mask(0)
+        long xLong = (long)x & LONGMASK;
+        long carry = 0;
+        offset =offset+ len;
+        for int j = len - 1; j >= 0; j--{
+            long product = ((long)a[j] & LONGMASK) * xLong + carry;
+            long difference = (long)q[offset] - product;
+            q[offset] = (int) difference;
+            offset--
+            carry = (product >>> 32) + (long)((difference & LONGMASK)  > (( (long)((int)0-((int) product +(int)1)) & LONGMASK))) ;
+        }
+        return (int) carry;
+    }
+    divWord(int* result, long n, int d) {
+        long dLong = (long)d & mask(0);
+        if (dLong == (long)1) {
+            result[0] = (int) n;
+            result[1] = 0;
+            return;
+        }
+        // Approximate the quotient and remainder
+        long q = (n >>> 1) / (dLong >>> 1);
+        long r = n - q * dLong;
+        // Correct the approximation
+        for (r < (long)0) {
+            r = dLong+r;
+            q--;
+        }
+        for (r >= dLong) {
+            r = r-dLong;
+            q++;
+        }
+        // n - q*dlong == r && 0 <= r <dLong, hence we're done.
+        result[0] = (int) q;
+        result[1] = (int) r;
+    }
+    divadd(int* a, int alen, int* result, int offset) int{
+        long carry = 0;
+        LONGMASK:=mask(0)
+        for int j = alen - 1; j >= 0; j-- {
+            long sum = ((long)a[j] & LONGMASK) + ((long)result[j + offset] & LONGMASK) + carry;
+            result[j + offset] = (int) sum;
+            carry = sum >>> 32;
+        }
+        return (int) carry;
+    }
+struct mutbig{
+	int* value
+	int intLen
+	int cap
+	int offset
+	normalize() {
+        if (this.intLen == 0) {
+            this.offset = 0;
+            return;
+        }
+        int index = this.offset;
+        if (this.value[index] != 0) {
+            return;
+        }
+        int indexBound = index + this.intLen;
+        
+            index++;
+        for (index < indexBound && this.value[index] == 0){
+        	index ++
+        }
+        int numZeros = index - this.offset;
+        this.intLen =this.intLen- numZeros;
+        if this.intLen==0{
+        	this.offset=0
+        }else{
+        this.offset=this.offset+numZeros
+        }
+    }
+    primitiveLeftShift(int n) {
+        int* val = this.value;
+        int n2 = 32 - n;
+        int i=this.offset
+        int c=val[i]
+
+        for int m = i + this.intLen - 1; i < m; i++ {
+            int b = c;
+            c = val[i + 1];
+            val[i] = (b << n) | (c >>> n2);
+        }
+        val[this.offset + this.intLen - 1] =val[this.offset+this.intLen-1]<< n;
+    }
+    primitiveRightShift(int n) {
+        int* val = this.value;
+        int n2 = 32 - n;
+        int i=this.offset+this.intLen-1
+        for int c = val[i]; i > this.offset; i-- {
+            int b = c;
+            c = val[i - 1];
+            val[i] = (c << n2) | (b >>> n);
+        }
+        val[this.offset] =val[this.offset]>>> n;
+    }
+     leftShift(int n) {
+        /*
+         * If there is enough storage space in this MutableBigInteger already
+         * the available space will be used. Space to the right of the used
+         * ints in the value array is faster to utilize, so the extra space
+         * will be taken from the right if possible.
+         */
+        if (this.intLen == 0) {
+            return;
+        }
+        int nInts = n >>> 5;
+        int nBits = n & 31;
+        int bitsInHighWord = bitLen(this.value[this.offset]);
+        // If shift can be done without moving words, do so
+        if (n <= (32 - bitsInHighWord)) {
+            this.primitiveLeftShift(nBits);
+            return;
+        }
+        int newLen = this.intLen + nInts + 1;
+        if (nBits <= (32 - bitsInHighWord)) {
+            newLen--;
+        }
+        if (this.cap < newLen) {
+            // The array must grow
+            int* result = (int*)malloc(newLen<<2)
+            for i:=0; i<newLen; i++{
+            	result[i]=0
+            }
+            for int i = 0; i < this.intLen; i++ {
+                result[i] = this.value[this.offset + i];
+            }
+            this.value=result
+            this.cap=newLen
+            this.intLen=newLen
+            this.offset=0
+        } else {
+	        if (this.cap- this.offset >= newLen) {
+	            // Use space on right
+	            for int i = 0; i < newLen - this.intLen; i++ {
+	                this.value[this.offset + this.intLen + i] = 0;
+	            }
+	        } else {
+	            // Must use space on left
+	            for int i = 0; i < this.intLen; i++ {
+	                this.value[i] = this.value[this.offset + i];
+	            }
+	            for int i = this.intLen; i < newLen; i++ {
+	                this.value[i] = 0;
+	            }
+	            this.offset = 0;
+	        }
+        }
+        this.intLen = newLen;
+        if (nBits == 0) {
+            return;
+        }
+        if (nBits <= (32 - bitsInHighWord)) {
+            this.primitiveLeftShift(nBits);
+        } else {
+            this.primitiveRightShift(32 - nBits);
+        }
+    }
+
+     rightShift(int n) {
+        if (this.intLen == 0) {
+            return;
+        }
+        int nInts = n >>> 5;
+        int nBits = n & 31;
+        this.intLen =this.intLen- nInts;
+        if (nBits == 0) {
+            return;
+        }
+        int bitsInHighWord = bitLen(this.value[this.offset]);
+        if (nBits >= bitsInHighWord) {
+            this.primitiveLeftShift(32 - nBits);
+            this.intLen=this.intLen-1;
+        } else {
+            this.primitiveRightShift(nBits);
+        }
+    }
+    divideOneWord(int divisor, mutbig* quotient) {
+    LONGMASK:=mask(0)
+        long divLong = (long)divisor & LONGMASK;
+        // Special case of one word dividend
+        if (this.intLen == 1) {
+            long remValue = (long)this.value[this.offset] & LONGMASK;
+            quotient.value[0] = (int) (remValue / divLong);
+            quotient.intLen = (int)(quotient.value[0] != 0);
+            quotient.offset = 0;
+            this.value[0] = (int) (remValue - ((long)(quotient.value[0]) * divLong));
+            this.offset = 0;
+            this.intLen = (int)(this.value[0] != 0);
+            return;
+        }
+        if (quotient.cap < this.intLen) {
+            quotient.value = (int*)malloc(this.intLen<<2)
+            for i:=0; i<this.intLen; i++{
+            	quotient.value[i]=0
+            }
+            quotient.cap=this.intLen
+        }
+        quotient.offset = 0;
+        quotient.intLen = this.intLen;
+        // Normalize the divisor
+        int shift = 32 - bitLen(divisor);
+        int rem = this.value[this.offset];
+        long remLong = (long)rem & LONGMASK;
+        if (remLong < divLong) {
+            quotient.value[0] = 0;
+        } else {
+            quotient.value[0] = (int) (remLong / divLong);
+            rem = (int) (remLong - ((long)(quotient.value[0]) * divLong));
+            remLong = (long)rem & LONGMASK;
+        }
+        int xlen = this.intLen;
+        int* qWord = (int*)malloc(8);
+        qWord[0]=0
+        qWord[1]=0
+        xlen--
+        for (xlen > 0) {
+            long dividendEstimate = (remLong << 32)  | ((long)(this.value[this.offset + this.intLen - xlen]) & LONGMASK);
+            if (dividendEstimate >= (long)0) {
+                qWord[0] = (int) (dividendEstimate / divLong);
+                qWord[1] = (int) (dividendEstimate - ((long)qWord[0] * divLong));
+            } else {
+                divWord(qWord, dividendEstimate, divisor);
+            }
+            quotient.value[this.intLen - xlen] = qWord[0];
+            rem = qWord[1];
+            remLong = (long)rem & LONGMASK;
+            xlen--
+        }
+        // Unnormalize
+        if (shift > 0) {
+            rem=rem%divisor
+       
+        } 
+            this.value[0] = rem;
+        
+        this.intLen = (int)(this.value[0] != 0) ;
+        quotient.normalize();
+    }
+    clear() {
+        this.offset = 0
+        this.intLen = 0;
+        int n=this.cap
+        for int index = 0; index < n; index++ {
+            this.value[index] = 0;
+        }
+    }
+    copyValue(mutbig* val) {
+        int len = val.intLen;
+        if (this.cap< len) {
+            this.value = (int*)malloc(len<<2)
+            this.cap=len
+        }
+        for int i = 0; i < len; i++ {
+            this.value[i] = val.value[val.offset + i];
+        }
+        this.intLen = len;
+        this.offset = 0;
+    }
+     
+      compare(mutbig* b) int{
+        if (this.intLen < b.intLen) {
+            return 0-1;
+        }
+        if (this.intLen > b.intLen) {
+            return 1;
+        }
+        im:=intmin(1)
+        for int i = 0; i < this.intLen; i++ {
+            int b1 = this.value[this.offset + i] + im;
+            int b2 = b.value[b.offset + i] + im;
+            if (b1 < b2) {
+                return 0-1;
+            }
+            if (b1 > b2) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    divide(mutbig* b, mutbig* quotient, mutbig* rem) {
+    	if(this.intLen==0){
+    	quotient.intLen=0
+    	quotient.offset=0
+    	rem.intLen=0
+    	rem.offset=0
+    	return
+    	}
+    	cmp:=this.compare(b)
+    	if cmp<0{
+    		quotient.intLen=0
+    		quotient.offset=0
+    		rem.copyValue(this)
+    		return
+    	}
+    	if cmp==0{
+    		quotient.value[0]=1
+    		quotient.intLen=1
+    		quotient.offset=0
+    		rem.intLen=0
+    		rem.offset=0
+    		return
+    	}
+    	quotient.clear()
+     	if(b.intLen==1){
+     		rem.copyValue(this)
+     		rem.divideOneWord(b.value[b.offset],quotient)
+     		return
+     	}
+
+     	// Copy divisor value to protect divisor
+     	int dlen = b.intLen;
+        int* d = (int*)malloc(dlen<<2);
+        for int i = 0; i < dlen; i++ {
+            d[i] = b.value[b.offset + i];
+        }
+        
+        // Remainder starts as dividend with space for a leading zero
+        if (rem.cap < this.intLen + 1) {
+            rem.value =(int*)malloc((this.intLen + 1)<<2);
+            for int i=0; i<this.intLen+1; i++{
+            	rem.value[i]=0
+            }
+            rem.cap=this.intLen+1
+        }
+        for int i = 0; i < this.intLen; i++ {
+            rem.value[i + 1] = this.value[i + this.offset];
+        }
+        rem.intLen = this.intLen;
+        rem.offset = 1;
+        int nlen = rem.intLen;
+        // Set the quotient size
+        int limit = nlen - dlen + 1;
+        if (quotient.cap < limit) {
+            quotient.value = (int*)malloc(limit<<2);
+            for i:=0; i<limit; i++{
+            	quotient.value[i]=0
+            }
+            quotient.cap=limit
+            quotient.offset = 0;
+        }
+        quotient.intLen = limit;
+        int* q = quotient.value;
+        // D1 normalize the divisor
+        int shift = 32 - bitLen(d[0]);
+        if (shift > 0) {
+            // First shift will not grow array
+            BprimitiveLeftShift(d, dlen, shift);
+            // But this one might
+            rem.leftShift(shift);
+        }
+        // Must insert leading 0 in rem if its length did not change
+        if (rem.intLen == nlen) {
+            rem.offset = 0;
+            rem.value[0] = 0;
+            rem.intLen=rem.intLen+1;
+        }
+         LONGMASK:=mask(0)
+        int dh = d[0];
+        long dhLong = (long)dh & LONGMASK;
+        int dl = d[1];
+        int* qWord = (int*)malloc(8)
+        qWord[0]=0
+        qWord[1]=0
+        // D2 Initialize j
+       intmin:=intmin(1)
+        for int j = 0; j < limit; j++ {
+            // D3 Calculate qhat
+            // estimate qhat
+            int qhat = 0;
+            int qrem = 0;
+            bool skipCorrection = false;
+            int nh = rem.value[j + rem.offset];
+            int nh2 = nh + intmin;
+            int nm = rem.value[j + 1 + rem.offset];
+            if (nh == dh) {
+                qhat = 0-1;
+                qrem = nh + nm;
+                skipCorrection = qrem + intmin < nh2;
+            } else {
+                long nChunk = (((long) nh) << 32) | ((long)nm & LONGMASK);
+                if (nChunk >= (long)0) {
+                    qhat = (int) (nChunk / dhLong);
+                    qrem = (int) (nChunk - ((long)qhat * dhLong));
+                } else {
+                    divWord(qWord, nChunk, dh);
+                    qhat = qWord[0];
+                    qrem = qWord[1];
+                }
+            }
+            if (qhat == 0) {
+                continue;
+            }
+            if (!skipCorrection) { // Correct qhat
+                long nl = (long)rem.value[j + 2 + rem.offset] & LONGMASK;
+                long rs = (((long)qrem & LONGMASK) << 32) | nl;
+                long estProduct = ((long)dl & LONGMASK) * ((long)qhat & LONGMASK);
+                if (unsignedLongCompare(estProduct, rs)) {
+                    qhat--;
+                    qrem = (int) (((long)qrem & LONGMASK) + dhLong);
+                    if (((long)qrem & LONGMASK) >= dhLong) {
+                        estProduct = ((long)dl & LONGMASK) * ((long)qhat & LONGMASK);
+                        rs = (((long)qrem & LONGMASK) << 32) | nl;
+                        if (unsignedLongCompare(estProduct, rs)) {
+                            qhat--;
+                        }
+                    }
+                }
+            }
+            // D4 Multiply and subtract
+            rem.value[j + rem.offset] = 0;
+            int borrow = mulsub(rem.value, d, qhat, dlen, j + rem.offset);
+            // D5 Test remainder
+            if (borrow + intmin> nh2) {
+                // D6 Add back
+                divadd(d, dlen,rem.value, j + 1 + rem.offset);
+                qhat--;
+            }
+            // Store the quotient digit
+            q[j] = qhat;
+        } // D7 loop on j
+        // D8 Unnormalize
+        if (shift > 0) {
+            rem.rightShift(shift);
+        }
+        rem.normalize();
+        quotient.normalize();
+     	return
+     }
+     toBigint()bigint*{
+     	res:=new(this.intLen * 32)
+     	for i:=0; i<this.intLen; i++{
+     		res.mag[i]=this.value[i+this.offset]
+     	}
+     	return res
+     }
+}
+dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
+	aIn.stripLeadingZero()
+	bIn.stripLeadingZero()
+	queueueuue:=greater(bIn,aIn)
+	bneg:=bIn.neg
+	bIn.neg=false
+	aneg:=aIn.neg
+	aIn.neg=false
+	literallywhat:=greater(bIn,aIn)
+	if(greater(bIn,aIn)){
+		rss:=new(1)
+		bIn.neg=bneg
+		aIn.neg=aneg
+		rss.neg=aneg!=bneg
+		return rss, aIn.dup()
+	}
+
+	a:=create(aIn.cap)
+	for i:=0; i<aIn.cap; i++{
+		a.value[i]=aIn.mag[i]
+	}
+	b:=create(bIn.cap)
+	for i:=0; i<bIn.cap; i++{
+		b.value[i]=bIn.mag[i]
+	}
+	dont:=greater(bIn,aIn)
+	q:=create(1)
+	q.clear()
+	r:=create(1)
+	r.clear()
+	cancer:=greater(bIn,aIn)
+	a.divide(b,q,r)
+	howw:=greater(bIn,aIn)
+	qOut:=q.toBigint()
+	rOut:=r.toBigint()
+
+	//qOut.stripLeadingZero()
+	//rOut.stripLeadingZero()
+	qOut.neg=aneg!=bneg
+	rOut.neg=aneg
+	sketchy:=greater(bIn,aIn)
+	bIn.neg=bneg
+	aIn.neg=aneg
+
+	qReal, rReal := dividemodOLD(aIn,bIn)
+	if !equal(qReal,qOut) || !equal(rReal,rOut){
+		print("Oh no")
+		print(aneg)
+		print(bneg)
+		print("wew")
+		print(greater(bIn,aIn))
+		print(sketchy)
+		print("howw")
+		print(howw)
+		print("cancer")
+		print(cancer)
+		print(dont)
+		print(literallywhat)
+		print(queueueuue)
+		aIn.output()
+		print("Divided by")
+		writeByte(10)
+		bIn.output()
+		qOut.output()
+		rOut.output()
+		print("Should have been")
+		writeByte(10)
+		qReal.output()
+		rReal.output()
+		print("man")
+	}
+	return qOut, rOut
 }

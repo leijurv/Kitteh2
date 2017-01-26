@@ -84,6 +84,10 @@ public class RegAllocation {
                     if (!isTemp) {
                         continue;
                     }
+                    if (lastUsage == i) {
+                        //this is ok
+                        continue;
+                    }
                     throw new RuntimeException(block + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
                 }
                 /*if (block.get(i) instanceof TACCast) {

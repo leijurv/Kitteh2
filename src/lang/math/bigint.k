@@ -1357,7 +1357,11 @@ dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
 	r:=create(1)
 	r.clear()
 	cancer:=greater(bIn,aIn)
+	ahh:=aIn.mag[0]
+	bhh:=bIn.mag[0]
 	a.divide(b,q,r)
+	aha:=aIn.mag[0]
+	bha:=bIn.mag[0]
 	howw:=greater(bIn,aIn)
 	qOut:=q.toBigint()
 	rOut:=r.toBigint()
@@ -1384,6 +1388,21 @@ dividemod(bigint* aIn, bigint* bIn) bigint*, bigint*{
 		print(cancer)
 		print(dont)
 		print(literallywhat)
+		print("highest")
+		writeByte(10)
+		print(ahh)
+		print(bhh)
+		print(aha)
+		print(bha)
+		
+		print("ok then")
+		writeByte(10)
+		print((long)(a))
+		print((long)(aIn.mag))
+		print((long)(bIn.mag))
+
+		print("ayy lmao")
+		writeByte(10)
 		print(queueueuue)
 		aIn.output()
 		print("Divided by")

@@ -637,7 +637,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	}
 	return res*/
 }
-/*dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
+dividemod(bigint*a,bigint*b)bigint*,bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 	bneg:=b.neg
@@ -678,7 +678,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	b.neg=bneg
 	a.neg=aneg
 	return res,d
-}*/
+}
 divide(bigint*a,bigint*b)bigint*{
 	quotient,remainder:=dividemod(a,b)
 	free(remainder)
@@ -1335,7 +1335,7 @@ struct mutbig{
      	return res
      }
 }
-dividemod(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
+dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 	aIn8.stripLeadingZero()
 	bIn8.stripLeadingZero()
 	aIn:=aIn8.dup()

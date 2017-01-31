@@ -19,9 +19,9 @@ main(){
 		pt.free()
 		pow.free()
 	}
-	for i:=0; i<1000; i++{
+	//for i:=0; i<1000; i++{
 	bp.dup().multiply(fromLong(50215021),modulus,bp).output()
-	}
+	//}
 }
 
 struct ecpoint{

@@ -12,7 +12,7 @@ import java.util.Objects;
  * @param <A>
  * @param <B>
  */
-public final class Pair<A, B> implements Cloneable {
+public final class Pair<A, B> {
     private final A a;
     private final B b;
     public A getA() {

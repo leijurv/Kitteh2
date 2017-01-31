@@ -211,6 +211,15 @@ struct bigint{
 		res.neg=this.neg
 		return res
 	}
+	safeCopy()bigint*{
+		this.stripLeadingZero()
+		res:=new(this.size)
+		for i:=0; i<this.size; i++{
+			res.setbit(i,this.bit(i))
+		}
+		res.neg=this.neg
+		return res
+	}
 	/*trim()bigint*{
 		return this.padtolength(this.highestbitset()+1)
 	}
@@ -848,6 +857,10 @@ print(minval(0)+(long)80)
 
 }*/
 create(int lenInts)mutbig*{
+	olen:=lenInts
+	if(lenInts<=0){
+		lenInts=1
+	}
 	a:=(mutbig*)malloc(sizeof(mutbig))
 	a.value=(int*)malloc(lenInts<<2)
 	for i:=0; i<lenInts; i++{
@@ -855,7 +868,7 @@ create(int lenInts)mutbig*{
 	}
 	a.offset=0
 	a.cap=lenInts
-	a.intLen=lenInts
+	a.intLen=olen
 	return a
 }
 intmin(int i)int{
@@ -1013,8 +1026,12 @@ struct mutbig{
         }
         if (this.cap < newLen) {
             // The array must grow
-            int* result = (int*)malloc(newLen<<2)
-            for i:=0; i<newLen; i++{
+            vhar:=newLen
+            if vhar<=0{
+            	vhar=1
+            }
+            int* result = (int*)malloc(vhar<<2)
+            for i:=0; i<vhar; i++{
             	result[i]=0
             }
             for int i = 0; i < this.intLen; i++ {
@@ -1022,7 +1039,7 @@ struct mutbig{
             }
          //   free(this.value)
             this.value=result
-            this.cap=newLen
+            this.cap=vhar
             this.intLen=newLen
             this.offset=0
         } else {
@@ -1087,11 +1104,15 @@ struct mutbig{
         }
         if (quotient.cap < this.intLen) {
         	//free(quotient.value)
-            quotient.value = (int*)malloc(this.intLen<<2)
-            for i:=0; i<this.intLen; i++{
+        	ql:=this.intLen
+        	if ql<=0{
+        		ql=1
+        	}
+            quotient.value = (int*)malloc(ql<<2)
+            for i:=0; i<ql; i++{
             	quotient.value[i]=0
             }
-            quotient.cap=this.intLen
+            quotient.cap=ql
         }
         quotient.offset = 0;
         quotient.intLen = this.intLen;
@@ -1144,11 +1165,14 @@ struct mutbig{
     }
     copyValue(mutbig* val) {
         int len = val.intLen;
-        if (this.cap< len) {
-        	//free(this.value)
-            this.value = (int*)malloc(len<<2)
-            this.cap=len
-        }
+        //if (this.cap< len) {
+        	cop:=len
+        	if cop<=0{
+        		cop=1
+        	}
+            this.value = (int*)malloc(cop<<2)
+            this.cap=cop
+        //}
         for int i = 0; i < len; i++ {
             this.value[i] = val.value[val.offset + i];
         }
@@ -1208,7 +1232,12 @@ struct mutbig{
 
      	// Copy divisor value to protect divisor
      	int dlen = b.intLen;
-        int* d = (int*)malloc(dlen<<2);
+     	whoaled:=dlen
+     	if whoaled<=0{
+     		whoaled=1
+     	}
+        int* d = (int*)malloc(whoaled<<2);
+        d[0]=0
         for int i = 0; i < dlen; i++ {
             d[i] = b.value[b.offset + i];
         }
@@ -1216,11 +1245,15 @@ struct mutbig{
         // Remainder starts as dividend with space for a leading zero
         if (rem.cap < this.intLen + 1) {
         	//free(rem.value)
-            rem.value =(int*)malloc((this.intLen + 1)<<2);
-            for int i=0; i<this.intLen+1; i++{
+        	leee:=this.intLen+1
+        	if leee<=0{
+        		leee=1
+        	}
+            rem.value =(int*)malloc(leee<<2);
+            for int i=0; i<leee; i++{
             	rem.value[i]=0
             }
-            rem.cap=this.intLen+1
+            rem.cap=leee
         }
         for int i = 0; i < this.intLen; i++ {
             rem.value[i + 1] = this.value[i + this.offset];
@@ -1232,13 +1265,18 @@ struct mutbig{
         int limit = nlen - dlen + 1;
         if (quotient.cap < limit) {
         	//free(quotient.value)
-            quotient.value = (int*)malloc(limit<<2);
-            for i:=0; i<limit; i++{
+        	vvv:=limit
+        	if vvv<=0{
+        		vvv=1
+        	}
+            quotient.value = (int*)malloc(vvv<<2);
+            for i:=0; i<vvv; i++{
             	quotient.value[i]=0
             }
-            quotient.cap=limit
-            quotient.offset = 0;
+            quotient.cap=vvv
+            
         }
+        quotient.offset = 0;
         quotient.intLen = limit;
         int* q = quotient.value;
         // D1 normalize the divisor
@@ -1328,18 +1366,31 @@ struct mutbig{
      	return
      }
      toBigint()bigint*{
-     	res:=new(this.intLen * 32)
+     	resLen:=this.intLen
+     	if resLen==0{
+     		resLen=1
+     	}
+     	res:=new(resLen * 32)
+     	for i:=0; i<resLen; i++{
+     		res.mag[i]=0
+     	}
      	for i:=0; i<this.intLen; i++{
      		res.mag[i]=this.value[i+this.offset]
      	}
+     	res.size=resLen*32
      	return res
      }
 }
 dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
+aIn8=aIn8.safeCopy()
+aIn8=aIn8.safeCopy()
+bIn8=bIn8.safeCopy()
+bIn8=bIn8.safeCopy()
 	aIn8.stripLeadingZero()
 	bIn8.stripLeadingZero()
-	aIn:=aIn8.dup()
-	bIn:=bIn8.dup()
+	aIn:=aIn8.safeCopy().safeCopy().safeCopy()
+	bIn:=bIn8.safeCopy().safeCopy().safeCopy()
+	
 	//queueueuue:=greater(bIn,aIn)
 	bneg:=bIn.neg
 	bIn.neg=false
@@ -1351,7 +1402,7 @@ dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 		bIn.neg=bneg
 		aIn.neg=aneg
 		rss.neg=aneg!=bneg
-		return rss, aIn.dup()
+		return rss, aIn.safeCopy()
 	}
 
 	a:=create(aIn.cap)
@@ -1374,8 +1425,8 @@ dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 	//aha:=aIn.mag[0]
 	//bha:=bIn.mag[0]
 	//howw:=greater(bIn,aIn)
-	qOut:=q.toBigint()
-	rOut:=r.toBigint()
+	qOut:=q.toBigint().safeCopy()
+	rOut:=r.toBigint().safeCopy()
 
 	//qOut.stripLeadingZero()
 	//rOut.stripLeadingZero()
@@ -1385,10 +1436,14 @@ dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 	//bIn.neg=bneg
 	//aIn.neg=aneg
 
-	/*qReal, rReal := dividemodOLD(aIn,bIn)
+	qReal, rReal := dividemodOLD(aIn8,bIn8)
+qReal=qReal.safeCopy()
+rReal=rReal.safeCopy()
+
+	
 	if !equal(qReal,qOut) || !equal(rReal,rOut){
 		print("Oh no")
-		print(aneg)
+		/*print(aneg)
 		print(bneg)
 		print("wew")
 		print(greater(bIn,aIn))
@@ -1414,18 +1469,26 @@ dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 
 		print("ayy lmao")
 		writeByte(10)
-		print(queueueuue)
+		print(queueueuue)*/
 		aIn.output()
 		print("Divided by")
 		writeByte(10)
 		bIn.output()
+		print("aka")
+		writeByte(10)
+		aIn8.output()
+		print("div by")
+		writeByte(10)
+		bIn8.output()
 		qOut.output()
 		rOut.output()
 		print("Should have been")
 		writeByte(10)
 		qReal.output()
 		rReal.output()
+		print(equal(qReal,qOut))
+		print(equal(rReal,rOut))
 		print("man")
-	}*/
+	}
 	return qOut, rOut
 }

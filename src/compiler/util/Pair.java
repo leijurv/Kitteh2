@@ -47,8 +47,4 @@ public final class Pair<A, B> implements Cloneable {
         hash = 67 * hash + Objects.hashCode(this.b);
         return hash;
     }
-    @Override
-    public Pair<A, B> clone() throws CloneNotSupportedException {
-        throw new CloneNotSupportedException("there's literally no point if its not a deep clone");
-    }
 }

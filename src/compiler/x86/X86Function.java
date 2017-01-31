@@ -173,7 +173,7 @@ public class X86Function {
             }
             emitter.addComment("Registers used: " + au);
         }
-        OptionalInt argsSize = stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).mapToInt(ts -> -ts.totalStack() + ts.argsSize()).max();
+        OptionalInt argsSize = stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).mapToInt(TACFunctionCall::stackSpaceRequired).max();
         if (argsSize.isPresent()) {
             int toSubtract = argsSize.getAsInt();
             if (toSubtract % 16 != 0) {

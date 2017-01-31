@@ -95,11 +95,8 @@ public class TACFunctionCall extends TACStatement {
     public int numArgs() {
         return params.length;
     }
-    public int argsSize() {
-        return header.inputs().stream().mapToInt(Type::getSizeBytes).sum();
-    }
-    public int totalStack() {
-        return context.getTotalStackSize();
+    public int stackSpaceRequired() {
+        return header.inputs().stream().mapToInt(Type::getSizeBytes).sum() - context.getTotalStackSize();
     }
     @Override
     public void printx86(X86Emitter emit) {

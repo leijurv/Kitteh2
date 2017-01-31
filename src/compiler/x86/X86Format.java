@@ -40,9 +40,15 @@ public class X86Format {
         ex.shutdown();
         //footer gets its own executor (separate from the main fork join pool) because a parallel stream may wait for it
         String tmp = BetterJoiner.futuristicJoin(functions.parallelStream().map(X86Function::generateX86), header, joiner, footer);
-        return tmp.contains("floatformatstring") ? tmp + FLOAT_FORMAT : tmp;//lol
+        if (tmp.contains("floatformatstring")) {
+            tmp += FLOAT_FORMAT;
+        }
+        if (tmp.endsWith(FOOTER)) {//if it ends with the footer, that means that the footer is unnecessary (it has no contents)
+            tmp = tmp.substring(0, tmp.length() - FOOTER.length());//TODO this is a little inefficient, to add then remove it. it should check beforehand if there are any constantslabels or the float format string, and only append the footer if necessary
+        }
+        return tmp;
     }
-    synchronized static private String generateConstantsLabels(Collection<X86Function> functions) {
+    static private String generateConstantsLabels(Collection<X86Function> functions) {
         //we call this function as a completablefuture
         //that way it can run its incredibly long and computationally intensive task of appending and hashing a handful of strings
         //at the same time as x86 generation for all the other tac statements (that gets its own parallel stream)

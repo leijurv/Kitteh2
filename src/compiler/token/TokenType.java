@@ -58,10 +58,6 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
         return this;
     }
     @Override
-    public Void data() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    @Override
     public boolean test(Token t) {
         return t.tokenType() == this;
     }

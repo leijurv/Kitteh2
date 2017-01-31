@@ -101,8 +101,4 @@ public enum Keyword implements Token<Keyword> {
     public TokenType tokenType() {
         return TokenType.KEYWORD;
     }
-    @Override
-    public Keyword data() {
-        throw new UnsupportedOperationException("");
-    }
 }

@@ -283,8 +283,4 @@ public enum Operator implements Token<Operator> {
     public TokenType tokenType() {
         return TokenType.OPERATOR;
     }
-    @Override
-    public Operator data() {
-        throw new UnsupportedOperationException("");
-    }
 }

@@ -15,12 +15,13 @@ import compiler.type.TypeBoolean;
  *
  * @author leijurv
  */
-public class ExpressionConstBool extends ExpressionConditionalJumpable implements ExpressionConst {
+public class ExpressionConstBool extends ExpressionConditionalJumpable implements ExpressionConst<Boolean> {
     private final boolean bool;
     public ExpressionConstBool(boolean bool) {
         this.bool = bool;
     }
-    public boolean getVal() {
+    @Override
+    public Boolean getVal() {
         return bool;
     }
     @Override

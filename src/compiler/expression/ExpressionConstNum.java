@@ -15,7 +15,7 @@ import compiler.type.TypeNumerical;
  *
  * @author leijurv
  */
-public class ExpressionConstNum extends Expression implements ExpressionConst {
+public class ExpressionConstNum extends Expression implements ExpressionConst<Number> {
     private final Number val;
     private final Type type;
     public ExpressionConstNum(Number val, TypeNumerical type) {
@@ -38,6 +38,7 @@ public class ExpressionConstNum extends Expression implements ExpressionConst {
         emit.emit(new TACConst(resultLocation, val.toString()));//this one, too, at least, is easy
         //wew that was like a lot of commas. 3 commas for 7 words. that's 3/7, which is 42.8572% (rounding)
     }
+    @Override
     public Number getVal() {
         return val;
     }

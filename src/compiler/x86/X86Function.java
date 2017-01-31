@@ -173,12 +173,14 @@ public class X86Function {
             }
             emitter.addComment("Registers used: " + au);
         }
-        OptionalInt argsSize = stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).mapToInt(ts -> -ts.totalStack() + ts.argsSize() + 10).max();
+        OptionalInt argsSize = stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).mapToInt(ts -> -ts.totalStack() + ts.argsSize()).max();
         if (argsSize.isPresent()) {
             int toSubtract = argsSize.getAsInt();
-            toSubtract /= 16;
-            toSubtract++;
-            toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
+            if (toSubtract % 16 != 0) {
+                toSubtract /= 16;
+                toSubtract++;
+                toSubtract *= 16;//toSubtract needs to be a multiple of 16 for alignment reasons
+            }
             argsSize = OptionalInt.of(toSubtract);
             emitter.addStatement("subq $" + argsSize.getAsInt() + ", %rsp");
         }

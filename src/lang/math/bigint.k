@@ -1436,7 +1436,7 @@ bIn8=bIn8.safeCopy()
 	//bIn.neg=bneg
 	//aIn.neg=aneg
 
-	qReal, rReal := dividemodOLD(aIn8,bIn8)
+	qReal, rReal := dividemod(aIn8,bIn8)
 qReal=qReal.safeCopy()
 rReal=rReal.safeCopy()
 

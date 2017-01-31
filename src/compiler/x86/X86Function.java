@@ -141,18 +141,15 @@ public class X86Function {
         toExplore.addAll(directCalls());
         while (!toExplore.isEmpty()) {
             String s = toExplore.pop();
-            if (!descendants.contains(s)) {
-                descendants.add(s);
-            }
-            X86Function body = map.get(s);
-            if (body == null) {
-                continue;
-            }
             if (explored.contains(s)) {
                 continue;
             }
             explored.add(s);
-            toExplore.addAll(body.directCalls());
+            descendants.add(s);
+            X86Function body = map.get(s);
+            if (body != null) {
+                toExplore.addAll(body.directCalls());
+            }
         }
         return descendants.stream();
     }

@@ -104,9 +104,7 @@ public class CommandIf extends CommandBlock {
             //if true -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if false -> we just reset the known values to what they were before because it is guaranteed to not run
         } else {
-            trueMod.forEach((s) -> {
-                context.clearKnownValue(s);
-            });
+            trueMod.forEach(context::clearKnownValue);
         }
         if (elseBlock == null) {
             return;
@@ -135,9 +133,7 @@ public class CommandIf extends CommandBlock {
             return;//if false -> don't clear known values because they are still useful because this if statement is guaranteed to run
             //if true -> we just reset the known values to what they were before because it is guaranteed to not run
         }
-        elseMod.forEach((s) -> {
-            context.clearKnownValue(s);
-        });
+        elseMod.forEach(context::clearKnownValue);
     }
     @Override
     public Stream<String> getAllVarsModified() {

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -53,13 +54,14 @@ public class X86Function {
         }
         HashSet<X86Register> result = new HashSet<>(used);
         coalesce(stmts, result);
-        for (String fn : allDescendants0()) {
-            if (map.get(fn) != null) {
-                if (map.get(fn).used == null) {
+        for (String fn : allDescendants0().collect(Collectors.toList())) {
+            X86Function f = map.get(fn);
+            if (f != null) {
+                if (f.used == null) {
                     throw new IllegalStateException();
                 }
-                result.addAll(map.get(fn).used);
-                coalesce(map.get(fn).stmts, result);
+                result.addAll(f.used);
+                coalesce(f.stmts, result);
                 continue;
             }
             switch (fn) {
@@ -85,8 +87,7 @@ public class X86Function {
         if (allocated) {
             return false;//already did
         }
-        List<X86Function> dsc = allDescendants();
-        return dsc.stream().noneMatch(fn -> !fn.allocated && !fn.allDescendants().contains(this) && fn != this);
+        return allDescendants().noneMatch(fn -> !fn.allocated && !fn.allDescendants().anyMatch(this::equals) && fn != this);
         //if i depend on an unallocated function
         //and that function couldn't lead back to me and isn't me
         //then i'll wait for that one to be done
@@ -116,7 +117,7 @@ public class X86Function {
         inp.forEach(pair -> {//sadly this cannot be replaced with a sketchy stream collector map creation thingy, because the resulting map needs to be passed to each constructor
             map.put(pair.getA(), new X86Function(pair.getA(), pair.getB(), map));
         });
-        List<X86Function> reachables = map.get("main").allDescendants();
+        List<X86Function> reachables = map.get("main").allDescendants().collect(Collectors.toList());
         reachables.add(map.get("main"));
         return reachables;
     }
@@ -127,12 +128,12 @@ public class X86Function {
         return new ArrayList<>(stmts);
     }
     private List<String> descendants = null;
-    public List<X86Function> allDescendants() {
-        return allDescendants0().stream().map(map::get).filter(x -> x != null).collect(Collectors.toList());
+    public Stream<X86Function> allDescendants() {
+        return allDescendants0().map(map::get).filter(x -> x != null);
     }
-    public List<String> allDescendants0() {
+    public Stream<String> allDescendants0() {
         if (descendants != null) {
-            return new ArrayList<>(descendants);
+            return descendants.stream();
         }
         descendants = new ArrayList<>();
         LinkedList<String> toExplore = new LinkedList<>();
@@ -153,7 +154,7 @@ public class X86Function {
             explored.add(s);
             toExplore.addAll(body.directCalls());
         }
-        return new ArrayList<>(descendants);
+        return descendants.stream();
     }
     public String generateX86() {
         if (!allocated) {

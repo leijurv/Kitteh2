@@ -221,7 +221,7 @@ public class RegAllocation {
                 if (call == null || call == in) {
                     return false;
                 }
-                if (call.allDescendants().contains(in)) {
+                if (call.allDescendants().anyMatch(in::equals)) {
                     return false;
                 }
                 if (!call.allocated) {

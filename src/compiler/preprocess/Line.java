@@ -55,14 +55,26 @@ public class Line {
     public String raw() {
         return raw;
     }
-    public RuntimeException exception(Throwable toWrap) {
-        return exception(toWrap, null);
+
+    public class LineException extends RuntimeException {
+        public LineException(Throwable toWrap, String doing) {
+            super(toWrap.getClass() + " while " + doing + lineMessage(), toWrap);
+            if (toWrap == null || doing == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+        public LineException() {
+            super("Exception on " + lineMessage());
+        }
+        public LineException(Throwable toWrap) {
+            super(toWrap.getClass() + " on" + lineMessage(), toWrap);
+            if (toWrap == null) {
+                throw new IllegalArgumentException();
+            }
+        }
     }
-    public RuntimeException exception(Throwable toWrap, String doing) {//TODO specific Throwable that's line based
-        return new RuntimeException((toWrap == null ? "Exception" : toWrap.getClass()) + " " + (doing == null ? "on" : "while " + doing) + " line " + origLineNumber + " of " + loadedFrom, toWrap);
-    }
-    public RuntimeException exception() {
-        return exception(null, null);
+    private String lineMessage() {
+        return " line " + origLineNumber + " of " + loadedFrom;
     }
     public ArrayList<Object> source() {
         return source;

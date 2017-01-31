@@ -8,6 +8,7 @@ import compiler.Context;
 import compiler.Keyword;
 import compiler.command.Command;
 import compiler.preprocess.Line;
+import compiler.preprocess.Line.LineException;
 import compiler.token.Token;
 import static compiler.token.Token.is;
 import static compiler.token.TokenType.*;
@@ -102,10 +103,7 @@ class Parser {
                 return Optional.ofNullable(LineParser.parseLine(l.getTokens(), context));//TODO have LineParser.parseLine return an Optional<Command> proper instead of a Command that can be null
             }
         } catch (RuntimeException e) {
-            if (e.getMessage() != null && e.getMessage().contains(" while parsing line")) {//TODO have Line.exception return a LineException which extend RuntimeException and here we can just check if e instanceof LineException
-                throw e;
-            }
-            throw l.exception(e, "parsing");
+            throw e instanceof LineException ? e : l.new LineException(e, "parsing");
         }
     }
 }

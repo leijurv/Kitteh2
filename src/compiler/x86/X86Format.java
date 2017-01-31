@@ -57,6 +57,6 @@ public class X86Format {
                 .map(tcs -> tcs.getLabel() + ":\n	.asciz \"" + tcs.getValue() + "\"\n")//TODO make sure that all characters are properly escaped
                 //most things that would need to be escaped, like other quotes, need to be escaped anyway to be parsed in kitteh. newlines aren't possible at the moment
                 .distinct()
-                .collect(Collectors.joining());//TODO ".section	__TEXT,__cstring" is unnecesary if there are actually no strings
+                .collect(Collectors.joining());
     }
 }

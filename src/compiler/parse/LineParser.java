@@ -65,35 +65,29 @@ class LineParser {
                         throw new IllegalStateException("Continue should be on a line on its own");
                     }
                     return new CommandContinue(context);
-                case RETURN://TODO swaths of this are redundant for multi return vs multi return
+                case RETURN:
                     FunctionHeader header = context.getCurrentFunction();
-                    if (!tokens.contains(COMMA)) {
-                        Type[] retTypes = header.getReturnTypes();
-                        if (retTypes.length != 1) {
-                            throw new IllegalStateException("Trying to return only one type when you need to return " + Arrays.asList(retTypes));
+                    List<List<Token>> splitted = ParseUtil.splitList(tokens.subList(1, tokens.size()), COMMA);
+                    Type[] retTypes = header.getReturnTypes();
+                    if (tokens.size() == 1) {
+                        //you're just doing "return" without a value, which is k
+                        if (!(retTypes[0] instanceof TypeVoid) || retTypes.length != 1) {
+                            throw new IllegalStateException("you can't put a round peg in a square hole. or in this case, a void peg in a " + Arrays.asList(retTypes) + " hole");
                         }
-                        Type retType = retTypes[0];
-                        if (tokens.size() == 1) {
-                            //you're just doing "return" without a value, which is k
-                            if (!(retType instanceof TypeVoid)) {
-                                throw new IllegalStateException("you can't put a round peg in a square hole. or in this case, a void peg in a " + retType + " hole");
-                            }
-                            return new CommandReturn(context);
-                        } else {
-                            Expression ex;
-                            if (retType instanceof TypeVoid) {
-                                ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.empty(), context); //we parse it here so that we know the type for the humorous error message
-                                throw new IllegalStateException("you can't put a square peg in a round hole. or in this case, a " + ex.getType() + " peg in a void hole");
-                            }
-                            ex = ExpressionParser.parse(tokens.subList(1, tokens.size()), Optional.of(retType), context);
-                            return new CommandReturn(context, ex);
+                        return new CommandReturn(context);
+                    }
+                    if (retTypes.length != splitted.size()) {
+                        throw new IllegalStateException("Trying to return " + splitted.size() + " vars when you need to return " + retTypes.length + " " + splitted + " " + Arrays.asList(retTypes));
+                    }
+                    if (splitted.size() == 1) {
+                        Expression ex;
+                        if (retTypes[0] instanceof TypeVoid) {
+                            ex = ExpressionParser.parse(splitted.get(0), Optional.empty(), context); //we parse it here so that we know the type for the humorous error message
+                            throw new IllegalStateException("you can't put a square peg in a round hole. or in this case, a " + ex.getType() + " peg in a void hole");
                         }
+                        ex = ExpressionParser.parse(splitted.get(0), Optional.of(retTypes[0]), context);
+                        return new CommandReturn(context, ex);
                     } else {
-                        List<List<Token>> splitted = ParseUtil.splitList(tokens.subList(1, tokens.size()), COMMA);
-                        Type[] retTypes = header.getReturnTypes();
-                        if (retTypes.length != splitted.size()) {
-                            throw new IllegalStateException("Trying to return " + splitted.size() + " vars when you need to return " + retTypes.length + " " + splitted + " " + Arrays.asList(retTypes));
-                        }
                         Expression[] expressions = new Expression[retTypes.length];
                         for (int i = 0; i < retTypes.length; i++) {//resista la temptacion para usar los parallelo streamos
                             expressions[i] = ExpressionParser.parse(splitted.get(i), Optional.of(retTypes[i]), context);

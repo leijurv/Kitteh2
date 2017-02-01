@@ -103,7 +103,7 @@ class Parser {
                 return Optional.ofNullable(LineParser.parseLine(l.getTokens(), context));//TODO have LineParser.parseLine return an Optional<Command> proper instead of a Command that can be null
             }
         } catch (RuntimeException e) {
-            throw e instanceof LineException ? e : l.new LineException(e, "parsing");
+            throw e instanceof LineException ? e : l.new <RuntimeException>LineException(e, "parsing");
         }
     }
 }

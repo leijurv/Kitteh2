@@ -57,7 +57,7 @@ public class Line {
     }
 
     public class LineException extends RuntimeException {
-        public LineException(Throwable toWrap, String doing) {
+        public <T extends Throwable> LineException(T toWrap, String doing) {
             super(toWrap.getClass() + " while " + doing + lineMessage(), toWrap);
             if (toWrap == null || doing == null) {
                 throw new IllegalArgumentException();

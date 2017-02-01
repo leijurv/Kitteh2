@@ -56,7 +56,7 @@ public class UselessTempVars extends TACOptimization {
                 if (curr.params[0].getType() instanceof TypeFloat || curr.params[1].getType() instanceof TypeFloat) {
                     continue;
                 }
-                continue;
+                //continue;
             } else if (!(block.get(ind) instanceof TACConst)) {
                 continue;
             }
@@ -78,7 +78,7 @@ public class UselessTempVars extends TACOptimization {
                 currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
                 //vi.getContext().printFull = true;
                 //System.out.println("Replaced " + valSet + " for " + vi + " with " + currSource + " in " + curr);
-                continue;
+                //continue;
             } else {
                 if (curr instanceof TACCast) {
                     throw new IllegalStateException(curr + "");

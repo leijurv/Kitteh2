@@ -5,6 +5,7 @@
  */
 package compiler.x86;
 import compiler.type.Type;
+import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 
 /**
@@ -20,6 +21,9 @@ public class X86Const implements X86Param {
         }
         this.value = value;
         this.type = type;
+        if (type instanceof TypeFloat) {
+            throw new IllegalStateException();
+        }
     }
     @Override
     public String x86() {

@@ -28,7 +28,7 @@ public class UnusedAssignment extends TACOptimization {
     protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {
             List<String> mv = block.get(i).modifiedVariables();
-            if (block.get(i).toString(true).contains("Struct")) {
+            if (block.get(i).toString(true).contains("Struct") && !block.get(i).toString(false).contains("*Struct")) {
                 continue;
             }
             if (block.get(i) instanceof TACFunctionCall) {

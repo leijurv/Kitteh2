@@ -48,7 +48,7 @@ public class UselessTempVars extends TACOptimization {
         for (int ind = 0; ind < block.size() - 1; ind++) {
             TACStatement curr = block.get(ind);
             if (block.get(ind) instanceof TACCast) {
-                if (curr.params[0].getType().getSizeBytes() != curr.params[1].getType().getSizeBytes()) {
+                if (curr.params[0].getType().getSizeBytes() < curr.params[1].getType().getSizeBytes()) {
                     //it actually is a cast up or down
                     continue;
                 }
@@ -80,6 +80,9 @@ public class UselessTempVars extends TACOptimization {
                 if (curr instanceof TACCast) {
                     throw new IllegalStateException(curr + "");
                 }
+                /*if (currSource instanceof X86Const) {
+                    currSource = new X86Const(((X86Const) currSource).getValue(), (TypeNumerical) curr.params[1].getType());
+                }*/
             }
             int st = ind + 1;
             boolean tempVar = isTempVariable(valSet);

@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.Context;
 import compiler.type.TypeNumerical;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
@@ -70,7 +71,11 @@ public abstract class TACStatement {
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {
                 paramNames[i] = replaceWith;
-                params[i] = infoWith;
+                if (infoWith instanceof X86Const && !infoWith.getType().equals(params[i].getType())) {
+                    params[i] = new X86Const(((X86Const) infoWith).getValue(), (TypeNumerical) params[i].getType());
+                } else {
+                    params[i] = infoWith;
+                }
                 f = true;
             }
         }

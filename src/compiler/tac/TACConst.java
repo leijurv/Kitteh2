@@ -93,7 +93,11 @@ public class TACConst extends TACStatement {
         }
         TypeNumerical type = (TypeNumerical) dest.getType();
         if (type.getSizeBytes() != source.getType().getSizeBytes()) {
-            throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
+            if (source instanceof X86Const) {
+                source = new X86Const(((X86Const) source).getValue(), type);
+            } else {
+                throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
+            }
         }
         if (source instanceof X86Const || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
             emit.uncheckedMove(source, dest);

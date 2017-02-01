@@ -46,7 +46,7 @@ public class TACJumpCmp extends TACJump {
         X86Param first = params[0];
         X86Param second = params[1];
         if (!first.getType().equals(second.getType())) {
-            throw new IllegalStateException("an apple and an orange snuck in");
+            throw new IllegalStateException("an apple and an orange snuck in" + this);
         }
         Operator o = createCompare(first, second, op, emit);
         String jump = X86Comparison.tox86jump(o);

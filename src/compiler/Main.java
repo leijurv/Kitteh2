@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
-import static compiler.tac.optimize.OptimizationSettings.*;
+import compiler.tac.optimize.OptimizationSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.ProcessBuilder.Redirect;
@@ -96,7 +96,9 @@ public class Main {
                     break;
             }
         }
-        String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
+        OptimizationSettings set = new OptimizationSettings(true, true);
+        // set.setEnabled(0, false);
+        String asm = Compiler.compile(new File(inFile).toPath(), set);
         File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
         try (FileOutputStream lol = new FileOutputStream(asmFile)) {
             lol.write(asm.getBytes("UTF-8"));
@@ -106,5 +108,31 @@ public class Main {
         }
         Process gcc = new ProcessBuilder("/usr/bin/gcc", "-o", outFile, asmFile.getAbsolutePath()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start();
         System.out.println("GCC return value: " + gcc.waitFor());
+        /*for (int i = 0; i < TACOptimizer.opt.size(); i++) {
+            OptimizationSettings set = new OptimizationSettings(true, true);
+            set.setEnabled(i, false);
+            try {
+                System.out.println("DISABLING " + TACOptimizer.opt.get(i));
+                pls(inFile, outFile, executable, set);
+            } catch (Exception e) {
+                //if enabling one on its own can trigger it, let's just throw that
+                e.printStackTrace();
+                throw new IllegalStateException("Caused by optimization " + i + " " + TACOptimizer.opt.get(i) + " " + e);
+            }
+        }
+    }
+    public static void pls(String inFile, String outFile, boolean executable, OptimizationSettings set) throws Exception {
+        String asm = Compiler.compile(new File(inFile).toPath(), set);
+        File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
+        try (FileOutputStream lol = new FileOutputStream(asmFile)) {
+            lol.write(asm.getBytes("UTF-8"));
+        }
+        if (!executable) {
+            return;
+        }
+        Process gcc = new ProcessBuilder("/usr/bin/gcc", "-o", outFile, asmFile.getAbsolutePath()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start();
+        System.out.println("GCC return value: " + gcc.waitFor());
+        new ProcessBuilder(outFile).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start().waitFor();
+    }*/
     }
 }

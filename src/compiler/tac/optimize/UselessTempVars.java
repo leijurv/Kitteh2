@@ -12,6 +12,7 @@ import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeFloat;
+import compiler.x86.X86Const;
 import compiler.x86.X86Param;
 import java.util.List;
 
@@ -55,6 +56,7 @@ public class UselessTempVars extends TACOptimization {
                 if (curr.params[0].getType() instanceof TypeFloat || curr.params[1].getType() instanceof TypeFloat) {
                     continue;
                 }
+                continue;
             } else if (!(block.get(ind) instanceof TACConst)) {
                 continue;
             }
@@ -76,6 +78,7 @@ public class UselessTempVars extends TACOptimization {
                 currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
                 //vi.getContext().printFull = true;
                 //System.out.println("Replaced " + valSet + " for " + vi + " with " + currSource + " in " + curr);
+                continue;
             } else {
                 if (curr instanceof TACCast) {
                     throw new IllegalStateException(curr + "");
@@ -83,6 +86,11 @@ public class UselessTempVars extends TACOptimization {
                 /*if (currSource instanceof X86Const) {
                     currSource = new X86Const(((X86Const) currSource).getValue(), (TypeNumerical) curr.params[1].getType());
                 }*/
+                if (currSource instanceof X86Const) {
+                    continue;
+                } else if (true) {
+                    throw new IllegalStateException(currSource + "");
+                }
             }
             int st = ind + 1;
             boolean tempVar = isTempVariable(valSet);

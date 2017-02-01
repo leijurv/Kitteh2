@@ -68,7 +68,7 @@ public class TACArrayRef extends TACStatement {
             X86TypedRegister n = ind.getRegister().getRegister((TypeNumerical) params[0].getType());
             //apparently this cast is unnecesary
             //negative array indicies aren't supported anyway
-            //emit.cast(ind, n);
+            emit.cast(ind, n);
             ind = n;
         }
         X86Param source;

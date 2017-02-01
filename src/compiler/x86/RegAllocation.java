@@ -250,11 +250,10 @@ public class RegAllocation {
         return -1;
     }
     private static boolean externalJumps(List<TACStatement> block, int start, int end) {
-        for (int k = 0; k < block.size(); k++) {
-            if (block.get(k) instanceof TACJump) {
-                TACJump tj = (TACJump) block.get(k);
+        for (int i = 0; i < block.size(); i++) {
+            if (block.get(i) instanceof TACJump) {
+                TACJump tj = (TACJump) block.get(i);
                 int dest = tj.jumpTo();
-                int i = k;
                 if (i >= start && i <= end && dest >= start && dest <= end) {//internal jumps are A-ok
                     continue;
                 }

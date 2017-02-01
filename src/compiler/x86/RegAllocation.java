@@ -125,8 +125,8 @@ public class RegAllocation {
                 }
                 //TODO print of a float clobbers A register
                 if (lastUsage - i <= maxDistance || maxDistance == -1) {
-                    if (!isTemp) {//TODO should extend be allowed on temp variables if allowNormal is true?
-                        if (externalJumps(block, i, lastUsage)) {
+                    if (externalJumps(block, i, lastUsage)) {
+                        if (!isTemp) {
                             if (!mode) {
                                 continue;
                             }
@@ -151,10 +151,15 @@ public class RegAllocation {
                                 System.out.println("Expanded to allow");
                             }
                             //only way to get to here is if the break in no external jumps fires
+                        } else {
+                            continue;
                         }
                         if (compiler.Compiler.verbose()) {
                             System.out.println("Allowing " + mod + " " + i + " " + lastUsage + " " + register + " " + bc);
                         }
+                    }
+                    if (externalJumps(block, i, lastUsage)) {//extra sanity check
+                        continue;
                     }
                     /*if (maxDistance != 1) {
                     System.out.println("REPLACING " + maxDistance + " " + register);

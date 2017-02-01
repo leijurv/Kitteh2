@@ -102,7 +102,6 @@ public class X86Function {
             throw new IllegalStateException();
         }
         used = new HashSet<>();
-        RegAllocation.allocate(stmts, 1, A, true, false, this);
         for (X86Register r : new X86Register[]{D, DI, R10, R9, R11, R8, SI, B, R12, R13, R14, R15}) {
             RegAllocation.allocate(stmts, -1, r, true, true, this);
         }

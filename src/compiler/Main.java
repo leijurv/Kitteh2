@@ -96,8 +96,8 @@ public class Main {
                     break;
             }
         }
-        OptimizationSettings set = new OptimizationSettings(true, true);
-        // set.setEnabled(0, false);
+        OptimizationSettings set = new OptimizationSettings(false, true);
+        set.setEnabled(0, true);
         String asm = Compiler.compile(new File(inFile).toPath(), set);
         File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
         try (FileOutputStream lol = new FileOutputStream(asmFile)) {

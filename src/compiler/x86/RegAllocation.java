@@ -8,6 +8,7 @@ import compiler.Context.VarInfo;
 import compiler.tac.TACArrayDeref;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
+import compiler.tac.TACConstStr;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACPointerDeref;
@@ -36,7 +37,7 @@ public class RegAllocation {
         boolean mode = false;
         https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees
-            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst || block.get(i) instanceof TACArrayDeref) {
+            if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst || block.get(i) instanceof TACArrayDeref || block.get(i) instanceof TACConstStr) {
                 List<String> modVars = block.get(i).modifiedVariables();
                 if (modVars.size() != 1) {
                     if (block.get(i) instanceof TACFunctionCall) {
@@ -186,6 +187,9 @@ public class RegAllocation {
                     }                    //setting i to lastUsage-1 ensures that two overlapping sections won't use the same register
                 }
             } else {
+                if (block.get(i).modifiedVariables().size() == 1) {
+                    throw new IllegalStateException();
+                }
                 encountered.addAll(block.get(i).modifiedVariables());//don't miss any sets not covered in the if
             }
             if (i >= block.size() - 1 && !mode && in != null) {

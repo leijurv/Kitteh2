@@ -114,7 +114,7 @@ public class RegAllocation {
                         if (register != TACFunctionCall.SYSCALL_REGISTERS.get(fi)) {
                             return;
                         }
-                        throw new IllegalStateException("ALLOWING " + register + " " + mod + " " + tfc);//if this ever happens, throw an exception because i want to notice it and be happy
+                        //throw new IllegalStateException("ALLOWING " + register + " " + mod + " " + tfc);//if this ever happens, throw an exception because i want to notice it and be happy
                     }
                     if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
                         //the last usage is being passed to malloc / free, and it's *already in* rdi
@@ -179,7 +179,8 @@ public class RegAllocation {
                     for (int j = i; j <= lastUsage; j++) {
                         used.add(j);
                         if (block.get(j).modifiedVariables().contains(mod) || block.get(j).requiredVariables().contains(mod)) {
-                            block.get(j).replace(mod, xtr.x86(), xtr);
+                            //block.get(j).replace(mod, xtr.x86(), xtr);
+                            block.get(j).regReplace(mod, register);
                         }
                     }
                     if (lastUsage > i) {//respect the extension, because it assumes that this register will remain unchanged for the extended section

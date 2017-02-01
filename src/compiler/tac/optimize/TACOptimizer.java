@@ -55,10 +55,9 @@ public class TACOptimizer {
                     if (metrics) {
                         didAnything[opt.indexOf(optim)] |= !before.equals(input + "");
                     }
-                    /*compiler.Context.printFull = false;//for debugging purposes
-                    System.out.println(optim);
+                    /*System.out.println(optim);
                     for (int i = 0; i < input.size(); i++) {
-                        System.out.println(i + ":   " + input.get(i));
+                        System.out.println(i + ":   " + input.get(i).toString(true));
                     }
                     System.out.println();*/
                 }

@@ -5,9 +5,12 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TempRegister;
+import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +47,15 @@ public abstract class TACStatement {
             params[i] = get(paramNames[i]);
             if (params[i] == null) {
                 throw new NullPointerException(paramNames[i]);
+            }
+        }
+    }
+    public void regReplace(String toReplace, X86Register replaceWith) {
+        for (int i = 0; i < paramNames.length; i++) {
+            if (paramNames[i].equals(toReplace)) {
+                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) params[i].getType(), toReplace);
+                params[i] = xtr;
+                paramNames[i] = xtr.x86();
             }
         }
     }
@@ -94,6 +106,11 @@ public abstract class TACStatement {
         return modifiedVariables().stream().filter(x -> !x.startsWith(X86Register.REGISTER_PREFIX)).map(this::get).collect(Collectors.toList());
     }
     protected X86Param get(String name) {
+        for (int i = 0; i < paramNames.length; i++) {
+            if (paramNames[i].equals(name) && params[i] != null) {
+                return params[i];
+            }
+        }
         if (context.get(name) != null) {
             return context.get(name);
         }

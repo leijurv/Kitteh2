@@ -26,14 +26,24 @@ public class RedundantCalculations extends TACOptimization {
                     if (ts.paramNames[0].equals("0")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
                         repl.copyFrom(ts);
-                        repl.setVars();
+                        repl.params[1] = ts.params[2];//ensure type is copied properly
+                        repl.params[0] = ts.params[1];
+                        //repl.setVars();
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
                     if (ts.paramNames[1].equals("0")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
                         repl.copyFrom(ts);
-                        repl.setVars();
+                        repl.params[1] = ts.params[2];
+                        repl.params[0] = ts.params[0];
+                        //repl.setVars();
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
@@ -42,14 +52,24 @@ public class RedundantCalculations extends TACOptimization {
                     if (ts.paramNames[0].equals("1")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
                         repl.copyFrom(ts);
-                        repl.setVars();
+                        repl.params[1] = ts.params[2];
+                        repl.params[0] = ts.params[1];
+                        //repl.setVars();
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
                     if (ts.paramNames[1].equals("1")) {
                         TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
                         repl.copyFrom(ts);
-                        repl.setVars();
+                        repl.params[1] = ts.params[2];
+                        repl.params[0] = ts.params[0];
+                        //repl.setVars();
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;//unnecesary continue, I know, its here for Symmetry
                     }

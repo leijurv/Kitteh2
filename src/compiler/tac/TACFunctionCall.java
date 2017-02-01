@@ -18,6 +18,8 @@ import compiler.x86.X86Format;
 import compiler.x86.X86FunctionArg;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TempRegister;
+import compiler.x86.X86TypedRegister;
 import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,11 +67,6 @@ public class TACFunctionCall extends TACStatement {
         return (result.length == 0 ? "" : Arrays.asList(result) + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
-    public void setVars() {
-        super.setVars();
-        onContextKnown();
-    }
-    @Override
     public void replace(String toReplace, String replaceWith, X86Param infoWith) {
         for (int i = 0; i < resultName.length; i++) {
             if (resultName[i].equals(toReplace)) {
@@ -81,6 +78,17 @@ public class TACFunctionCall extends TACStatement {
             super.replace(toReplace, replaceWith, infoWith);
         } catch (RuntimeException ex) {//TODO fix hack
         }
+    }
+    @Override
+    public void regReplace(String toReplace, X86Register replaceWith) {
+        for (int i = 0; i < resultName.length; i++) {
+            if (resultName[i].equals(toReplace)) {
+                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) result[i].getType(), toReplace);
+                result[i] = xtr;
+                resultName[i] = xtr.x86();
+            }
+        }
+        super.regReplace(toReplace, replaceWith);
     }
     @Override
     public void onContextKnown() {

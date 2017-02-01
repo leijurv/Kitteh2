@@ -11,6 +11,7 @@ import compiler.tac.TACJump;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeFloat;
 import compiler.x86.X86Param;
 import java.util.List;
 
@@ -45,10 +46,18 @@ public class UselessTempVars extends TACOptimization {
     @Override
     public void run(List<TACStatement> block, int blockBegin) {
         for (int ind = 0; ind < block.size() - 1; ind++) {
-            if (!(block.get(ind) instanceof TACConst)) {
+            TACStatement curr = block.get(ind);
+            if (block.get(ind) instanceof TACCast) {
+                if (curr.params[0].getType().getSizeBytes() != curr.params[1].getType().getSizeBytes()) {
+                    //it actually is a cast up or down
+                    continue;
+                }
+                if (curr.params[0].getType() instanceof TypeFloat || curr.params[1].getType() instanceof TypeFloat) {
+                    continue;
+                }
+            } else if (!(block.get(ind) instanceof TACConst)) {
                 continue;
             }
-            TACConst curr = (TACConst) block.get(ind);
             String valSet = curr.paramNames[1];
             if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
@@ -57,10 +66,20 @@ public class UselessTempVars extends TACOptimization {
             if (currSourceName.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
-            X86Param currSource = curr.params[0];
             if (currSourceName.equals(valSet)) {
                 //replacement wouldn't... even do anything
                 continue;
+            }
+            X86Param currSource = curr.params[0];
+            if (currSource instanceof VarInfo) {
+                VarInfo vi = (VarInfo) currSource;
+                currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
+                //vi.getContext().printFull = true;
+                //System.out.println("Replaced " + valSet + " for " + vi + " with " + currSource + " in " + curr);
+            } else {
+                if (curr instanceof TACCast) {
+                    throw new IllegalStateException(curr + "");
+                }
             }
             int st = ind + 1;
             boolean tempVar = isTempVariable(valSet);

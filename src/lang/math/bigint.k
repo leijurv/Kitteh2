@@ -1037,7 +1037,7 @@ struct mutbig{
             for int i = 0; i < this.intLen; i++ {
                 result[i] = this.value[this.offset + i];
             }
-         //   free(this.value)
+            free(this.value)
             this.value=result
             this.cap=vhar
             this.intLen=newLen
@@ -1103,7 +1103,7 @@ struct mutbig{
             return;
         }
         if (quotient.cap < this.intLen) {
-        	//free(quotient.value)
+        	free(quotient.value)
         	ql:=this.intLen
         	if ql<=0{
         		ql=1
@@ -1154,6 +1154,7 @@ struct mutbig{
         
         this.intLen = (int)(this.value[0] != 0) ;
         quotient.normalize();
+        free(qWord)
     }
     clear() {
         this.offset = 0
@@ -1170,6 +1171,7 @@ struct mutbig{
         	if cop<=0{
         		cop=1
         	}
+        	free(this.value)
             this.value = (int*)malloc(cop<<2)
             this.cap=cop
         //}
@@ -1244,7 +1246,7 @@ struct mutbig{
         
         // Remainder starts as dividend with space for a leading zero
         if (rem.cap < this.intLen + 1) {
-        	//free(rem.value)
+        	free(rem.value)
         	leee:=this.intLen+1
         	if leee<=0{
         		leee=1
@@ -1264,7 +1266,7 @@ struct mutbig{
         // Set the quotient size
         int limit = nlen - dlen + 1;
         if (quotient.cap < limit) {
-        	//free(quotient.value)
+        	free(quotient.value)
         	vvv:=limit
         	if vvv<=0{
         		vvv=1
@@ -1363,6 +1365,8 @@ struct mutbig{
         }
         rem.normalize();
         quotient.normalize();
+        free(qWord)
+        free(d)
      	return
      }
      toBigint()bigint*{
@@ -1382,14 +1386,16 @@ struct mutbig{
      }
 }
 dividemod(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
-aIn8=aIn8.safeCopy()
+/*aIn8=aIn8.safeCopy()
 aIn8=aIn8.safeCopy()
 bIn8=bIn8.safeCopy()
-bIn8=bIn8.safeCopy()
+bIn8=bIn8.safeCopy()*/
 	aIn8.stripLeadingZero()
 	bIn8.stripLeadingZero()
-	aIn:=aIn8.safeCopy().safeCopy().safeCopy()
-	bIn:=bIn8.safeCopy().safeCopy().safeCopy()
+	/*aIn:=aIn8.safeCopy().safeCopy().safeCopy()
+	bIn:=bIn8.safeCopy().safeCopy().safeCopy()*/
+	aIn:=aIn8.dup()
+	bIn:=bIn8.dup()
 	
 	//queueueuue:=greater(bIn,aIn)
 	bneg:=bIn.neg
@@ -1402,7 +1408,8 @@ bIn8=bIn8.safeCopy()
 		bIn.neg=bneg
 		aIn.neg=aneg
 		rss.neg=aneg!=bneg
-		return rss, aIn.safeCopy()
+		free(bIn)
+		return rss, aIn
 	}
 
 	a:=create(aIn.cap)
@@ -1425,9 +1432,12 @@ bIn8=bIn8.safeCopy()
 	//aha:=aIn.mag[0]
 	//bha:=bIn.mag[0]
 	//howw:=greater(bIn,aIn)
-	qOut:=q.toBigint().safeCopy()
-	rOut:=r.toBigint().safeCopy()
-
+	qOut:=q.toBigint()
+	rOut:=r.toBigint()
+	free(q)
+	free(a)
+	free(b)
+	free(r)
 	//qOut.stripLeadingZero()
 	//rOut.stripLeadingZero()
 	qOut.neg=aneg!=bneg
@@ -1435,15 +1445,16 @@ bIn8=bIn8.safeCopy()
 	//sketchy:=greater(bIn,aIn)
 	//bIn.neg=bneg
 	//aIn.neg=aneg
-
-	qReal, rReal := dividemodOLD(aIn8,bIn8)
+	free(aIn)
+	free(bIn)
+	/*qReal, rReal := dividemodOLD(aIn8,bIn8)
 qReal=qReal.safeCopy()
 rReal=rReal.safeCopy()
 
 	
 	if !equal(qReal,qOut) || !equal(rReal,rOut){
 		print("Oh no")
-		/*print(aneg)
+		  print(aneg)
 		print(bneg)
 		print("wew")
 		print(greater(bIn,aIn))
@@ -1469,7 +1480,7 @@ rReal=rReal.safeCopy()
 
 		print("ayy lmao")
 		writeByte(10)
-		print(queueueuue)*/
+		print(queueueuue)
 		aIn.output()
 		print("Divided by")
 		writeByte(10)
@@ -1489,6 +1500,6 @@ rReal=rReal.safeCopy()
 		print(equal(qReal,qOut))
 		print(equal(rReal,rOut))
 		print("man")
-	}
+	}*/
 	return qOut, rOut
 }

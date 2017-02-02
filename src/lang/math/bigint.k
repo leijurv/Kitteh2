@@ -862,10 +862,11 @@ create(int lenInts)mutbig*{
 		lenInts=1
 	}
 	a:=(mutbig*)malloc(sizeof(mutbig))
-	a.value=(int*)malloc(lenInts<<2)
+	av:=(int*)malloc(lenInts<<2)
 	for i:=0; i<lenInts; i++{
-		a.value[i]=0
+		av[i]=0
 	}
+	a.value=av
 	a.offset=0
 	a.cap=lenInts
 	a.intLen=olen
@@ -961,13 +962,14 @@ struct mutbig{
             return;
         }
         int index = this.offset;
-        if (this.value[index] != 0) {
+        tv:=this.value
+        if (tv[index] != 0) {
             return;
         }
         int indexBound = index + this.intLen;
         
             index++;
-        for (index < indexBound && this.value[index] == 0){
+        for (index < indexBound && tv[index] == 0){
         	index ++
         }
         int numZeros = index - this.offset;
@@ -989,7 +991,8 @@ struct mutbig{
             c = val[i + 1];
             val[i] = (b << n) | (c >>> n2);
         }
-        val[this.offset + this.intLen - 1] =val[this.offset+this.intLen-1]<< n;
+        loc:=(val+(this.offset + this.intLen - 1)<<2)
+        *loc=((*loc)<< n);
     }
     primitiveRightShift(int n) {
         int* val = this.value;

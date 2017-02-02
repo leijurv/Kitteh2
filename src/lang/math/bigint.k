@@ -997,13 +997,14 @@ struct mutbig{
     primitiveRightShift(int n) {
         int* val = this.value;
         int n2 = 32 - n;
-        int i=this.offset+this.intLen-1
-        for int c = val[i]; i > this.offset; i-- {
+        to:=this.offset
+        int i=to+this.intLen-1
+        for int c = val[i]; i > to; i-- {
             int b = c;
             c = val[i - 1];
             val[i] = (c << n2) | (b >>> n);
         }
-        val[this.offset] =val[this.offset]>>> n;
+        val[to] =val[to]>>> n;
     }
      leftShift(int n) {
         /*
@@ -1037,10 +1038,11 @@ struct mutbig{
             for i:=0; i<vhar; i++{
             	result[i]=0
             }
+            tv:=this.value
             for int i = 0; i < this.intLen; i++ {
-                result[i] = this.value[this.offset + i];
+                result[i] = tv[this.offset + i];
             }
-            free(this.value)
+            free(tv)
             this.value=result
             this.cap=vhar
             this.intLen=newLen
@@ -1111,9 +1113,10 @@ struct mutbig{
         	if ql<=0{
         		ql=1
         	}
-            quotient.value = (int*)malloc(ql<<2)
+        	qv:=(int*)malloc(ql<<2)
+            quotient.value = qv
             for i:=0; i<ql; i++{
-            	quotient.value[i]=0
+            	qv[i]=0
             }
             quotient.cap=ql
         }
@@ -1130,20 +1133,23 @@ struct mutbig{
             rem = (int) (remLong - ((long)(quotient.value[0]) * divLong));
             remLong = (long)rem & LONGMASK;
         }
-        int xlen = this.intLen;
+        til:=this.intLen
+        int xlen = til;
         int* qWord = (int*)malloc(8);
         qWord[0]=0
         qWord[1]=0
         xlen--
+        tv:=this.value
+        quev:=quotient.value
         for (xlen > 0) {
-            long dividendEstimate = (remLong << 32)  | ((long)(this.value[this.offset + this.intLen - xlen]) & LONGMASK);
+            long dividendEstimate = (remLong << 32)  | ((long)(tv[this.offset + til - xlen]) & LONGMASK);
             if (dividendEstimate >= (long)0) {
                 qWord[0] = (int) (dividendEstimate / divLong);
                 qWord[1] = (int) (dividendEstimate - ((long)qWord[0] * divLong));
             } else {
                 divWord(qWord, dividendEstimate, divisor);
             }
-            quotient.value[this.intLen - xlen] = qWord[0];
+            quev[til - xlen] = qWord[0];
             rem = qWord[1];
             remLong = (long)rem & LONGMASK;
             xlen--
@@ -1153,9 +1159,9 @@ struct mutbig{
             rem=rem%divisor
        
         } 
-            this.value[0] = rem;
+            tv[0] = rem;
         
-        this.intLen = (int)(this.value[0] != 0) ;
+        this.intLen = (int)(tv[0] != 0) ;
         quotient.normalize();
         free(qWord)
     }
@@ -1163,23 +1169,28 @@ struct mutbig{
         this.offset = 0
         this.intLen = 0;
         int n=this.cap
+        tv:=this.value
         for int index = 0; index < n; index++ {
-            this.value[index] = 0;
+            tv[index] = 0;
         }
     }
     copyValue(mutbig* val) {
         int len = val.intLen;
+        tv:=this.value
         //if (this.cap< len) {
         	cop:=len
         	if cop<=0{
         		cop=1
         	}
-        	free(this.value)
-            this.value = (int*)malloc(cop<<2)
+        	free(tv)
+            tv = (int*)malloc(cop<<2)
+            this.value=tv
             this.cap=cop
         //}
+        vv:=val.value
+        vo:=val.offset
         for int i = 0; i < len; i++ {
-            this.value[i] = val.value[val.offset + i];
+            tv[i] = vv[vo + i];
         }
         this.intLen = len;
         this.offset = 0;
@@ -1243,8 +1254,10 @@ struct mutbig{
      	}
         int* d = (int*)malloc(whoaled<<2);
         d[0]=0
+        bvv:=b.value
+        boff:=b.offset
         for int i = 0; i < dlen; i++ {
-            d[i] = b.value[b.offset + i];
+            d[i] = bvv[boff+ i];
         }
         
         // Remainder starts as dividend with space for a leading zero
@@ -1254,14 +1267,19 @@ struct mutbig{
         	if leee<=0{
         		leee=1
         	}
-            rem.value =(int*)malloc(leee<<2);
+        	rv:=(int*)malloc(leee<<2)
+            rem.value =rv;
             for int i=0; i<leee; i++{
-            	rem.value[i]=0
+            	rv[i]=0
             }
             rem.cap=leee
         }
-        for int i = 0; i < this.intLen; i++ {
-            rem.value[i + 1] = this.value[i + this.offset];
+        rouv:=rem.value
+        tev:=this.value
+        tile:=this.intLen
+        touf:=this.offset
+        for int i = 0; i < tile; i++ {
+            rouv[i + 1] = tev[i + touf];
         }
         rem.intLen = this.intLen;
         rem.offset = 1;
@@ -1274,9 +1292,10 @@ struct mutbig{
         	if vvv<=0{
         		vvv=1
         	}
-            quotient.value = (int*)malloc(vvv<<2);
+            qwav:= (int*)malloc(vvv<<2);
+            quotient.value=qwav
             for i:=0; i<vvv; i++{
-            	quotient.value[i]=0
+            	qwav[i]=0
             }
             quotient.cap=vvv
             
@@ -1307,15 +1326,16 @@ struct mutbig{
         qWord[1]=0
         // D2 Initialize j
        intmin:=intmin(1)
+       rhemv:=rem.value
         for int j = 0; j < limit; j++ {
             // D3 Calculate qhat
             // estimate qhat
             int qhat = 0;
             int qrem = 0;
             bool skipCorrection = false;
-            int nh = rem.value[j + rem.offset];
+            int nh = rhemv[j + rem.offset];
             int nh2 = nh + intmin;
-            int nm = rem.value[j + 1 + rem.offset];
+            int nm = rhemv[j + 1 + rem.offset];
             if (nh == dh) {
                 qhat = 0-1;
                 qrem = nh + nm;
@@ -1335,7 +1355,7 @@ struct mutbig{
                 continue;
             }
             if (!skipCorrection) { // Correct qhat
-                long nl = (long)rem.value[j + 2 + rem.offset] & LONGMASK;
+                long nl = (long)rhemv[j + 2 + rem.offset] & LONGMASK;
                 long rs = (((long)qrem & LONGMASK) << 32) | nl;
                 long estProduct = ((long)dl & LONGMASK) * ((long)qhat & LONGMASK);
                 if (unsignedLongCompare(estProduct, rs)) {
@@ -1351,12 +1371,12 @@ struct mutbig{
                 }
             }
             // D4 Multiply and subtract
-            rem.value[j + rem.offset] = 0;
-            int borrow = mulsub(rem.value, d, qhat, dlen, j + rem.offset);
+            rhemv[j + rem.offset] = 0;
+            int borrow = mulsub(rhemv, d, qhat, dlen, j + rem.offset);
             // D5 Test remainder
             if (borrow + intmin> nh2) {
                 // D6 Add back
-                divadd(d, dlen,rem.value, j + 1 + rem.offset);
+                divadd(d, dlen,rhemv, j + 1 + rem.offset);
                 qhat--;
             }
             // Store the quotient digit
@@ -1381,8 +1401,9 @@ struct mutbig{
      	for i:=0; i<resLen; i++{
      		res.mag[i]=0
      	}
+     	tv:=this.value
      	for i:=0; i<this.intLen; i++{
-     		res.mag[i]=this.value[i+this.offset]
+     		res.mag[i]=tv[i+this.offset]
      	}
      	res.size=resLen*32
      	return res

@@ -1043,7 +1043,7 @@ struct mutbig{
             this.intLen=newLen
             this.offset=0
         } /*else {
-	        if (this.cap- this.offset >= newLen) {
+	        if (this.cap >= newLen+this.offset) {
 	            // Use space on right
 	            for int i = 0; i < newLen - this.intLen; i++ {
 	                this.value[this.offset + this.intLen + i] = 0;

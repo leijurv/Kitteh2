@@ -19,8 +19,9 @@ main(){
 		pt.free()
 		pow.free()
 	}
-	//for i:=0; i<1000; i++{
 	bp.dup().multiply(fromLong(50215021),modulus,bp).output()
+	//for i:=0; i<1000; i++{
+	bp.dup().multiply(bigintFromHex("28D959F2815B16F8179879BE667EF9DCBBAC55A06295CE870B07029BFCDB2DC"),modulus,bp).output()
 	//}
 }
 

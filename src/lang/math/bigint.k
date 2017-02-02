@@ -646,7 +646,7 @@ multiply(bigint* a, bigint* b)bigint*{
 	}
 	return res*/
 }
-dividemod(bigint*a,bigint*b)bigint*,bigint*{
+dividemodOLD(bigint*a,bigint*b)bigint*,bigint*{
 	a.stripLeadingZero()
 	b.stripLeadingZero()
 	bneg:=b.neg
@@ -1024,7 +1024,7 @@ struct mutbig{
         if (nBits <= (32 - bitsInHighWord)) {
             newLen--;
         }
-        if (this.cap < newLen) {
+        if (this.cap < newLen||true) {
             // The array must grow
             vhar:=newLen
             if vhar<=0{
@@ -1042,7 +1042,7 @@ struct mutbig{
             this.cap=vhar
             this.intLen=newLen
             this.offset=0
-        } else {
+        } /*else {
 	        if (this.cap- this.offset >= newLen) {
 	            // Use space on right
 	            for int i = 0; i < newLen - this.intLen; i++ {
@@ -1058,7 +1058,7 @@ struct mutbig{
 	            }
 	            this.offset = 0;
 	        }
-        }
+        }*/
         this.intLen = newLen;
         if (nBits == 0) {
             return;
@@ -1381,7 +1381,7 @@ struct mutbig{
      	return res
      }
 }
-dividemodExperimental(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
+dividemod(bigint* aIn8, bigint* bIn8) bigint*, bigint*{
 aIn8=aIn8.safeCopy()
 aIn8=aIn8.safeCopy()
 bIn8=bIn8.safeCopy()
@@ -1436,7 +1436,7 @@ bIn8=bIn8.safeCopy()
 	//bIn.neg=bneg
 	//aIn.neg=aneg
 
-	qReal, rReal := dividemod(aIn8,bIn8)
+	qReal, rReal := dividemodOLD(aIn8,bIn8)
 qReal=qReal.safeCopy()
 rReal=rReal.safeCopy()
 

@@ -61,11 +61,6 @@ public class TACArrayDeref extends TACStatement {
         if (arr.getRegister() == ind.getRegister()) {
             throw new IllegalStateException("not okay " + arr + " " + ind + " for " + this);
         }
-        if (params[0] instanceof X86TypedRegister && params[1] instanceof X86TypedRegister && params[2] instanceof X86TypedRegister) {
-            emit.addComment("okay");
-        } else {
-            emit.addComment("nkay");
-        }
         emit.addStatement("mov" + pointingTo.x86typesuffix() + " (" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + "), " + dest.x86());
         if (dest != params[2]) {
             emit.move(dest, params[2]);

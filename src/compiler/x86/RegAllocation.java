@@ -112,7 +112,7 @@ public class RegAllocation {
                             throw new IllegalStateException(tfc + " " + fi + " " + li + " " + mod);
                         }
                         if (register != TACFunctionCall.SYSCALL_REGISTERS.get(fi)) {
-                            return;
+                            continue;
                         }
                         //throw new IllegalStateException("ALLOWING " + register + " " + mod + " " + tfc);//if this ever happens, throw an exception because i want to notice it and be happy
                     }

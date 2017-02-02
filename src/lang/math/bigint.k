@@ -357,6 +357,7 @@ new(int size)bigint*{
 	res.neg=false
 	return res
 }
+//adapted from jdk 6 BigInteger / MutableBigInteger
 add(bigint* a,bigint* b)bigint*{
 	if a.neg{
 		if b.neg{
@@ -810,6 +811,9 @@ charFromHex(byte char) byte{
 mask(int i) long{
 	return (2<<((long)i+31))-1
 }
+
+
+
 
 
 

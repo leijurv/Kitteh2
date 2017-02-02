@@ -127,6 +127,18 @@ public abstract class TACStatement {
         }
         throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);
     }
+    protected X86Param otherget(String name) {
+        if (context.get(name) != null) {
+            return context.get(name);
+        }
+        if (tvu == null) {
+            throw new RuntimeException("Some optimization didn't copy over tvu...");
+        }
+        if (tvu.getInfo(name) != null) {
+            return tvu.getInfo(name);
+        }
+        throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);
+    }
     public boolean usesDRegister() {
         return false;
     }

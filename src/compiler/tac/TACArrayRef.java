@@ -47,6 +47,18 @@ public class TACArrayRef extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
+        for (int i = 0; i < params.length; i++) {
+            if (!paramNames[i].startsWith("%") && !(params[i] instanceof X86Const)) {
+                try {
+                    if (!otherget(paramNames[i]).x86().equals(params[i].x86())) {
+                        throw new IllegalStateException(otherget(paramNames[i]).x86() + " " + params[i].x86());
+                    }
+                } catch (RuntimeException e) {
+                    emit.addComment("WHAT ON EARTH");
+                    throw new RuntimeException(params[i].x86(), e);
+                }
+            }
+        }
         //emit.addComment("cancer");
         TypeNumerical pointingTo = (TypeNumerical) ((TypePointer) params[0].getType()).pointingTo();
         X86TypedRegister arr;
@@ -81,6 +93,11 @@ public class TACArrayRef extends TACStatement {
         }
         if (arr.getRegister() == ind.getRegister() || (source instanceof X86TypedRegister && (ind.getRegister() == ((X86TypedRegister) source).getRegister() || ((X86TypedRegister) source).getRegister() == arr.getRegister()))) {
             throw new IllegalStateException("not okay " + arr + " " + ind + " " + source + " for " + this);
+        }
+        if (params[0] instanceof X86TypedRegister && params[1] instanceof X86TypedRegister && params[2] instanceof X86TypedRegister) {
+            emit.addComment("okay");
+        } else {
+            emit.addComment("nkay");
         }
         emit.addStatement("mov" + pointingTo.x86typesuffix() + " " + source.x86() + ", (" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")");
     }

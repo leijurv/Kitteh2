@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.tac.optimize.OptimizationSettings;
+import static compiler.tac.optimize.OptimizationSettings.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.ProcessBuilder.Redirect;
@@ -96,9 +96,7 @@ public class Main {
                     break;
             }
         }
-        OptimizationSettings set = new OptimizationSettings(true, true);
-        set.setEnabled(0, true);
-        String asm = Compiler.compile(new File(inFile).toPath(), set);
+        String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
         File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
         try (FileOutputStream lol = new FileOutputStream(asmFile)) {
             lol.write(asm.getBytes("UTF-8"));

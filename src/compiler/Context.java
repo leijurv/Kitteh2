@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,15 +104,15 @@ public class Context {//TODO split off some of this massive functionality into o
         imports.put(wewlad, wewlad);
     }
     @SafeVarargs
-    public static <T> T createThatGenericArray (T... inp)
-        []{
+    public static <T> T[] createThatGenericArray(T... inp) {
         return inp;
     }
     public HashMap<String, TypeStruct> structsCopy() {
         return new HashMap<>(structs);
     }
     public void insertStructsUnderPackage(String alias, HashMap<String, TypeStruct> other) {
-        Map<String, TypeStruct> mapt = other.entrySet().stream().map(entry -> new Pair<>((alias == null ? "" : alias + "::") + entry.getKey(), entry.getValue())).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
+        //forgive me
+        Map<String, TypeStruct> mapt = other.entrySet().stream().map(Pair.<String, TypeStruct, Map.Entry<String, TypeStruct>>gen((Function<Map.Entry<String, TypeStruct>, String>) (((Function<Map.Entry<String, TypeStruct>, String>) (Map.Entry<String, TypeStruct>::getKey)).andThen(k -> (alias == null ? "" : alias + "::") + k)), Map.Entry<String, TypeStruct>::getValue)).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
         if (mapt.keySet().stream().anyMatch(structs::containsKey)) {
             throw new RuntimeException("Overwriting struct from " + mapt.keySet() + " into " + structs.keySet());
         }

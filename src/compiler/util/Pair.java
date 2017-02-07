@@ -5,6 +5,7 @@
  */
 package compiler.util;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  *
@@ -24,6 +25,9 @@ public final class Pair<A, B> {
     public Pair(A a, B b) {
         this.a = a;
         this.b = b;
+    }
+    public static <A, B, C> Function<? super C, ? extends Pair<? extends A, ? extends B>> gen(Function<? super C, ? extends A> agen, Function<? super C, ? extends B> bgen) {
+        return c -> new Pair<>(agen.apply(c), bgen.apply(c));
     }
     @Override
     public String toString() {

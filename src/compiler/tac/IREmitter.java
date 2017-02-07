@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.command.Command;
 import java.util.ArrayList;
 
 /**
@@ -73,5 +74,8 @@ public class IREmitter {//extends ArrayList XDDD
             throw new RuntimeException("return should have been added in command define function");
         }
         return result;
+    }
+    public void generateTAC(Command command) {
+        command.generateTAC(this);
     }
 }

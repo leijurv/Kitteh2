@@ -174,7 +174,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             System.out.println("> BEGIN TAC GENERATION FOR " + name);
         }
         IREmitter emit = new IREmitter();
-        contents.forEach(com -> com.generateTAC(emit));
+        contents.forEach(emit::generateTAC);
         long middle = System.currentTimeMillis();
         if (Compiler.metrics()) {
             System.out.println(name);

@@ -30,7 +30,8 @@ public class CommandSetPtr extends Command {
         }
         this.value = value;
     }
-    public static Expression[] tryOffsetBased(Expression deReferencing) {
+    public static Expression tryOffsetBased (Expression deReferencing)
+        []{
         if (deReferencing instanceof ExpressionCast && ((ExpressionCast) deReferencing).input instanceof ExpressionOperator) {
             ExpressionOperator eo = (ExpressionOperator) ((ExpressionCast) deReferencing).input;
             if (eo.getOP() == Operator.PLUS) {

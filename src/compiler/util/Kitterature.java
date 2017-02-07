@@ -37,7 +37,7 @@ public class Kitterature {
         InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
         return is;
     }
-    public static byte[] getResource(String name) throws IOException {
+    public static byte getResource   (String name)  [] throws IOException {
         return getBytes(getResourceAsStream(name));
     }
     public static boolean resourceExists(String name) {
@@ -51,7 +51,7 @@ public class Kitterature {
         try {
             URI uri = Kitterature.class.getResource("/lang").toURI();
             List<Path> paths = new ArrayList<>();
-            try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.emptyMap()) : null)) {
+            try (@SuppressWarnings("unused") FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.emptyMap()) : null)) {
                 Path myPath = Paths.get(uri);
                 Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
                     @Override
@@ -74,7 +74,7 @@ public class Kitterature {
     }
     public static byte[] getBytes(InputStream is) throws IOException {
         int size = 1024;
-        byte[] buf = new byte[size];
+        byte buf[] = new byte[size];
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int len = is.read(buf, 0, size);
         while (len != -1) {

@@ -47,7 +47,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
         if (expected.size() != args.size() && !calling.name.equals("syscall")) {
             throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
         }
-        List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
+        List<Type> got = args.stream().<Type>map(Expression::getType).collect(Collectors.toList());
         if (!got.equals(expected)) {
             if (calling.name.endsWith("__print") && got.get(0) instanceof TypeNumerical) {
                 //good enough

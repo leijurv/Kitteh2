@@ -103,7 +103,8 @@ public class Context {//TODO split off some of this massive functionality into o
         imports.put(wewlad, wewlad);
     }
     @SafeVarargs
-    public static <T> T[] createThatGenericArray(T... inp) {
+    public static <T> T createThatGenericArray (T... inp)
+        []{
         return inp;
     }
     public HashMap<String, TypeStruct> structsCopy() {

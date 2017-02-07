@@ -15,6 +15,7 @@ import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,9 +46,7 @@ public class CommandIf extends CommandBlock {
         if (elseBlock == null) {
             int jumpToAfter = emit.lineNumberOfNextStatement() + getTACLength();//if false, jump here
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToAfter, true);//invert is true
-            contents.forEach((com) -> {
-                com.generateTAC(emit);
-            });
+            contents.forEach(emit::generateTAC);
         } else {
             //condition, jump to 1 if false
             //iftrue
@@ -57,16 +56,12 @@ public class CommandIf extends CommandBlock {
             //2:
             int jumpToIfFalse = emit.lineNumberOfNextStatement() + contents.stream().mapToInt(Command::getTACLength).sum() + ((ExpressionConditionalJumpable) condition).condLength() + 1;
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToIfFalse, true);//invert is true
-            contents.forEach((com) -> {
-                com.generateTAC(emit);
-            });
+            contents.forEach(emit::generateTAC);
             int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.stream().mapToInt(Command::getTACLength).sum();
             new TempVarUsage(ifFalse);//dont ask. lol try and remove it
             emit.updateContext(ifFalse);
             emit.emit(new TACJump(jumpTo));
-            elseBlock.forEach((com) -> {
-                com.generateTAC(emit);
-            });
+            elseBlock.forEach(((Consumer<Command>) emit::generateTAC)::accept);
         }
     }
     @Override
@@ -140,7 +135,7 @@ public class CommandIf extends CommandBlock {
         if (elseBlock == null) {
             return super.getAllVarsModified();
         }
-        return Stream.of(elseBlock, contents).flatMap(Collection::stream).flatMap(Command::getAllVarsModified);
+        return Stream.<ArrayList<Command>>of(elseBlock, contents).flatMap(Collection::stream).flatMap(Command::getAllVarsModified);
     }
     public List<String> varsModElse() {
         return elseBlock.stream().flatMap(Command::getAllVarsModified).collect(Collectors.toList());

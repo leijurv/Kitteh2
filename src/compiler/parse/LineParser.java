@@ -88,7 +88,7 @@ class LineParser {
                         ex = ExpressionParser.parse(splitted.get(0), Optional.of(retTypes[0]), context);
                         return new CommandReturn(context, ex);
                     } else {
-                        Expression[] expressions = new Expression[retTypes.length];
+                        Expression expressions[] = new Expression[retTypes.length];
                         for (int i = 0; i < retTypes.length; i++) {//resista la temptacion para usar los parallelo streamos
                             expressions[i] = ExpressionParser.parse(splitted.get(i), Optional.of(retTypes[i]), context);
                         }

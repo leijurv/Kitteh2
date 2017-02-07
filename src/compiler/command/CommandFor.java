@@ -62,7 +62,7 @@ public class CommandFor extends CommandBlock {
         Integer previousContinueTo = emit.canContinue() ? emit.continueTo() : null;
         emit.setBreak(afterItAll);//a break ends the loop, so when there's a break, jump to after it all
         emit.setContinue(continueTo);//a continue skips the rest of the loop but goes to the afterthought
-        contents.forEach(com -> com.generateTAC(emit));//TODOIFIWANTTOKILLMYSELF make this parallel
+        contents.forEach(emit::generateTAC);//TODOIFIWANTTOKILLMYSELF make this parallel
         emit.clearBreakContinue();
         if (previousBreakTo != null) {
             emit.setBreak(previousBreakTo);

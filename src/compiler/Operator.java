@@ -171,35 +171,23 @@ public enum Operator implements Token<Operator> {
         }
         throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
-    strictfp public ExpressionConst apply(ExpressionConst a, ExpressionConst b) {//used in optimization
-        if (!((Expression) a).getType().equals(((Expression) b).getType())) {
-            throw new FileSystemAlreadyExistsException(a + " " + b + " " + ((Expression) a).getType() + " " + ((Expression) b).getType());
+    strictfp public <A extends E, E extends Expression & ExpressionConst<? extends V>, V, B extends E> Expression apply(A a, B b) {//used in optimization
+        if (!a.getType().equals(b.getType())) {
+            throw new FileSystemAlreadyExistsException(a + " " + b + " " + a.getType() + " " + b.getType());
         }
-        Type resulting = onApplication(((Expression) a).getType(), ((Expression) b).getType());//ensure types are valid
-        if (a instanceof ExpressionConstNum) {
-            if (!(b instanceof ExpressionConstNum)) {
-                throw new RuntimeException(a + " is expression const num but " + b + " isn't");
-            }
-            if ((int) ((ExpressionConstNum) a).getVal().longValue() != ((ExpressionConstNum) a).getVal().intValue()) {
-                //if the long version, when casted to int, is different than the int version
-                //some form of overflow is happening?
-                throw new RuntimeException();
-            }
-            if ((int) ((ExpressionConstNum) b).getVal().longValue() != ((ExpressionConstNum) b).getVal().intValue()) {
-                throw new RuntimeException();
-            }
-        }
+        Type resulting = onApplication(a.getType(), b.getType());//ensure types are valid
+        V aVal = a.getVal();
+        V bVal = b.getVal();
         if (this == OR || this == AND) {
-            if (!(a instanceof ExpressionConstBool)) {
+            if (!(aVal instanceof Boolean)) {
                 throw new RuntimeException("Expected " + a + " to be expression const bool");
             }
-            if (!(b instanceof ExpressionConstBool)) {
+            if (!(bVal instanceof Boolean)) {
                 throw new RuntimeException("Expected " + b + " to be expression const bool");
             }
-            if (this == AND) {
-                return new ExpressionConstBool(((ExpressionConstBool) a).getVal() && ((ExpressionConstBool) b).getVal());
-            }
-            return new ExpressionConstBool(((ExpressionConstBool) a).getVal() || ((ExpressionConstBool) b).getVal());
+            Boolean aval = (Boolean) aVal;
+            Boolean bval = (Boolean) bVal;
+            return new ExpressionConstBool(this == AND ? aval && bval : aval || bval);
         }
         if (!(a instanceof ExpressionConstNum)) {
             throw new RuntimeException("Expected " + a + " to be expression const num");
@@ -207,12 +195,17 @@ public enum Operator implements Token<Operator> {
         if (!(b instanceof ExpressionConstNum)) {
             throw new RuntimeException("Expected " + b + " to be expression const num");
         }
-        int aval = ((ExpressionConstNum) a).getVal().intValue();
-        int bval = ((ExpressionConstNum) b).getVal().intValue();
-        if (resulting instanceof TypeBoolean) {
-            return new ExpressionConstBool(calculateBoolean(aval, bval));
+        Number aval = (Number) aVal;
+        Number bval = (Number) bVal;
+        if ((int) aval.longValue() != aval.intValue() || (int) bval.longValue() != bval.intValue() || (long) aval.intValue() != aval.longValue() || (long) bval.intValue() != bval.longValue()) {
+            //if the long version, when casted to int, is different than the int version
+            //some form of overflow is happening?
+            throw new RuntimeException(aVal + " " + bVal);
         }
-        return new ExpressionConstNum(calculateIntegral(aval, bval), (TypeNumerical) resulting);
+        if (resulting instanceof TypeBoolean) {
+            return new ExpressionConstBool(calculateBoolean(aval.intValue(), bval.intValue()));
+        }
+        return new ExpressionConstNum(calculateIntegral(aval.intValue(), bval.intValue()), (TypeNumerical) resulting);
     }
     public int calculateIntegral(int a, int b) {
         switch (this) {

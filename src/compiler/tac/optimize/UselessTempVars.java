@@ -112,7 +112,7 @@ public class UselessTempVars extends TACOptimization {
                 if (next instanceof TACJumpBoolVar && next.requiredVariables().contains(valSet) && tempVar) {
                     throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }
-                boolean exemption = next instanceof TACCast && (currSource == null || !(currSource instanceof VarInfo));
+                boolean exemption = next instanceof TACCast && !(currSource instanceof VarInfo);
                 if (!exemption && next.requiredVariables().contains(valSet)) {
                     next.replace(valSet, currSourceName, currSource);
                     block.remove(ind);

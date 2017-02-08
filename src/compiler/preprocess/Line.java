@@ -59,7 +59,7 @@ public class Line {
     public class LineException extends RuntimeException {
         public <T extends Throwable> LineException(T toWrap, String doing) {
             super(toWrap.getClass() + " while " + doing + lineMessage(), toWrap);
-            if (toWrap == null || doing == null) {
+            if (doing == null) {
                 throw new IllegalArgumentException();
             }
         }
@@ -68,9 +68,6 @@ public class Line {
         }
         public LineException(Throwable toWrap) {
             super(toWrap.getClass() + " on" + lineMessage(), toWrap);
-            if (toWrap == null) {
-                throw new IllegalArgumentException();
-            }
         }
     }
     private String lineMessage() {

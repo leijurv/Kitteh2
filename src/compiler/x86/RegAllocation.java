@@ -165,7 +165,7 @@ public class RegAllocation {
                     System.out.println("REPLACING " + maxDistance + " " + register);
                     }*/
                     //ok
-                    X86TypedRegister xtr = new X86TempRegister(register, (TypeNumerical) lmao, mod);
+                    //X86TypedRegister xtr = new X86TempRegister(register, (TypeNumerical) lmao, mod);
                     for (int j = i + 1; j <= lastUsage; j++) {
                         if (used.contains(j)) {
                             if (!mode) {

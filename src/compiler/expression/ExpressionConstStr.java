@@ -15,7 +15,7 @@ import compiler.type.TypePointer;
  *
  * @author leijurv
  */
-public class ExpressionConstStr extends Expression {
+public class ExpressionConstStr extends Expression implements ExpressionConst<String> {
     public final String val;
     public ExpressionConstStr(String val) {
         this.val = val;
@@ -31,5 +31,9 @@ public class ExpressionConstStr extends Expression {
     @Override
     protected int calculateTACLength() {
         return 1;
+    }
+    @Override
+    public String getVal() {
+        return val;
     }
 }

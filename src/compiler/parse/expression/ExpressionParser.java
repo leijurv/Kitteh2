@@ -22,20 +22,20 @@ public class ExpressionParser {
     static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         https://en.wikipedia.org/wiki/Parsing_expression_grammar
         while (true) {
-            new FirstPass().apply(o, desiredType, context);
-            if (o.size() == 1) {
-                return (Expression) o.get(0);
-            }
             for (ExpressionParseStep step : STEPS) {
                 if (step.apply(o, desiredType, context)) {
                     continue https;
                 }
+            }
+            if (o.size() == 1) {
+                return (Expression) o.get(0);
             }
             throw new IllegalStateException("Unable to parse " + o);
         }
     }
     //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
     private static final ExpressionParseStep[] STEPS = {
+        new FirstPass(),
         //recursively call parseImpl on the contents of parentheses
         new RecursiveParentheses(),
         //getting array item (like arr[ind])

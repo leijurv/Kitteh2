@@ -88,7 +88,7 @@ public class UselessTempVars extends TACOptimization {
                 }*/
                 if (currSource instanceof X86Const) {
                     //continue;
-                } else if (true) {
+                } else {
                     throw new IllegalStateException(currSource + "");
                 }
             }

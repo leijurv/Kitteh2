@@ -5,10 +5,15 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Operator;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConst;
+import compiler.expression.ExpressionConstNum;
+import compiler.expression.ExpressionOperator;
 import compiler.tac.IREmitter;
 import compiler.tac.TACArrayRef;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeInt32;
 
 /**
  *
@@ -47,5 +52,26 @@ public class CommandSetArray extends Command {
         value = value.calculateConstants();
         index = index.insertKnownValues(context);
         index = index.calculateConstants();
+    }
+    @Override
+    public Command optimize() {
+        staticValues();
+        if (index instanceof ExpressionConst) {
+            if (!(index instanceof ExpressionConstNum)) {
+                throw new RuntimeException();
+            }
+            int val = ((ExpressionConstNum) index).getVal().intValue();
+            CommandSetPtr res;
+            if (val == 0) {
+                res = new CommandSetPtr(context, array, value);
+            } else {
+                Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(value.getType().getSizeBytes(), new TypeInt32())));
+                //System.out.println(ptr + " " + Arrays.toString(CommandSetPtr.tryOffsetBased(ptr)));
+                res = new CommandSetPtr(context, ptr, value);
+            }
+            //System.out.println(array + " " + index + " " + value + " BECOMES " + res);
+            return res.optimize();
+        }
+        return this;
     }
 }

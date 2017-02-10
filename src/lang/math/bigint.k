@@ -174,8 +174,8 @@ struct bigint{
 				n[k4]=0
 			}
 			nl=nl+i
-			n[0]=highBits
 			jj:=0
+			n[jj]=highBits
 			aaa:=magLen-1
 			for jj < aaa{
 				n[i]=(val[jj]<<nBits)|(val[jj+1]>>>nBits2)

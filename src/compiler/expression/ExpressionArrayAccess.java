@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Operator;
 import compiler.command.Command;
 import compiler.command.CommandSetArray;
 import compiler.tac.IREmitter;
@@ -12,6 +13,7 @@ import compiler.tac.TACArrayDeref;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeInt32;
 import compiler.type.TypePointer;
 
 /**
@@ -65,6 +67,14 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
     public Expression calculateConstants() {
         array = array.calculateConstants();
         index = index.calculateConstants();
+        if (index instanceof ExpressionConst) {
+            if (!(index instanceof ExpressionConstNum)) {
+                throw new RuntimeException();
+            }
+            Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(getType().getSizeBytes(), new TypeInt32())));
+            Expression res = new ExpressionPointerDeref(ptr).calculateConstants();
+            return res;
+        }
         return this;
     }
     @Override

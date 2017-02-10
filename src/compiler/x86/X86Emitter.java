@@ -96,6 +96,12 @@ public class X86Emitter {
         TypeNumerical inp = (TypeNumerical) a.getType();
         TypeNumerical out = (TypeNumerical) b.getType();
         String cast = "movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + a.x86() + ", " + b.x86();
+        if (cast.equals("movsbw %al, %ax")) {
+            cast = "cbtw";
+        }
+        if (cast.equals("movswl %ax, %eax")) {
+            cast = "cwtl";
+        }
         if (cast.equals("movslq %eax, %rax")) {//lol
             cast = "cltq";//lol
         }

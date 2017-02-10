@@ -64,10 +64,10 @@ public class Line {
             }
         }
         public LineException() {
-            super("Exception on " + lineMessage());
+            super("Exception on " + Line.this.lineMessage());
         }
         public LineException(Throwable toWrap) {
-            super(toWrap.getClass() + " on" + lineMessage(), toWrap);
+            super(toWrap.getClass() + " on" + Line.this.lineMessage(), toWrap);
         }
     }
     private String lineMessage() {

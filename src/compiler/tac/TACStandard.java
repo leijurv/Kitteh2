@@ -227,12 +227,18 @@ public class TACStandard extends TACStatement {
                 }
                 emit.move(aa, X86Register.A);
                 emit.move(cc, X86Register.C);
-                if (type.getSizeBytes() == 8) {
-                    emit.addStatement("cqto");
-                } else {
-                    X86Param d = X86Register.D.getRegister(type);
-                    emit.move(aa, d);
-                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
+                switch (type.getSizeBytes()) {
+                    case 8:
+                        emit.addStatement("cqto");
+                        break;
+                    case 4:
+                        emit.addStatement("cltd");
+                        break;
+                    default:
+                        X86Param d = X86Register.D.getRegister(type);
+                        emit.move(aa, d);
+                        emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
+                        break;
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.move(X86Register.A, result);
@@ -240,12 +246,18 @@ public class TACStandard extends TACStatement {
             case MOD:
                 emit.move(aa, X86Register.A);
                 emit.move(cc, X86Register.C);
-                if (type.getSizeBytes() == 8) {
-                    emit.addStatement("cqto");
-                } else {
-                    X86Param d = X86Register.D.getRegister(type);
-                    emit.move(aa, d);
-                    emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
+                switch (type.getSizeBytes()) {
+                    case 8:
+                        emit.addStatement("cqto");
+                        break;
+                    case 4:
+                        emit.addStatement("cltd");
+                        break;
+                    default:
+                        X86Param d = X86Register.D.getRegister(type);
+                        emit.move(aa, d);
+                        emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
+                        break;
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.move(X86Register.D, result);

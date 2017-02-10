@@ -5,9 +5,11 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
+import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.util.CompilationState;
 import compiler.util.MultiThreadedLoader;
+import compiler.util.Pair;
 import compiler.x86.RegAllocation;
 import compiler.x86.X86Format;
 import compiler.x86.X86Function;
@@ -62,7 +64,14 @@ public class Compiler {
             System.out.println();
         }
         cs.parseAllFunctions();
-        return generateASM(allFunctions, settings);
+        if (settings.staticValues()) {
+            allFunctions.parallelStream().forEach(CommandDefineFunction::optimize);
+        }
+        if (VERBOSE) {
+            System.out.println("> DONE STATIC VALUES");
+        }
+        List<Pair<String, List<TACStatement>>> finalFuncList = allFunctions.parallelStream().map(settings::coloncolon).collect(Collectors.toList());
+        return generateASM(finalFuncList);
     }
     public static String compile(String program, OptimizationSettings settings) {
         try {
@@ -77,16 +86,9 @@ public class Compiler {
             throw new RuntimeException(ex);
         }
     }
-    private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
-        long d = System.currentTimeMillis();
-        if (settings.staticValues()) {
-            commands.parallelStream().forEach(CommandDefineFunction::optimize);
-        }
-        if (VERBOSE) {
-            System.out.println("> DONE STATIC VALUES");
-        }
+    private static String generateASM(List<Pair<String, List<TACStatement>>> functions) {
         long e = System.currentTimeMillis();
-        List<X86Function> reachables = X86Function.gen(commands.parallelStream().map(settings::coloncolon).collect(Collectors.toList()));
+        List<X86Function> reachables = X86Function.gen(functions);
         long f = System.currentTimeMillis();
         if (VERBOSE) {
             System.out.println("TAC generation took " + (f - e) + "ms overall");
@@ -105,7 +107,7 @@ public class Compiler {
         long h = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(reachables);
         long i = System.currentTimeMillis();
-        String loll = ("static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " allocation " + (h - g) + " x86gen " + (i - h));
+        String loll = ("funcgen " + (f - e) + " debugtac " + (g - f) + " allocation " + (h - g) + " x86gen " + (i - h));
         if (VERBOSE) {
             System.out.println(loll);
             System.err.println(loll);

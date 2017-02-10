@@ -6,12 +6,13 @@
 package compiler.x86;
 import compiler.type.Type;
 import compiler.type.TypeNumerical;
+import compiler.asm.ASMParam;
 
 /**
  *
  * @author leijurv
  */
-public class X86TypedRegister implements X86Param {
+public class X86TypedRegister implements ASMParam {
     private final X86Register register;
     private final TypeNumerical type;
     X86TypedRegister(X86Register register, TypeNumerical type) {

@@ -7,8 +7,8 @@ package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
-import compiler.x86.X86Param;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  * this may seem niche, and it is, but it makes the resulting tac for
@@ -30,7 +30,7 @@ public class ConditionalDoubleJump extends TACOptimization {
         for (int i = 0; i < stmts.size(); i++) {
             if (stmts.get(i) instanceof TACJumpBoolVar) {
                 TACJumpBoolVar tjbr = (TACJumpBoolVar) stmts.get(i);
-                X86Param knownValue = tjbr.params[0];
+                ASMParam knownValue = tjbr.params[0];
                 for (int j = i + 1; j < stmts.size(); j++) {
                     if (!(stmts.get(j) instanceof TACJump)) {
                         break;

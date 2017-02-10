@@ -12,9 +12,9 @@ import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
 import compiler.type.TypeFloat;
-import compiler.x86.X86Const;
-import compiler.x86.X86Param;
+import compiler.asm.ASMConst;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  * Remove vars that have no point
@@ -72,7 +72,7 @@ public class UselessTempVars extends TACOptimization {
                 //replacement wouldn't... even do anything
                 continue;
             }
-            X86Param currSource = curr.params[0];
+            ASMParam currSource = curr.params[0];
             if (currSource instanceof VarInfo) {
                 VarInfo vi = (VarInfo) currSource;
                 currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
@@ -86,7 +86,7 @@ public class UselessTempVars extends TACOptimization {
                 /*if (currSource instanceof X86Const) {
                     currSource = new X86Const(((X86Const) currSource).getValue(), (TypeNumerical) curr.params[1].getType());
                 }*/
-                if (currSource instanceof X86Const) {
+                if (currSource instanceof ASMConst) {
                     //continue;
                 } else if (true) {
                     throw new IllegalStateException(currSource + "");

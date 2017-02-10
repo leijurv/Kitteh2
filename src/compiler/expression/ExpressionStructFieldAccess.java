@@ -17,10 +17,10 @@ import compiler.type.Type;
 import compiler.type.TypeInt64;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
-import compiler.x86.X86Param;
 import java.awt.image.RasterFormatException;
 import java.lang.reflect.MalformedParameterizedTypeException;
 import java.nio.file.ReadOnlyFileSystemException;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -102,7 +102,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
             return new CommandSetPtr(context, fieldLoc, rvalue);
         } else if (input instanceof ExpressionVariable) {
             //input.field=rvalue
-            X86Param thisVariable = context.get(((ExpressionVariable) input).name);
+            ASMParam thisVariable = context.get(((ExpressionVariable) input).name);
             class CommandSetStructField extends Command {
                 Expression insert;
                 int stackLoc;

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.asm.ASMArchitecture;
 import compiler.command.CommandDefineFunction;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
@@ -45,7 +46,7 @@ public class Compiler {
     public static boolean obfuscate() {
         return OBFUSCATE;
     }
-    public static String compile(Path main, OptimizationSettings settings) throws IOException {
+    public static String compile(Path main, OptimizationSettings settings, ASMArchitecture arch) throws IOException {
         long a = System.currentTimeMillis();
         CompilationState cs = new CompilationState(main);
         new MultiThreadedLoader(cs).mainImportLoop();
@@ -76,22 +77,30 @@ public class Compiler {
         if (VERBOSE) {
             System.out.println("TAC generation took " + (g - f) + "ms overall");
         }
-        return generateASM(finalFuncList);
+        return generateASM(finalFuncList, arch);
     }
-    public static String compile(String program, OptimizationSettings settings) {
+    public static String compile(String program, OptimizationSettings settings, ASMArchitecture arch) {
         try {
             File f = File.createTempFile("temp", ".k");
             f.deleteOnExit();
             try (FileOutputStream lol = new FileOutputStream(f)) {
                 lol.write(program.getBytes("UTF-8"));
             }
-            return compile(f.toPath(), settings);
+            return compile(f.toPath(), settings, arch);
         } catch (IOException ex) {
             Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);
         }
     }
-    private static String generateASM(List<Pair<String, List<TACStatement>>> functions) {
+    private static String generateASM(List<Pair<String, List<TACStatement>>> functions, ASMArchitecture arch) {
+        switch (arch) {
+            case X86:
+                return generateX86(functions);
+            default:
+                throw new UnsupportedOperationException("Unsupported architecture " + arch);
+        }
+    }
+    private static String generateX86(List<Pair<String, List<TACStatement>>> functions) {
         long e = System.currentTimeMillis();
         List<X86Function> reachables = X86Function.gen(functions);
         long f = System.currentTimeMillis();

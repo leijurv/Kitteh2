@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -64,7 +65,7 @@ public class RegAllocation {
                 if (!isTemp && !allowNormal) {
                     continue;
                 }
-                X86Param vf = block.get(i).modifiedVariableInfos().get(0);
+                ASMParam vf = block.get(i).modifiedVariableInfos().get(0);
                 if (!(vf instanceof VarInfo)) {//idk
                     throw new IllegalStateException(vf.getClass() + " " + vf);
                 }

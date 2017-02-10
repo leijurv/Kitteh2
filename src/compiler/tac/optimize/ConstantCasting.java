@@ -9,7 +9,7 @@ import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import java.util.List;
 
 /**
@@ -27,7 +27,7 @@ public class ConstantCasting extends TACOptimization {
         for (int i = 0; i < block.size() - 1; i++) {
             if (block.get(i) instanceof TACConst) {
                 TACConst con = (TACConst) block.get(i);
-                if (!(con.params[0] instanceof X86Const)) {
+                if (!(con.params[0] instanceof ASMConst)) {
                     continue;
                 }
                 if (!UselessTempVars.isTempVariable(con.paramNames[1])) {
@@ -41,7 +41,7 @@ public class ConstantCasting extends TACOptimization {
                             continue;//lol its not like you can do: movss $5, %xmm1
                         }
                         String constantBeingCasted = con.paramNames[0];
-                        X86Const casted = new X86Const(constantBeingCasted, castingTo);
+                        ASMConst casted = new ASMConst(constantBeingCasted, castingTo);
                         con.replace(con.paramNames[0], constantBeingCasted, casted);//replace source with: the constant, now with the correct casted type
                         con.replace(con.paramNames[1], cast.paramNames[1], cast.params[1]);//replace dest with: the destination of the original cast
                         block.remove(i + 1);

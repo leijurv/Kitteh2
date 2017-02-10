@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.x86;
+package compiler.asm;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
@@ -12,10 +12,10 @@ import compiler.type.TypeNumerical;
  *
  * @author leijurv
  */
-public class X86Const implements X86Param {
+public class ASMConst implements ASMParam {
     private final String value;
     private final TypeNumerical type;
-    public X86Const(String value, TypeNumerical type) {
+    public ASMConst(String value, TypeNumerical type) {
         if (value == null || type == null) {
             throw new IllegalArgumentException(value + " " + type);
         }

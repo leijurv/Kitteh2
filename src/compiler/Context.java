@@ -13,7 +13,6 @@ import compiler.type.Type;
 import compiler.type.TypeStruct;
 import compiler.util.MutInt;
 import compiler.util.Pair;
-import compiler.x86.X86Param;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
@@ -23,6 +22,7 @@ import java.util.Optional;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import compiler.asm.ASMParam;
 
 /**
  * Sorta a symbol table that also deals with scoping and temp variables that
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
     public boolean printFull = true;
 
-    public class VarInfo implements X86Param {
+    public class VarInfo implements ASMParam {
         private final String name;
         private final Type type;
         private volatile ExpressionConst knownValue;
@@ -84,7 +84,7 @@ public class Context {//TODO split off some of this massive functionality into o
     }
     public final HashMap<String, String> imports;
     public final String packageName;
-    private final HashMap<String, X86Param>[] values;
+    private final HashMap<String, ASMParam>[] values;
     private final HashMap<String, TypeStruct> structs;
     private int stackSize;
     private Integer additionalSizeTemp = null;
@@ -200,7 +200,7 @@ public class Context {//TODO split off some of this massive functionality into o
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, X86Param>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
+    private Context(HashMap<String, ASMParam>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
         this.values = values;
         this.stackSize = stackSize;
         this.structs = structs;
@@ -211,7 +211,7 @@ public class Context {//TODO split off some of this massive functionality into o
         this.packageName = packageName;
     }
     public Context subContext() {
-        HashMap<String, X86Param>[] temp = Arrays.copyOf(values, values.length + 1);
+        HashMap<String, ASMParam>[] temp = Arrays.copyOf(values, values.length + 1);
         temp[values.length] = new HashMap<>();
         Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
         return subContext;
@@ -220,7 +220,7 @@ public class Context {//TODO split off some of this massive functionality into o
         values[values.length - 1].put(name, value);
     }
     public ExpressionConst knownValue(String name) {
-        X86Param info = get(name);
+        ASMParam info = get(name);
         //System.out.println("Known for " + name + ": " + info);
         if (info == null || !(info instanceof VarInfo)) {
             return null;
@@ -228,7 +228,7 @@ public class Context {//TODO split off some of this massive functionality into o
         return ((VarInfo) info).knownValue;
     }
     public boolean varDefined(String name) {
-        for (HashMap<String, X86Param> value : values) {
+        for (HashMap<String, ASMParam> value : values) {
             if (value.containsKey(name)) {
                 return true;
             }
@@ -259,16 +259,16 @@ public class Context {//TODO split off some of this massive functionality into o
             setKnownValue(name, null);
         }
     }
-    public X86Param getRequired(String name) {
-        X86Param info = get(name);
+    public ASMParam getRequired(String name) {
+        ASMParam info = get(name);
         if (info == null) {
             throw new IllegalStateException("WEWLAD\nEWLADW\nWLADWE\nLADWEW\nADWEWL\nDWEWLA\n" + name);
         }
         return info;
     }
-    public X86Param get(String name) {
+    public ASMParam get(String name) {
         for (int i = values.length - 1; i >= 0; i--) {
-            X86Param possibleValue = values[i].get(name);
+            ASMParam possibleValue = values[i].get(name);
             if (possibleValue != null) {
                 return possibleValue;
             }

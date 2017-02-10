@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.asm.ASMArchitecture;
 import compiler.tac.optimize.OptimizationSettings;
 import compiler.tac.optimize.TACOptimizer;
 import compiler.tac.optimize.UselessTempVars;
@@ -292,7 +293,7 @@ public class CompilerTest {
         }
         String compiled;
         try {
-            compiled = Compiler.compile((String) prog, settings);
+            compiled = Compiler.compile((String) prog, settings, ASMArchitecture.X86);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {
@@ -305,7 +306,7 @@ public class CompilerTest {
     }
     public static void verifyCompilation(Path main, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
         assertNotNull(desiredExecutionOutput);
-        String compiled = Compiler.compile(main, settings);
+        String compiled = Compiler.compile(main, settings, ASMArchitecture.X86);
         assertNotNull(compiled);
         verifyASM(compiled, useAssert, desiredExecutionOutput);
     }

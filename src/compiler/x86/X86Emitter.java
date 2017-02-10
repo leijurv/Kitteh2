@@ -4,11 +4,13 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.asm.ASMConst;
 import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -21,32 +23,32 @@ public class X86Emitter {
     public X86Emitter(String funcLabelPrefix) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
     }
-    public void move(X86Param a, X86Param b) {
+    public void move(ASMParam a, ASMParam b) {
         move(a, b, false);
     }
-    public void move(X86Param a, X86Register b) {
+    public void move(ASMParam a, X86Register b) {
         move(a, b.getRegister((TypeNumerical) a.getType()));
     }
-    public void move(X86Register a, X86Param b) {
+    public void move(X86Register a, ASMParam b) {
         move(a.getRegister((TypeNumerical) b.getType()), b);
     }
-    public void uncheckedMove(X86Param a, X86Param b) {
+    public void uncheckedMove(ASMParam a, ASMParam b) {
         move(a, b, true);
     }
-    public void moveStr(String a, X86Param b) {//different name so its not called accidentally
+    public void moveStr(String a, ASMParam b) {//different name so its not called accidentally
         move(a, b.x86(), (TypeNumerical) b.getType());
     }
-    public void moveStr(X86Param a, String b) {
+    public void moveStr(ASMParam a, String b) {
         move(a.x86(), b, (TypeNumerical) a.getType());
     }
-    private void move(X86Param a, X86Param b, boolean typesCanBeDifferent) {
+    private void move(ASMParam a, ASMParam b, boolean typesCanBeDifferent) {
         if (!typesCanBeDifferent && !a.getType().equals(b.getType())) {
             throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
         }
         if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {//honestly, there's so much sketchy code calling this that... whatever
             throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
         }
-        if (a instanceof X86Const && a.x86().equals("$0") && b instanceof X86TypedRegister) {
+        if (a instanceof ASMConst && a.x86().equals("$0") && b instanceof X86TypedRegister) {
             addStatement("xor" + ((TypeNumerical) a.getType()).x86typesuffix() + " " + b.x86() + ", " + b.x86());
             return;
         }
@@ -92,7 +94,7 @@ public class X86Emitter {
         prevMove2 = b;
         prevType = type;
     }
-    public void cast(X86Param a, X86Param b) {
+    public void cast(ASMParam a, ASMParam b) {
         TypeNumerical inp = (TypeNumerical) a.getType();
         TypeNumerical out = (TypeNumerical) b.getType();
         String cast = "movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + a.x86() + ", " + b.x86();

@@ -13,12 +13,12 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -51,9 +51,9 @@ public class TACPointerDeref extends TACStatement {
     }
     @Override
     public void printx86(X86Emitter emit) {
-        X86Param source = params[0];
-        X86Param dest = params[1];
-        X86Param loc;
+        ASMParam source = params[0];
+        ASMParam dest = params[1];
+        ASMParam loc;
         if (source instanceof X86TypedRegister) {
             loc = source;
         } else {

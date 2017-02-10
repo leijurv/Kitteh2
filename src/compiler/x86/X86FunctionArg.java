@@ -5,12 +5,13 @@
  */
 package compiler.x86;
 import compiler.type.Type;
+import compiler.asm.ASMParam;
 
 /**
  *
  * @author leijurv
  */
-public class X86FunctionArg implements X86Param {
+public class X86FunctionArg implements ASMParam {
     private final int location;
     private final Type type;
     public X86FunctionArg(int location, Type type) {

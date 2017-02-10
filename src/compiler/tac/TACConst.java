@@ -8,15 +8,15 @@ import compiler.Context.VarInfo;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 import compiler.type.TypeStruct;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.List;
 import javax.management.openmbean.InvalidOpenTypeException;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -57,7 +57,7 @@ public class TACConst extends TACStatement {
         TypeNumerical des = params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType();
         try {//im tired ok? i know this is mal
             Double.parseDouble(paramNames[0]);
-            params[0] = new X86Const(paramNames[0], des);
+            params[0] = new ASMConst(paramNames[0], des);
         } catch (NumberFormatException ex) {
             if (!paramNames[0].startsWith("\"")) {
                 params[0] = get(paramNames[0]);
@@ -82,7 +82,7 @@ public class TACConst extends TACStatement {
     public void printx86(X86Emitter emit) {
         move(params[1], params[0], emit);
     }
-    public static void move(X86Param dest, X86Param source, X86Emitter emit) {
+    public static void move(ASMParam dest, ASMParam source, X86Emitter emit) {
         if (dest instanceof VarInfo && source instanceof VarInfo && !dest.getType().equals(source.getType())) {
             throw new UnsupportedCharsetException(source + " " + dest + " " + source.getType() + " " + dest.getType());
         }
@@ -93,16 +93,16 @@ public class TACConst extends TACStatement {
         }
         TypeNumerical type = (TypeNumerical) dest.getType();
         if (type.getSizeBytes() != source.getType().getSizeBytes()) {
-            if (source instanceof X86Const) {
-                source = new X86Const(((X86Const) source).getValue(), type);
+            if (source instanceof ASMConst) {
+                source = new ASMConst(((ASMConst) source).getValue(), type);
             } else {
                 throw new InvalidOpenTypeException(source + " " + dest + " " + type + " " + source.getType());
             }
         }
-        if (source instanceof X86Const || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
+        if (source instanceof ASMConst || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
             emit.uncheckedMove(source, dest);
         } else {
-            X86Param r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);
+            ASMParam r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);
             emit.move(source, r);
             emit.move(r, dest);
         }

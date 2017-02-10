@@ -10,13 +10,13 @@ import compiler.type.TypeInt64;
 import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -71,8 +71,8 @@ public class TACArrayRef extends TACStatement {
             emit.cast(ind, n);
             ind = n;
         }
-        X86Param source;
-        if (params[2] instanceof X86TypedRegister || params[2] instanceof X86Const) {
+        ASMParam source;
+        if (params[2] instanceof X86TypedRegister || params[2] instanceof ASMConst) {
             source = params[2];
         } else {
             //i'm sorry

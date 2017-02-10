@@ -6,15 +6,15 @@
 package compiler.tac;
 import compiler.Context;
 import compiler.type.TypeNumerical;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TempRegister;
 import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -24,10 +24,10 @@ public abstract class TACStatement {
     protected Context context;
     private TempVarUsage tvu;
     public String[] paramNames;
-    public X86Param[] params;
+    public ASMParam[] params;
     public TACStatement(String... paramNames) {
         this.paramNames = paramNames;
-        params = new X86Param[paramNames.length];
+        params = new ASMParam[paramNames.length];
         this.context = null;
     }
     public final void setContext(Context context) {
@@ -60,7 +60,7 @@ public abstract class TACStatement {
             }
         }
     }
-    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
+    public void replace(String toReplace, String replaceWith, ASMParam infoWith) {
         if (infoWith == null || replaceWith == null || toReplace == null) {
             throw new IllegalStateException(this + " " + toReplace + " " + replaceWith + " " + infoWith);
         }
@@ -71,8 +71,8 @@ public abstract class TACStatement {
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(toReplace)) {
                 paramNames[i] = replaceWith;
-                if (infoWith instanceof X86Const && !infoWith.getType().equals(params[i].getType())) {
-                    params[i] = new X86Const(((X86Const) infoWith).getValue(), (TypeNumerical) params[i].getType());
+                if (infoWith instanceof ASMConst && !infoWith.getType().equals(params[i].getType())) {
+                    params[i] = new ASMConst(((ASMConst) infoWith).getValue(), (TypeNumerical) params[i].getType());
                 } else {
                     params[i] = infoWith;
                 }
@@ -107,10 +107,10 @@ public abstract class TACStatement {
     }
     public abstract List<String> requiredVariables();
     public abstract List<String> modifiedVariables();
-    public final List<X86Param> modifiedVariableInfos() {
+    public final List<ASMParam> modifiedVariableInfos() {
         return modifiedVariables().stream().filter(x -> !x.startsWith(X86Register.REGISTER_PREFIX)).map(this::get).collect(Collectors.toList());
     }
-    protected X86Param get(String name) {
+    protected ASMParam get(String name) {
         for (int i = 0; i < paramNames.length; i++) {
             if (paramNames[i].equals(name) && params[i] != null) {
                 return params[i];
@@ -127,7 +127,7 @@ public abstract class TACStatement {
         }
         throw new RuntimeException("Neither " + context + " nor " + tvu + " have " + name);
     }
-    protected X86Param otherget(String name) {
+    protected ASMParam otherget(String name) {
         if (context.get(name) != null) {
             return context.get(name);
         }

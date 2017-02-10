@@ -16,15 +16,15 @@ import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Comparison;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.IllegalChannelGroupException;
 import java.util.Arrays;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -102,9 +102,9 @@ public class TACStandard extends TACStatement {
         }
         x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
     }
-    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param fst, X86Param snd, X86Param result, Operator op) {//oh god, this function.
-        X86Param first = fst;
-        X86Param second = snd;
+    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, ASMParam fst, ASMParam snd, ASMParam result, Operator op) {//oh god, this function.
+        ASMParam first = fst;
+        ASMParam second = snd;
         //i literally can't be bothered
         TypeNumerical type = (TypeNumerical) result.getType();
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
@@ -137,7 +137,7 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
                 return;
             }
-            if (second instanceof X86Const) {
+            if (second instanceof ASMConst) {
                 emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
                 return;
             }
@@ -164,7 +164,7 @@ public class TACStandard extends TACStatement {
         if (type instanceof TypePointer) {//if second is null that means it's a const in secondName, and if that's the case we don't need to do special cases
             //pointer arithmetic, oh boy pls no
             //what are we adding to the pointer
-            X86Param nonPointer = first.getType() instanceof TypePointer ? second : first;
+            ASMParam nonPointer = first.getType() instanceof TypePointer ? second : first;
             if (!(nonPointer.getType() instanceof TypeNumerical)) {
                 throw new ClosedSelectorException();
             }
@@ -174,8 +174,8 @@ public class TACStandard extends TACStatement {
             }
             //we put the pointer in A
             //and the integer in C
-            if (nonPointer instanceof X86Const) {
-                nonPointer = new X86Const(((X86Const) nonPointer).getValue(), type);//its probably a const int that we are trying to add to an 8 byte pointer
+            if (nonPointer instanceof ASMConst) {
+                nonPointer = new ASMConst(((ASMConst) nonPointer).getValue(), type);//its probably a const int that we are trying to add to an 8 byte pointer
                 //since its literally a const number, just change the type
                 if (first.getType() instanceof TypePointer) {
                     second = nonPointer;
@@ -184,12 +184,12 @@ public class TACStandard extends TACStatement {
                 }
             }
         }
-        if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister || second instanceof VarInfo) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
+        if ((second instanceof ASMConst || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister || second instanceof VarInfo) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
             if (second.getType().getSizeBytes() == cc.getType().getSizeBytes()) {
                 c = second.x86();
                 shaft = c;
             } else {
-                if (second instanceof X86Const) {
+                if (second instanceof ASMConst) {
                     throw new IllegalStateException();
                 }
                 TACCast.cast(second, cc, emit);
@@ -226,7 +226,7 @@ public class TACStandard extends TACStatement {
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement("cqto");
                 } else {
-                    X86Param d = X86Register.D.getRegister(type);
+                    ASMParam d = X86Register.D.getRegister(type);
                     emit.move(aa, d);
                     emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }
@@ -239,7 +239,7 @@ public class TACStandard extends TACStatement {
                 if (type.getSizeBytes() == 8) {
                     emit.addStatement("cqto");
                 } else {
-                    X86Param d = X86Register.D.getRegister(type);
+                    ASMParam d = X86Register.D.getRegister(type);
                     emit.move(aa, d);
                     emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
                 }

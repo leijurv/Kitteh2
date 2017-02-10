@@ -8,8 +8,8 @@ import compiler.Context.VarInfo;
 import compiler.tac.TACConst;
 import compiler.tac.TACStandard;
 import compiler.tac.TACStatement;
-import compiler.x86.X86Param;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  * a=b+c
@@ -45,7 +45,7 @@ public class CommonSubexpression extends TACOptimization {
                             return;
                         }
                     }
-                    for (X86Param vi : block.get(j).modifiedVariableInfos()) {
+                    for (ASMParam vi : block.get(j).modifiedVariableInfos()) {
                         if (!(vi instanceof VarInfo)) {
                             continue;
                         }

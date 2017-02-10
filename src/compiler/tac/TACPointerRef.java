@@ -8,14 +8,14 @@ import compiler.Context;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -53,15 +53,15 @@ public class TACPointerRef extends TACStatement {
     public void printx86(X86Emitter emit) {
         if (params[0].getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) params[0].getType();
-            X86Param source;
-            if (params[0] instanceof X86Const || params[0] instanceof X86TypedRegister) {
+            ASMParam source;
+            if (params[0] instanceof ASMConst || params[0] instanceof X86TypedRegister) {
                 source = params[0];
             } else {
                 source = X86Register.C.getRegister(d);
                 emit.move(params[0], source);
             }
-            X86Param othersource;
-            if (params[1] instanceof X86Const || params[1] instanceof X86TypedRegister) {
+            ASMParam othersource;
+            if (params[1] instanceof ASMConst || params[1] instanceof X86TypedRegister) {
                 othersource = params[1];
             } else {
                 X86Register ohno = X86Register.A;

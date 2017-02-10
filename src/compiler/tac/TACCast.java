@@ -8,11 +8,11 @@ import compiler.type.TypeFloat;
 import compiler.type.TypeInt32;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Emitter;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -32,8 +32,8 @@ public class TACCast extends TACStatement {
     }
     @Override
     protected void onContextKnown() {
-        X86Param input = params[0];
-        X86Param dest = params[1];
+        ASMParam input = params[0];
+        ASMParam dest = params[1];
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (inp.equals(out)) {
@@ -53,19 +53,19 @@ public class TACCast extends TACStatement {
     public void printx86(X86Emitter emit) {
         cast(params[0], params[1], emit);
     }
-    public static void cast(X86Param input, X86Param dest, X86Emitter emit) {
+    public static void cast(ASMParam input, ASMParam dest, X86Emitter emit) {
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (out instanceof TypeFloat) {
             if (!(inp instanceof TypeInt32)) {
                 throw new RuntimeException("noplease");
             }
-            X86Param aoeu = X86Register.XMM0.getRegister(new TypeFloat());
+            ASMParam aoeu = X86Register.XMM0.getRegister(new TypeFloat());
             emit.addStatement("cvtsi2ssl " + input.x86() + ", " + aoeu.x86());//kill me
             emit.move(aoeu, dest);
             return;
         }
-        X86Param dst;
+        ASMParam dst;
         if (dest instanceof X86TypedRegister) {
             dst = dest;
         } else {

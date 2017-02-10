@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler;
+import compiler.asm.ASMArchitecture;
 import static compiler.tac.optimize.OptimizationSettings.*;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -17,8 +18,9 @@ import org.w3c.dom.ls.LSException;
  * @author leijurv
  */
 public class Main {
-    protected static final String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
-    protected static final String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
+    private static final ASMArchitecture DEFAULT_ARCH = ASMArchitecture.X86;
+    private static final String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
+    private static final String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
     private static final boolean OPTIMIZE = true; //if it's being bad, see if changing this to false fixes it
     public static final boolean ALLOW_CLI = true;
     public static long streamTime() {
@@ -37,10 +39,23 @@ public class Main {
         System.out.println("Second stream: " + streamTime()); //almost always zero
         String inFile = DEFAULT_IN_FILE;
         String outFile = DEFAULT_OUT_FILE;
+        ASMArchitecture arch = DEFAULT_ARCH;
         boolean executable = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 default:
+                    continue;
+                case "-a":
+                case "--a":
+                case "--arch":
+                case "-arch":
+                case "-architecture":
+                case "--architecture":
+                    if (i + 1 == args.length) {
+                        throw new RuntimeException("No arch provided");
+                    }
+                    i++;
+                    arch = ASMArchitecture.fromString(args[i]);
                     continue;
                 case "-i":
                     if (i + 1 == args.length) {
@@ -96,7 +111,7 @@ public class Main {
                     break;
             }
         }
-        String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
+        String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE, arch);
         File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
         try (FileOutputStream lol = new FileOutputStream(asmFile)) {
             lol.write(asm.getBytes("UTF-8"));

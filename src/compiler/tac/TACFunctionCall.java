@@ -12,11 +12,10 @@ import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.util.Obfuscator;
-import compiler.x86.X86Const;
+import compiler.asm.ASMConst;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
 import compiler.x86.X86FunctionArg;
-import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TempRegister;
 import compiler.x86.X86TypedRegister;
@@ -24,6 +23,7 @@ import java.nio.channels.CancelledKeyException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import compiler.asm.ASMParam;
 
 /**
  *
@@ -48,7 +48,7 @@ public class TACFunctionCall extends TACStatement {
     }));
     private final String[] resultName;
     private final FunctionHeader header;
-    private X86Param[] result;
+    private ASMParam[] result;
     public TACFunctionCall(FunctionHeader header, List<String> paramNames, String... result) {
         super(paramNames.toArray(new String[paramNames.size()]));
         this.resultName = result;
@@ -67,7 +67,7 @@ public class TACFunctionCall extends TACStatement {
         return (result.length == 0 ? "" : Arrays.asList(result) + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
-    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
+    public void replace(String toReplace, String replaceWith, ASMParam infoWith) {
         for (int i = 0; i < resultName.length; i++) {
             if (resultName[i].equals(toReplace)) {
                 resultName[i] = replaceWith;
@@ -92,7 +92,7 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public void onContextKnown() {
-        result = new X86Param[resultName.length];
+        result = new ASMParam[resultName.length];
         for (int i = 0; i < resultName.length; i++) {
             result[i] = context.getRequired(resultName[i]);
         }
@@ -121,8 +121,8 @@ public class TACFunctionCall extends TACStatement {
             return;
         }
         if (header.name.equals("malloc")) {
-            X86Param t = X86Register.DI.getRegister(new TypeInt64());
-            if (params[0] instanceof X86Const) {
+            ASMParam t = X86Register.DI.getRegister(new TypeInt64());
+            if (params[0] instanceof ASMConst) {
                 emit.moveStr(params[0].x86(), t);
             } else {
                 emit.cast(params[0], t);
@@ -141,7 +141,7 @@ public class TACFunctionCall extends TACStatement {
             TypeNumerical type = (TypeNumerical) params[0].getType();
             if (type instanceof TypeFloat) {
                 emit.addStatement("leaq floatformatstring(%rip), %rdi");//lol rip
-                emit.move(new X86Const("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
+                emit.move(new ASMConst("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
                 return;
@@ -150,12 +150,12 @@ public class TACFunctionCall extends TACStatement {
         int stackLocation = 0;
         for (int i = 0; stack && i < params.length; i++) {
             TypeNumerical type = (TypeNumerical) header.inputs().get(i);
-            X86Param dest = new X86FunctionArg(stackLocation, type);
+            ASMParam dest = new X86FunctionArg(stackLocation, type);
             if (!type.equals(params[i].getType())) {
                 if (header.name.endsWith("__print")) {
                     if (params[i].getType().getSizeBytes() != 8) {
-                        if (params[i] instanceof X86Const) {
-                            emit.move(new X86Const(((X86Const) params[i]).getValue(), new TypeInt64()), X86Register.A);
+                        if (params[i] instanceof ASMConst) {
+                            emit.move(new ASMConst(((ASMConst) params[i]).getValue(), new TypeInt64()), X86Register.A);
                         } else {
                             emit.cast(params[i], X86Register.A.getRegister(new TypeInt64()));
                         }

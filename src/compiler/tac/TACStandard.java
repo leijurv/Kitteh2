@@ -127,8 +127,12 @@ public class TACStandard extends TACStatement {
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
             return;
         }
-        if (firstName.equals("0") && op == MINUS && resultName.equals(secondName)) {
+        if (op == MINUS && resultName.equals(secondName)) {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
+            if (!firstName.equals("0")) {
+                //x86(emit, secondName, firstName, resultName, snd, fst, result, Operator.PLUS);
+                emit.addStatement("add" + type.x86typesuffix() + " " + first.x86() + ", " + result.x86());
+            }
             return;
         }
         if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {

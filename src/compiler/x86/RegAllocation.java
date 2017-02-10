@@ -116,11 +116,11 @@ public class RegAllocation {
                         }
                         //throw new IllegalStateException("ALLOWING " + register + " " + mod + " " + tfc);//if this ever happens, throw an exception because i want to notice it and be happy
                     }
-                    if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI) {//RDI passes argument to free and malloc
+                    if ((tfc.calling().equals("malloc") || tfc.calling().equals("free")) && register == X86Register.DI && compiler.Compiler.verbose()) {//RDI passes argument to free and malloc
                         //the last usage is being passed to malloc / free, and it's *already in* rdi
                         //movslq to the same register is actually allowed, so no worries there
                         //otherwise, it's fine to use rdi (since it's already the argument for its last usage)
-                        System.out.print(compiler.Compiler.verbose() ? "Allocating up to malloc / free " + mod : "");
+                        System.out.println("Allocating up to malloc / free " + mod);
                     }
                 }
                 //TODO print of a float clobbers A register

@@ -19,7 +19,7 @@ import org.w3c.dom.ls.LSException;
 public class Main {
     protected static final String DEFAULT_OUT_FILE = System.getProperty("user.home") + "/Documents/blar.s";
     protected static final String DEFAULT_IN_FILE = System.getProperty("user.home") + "/Documents/test.k";
-    private static final boolean OPTIMIZE = true; //if it's being bad, see if changing this to false fixes it
+    private static final boolean OPTIMIZE = false; //if it's being bad, see if changing this to false fixes it
     public static final boolean ALLOW_CLI = true;
     public static long streamTime() {
         long a = System.currentTimeMillis();

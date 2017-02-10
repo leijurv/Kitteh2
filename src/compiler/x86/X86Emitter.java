@@ -65,6 +65,7 @@ public class X86Emitter {
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         if (prevMove1 != null) {
             if ((a.equals(prevMove2) && b.equals(prevMove1)) || (a.equals(prevMove1) && b.equals(prevMove2) && !b.contains(a) && !a.contains(b))) {
+                //they can't contain each other, because of cases like "movq (%rax), %rax" repeated twice
                 if (compiler.Compiler.verbose()) {
                     addComment("redundant because of previous statement");
                     addComment(moveStmt);
@@ -74,7 +75,12 @@ public class X86Emitter {
                 prevType = null;
                 return;
             }
-            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX)))) {
+            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX) && !a.contains(prevMove2)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX) && !a.contains(prevMove1)))) {
+                //^^ lots of edge cases that that prevents against. e.g.
+                //    movq 9(%rax), %rax
+                //    movq 9(%rax), %rax
+                // ^ that code fragment is generated when all optimizations are off in linkedSort.k when it does .next.next
+                //the second move there is NOT redundant, while this condition used to think it was
                 if (compiler.Compiler.verbose()) {
                     addComment("Replacing move with more efficient one given previous move. Move was previously:");
                     addComment(moveStmt);

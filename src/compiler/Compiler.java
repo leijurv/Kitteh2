@@ -70,7 +70,12 @@ public class Compiler {
         if (VERBOSE) {
             System.out.println("> DONE STATIC VALUES");
         }
+        long f = System.currentTimeMillis();
         List<Pair<String, List<TACStatement>>> finalFuncList = allFunctions.parallelStream().map(settings::coloncolon).collect(Collectors.toList());
+        long g = System.currentTimeMillis();
+        if (VERBOSE) {
+            System.out.println("TAC generation took " + (g - f) + "ms overall");
+        }
         return generateASM(finalFuncList);
     }
     public static String compile(String program, OptimizationSettings settings) {
@@ -90,9 +95,6 @@ public class Compiler {
         long e = System.currentTimeMillis();
         List<X86Function> reachables = X86Function.gen(functions);
         long f = System.currentTimeMillis();
-        if (VERBOSE) {
-            System.out.println("TAC generation took " + (f - e) + "ms overall");
-        }
         if (VERBOSE) {
             reachables.forEach(pair -> {
                 System.out.println("TAC FOR " + pair.getName());

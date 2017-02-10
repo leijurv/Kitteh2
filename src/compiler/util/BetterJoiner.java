@@ -22,7 +22,9 @@ public class BetterJoiner {
     }
     public static <T extends String> String futuristicJoin(Stream<? extends T> stream, Future<T> header, Future<? extends T> joiner, Future<T> footer) {
         StringBuilder builder = new StringBuilder();
-        Consumer<String> consumer = str -> {
+        stream = stream.parallel();
+        Consumer<Consumer<String>> consum = compiler.Compiler.deterministic() ? stream::forEachOrdered : stream::forEach;
+        consum.accept(str -> {
             synchronized (builder) {
                 if (builder.length() == 0) {
                     try {
@@ -39,12 +41,7 @@ public class BetterJoiner {
                 }
                 builder.append(str);
             }
-        };
-        if (compiler.Compiler.deterministic()) {
-            stream.parallel().forEachOrdered(consumer);
-        } else {
-            stream.parallel().forEach(consumer);
-        }
+        });
         try {
             builder.append(footer.get());
         } catch (InterruptedException | ExecutionException ex) {

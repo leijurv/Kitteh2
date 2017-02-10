@@ -74,7 +74,7 @@ public class X86Emitter {
                 prevType = null;
                 return;
             }
-            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && a.contains("rbp") && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX)))) {
+            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX)))) {
                 if (compiler.Compiler.verbose()) {
                     addComment("Replacing move with more efficient one given previous move. Move was previously:");
                     addComment(moveStmt);

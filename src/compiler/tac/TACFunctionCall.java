@@ -155,11 +155,11 @@ public class TACFunctionCall extends TACStatement {
                 if (header.name.endsWith("__print")) {
                     if (params[i].getType().getSizeBytes() != 8) {
                         if (params[i] instanceof X86Const) {
-                            emit.move(new X86Const(((X86Const) params[i]).getValue(), new TypeInt64()), X86Register.A);
+                            emit.move(new X86Const(((X86Const) params[i]).getValue(), new TypeInt64()), dest);
                         } else {
                             emit.cast(params[i], X86Register.A.getRegister(new TypeInt64()));
+                            emit.move(X86Register.A, dest);
                         }
-                        emit.move(X86Register.A, dest);
                         stackLocation += 8;
                         continue;
                     }

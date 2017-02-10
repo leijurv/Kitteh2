@@ -9,6 +9,8 @@ import compiler.tac.IREmitter;
 import compiler.tac.TACCast;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeFloat;
+import compiler.type.TypeNumerical;
 
 /**
  *
@@ -40,6 +42,12 @@ public class ExpressionCast extends Expression {
         input = input.calculateConstants();
         if (input.getType().equals(castTo)) {
             return input;
+        }
+        if (input instanceof ExpressionConst && !(castTo instanceof TypeFloat) && !(input.getType() instanceof TypeFloat)) {
+            if (!(input instanceof ExpressionConstNum)) {
+                throw new RuntimeException("Casting a const bool??");
+            }
+            return new ExpressionConstNum(((ExpressionConstNum) input).getVal(), (TypeNumerical) castTo);
         }
         return this;
     }

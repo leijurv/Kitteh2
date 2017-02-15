@@ -38,6 +38,10 @@ class TokenMapping {
         map.put("<«", Operator.USHIFT_L);
         map.put(">≫", Operator.USHIFT_R);
         map.put(">»", Operator.USHIFT_R);
+        map.put("×", Operator.MULTIPLY);
+        map.put("∗", Operator.MULTIPLY);
+        map.put("⋅", Operator.MULTIPLY);
+        map.put("÷", Operator.DIVIDE);
         put(SETEQUAL.create(false), map);
         put(SETEQUAL.create(true), map);
         for (Operator op : Operator.values()) {

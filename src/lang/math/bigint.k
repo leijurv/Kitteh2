@@ -926,7 +926,7 @@ BprimitiveRightShift(int* a, int len, int n) {
             return;
         }
         // Approximate the quotient and remainder
-        long q = (n >>> 1) / (dLong >>> 1);
+        long q = (n >>> 1) ÷ (dLong >>> 1);
         long r = n - q * dLong;
         // Correct the approximation
         for (r < (long)0) {

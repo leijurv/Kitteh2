@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -131,7 +132,7 @@ public class X86Function {
     }
     private List<String> descendants = null;
     public Stream<X86Function> allDescendants() {
-        return allDescendants0().map(map::get).filter(x -> x != null);
+        return allDescendants0().map(map::get).filter(Objects::nonNull);
     }
     public Stream<String> allDescendants0() {
         if (descendants != null) {

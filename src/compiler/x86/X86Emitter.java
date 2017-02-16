@@ -50,6 +50,21 @@ public class X86Emitter {
         }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
+    public String alternative(String a, TypeNumerical type) {
+        if (!a.startsWith(X86Register.REGISTER_PREFIX) && !a.startsWith("$")) {
+            for (Pair<Type, HashSet<String>> eqq : equals) {
+                HashSet<String> eq = eqq.getB();
+                if (eq.contains(a) && type.equals(eqq.getA())) {
+                    for (String alternative : eq) {
+                        if (alternative.startsWith(X86Register.REGISTER_PREFIX)) {
+                            return alternative;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     HashSet<Pair<Type, HashSet<String>>> equals = new HashSet<>();
     private void move(String a, String b, TypeNumerical type) {
         //TODO modifying sections of a struct stored on a stack
@@ -80,25 +95,15 @@ public class X86Emitter {
             }
         }
         boolean replaced = false;
-        if (!a.startsWith(X86Register.REGISTER_PREFIX) && !a.startsWith("$")) {
-            outer:
-            for (Pair<Type, HashSet<String>> eqq : equals) {
-                HashSet<String> eq = eqq.getB();
-                if (eq.contains(a) && type.equals(eqq.getA())) {
-                    for (String alternative : eq) {
-                        if (alternative.startsWith(X86Register.REGISTER_PREFIX)) {
-                            if (compiler.Compiler.verbose()) {
-                                addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");
-                                addComment(moveStmt);
-                                addComment("Move is now");
-                            }
-                            addStatement("mov" + type.x86typesuffix() + " " + alternative + ", " + b);
-                            replaced = true;
-                            break outer;
-                        }
-                    }
-                }
+        String alt = alternative(a, type);
+        if (alt != null) {
+            if (compiler.Compiler.verbose()) {
+                addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");
+                addComment(moveStmt);
+                addComment("Move is now");
             }
+            addStatement("mov" + type.x86typesuffix() + " " + alt + ", " + b);
+            replaced = true;
         }
         if (b.startsWith(X86Register.REGISTER_PREFIX)) {
             X86TypedRegister bTReg = TACConst.sin(type, b);

@@ -35,6 +35,7 @@ public class TACConstStr extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         emit.addStatement("leaq " + getLabel() + "(%rip), %rax");
+        emit.markRegisterDirty(X86Register.A);
         emit.move(X86Register.A.getRegister((TypeNumerical) params[0].getType()), params[0]);
     }
     public String getLabel() {

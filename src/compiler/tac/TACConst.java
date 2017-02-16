@@ -38,16 +38,19 @@ public class TACConst extends TACStatement {
     public String toString0() {
         return params[1] + " = " + params[0];
     }
+    public static X86TypedRegister sin(TypeNumerical type, String name) {
+        for (X86Register r : X86Register.values()) {
+            if (r.getRegister1(type, true).equals(name)) {//forgive me father, for i have sinned
+                return r.getRegister(type);
+            }
+        }
+        throw new RuntimeException();
+    }
     @Override
     public void setVars() {
         if (paramNames[1].startsWith(X86Register.REGISTER_PREFIX)) {
             TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
-            for (X86Register r : X86Register.values()) {
-                if (r.getRegister1(type, true).equals(paramNames[1])) {//forgive me father, for i have sinned
-                    params[1] = r.getRegister(type);
-                    break;
-                }
-            }
+            params[1] = sin(type, paramNames[1]);
             if (!params[1].x86().equals(paramNames[1])) {//verify
                 throw new IllegalStateException(params[1].x86() + " " + paramNames[1]);
             }

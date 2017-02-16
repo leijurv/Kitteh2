@@ -178,6 +178,9 @@ public class TACFunctionCall extends TACStatement {
             name = Obfuscator.obfuscate(name);
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);
+        emit.clearRegisters();//TODO maybe... eventually... look at what registers were modified by that function
+        emit.clearMoves();//TODO TODO TODO this SHOULDNT be required, functions should preserve the entire stack...
+        // ^ commenting out the line that shouldn't be required ^ causes testVariousStructs.k to fail, not sure why
         printRet(emit);
     }
     private void printRet(X86Emitter emit) {

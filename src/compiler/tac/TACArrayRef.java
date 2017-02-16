@@ -82,7 +82,10 @@ public class TACArrayRef extends TACStatement {
         if (arr.getRegister() == ind.getRegister() || (source instanceof X86TypedRegister && (ind.getRegister() == ((X86TypedRegister) source).getRegister() || ((X86TypedRegister) source).getRegister() == arr.getRegister()))) {
             throw new IllegalStateException("not okay " + arr + " " + ind + " " + source + " for " + this);
         }
-        emit.addStatement("mov" + pointingTo.x86typesuffix() + " " + source.x86() + ", (" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")");
+        if (!source.getType().equals(pointingTo)) {
+            throw new RuntimeException(source.getType() + " " + pointingTo);
+        }
+        emit.moveStr(source, "(" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")");
     }
     @Override
     public List<String> requiredVariables() {

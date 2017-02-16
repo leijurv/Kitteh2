@@ -4,10 +4,12 @@
  * and open the template in the editor.
  */
 package compiler.x86;
-import compiler.type.Type;
-import compiler.type.TypeNumerical;
+import compiler.tac.TACConst;
+import compiler.type.*;
 import compiler.util.Obfuscator;
+import compiler.util.Pair;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -46,16 +48,11 @@ public class X86Emitter {
         if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {//honestly, there's so much sketchy code calling this that... whatever
             throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
         }
-        if (a instanceof X86Const && a.x86().equals("$0") && b instanceof X86TypedRegister) {
-            addStatement("xor" + ((TypeNumerical) a.getType()).x86typesuffix() + " " + b.x86() + ", " + b.x86());
-            return;
-        }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
-    String prevMove1 = null;//TODO keep track more than 1 mov in the past, and actually figure out what instructions modify what registers
-    String prevMove2 = null;
-    Type prevType = null;
+    HashSet<Pair<Type, HashSet<String>>> equals = new HashSet<>();
     private void move(String a, String b, TypeNumerical type) {
+        //TODO modifying sections of a struct stored on a stack
         if (a.equals(b)) {
             if (compiler.Compiler.verbose()) {
                 addComment("redundant move omitted: " + a + " to " + b);
@@ -63,40 +60,94 @@ public class X86Emitter {
             return;
         }
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
-        if (prevMove1 != null) {
-            if ((a.equals(prevMove2) && b.equals(prevMove1)) || (a.equals(prevMove1) && b.equals(prevMove2) && !b.contains(a) && !a.contains(b))) {
-                //they can't contain each other, because of cases like "movq (%rax), %rax" repeated twice
+        if (type instanceof TypeFloat) {
+            addStatement(moveStmt);
+            return;
+        }
+        if (a.equals("$0") && b.startsWith(X86Register.REGISTER_PREFIX)) {
+            moveStmt = "xor" + type.x86typesuffix() + " " + b + ", " + b;
+        }
+        for (Pair<Type, HashSet<String>> eqq : equals) {
+            HashSet<String> eq = eqq.getB();
+            if (eq.contains(a) && eq.contains(b)) {
                 if (compiler.Compiler.verbose()) {
-                    addComment("redundant because of previous statement");
+                    addComment("SMART redundant because of previous statement");
+                    //addComment(equals + "");
+                    addComment("lmao" + eqq);
                     addComment(moveStmt);
                 }
-                prevMove1 = null;
-                prevMove2 = null;
-                prevType = null;
-                return;
-            }
-            if (type.equals(prevType) && !a.startsWith(X86Register.REGISTER_PREFIX) && ((a.equals(prevMove1) && prevMove2.startsWith(X86Register.REGISTER_PREFIX) && !a.contains(prevMove2)) || (a.equals(prevMove2) && prevMove1.startsWith(X86Register.REGISTER_PREFIX) && !a.contains(prevMove1)))) {
-                //^^ lots of edge cases that that prevents against. e.g.
-                //    movq 9(%rax), %rax
-                //    movq 9(%rax), %rax
-                // ^ that code fragment is generated when all optimizations are off in linkedSort.k when it does .next.next
-                //the second move there is NOT redundant, while this condition used to think it was
-                if (compiler.Compiler.verbose()) {
-                    addComment("Replacing move with more efficient one given previous move. Move was previously:");
-                    addComment(moveStmt);
-                    addComment("Move is now");
-                }
-                addStatement("mov" + type.x86typesuffix() + " " + (a.equals(prevMove2) ? prevMove1 : prevMove2) + ", " + b);
-                prevMove1 = null;
-                prevMove2 = null;
-                prevType = null;
-                return;
+                return;//can return because this doesn't affect anything
             }
         }
-        addStatement(moveStmt);
-        prevMove1 = a;
-        prevMove2 = b;
-        prevType = type;
+        boolean replaced = false;
+        if (!a.startsWith(X86Register.REGISTER_PREFIX) && !a.startsWith("$")) {
+            outer:
+            for (Pair<Type, HashSet<String>> eqq : equals) {
+                HashSet<String> eq = eqq.getB();
+                if (eq.contains(a) && type.equals(eqq.getA())) {
+                    for (String alternative : eq) {
+                        if (alternative.startsWith(X86Register.REGISTER_PREFIX)) {
+                            if (compiler.Compiler.verbose()) {
+                                addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");
+                                addComment(moveStmt);
+                                addComment("Move is now");
+                            }
+                            addStatement("mov" + type.x86typesuffix() + " " + alternative + ", " + b);
+                            replaced = true;
+                            break outer;
+                        }
+                    }
+                }
+            }
+        }
+        if (b.startsWith(X86Register.REGISTER_PREFIX)) {
+            X86TypedRegister bTReg = TACConst.sin(type, b);
+            markRegisterDirty(bTReg.getRegister());
+        }
+        for (Pair<Type, HashSet<String>> cll : equals) {
+            HashSet<String> cl = cll.getB();
+            cl.remove(b);//assume nothing previously equal to b is now equal to b, because it was set to a
+            if (cl.contains(a)) {//anything previously equal to a, is now equal to b (because b=a)
+                cl.add(b);
+            }
+        }
+        if (!a.contains(b)) {//"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
+            //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
+            //that's why the condition is a.contains(b) not b.contains(a)
+            HashSet<String> n = new HashSet<>();
+            n.add(a);
+            n.add(b);
+            equals.add(new Pair<>(type, n));
+        }
+        if (!replaced) {
+            addStatement(moveStmt);
+        }
+    }
+    public void markRegisterDirty(X86Register reg) {
+        for (TypeNumerical t : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+            markDirty(reg.getRegister(t).x86());
+        }
+    }
+    public void markDirty(String version) {
+        for (Pair<Type, HashSet<String>> cll : equals) {
+            HashSet<String> cl = cll.getB();
+            for (String str : new HashSet<>(cl)) {
+                if (str.contains(version)) {
+                    cl.remove(str);
+                }
+            }
+        }
+    }
+    public void clearRegisters() {
+        for (X86Register reg : X86Register.values()) {
+            if (reg.name().contains("XMM")) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
+                continue;
+            }
+            markRegisterDirty(reg);
+        }
+    }
+    public void clearMoves() {
+        equals = new HashSet<>();
     }
     public void cast(X86Param a, X86Param b) {
         TypeNumerical inp = (TypeNumerical) a.getType();
@@ -111,24 +162,28 @@ public class X86Emitter {
         if (cast.equals("movslq %eax, %rax")) {//lol
             cast = "cltq";//lol
         }
-        addStatement(cast);
+        statements.add("    " + cast);
+        if (b instanceof X86TypedRegister) {
+            markRegisterDirty(((X86TypedRegister) b).getRegister());
+        }
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {
             throw new IllegalStateException();
         }
         statements.add("    " + ssnek);
-        if (!ssnek.equals("")) {
-            prevMove1 = null;
-            prevMove2 = null;
-            prevType = null;
+        if (ssnek.startsWith("movs") && !ssnek.startsWith("movss")) {
+            throw new IllegalStateException();
         }
     }
     public void addLabel(String lbl) {
+        clearMoves();//jump destination, anything could be anything
         statements.add(lbl + ":");
     }
     public void addAlignedComment(String cmt) {
         statements.add("#" + cmt);
+        //for debugging the equality
+        //statements.add("#" + equals);
     }
     public void addComment(String cmt) {
         statements.add("#    " + cmt);

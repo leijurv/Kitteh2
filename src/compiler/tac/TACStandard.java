@@ -88,6 +88,8 @@ public class TACStandard extends TACStatement {
             x86(ns, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
             X86Emitter s = new X86Emitter("");
             x86(s, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
+            //TODO depending on the current known equalities in emit, that could skew this
+            //maybe s and ns should copy equals from emit...
             if (s.withoutComments().length() < ns.withoutComments().length()) {//heuristic of the actual x86 length is pretty good. if it's actully an instruction shorter, the x86 will def be shorter. and if it can replace with cltq, that's also shorter
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("Operands swapped");
@@ -102,6 +104,15 @@ public class TACStandard extends TACStatement {
         }
         x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
     }
+    public static void dirt(X86Param result, X86Emitter emit) {
+        if (result instanceof VarInfo) {
+            emit.markDirty(result.x86());
+        } else if (result instanceof X86TypedRegister) {
+            emit.markRegisterDirty(((X86TypedRegister) result).getRegister());
+        } else {
+            throw new IllegalStateException();
+        }
+    }
     public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param fst, X86Param snd, X86Param result, Operator op) {//oh god, this function.
         X86Param first = fst;
         X86Param second = snd;
@@ -113,10 +124,12 @@ public class TACStandard extends TACStatement {
             }
             if (op == PLUS) {
                 emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
+                dirt(result, emit);
                 return;
             }
             if (op == MINUS) {
                 emit.addStatement("dec" + type.x86typesuffix() + " " + result.x86());
+                dirt(result, emit);
                 return;
             }
         }
@@ -125,6 +138,7 @@ public class TACStandard extends TACStatement {
                 TACConst.move(result, second, emit);
             }
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
+            dirt(result, emit);
             return;
         }
         if (op == MINUS && resultName.equals(secondName)) {
@@ -133,16 +147,19 @@ public class TACStandard extends TACStatement {
                 //x86(emit, secondName, firstName, resultName, snd, fst, result, Operator.PLUS);
                 emit.addStatement("add" + type.x86typesuffix() + " " + first.x86() + ", " + result.x86());
             }
+            dirt(result, emit);
             return;
         }
         if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
             //TODO more benchmarks to determine if/when this is a performance boost
             if (second instanceof X86TypedRegister) {
                 emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
+                dirt(result, emit);
                 return;
             }
             if (second instanceof X86Const) {
                 emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
+                dirt(result, emit);
                 return;
             }
         }
@@ -153,6 +170,7 @@ public class TACStandard extends TACStatement {
                 set = set.replace("l", "b").replace("g", "a");//i actually want to die
             }
             emit.addStatement(set + " " + result.x86());
+            dirt(result, emit);
             return;
         }
         X86TypedRegister aa = X86Register.A.getRegister(type);
@@ -230,9 +248,11 @@ public class TACStandard extends TACStatement {
                 switch (type.getSizeBytes()) {
                     case 8:
                         emit.addStatement("cqto");
+                        emit.markRegisterDirty(X86Register.D);
                         break;
                     case 4:
                         emit.addStatement("cltd");
+                        emit.markRegisterDirty(X86Register.D);
                         break;
                     default:
                         X86Param d = X86Register.D.getRegister(type);
@@ -241,6 +261,8 @@ public class TACStandard extends TACStatement {
                         break;
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
+                emit.markRegisterDirty(X86Register.A);
+                emit.markRegisterDirty(X86Register.D);
                 emit.move(X86Register.A, result);
                 return;
             case MOD:
@@ -249,9 +271,11 @@ public class TACStandard extends TACStatement {
                 switch (type.getSizeBytes()) {
                     case 8:
                         emit.addStatement("cqto");
+                        emit.markRegisterDirty(X86Register.D);
                         break;
                     case 4:
                         emit.addStatement("cltd");
+                        emit.markRegisterDirty(X86Register.D);
                         break;
                     default:
                         X86Param d = X86Register.D.getRegister(type);
@@ -260,6 +284,8 @@ public class TACStandard extends TACStatement {
                         break;
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
+                emit.markRegisterDirty(X86Register.A);
+                emit.markRegisterDirty(X86Register.D);
                 emit.move(X86Register.D, result);
                 return;
             case MULTIPLY:
@@ -281,7 +307,9 @@ public class TACStandard extends TACStatement {
                 emit.addStatement(op.x86() + type.x86typesuffix() + " " + (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R ? shaft : c) + ", " + a);
                 break;
         }
+        dirt(result, emit);
         if (!ma) {
+            emit.markDirty(aa.x86());
             emit.move(aa, result);
         }
     }

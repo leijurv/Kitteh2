@@ -50,13 +50,37 @@ public class X86Emitter {
         }
         move(a.x86(), b.x86(), (TypeNumerical) a.getType());
     }
+    public String putInRegister(String source, TypeNumerical type) {
+        return putInRegister(source, type, X86Register.C);
+    }
+    public String putInRegister(String source, TypeNumerical type, X86Register desired) {
+        if (source.startsWith("%") || source.startsWith("$")) {
+            return source;
+        }
+        String alt = alternative(source, type);
+        if (alt != null) {
+            if (compiler.Compiler.verbose()) {
+                addComment("SMART Replacing load with more efficient one given previous move.");
+                addComment(source + " is known to be equal to " + alt);
+                addComment("Move is now");
+            }
+            return alt;
+        } else {
+            X86Param loc = desired.getRegister(type);
+            moveStr(source, loc);
+            return loc.x86();
+        }
+    }
     public String alternative(String a, TypeNumerical type) {
         if (!a.startsWith(X86Register.REGISTER_PREFIX) && !a.startsWith("$")) {
             for (Pair<Type, HashSet<String>> eqq : equals) {
                 HashSet<String> eq = eqq.getB();
-                if (eq.contains(a) && type.equals(eqq.getA())) {
+                if (eq.contains(a) && type.getSizeBytes() == eqq.getA().getSizeBytes()) {
                     for (String alternative : eq) {
                         if (alternative.startsWith(X86Register.REGISTER_PREFIX)) {
+                            if (!type.equals(eqq.getA()) && compiler.Compiler.verbose()) {
+                                addComment("whoa type is different " + type + " " + eqq.getA());
+                            }
                             return alternative;
                         }
                     }

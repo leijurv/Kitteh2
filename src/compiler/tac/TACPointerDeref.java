@@ -53,25 +53,29 @@ public class TACPointerDeref extends TACStatement {
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        X86Param loc;
-        if (source instanceof X86TypedRegister) {
-            loc = source;
-        } else {
-            loc = X86Register.A.getRegister((TypeNumerical) source.getType());
-            emit.move(source, loc);
-        }
+        String loc = emit.putInRegister(source.x86(), (TypeNumerical) source.getType(), X86Register.A);
         String off = offset == 0 ? "" : offset + "";
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
-                emit.moveStr(off + "(" + loc.x86() + ")", dest);
+                emit.moveStr(off + "(" + loc + ")", dest);
             } else {
-                emit.moveStr(off + "(" + loc.x86() + ")", X86Register.C.getRegister(d));
-                emit.move(X86Register.C, dest);
+                String alt1 = emit.alternative(off + "(" + loc + ")", d);
+                if (alt1 != null) {
+                    if (compiler.Compiler.verbose()) {
+                        emit.addComment("SMART Replacing deref with more efficient one given previous move.");
+                        emit.addComment(off + "(" + loc + ")" + " is known to be equal to " + alt1);
+                        emit.addComment("Move is now");
+                    }
+                    emit.moveStr(alt1, dest);
+                } else {
+                    emit.moveStr(off + "(" + loc + ")", X86Register.C.getRegister(d));
+                    emit.move(X86Register.C, dest);
+                }
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(offset, loc.x86(), ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
+            moveStruct(offset, loc, ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }

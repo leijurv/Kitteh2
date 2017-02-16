@@ -105,9 +105,25 @@ public class TACConst extends TACStatement {
         if (source instanceof X86Const || dest instanceof X86TypedRegister || source instanceof X86TypedRegister) {
             emit.uncheckedMove(source, dest);
         } else {
-            X86Param r = (type instanceof TypeFloat ? X86Register.XMM0 : X86Register.C).getRegister(type);
-            emit.move(source, r);
-            emit.move(r, dest);
+            if (source.getType() instanceof TypeFloat) {
+                X86Param r = X86Register.XMM0.getRegister(type);
+                emit.move(source, r);
+                emit.move(r, dest);
+                return;
+            }
+            String alt = emit.alternative(source.x86(), (TypeNumerical) source.getType());
+            if (alt != null) {
+                if (compiler.Compiler.verbose()) {
+                    emit.addComment("SMART Replacing double move with more efficient one given previous move. Move was previously:");
+                    emit.addComment(source.x86() + " -> C register -> " + dest.x86());
+                    emit.addComment("Move is now");
+                }
+                emit.moveStr(alt, dest);
+            } else {
+                X86Param r = X86Register.C.getRegister(type);
+                emit.move(source, r);
+                emit.move(r, dest);
+            }
         }
     }
 }

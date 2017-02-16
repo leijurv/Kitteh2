@@ -81,7 +81,7 @@ public class X86Function {
         allUsed = result;
         return new HashSet<>(allUsed);
     }
-    public HashSet<String> directCalls() {
+    public HashSet<String> directCalls() {//TODO cache
         return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
     }
     public boolean canAllocate() {
@@ -117,9 +117,7 @@ public class X86Function {
     }
     public static List<X86Function> gen(List<Pair<String, List<TACStatement>>> inp) {
         HashMap<String, X86Function> map = new HashMap<>();
-        inp.forEach(pair -> {//sadly this cannot be replaced with a sketchy stream collector map creation thingy, because the resulting map needs to be passed to each constructor
-            map.put(pair.getA(), new X86Function(pair.getA(), pair.getB(), map));
-        });
+        map.putAll(inp.stream().collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(pair -> new X86Function(pair.getA(), pair.getB(), map), Collectors.reducing(null, (a, b) -> b)))));
         List<X86Function> reachables = map.get("main").allDescendants().collect(Collectors.toList());
         reachables.add(map.get("main"));
         return reachables;

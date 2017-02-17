@@ -228,7 +228,7 @@ public class TACStandard extends TACStatement {
             a = result.x86();
             ma = true;
         }
-        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister() && !ma && ((X86TypedRegister) cc).getRegister() == X86Register.C) {
+        if (second instanceof X86TypedRegister && aa.getRegister() == ((X86TypedRegister) second).getRegister() && !ma && ((X86TypedRegister) cc).getRegister() == X86Register.C && (op != MOD && op != DIVIDE)) {
             aa = (cc.x86().equals(c) ? X86Register.D : X86Register.C).getRegister(type);
             a = aa.x86();
         }

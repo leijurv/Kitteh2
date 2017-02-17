@@ -243,28 +243,6 @@ public class TACStandard extends TACStatement {
                     emit.addStatement("div" + type.x86typesuffix() + " " + c + ", " + a);
                     break;
                 }
-                emit.move(aa, X86Register.A);
-                emit.move(cc, X86Register.C);
-                switch (type.getSizeBytes()) {
-                    case 8:
-                        emit.addStatement("cqto");
-                        emit.markRegisterDirty(X86Register.D);
-                        break;
-                    case 4:
-                        emit.addStatement("cltd");
-                        emit.markRegisterDirty(X86Register.D);
-                        break;
-                    default:
-                        X86Param d = X86Register.D.getRegister(type);
-                        emit.move(aa, d);
-                        emit.addStatement("sar" + type.x86typesuffix() + " $" + (type.getSizeBytes() * 8 - 1) + ", " + d.x86());
-                        break;
-                }
-                emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
-                emit.markRegisterDirty(X86Register.A);
-                emit.markRegisterDirty(X86Register.D);
-                emit.move(X86Register.A, result);
-                return;
             case MOD:
                 emit.move(aa, X86Register.A);
                 emit.move(cc, X86Register.C);
@@ -286,7 +264,7 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.markRegisterDirty(X86Register.A);
                 emit.markRegisterDirty(X86Register.D);
-                emit.move(X86Register.D, result);
+                emit.move(op == Operator.DIVIDE ? X86Register.A : X86Register.D, result);
                 return;
             case MULTIPLY:
                 if (!(type instanceof TypeFloat)) {

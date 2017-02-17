@@ -195,6 +195,7 @@ public class X86Emitter {
         if (b instanceof X86TypedRegister) {
             markRegisterDirty(((X86TypedRegister) b).getRegister());
         }
+        markDirty(b.x86());
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {

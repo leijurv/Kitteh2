@@ -77,7 +77,7 @@ public class X86Emitter {
                 HashSet<String> eq = eqq.getB();
                 if (eq.contains(a) && type.getSizeBytes() == eqq.getA().getSizeBytes()) {
                     for (String alternative : eq) {
-                        if (alternative.startsWith(X86Register.REGISTER_PREFIX)) {
+                        if (alternative.startsWith(X86Register.REGISTER_PREFIX) || alternative.startsWith("$")) {
                             if (!type.equals(eqq.getA()) && compiler.Compiler.verbose()) {
                                 addComment("whoa type is different " + type + " " + eqq.getA());
                             }

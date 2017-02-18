@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -95,17 +96,15 @@ public class Compiler {
         long e = System.currentTimeMillis();
         List<X86Function> reachables = X86Function.gen(functions);
         long f = System.currentTimeMillis();
+        String tacdebug = null;
         if (VERBOSE) {
-            reachables.forEach(pair -> {
-                System.out.println("TAC FOR " + pair.getName());
-                for (int i = 0; i < pair.getStatements().size(); i++) {
-                    System.out.println(i + ":     " + pair.getStatements().get(i).toString(false));
-                }
-                System.out.println();
-            });
+            tacdebug = reachables.parallelStream().map(func -> IntStream.range(0, func.getStatements().size()).mapToObj(i -> i + ":     " + func.getStatements().get(i).toString(false)).collect(Collectors.joining("\n", "TAC FOR " + func.getName() + "\n", "\n"))).collect(Collectors.joining("\n"));
         }
         long g = System.currentTimeMillis();
         RegAllocation.allocate(reachables);
+        if (VERBOSE) {
+            System.out.println(tacdebug);
+        }
         long h = System.currentTimeMillis();
         String asm = X86Format.assembleFinalFile(reachables);
         long i = System.currentTimeMillis();

@@ -96,6 +96,8 @@ public class Main {
                     break;
             }
         }
+        System.out.println("Input file: " + inFile);
+        System.out.println("Output file: " + outFile);
         String asm = Compiler.compile(new File(inFile).toPath(), OPTIMIZE ? ALL : NONE);
         File asmFile = executable ? File.createTempFile("temp", ".s") : new File(outFile);
         try (FileOutputStream lol = new FileOutputStream(asmFile)) {

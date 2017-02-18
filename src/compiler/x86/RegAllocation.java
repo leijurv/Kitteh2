@@ -83,7 +83,7 @@ public class RegAllocation {
                 int lastUsage = lastUsage(block, mod);
                 if (lastUsage <= i) {
                     if (!isTemp) {
-                        continue;
+                        //continue;
                     }
                     if (lastUsage == i) {
                         //this is ok

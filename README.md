@@ -29,3 +29,13 @@ The first and second steps can optionally be combined:
 java -jar dist/Kitteh2.jar -i inputProgram.k -o executable -e
 ./executable
 ```
+
+# Options
+`-i inputFile.k`: set the input location
+`-o output`: set the output location
+`-I`: read input program from standard in
+`-O`: write output to standard out. not recommended except for debugging
+`-v`: enable verbose mode. compiler will print a lot more information and outputted assembly will include helpful comments
+`-d`: enable deterministic builds. when this option is enabled, the compiler will produce consistent output when ran repeatedly on the same input
+`-e`: generate an executable file instead of the assembly as a string. this options simply runs gcc under the hood
+`-obf`: obfuscate labels and function names in output. compatible with `-d`

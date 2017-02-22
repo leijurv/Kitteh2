@@ -127,7 +127,7 @@ public class TypeStruct extends Type {
     }
     @Override
     public int hashCode() {
-        return 5;
+        return System.identityHashCode(this);
     }
 
     public static class StructField {

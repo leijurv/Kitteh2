@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.command;
-import compiler.Operator;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.util.Pair;
 import java.nio.file.Path;
@@ -32,7 +31,7 @@ public class FunctionsContext {
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
-                throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name: " + name);
+                throw new RuntimeException("   error: Two functions with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         });
@@ -40,7 +39,7 @@ public class FunctionsContext {
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
-                throw new EnumConstantNotPresentException(Operator.class, "   error: Two struct methods with same name: " + name);
+                throw new RuntimeException("   error: Two struct methods with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         });
@@ -49,13 +48,13 @@ public class FunctionsContext {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
-                    throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from aliased import " + name);
+                    throw new RuntimeException("   error: Two functions with same name from aliased import " + name);
                 }
                 functionMap.put(name, header);
                 if (defineLocally.contains(file.getA()) && !thisPath.equals(file.getA())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
-                        throw new EnumConstantNotPresentException(Operator.class, "   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());
+                        throw new RuntimeException("   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());
                     }
                     functionMap.put(name1, header);
                 }

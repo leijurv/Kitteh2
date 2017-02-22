@@ -21,6 +21,9 @@ public class MultiThreadedLoader {
     private final HashSet<Path> alrImp = new HashSet<>();
     private volatile transient Exception thrown;
     private final CompilationState semaphore;
+    public static void importFiles(CompilationState cs) {
+        new MultiThreadedLoader(cs).mainImportLoop();
+    }
     public MultiThreadedLoader(CompilationState cs) {
         this.semaphore = cs;
         alrImp.addAll(cs.toLoad());
@@ -38,9 +41,8 @@ public class MultiThreadedLoader {
                         throw (RuntimeException) thrown;
                         //if it's a runtimeexception, we can just throw it (but only if we cast it first)
                     } else {
-                        throw new RuntimeException(thrown);//its a checked exception that we can't just throw
+                        throw new RuntimeException(thrown);//its a checked exception that we can't just throw, we have to wrap it in an unchecked exception
                     }
-                    //TODO kill all those other threads
                 }
                 if (inProgress.isEmpty()) {
                     done = true;
@@ -60,12 +62,12 @@ public class MultiThreadedLoader {
             }
         }
     }
-    public void importFileInNewThread(Path path, boolean f) {
+    public void importFileInNewThread(Path path, boolean isFirst) {
         Thread th = new Thread() {
             @Override
             public void run() {
                 try {
-                    importFile(path, f);
+                    importFile(path, isFirst);
                 } catch (IOException | RuntimeException ex) {
                     synchronized (MultiThreadedLoader.this) {
                         if (thrown != null) {
@@ -89,11 +91,11 @@ public class MultiThreadedLoader {
         }
         th.start();
     }
-    public void importFile(Path path, boolean f) throws IOException {
-        Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);
+    public void importFile(Path path, boolean isFirst) throws IOException {
+        Pair<Context, List<CommandDefineFunction>> loadResult = Loader.importPath(path);//<-- actual import
         Context context = loadResult.getA();
         for (String str : context.imports.keySet()) {//netbeans thinks i can use a functional operation, but i can't: this for loop uses a continue
-            Path impPath = new File(str).toPath();
+            Path impPath = new File(str).toPath();//every file that this file is trying to import, start a thread for it if there isn't one already
             synchronized (this) {
                 if (alrImp.contains(impPath)) {
                     continue;
@@ -103,7 +105,7 @@ public class MultiThreadedLoader {
             }
             importFileInNewThread(impPath, false);
         }
-        semaphore.add(path, context, f, loadResult.getB());
+        semaphore.add(path, context, isFirst, loadResult.getB());
         if (compiler.Compiler.verbose()) {
             System.out.println(path + " done, notifying");
         }

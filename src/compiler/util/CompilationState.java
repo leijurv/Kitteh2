@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 public class CompilationState {
     private final LinkedList<Path> toLoad = new LinkedList<>();
     private final List<Pair<Path, List<CommandDefineFunction>>> loaded = new ArrayList<>();
-    private final HashMap<Path, Context> ctxts = new HashMap<>();
-    private final HashMap<Path, HashMap<String, TypeStruct>> importz = new HashMap<>();
+    private final Map<Path, Context> ctxts = new HashMap<>();
+    private final Map<Path, Map<String, TypeStruct>> importz = new HashMap<>();
     private final List<Path> autoImportedStd;
     private List<FunctionsContext> contexts;
     /**
@@ -40,7 +40,7 @@ public class CompilationState {
      * @throws IOException
      */
     public CompilationState(Path main) throws IOException {
-        autoImportedStd = Kitterature.listFiles();
+        autoImportedStd = Kitterature.listStandardLibraryFiles();
         toLoad.add(main);
         for (Path path : autoImportedStd) {
             toLoad.add(path);
@@ -52,9 +52,9 @@ public class CompilationState {
     LinkedList<Path> toLoad() {
         return toLoad;
     }
-    synchronized void add(Path path, Context context, boolean f, List<CommandDefineFunction> d) {
+    synchronized void add(Path path, Context context, boolean isFirst, List<CommandDefineFunction> d) {
         ctxts.put(path, context);
-        loaded.add(f ? 0 : loaded.size(), new Pair<>(path, d));
+        loaded.add(isFirst ? 0 : loaded.size(), new Pair<>(path, d));
         importz.put(path, context.structsCopy());
     }
     /**
@@ -63,7 +63,9 @@ public class CompilationState {
      * @return
      */
     public List<CommandDefineFunction> allFunctions() {
-        return Stream.of(importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).map(Pair::getB), loaded.stream().map(Pair::getB).flatMap(List::stream)).flatMap(x -> x).collect(Collectors.toList());
+        Stream<CommandDefineFunction> structMethods = importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).map(Pair::getB);
+        Stream<CommandDefineFunction> normalMethods = loaded.stream().map(Pair::getB).flatMap(List::stream);
+        return Stream.of(structMethods, normalMethods).flatMap(x -> x).collect(Collectors.toList());
     }
     /**
      * Generate functions context objects for each file. This includes passing
@@ -72,12 +74,17 @@ public class CompilationState {
      * structs, locally imported and auto imported standard library methods
      */
     public void generateFunctionsContexts() {
+        //to be honest, i wrote the below line just for fun to make it as complicated as possible
         contexts = loaded.parallelStream().map(load -> new FunctionsContext(load.getA(), load.getB(), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).map(Pair::getB).collect(Collectors.toList()), Stream.of(ctxts.get(load.getA()).imports.entrySet().stream().filter(entry -> entry.getValue() == null).map(Map.Entry::getKey).map(File::new).map(File::toPath), autoImportedStd.stream()).flatMap(x -> x).collect(Collectors.toList()), loaded)).collect(Collectors.toList());
         contexts.get(0).setEntryPoint();
     }
     public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        Stream.of(contexts.stream().flatMap(FunctionsContext::parseRekursivelie), importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods).<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(loaded.stream().map(Pair::getA).map(ctxts::get).collect(Collectors.toList()).indexOf(cdf.getA()))))).flatMap(x -> x).parallel().forEach(Runnable::run);
+        Stream<Runnable> normalMethods = contexts.stream().flatMap(FunctionsContext::parseRekursivelie);
+        Stream<Pair<Context, CommandDefineFunction>> structs = importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods);
+        List<Context> orderedCtxts = loaded.stream().map(Pair::getA).map(ctxts::get).collect(Collectors.toList());
+        Stream<Runnable> structMethods = structs.<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(orderedCtxts.indexOf(cdf.getA()))));
+        Stream.of(normalMethods, structMethods).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
         System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }
@@ -108,7 +115,8 @@ public class CompilationState {
                 context.insertStructsUnderPackage(underName, importz.get(importing));
             }
         }
-        importz.values().stream().map(Map::values).flatMap(Collection::stream).forEach(TypeStruct::parseContents);
-        importz.values().stream().map(Map::values).flatMap(Collection::stream).forEach(TypeStruct::allocate);
+        List<TypeStruct> allStructs = importz.values().stream().map(Map::values).flatMap(Collection::stream).collect(Collectors.toList());
+        allStructs.forEach(TypeStruct::parseContents);
+        allStructs.forEach(TypeStruct::allocate);
     }
 }

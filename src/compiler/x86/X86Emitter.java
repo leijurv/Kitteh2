@@ -226,9 +226,9 @@ public class X86Emitter {
         return rsp;
     }
     public String toX86() {
-        return statements.stream().collect(Collectors.joining("\n", "", ""));
+        return statements.stream().collect(Collectors.joining("\n"));
     }
     public String withoutComments() {
-        return statements.stream().filter(x -> !x.startsWith("#")).collect(Collectors.joining("\n", "", ""));
+        return statements.stream().filter(x -> !x.startsWith("#")).collect(Collectors.joining("\n"));
     }
 }

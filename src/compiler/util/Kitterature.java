@@ -37,7 +37,7 @@ public class Kitterature {
         InputStream is = Kitterature.class.getResourceAsStream("/lang/" + name);
         return is;
     }
-    public static byte getResource   (String name)  [] throws IOException {
+    public static byte getResource(String name) [] throws IOException {
         return getBytes(getResourceAsStream(name));
     }
     public static boolean resourceExists(String name) {
@@ -47,7 +47,7 @@ public class Kitterature {
             throw new RuntimeException(ex);
         }
     }
-    public static List<Path> listFiles() throws IOException {
+    public static List<Path> listStandardLibraryFiles() throws IOException {
         try {
             URI uri = Kitterature.class.getResource("/lang").toURI();
             List<Path> paths = new ArrayList<>();

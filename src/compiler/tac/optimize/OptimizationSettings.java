@@ -34,7 +34,7 @@ public class OptimizationSettings {
     }
     public static final OptimizationSettings ALL = new OptimizationSettings(true, true);
     public static final OptimizationSettings NONE = new OptimizationSettings(false, false);
-    public Pair<String, List<TACStatement>> coloncolon(CommandDefineFunction com) {
+    public Pair<String, List<TACStatement>> coloncolon(CommandDefineFunction com) {//i love using :: syntax...
         return new Pair<>(com.getHeader().name, com.totac(this));
     }
 }

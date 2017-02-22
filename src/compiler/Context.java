@@ -109,7 +109,7 @@ public class Context {//TODO split off some of this massive functionality into o
     public HashMap<String, TypeStruct> structsCopy() {
         return new HashMap<>(structs);
     }
-    public void insertStructsUnderPackage(String alias, HashMap<String, TypeStruct> other) {
+    public void insertStructsUnderPackage(String alias, Map<String, TypeStruct> other) {
         //forgive me
         Map<String, TypeStruct> mapt = other.entrySet().stream().map(entry -> new Pair<>((alias == null ? "" : alias + "::") + entry.getKey(), entry.getValue())).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
         if (mapt.keySet().stream().anyMatch(structs::containsKey)) {

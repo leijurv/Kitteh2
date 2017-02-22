@@ -11,16 +11,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * why doesn't the obfuscator simply use an increasing counter? because its
+ * called from many threads, and that would be nondeterministic. (even if the
+ * deterministic flag is set, functions are parsed in separate threads, but put
+ * back in the original order before assembling). instead, we can simply take a
+ * deterministic hash when that's required, and a random-ish hash when
+ * deterministicness isn't required
  *
  * @author leijurv
  */
 public class Obfuscator {
     private Obfuscator() {
     }
-    static final private long NANO_TIME = System.nanoTime();
+    static final private long NANO_TIME;
+    static {
+        NANO_TIME = System.nanoTime();
+        //this is only set once the Obfuscator class is first called, which is a nondeterministic amount of time after the compiler is first started
+    }
     final private static MessageDigest SHA;
     static {
-        MessageDigest tmp = null;
+        MessageDigest tmp;
         try {
             tmp = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException ex) {

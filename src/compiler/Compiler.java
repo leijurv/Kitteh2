@@ -47,9 +47,9 @@ public class Compiler {
         return OBFUSCATE;
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
-        long a = System.currentTimeMillis();
+        long a = System.currentTimeMillis();//benchmark timestamps
         CompilationState cs = new CompilationState(main);
-        new MultiThreadedLoader(cs).mainImportLoop();
+        MultiThreadedLoader.importFiles(cs);
         long b = System.currentTimeMillis();
         cs.insertStructs();
         long c = System.currentTimeMillis();
@@ -98,7 +98,11 @@ public class Compiler {
         long f = System.currentTimeMillis();
         String tacdebug = null;
         if (VERBOSE) {
-            tacdebug = reachables.parallelStream().map(func -> IntStream.range(0, func.getStatements().size()).mapToObj(i -> i + ":     " + func.getStatements().get(i).toString(false)).collect(Collectors.joining("\n", "TAC FOR " + func.getName() + "\n", "\n"))).collect(Collectors.joining("\n"));
+            tacdebug = reachables.parallelStream().map(
+                    func -> IntStream.range(0, func.getStatements().size()).mapToObj(
+                            i -> i + ":     " + func.getStatements().get(i).toString(false)
+                    ).collect(Collectors.joining("\n", "TAC FOR " + func.getName() + "\n", "\n"))
+            ).collect(Collectors.joining("\n"));
         }
         long g = System.currentTimeMillis();
         RegAllocation.allocate(reachables);

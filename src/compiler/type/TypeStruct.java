@@ -121,6 +121,14 @@ public class TypeStruct extends Type {
     public String getName() {
         return name;
     }
+    @Override
+    public boolean equals(Object o) {//for a struct, Type.equals is NOT sufficient
+        return o != null && (o instanceof TypeStruct && this == o);
+    }
+    @Override
+    public int hashCode() {
+        return 5;
+    }
 
     public static class StructField {
         private final String name;

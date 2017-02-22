@@ -276,8 +276,8 @@ public class RegAllocation {
         }
         return false;
     }
-    public static void allocate(List<X86Function> fns) {//TODO check usage of data structures here. are list and hashset the best choices?
-        HashSet<X86Function> toGo = new HashSet<>(fns);
+    public static void allocate(List<X86Function> fns) {
+        HashSet<X86Function> toGo = new HashSet<>(fns);//TODO check usage of data structure here. is hashset the best choice?
         while (true) {
             List<X86Function> ta = toGo.stream().filter(X86Function::canAllocate).collect(Collectors.toList());
             if (compiler.Compiler.verbose()) {

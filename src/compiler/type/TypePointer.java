@@ -20,7 +20,7 @@ public class TypePointer<E extends Type> extends TypeInt64 {
     }
     @Override
     public boolean equals(Object o) {
-        return o != null && (this == o || (o instanceof TypePointer && o.hashCode() == hashCode()));
+        return o != null && (this == o || (o instanceof TypePointer && pointingTo.equals(((TypePointer) o).pointingTo)));
     }
     @Override
     public int hashCode() {

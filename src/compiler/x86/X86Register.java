@@ -74,7 +74,7 @@ these registers’ values for its caller.
                 case R13:
                 case R14:
                 case R15:
-                    throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
+                    //throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
             }
         }*/
         if ((this == XMM0 || this == XMM1) && !(version instanceof TypeFloat)) {

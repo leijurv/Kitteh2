@@ -8,7 +8,6 @@ import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.util.Pair;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
@@ -99,7 +98,7 @@ public class FunctionsContext {
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {
-            throw new ConcurrentModificationException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap.keySet());
+            throw new RuntimeException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap.keySet());
         }
         return tr;
     }

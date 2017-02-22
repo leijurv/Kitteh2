@@ -80,11 +80,11 @@ public class CompilationState {
     }
     public void parseAllFunctions() {
         long start = System.currentTimeMillis();
-        Stream<Runnable> normalMethods = contexts.stream().flatMap(FunctionsContext::parseRekursivelie);
-        Stream<Pair<Context, CommandDefineFunction>> structs = importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods);
+        Stream<Runnable> parseNormalMethods = contexts.stream().flatMap(FunctionsContext::parseRekursivelie);
+        Stream<Pair<Context, CommandDefineFunction>> structMethods = importz.values().stream().map(Map::values).flatMap(Collection::stream).flatMap(TypeStruct::getStructMethods);
         List<Context> orderedCtxts = loaded.stream().map(Pair::getA).map(ctxts::get).collect(Collectors.toList());
-        Stream<Runnable> structMethods = structs.<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(orderedCtxts.indexOf(cdf.getA()))));
-        Stream.of(normalMethods, structMethods).flatMap(x -> x).parallel().forEach(Runnable::run);
+        Stream<Runnable> parseStructMethods = structMethods.<Runnable>map(cdf -> () -> cdf.getB().parse(contexts.get(orderedCtxts.indexOf(cdf.getA()))));
+        Stream.of(parseNormalMethods, parseStructMethods).flatMap(x -> x).parallel().forEach(Runnable::run);
         long end = System.currentTimeMillis();
         System.out.println("Parsing all functions took: " + (end - start) + "ms");
     }

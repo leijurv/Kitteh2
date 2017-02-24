@@ -18,7 +18,7 @@ ant jar
 Compiling a program:
 
 ```
-java -jar dist/Kitteh2.jar -i inputProgram.k -o output.s
+java -jar dist/Kitteh2.jar -i test/tests/fizzbuzz.k -o output.s
 gcc -o executable output.s
 ./executable
 ```
@@ -26,7 +26,7 @@ gcc -o executable output.s
 The first and second steps can optionally be combined:
 
 ```
-java -jar dist/Kitteh2.jar -i inputProgram.k -o executable -e
+java -jar dist/Kitteh2.jar -i test/tests/mandelbrot.k -o executable -e
 ./executable
 ```
 

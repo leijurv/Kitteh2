@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -47,11 +48,7 @@ public class X86Emitter {
             throw new IllegalStateException(a);
         }
         move(a, b.x86(), (TypeNumerical) b.getType());
-        if (b instanceof X86TypedRegister) {
-            markRegisterDirty((X86TypedRegister) b);
-        } else {
-            markDirty(b);
-        }
+        markDirty(b);
     }
     public void moveStr(X86Param a, String b) {
         if (b.startsWith("%") || b.startsWith("$")) {
@@ -133,16 +130,14 @@ public class X86Emitter {
         if (a.x86().equals("$0") && b instanceof X86TypedRegister) {//TODO a.x86().equals("$0") is a little awkward
             moveStmt = "xor" + type.x86typesuffix() + " " + b.x86() + ", " + b.x86();
         }
-        for (HashSet<X86Param> eqq : equals) {
-            if (eqq.contains(a) && eqq.contains(b)) {
-                if (compiler.Compiler.verbose()) {
-                    addComment("SMART redundant because of previous statement");
-                    //addComment(equals + "");
-                    addComment("lmao" + eqq);
-                    addComment(moveStmt);
-                }
-                return;//can return because this doesn't affect anything
+        Optional<HashSet<X86Param>> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
+        if (eq.isPresent()) {
+            if (compiler.Compiler.verbose()) {
+                addComment("SMART redundant because of previous statement");
+                addComment("lmao" + eq.get());
+                addComment(moveStmt);
             }
+            return;//can return because this doesn't affect anything
         }
         boolean replaced = false;
         X86Param alt = alternative(a, type, false);
@@ -155,36 +150,22 @@ public class X86Emitter {
             addStatement("mov" + type.x86typesuffix() + " " + alt.x86() + ", " + b.x86());
             replaced = true;
         }
-        if (b instanceof X86TypedRegister) {
-            markRegisterDirty((X86TypedRegister) b);//if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
-        } else {
-            markDirty(b);//assume nothing previously equal to b is now equal to b, because it was set to a
-        }
-        for (HashSet<X86Param> cll : equals) {
-            cll.remove(b);
-            if (cll.contains(a)) {//anything previously equal to a, is now equal to b (because b=a)
-                cll.add(b);
-            }
-        }
+        //if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
+        markDirty(b);//assume nothing previously equal to b is now equal to b, because it was set to a
+        equals.stream().filter(cl -> cl.contains(a)).forEach(cl -> cl.add(b));//anything previously equal to a, is now equal to b (because b=a)
         if (a instanceof X86Memory && b instanceof X86TypedRegister && ((X86Memory) a).reg == ((X86TypedRegister) b).getRegister()) {
+            //"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
             if (compiler.Compiler.verbose()) {
                 addComment("no information gleaned from " + moveStmt);
             }
         } else {
-            //"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
             //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
             //that's why the condition is a.contains(b) not b.contains(a)
-            HashSet<X86Param> n = new HashSet<>();
-            n.add(a);
-            n.add(b);
-            equals.add(n);
+            equals.add(new HashSet<>(Arrays.asList(a, b)));
         }
         if (!replaced) {
             addStatement(moveStmt);
         }
-    }
-    public void markRegisterDirty(X86TypedRegister reg) {
-        markRegisterDirty(reg.getRegister());
     }
     public void markRegisterDirty(X86Register reg) {
         if (reg == X86Register.XMM0 || reg == X86Register.XMM1) {
@@ -199,14 +180,13 @@ public class X86Emitter {
     }
     public void markDirty(X86Param param) {
         if (param instanceof X86TypedRegister) {
-            throw new IllegalStateException("wait what");//TODO why is this an exception, we can just pass on to markRegisterDirty...
+            markRegisterDirty(((X86TypedRegister) param).getRegister());
         }
         if (param instanceof X86Memory) {
             //woohoo, this is the special case I have been dreaming of
             //if we movq into 5(%rax), that corrupts EIGHT bytes
             //this comes up often when moving structs, temp variables, etc
-            X86Memory xm = (X86Memory) param;
-            List<X86Param> overlapped = equals.stream().flatMap(HashSet::stream).filter(xm::overlap).collect(Collectors.toList());
+            List<X86Param> overlapped = equals.stream().flatMap(HashSet::stream).filter(((X86Memory) param)::overlap).collect(Collectors.toList());
             //addComment(param + " overlaps into " + overlapped);
             for (X86Param bad : overlapped) {
                 if (compiler.Compiler.verbose() && !bad.x86().equals(param.x86())) {
@@ -218,29 +198,18 @@ public class X86Emitter {
         markDirty(param.x86());
     }
     private void markDirty(String version) {
-        for (HashSet<X86Param> cll : equals) {
-            for (X86Param str : new HashSet<>(cll)) {
-                if (str.x86().contains(version)) {
-                    cll.remove(str);
-                }
-            }
-        }
+        equals.forEach(cll -> cll.removeIf(x -> x.x86().contains(version)));
     }
     public void clearRegisters() {
         for (X86Register reg : X86Register.values()) {
-            if (reg.name().contains("XMM")) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
-                continue;
-            }
-            if (reg == X86Register.BP || reg == X86Register.SP) {//don't clear BP and SP. even if there was a function call, BP and SP are restored to how they were
-                continue;
+            if (reg.name().contains("XMM") || reg == X86Register.BP || reg == X86Register.SP) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
+                continue;//don't clear BP and SP. even if there was a function call, BP and SP are restored to how they were
             }
             markRegisterDirty(reg);
         }
     }
     public void clearRegisters(Collection<X86Register> registers) {
-        for (X86Register reg : registers) {
-            markRegisterDirty(reg);
-        }
+        registers.forEach(this::markRegisterDirty);
     }
     public void clearRegisters(X86Register... registers) {
         clearRegisters(Arrays.asList(registers));
@@ -248,13 +217,8 @@ public class X86Emitter {
     public Map<String, X86Function> map() {
         return func.map;
     }
-    private void clearMoves() {
-        equals = new HashSet<>();
-    }
     public void cast(X86Param a, X86Param b) {
-        TypeNumerical inp = (TypeNumerical) a.getType();
-        TypeNumerical out = (TypeNumerical) b.getType();
-        String cast = "movs" + inp.x86typesuffix() + "" + out.x86typesuffix() + " " + a.x86() + ", " + b.x86();
+        String cast = "movs" + ((TypeNumerical) a.getType()).x86typesuffix() + "" + ((TypeNumerical) b.getType()).x86typesuffix() + " " + a.x86() + ", " + b.x86();
         if (cast.equals("movsbw %al, %ax")) {
             cast = "cbtw";
         }
@@ -265,11 +229,7 @@ public class X86Emitter {
             cast = "cltq";//lol
         }
         statements.add("    " + cast);
-        if (b instanceof X86TypedRegister) {
-            markRegisterDirty(((X86TypedRegister) b).getRegister());
-        } else {
-            markDirty(b);
-        }
+        markDirty(b);
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {
@@ -281,7 +241,7 @@ public class X86Emitter {
         }
     }
     public void addLabel(String lbl) {
-        clearMoves();//jump destination, anything could be anything
+        equals = new HashSet<>();//jump destination, anything could be anything
         statements.add(lbl + ":");
     }
     public void addAlignedComment(String cmt) {

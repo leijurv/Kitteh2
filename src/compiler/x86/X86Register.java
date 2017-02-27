@@ -21,7 +21,7 @@ import java.util.Locale;
  * @author leijurv
  */
 public enum X86Register {
-    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15, XMM0, XMM1;
+    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15, BP, SP, XMM0, XMM1;
     public static final String REGISTER_PREFIX = "%";
     public static TypeNumerical typeFromRegister(String reg) {
         if (reg.startsWith(REGISTER_PREFIX)) {
@@ -80,10 +80,16 @@ these registers’ values for its caller.
         if ((this == XMM0 || this == XMM1) && !(version instanceof TypeFloat)) {
             throw new IllegalStateException();
         }
+        if ((this == BP || this == SP) && version.getSizeBytes() != 8) {
+            throw new IllegalStateException();
+        }
         switch (this) {
             case XMM0:
             case XMM1:
                 return REGISTER_PREFIX + toString().toLowerCase(Locale.US);
+            case BP:
+            case SP:
+                return REGISTER_PREFIX + 'r' + toString().toLowerCase(Locale.US);
             case A:
             case B:
             case C:

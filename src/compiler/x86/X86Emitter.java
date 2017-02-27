@@ -172,6 +172,9 @@ public class X86Emitter {
             if (reg.name().contains("XMM")) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
                 continue;
             }
+            if (reg == X86Register.BP || reg == X86Register.SP) {
+                continue;
+            }
             markRegisterDirty(reg);
         }
     }

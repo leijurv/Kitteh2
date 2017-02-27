@@ -10,26 +10,11 @@ import compiler.type.Type;
  *
  * @author leijurv
  */
-public class X86FunctionArg implements X86Param {
-    private final int location;
-    private final Type type;
+public class X86FunctionArg extends X86Memory {
     public X86FunctionArg(int location, Type type) {
+        super(location, X86Register.SP, type);
         if (location < 0) {
             throw new RuntimeException();
         }
-        this.location = location;
-        this.type = type;
-    }
-    @Override
-    public String x86() {
-        return location + "(%rsp)";
-    }
-    @Override
-    public Type getType() {
-        return type;
-    }
-    @Override
-    public String toString() {
-        return x86();
     }
 }

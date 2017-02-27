@@ -387,10 +387,7 @@ add(bigint* a,bigint* b)bigint*{
 
  	// If x is shorter, swap the two arrays
    	if (a.cap < b.cap) {
-   	//print("SWITCHEROO")
-       bigint* copy1= a;
-       a = b;
-       b = copy1;
+   	    return add(b,a)
    	}
    	res:=new(a.cap<<5)
 	x:=a.mag

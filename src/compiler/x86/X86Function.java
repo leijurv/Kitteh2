@@ -164,7 +164,7 @@ public class X86Function {
         }
         //long start = System.currentTimeMillis();
         //System.out.println("> BEGIN X86 GENERATION FOR " + name);
-        X86Emitter emitter = new X86Emitter(modName);
+        X86Emitter emitter = new X86Emitter(modName, this);//TODO passing redundant information
         if (compiler.Compiler.verbose()) {
             String au;
             if (compiler.Compiler.deterministic()) {

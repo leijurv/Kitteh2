@@ -15,9 +15,11 @@ import compiler.util.Obfuscator;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
 import compiler.x86.X86Format;
+import compiler.x86.X86Function;
 import compiler.x86.X86FunctionArg;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import static compiler.x86.X86Register.*;
 import compiler.x86.X86TempRegister;
 import compiler.x86.X86TypedRegister;
 import java.nio.channels.CancelledKeyException;
@@ -117,7 +119,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(params[i], SYSCALL_REGISTERS.get(i));
             }
             emit.addStatement("syscall");
-            emit.clearRegisters();
+            emit.clearRegisters(X86Register.C, X86Register.R11);
             printRet(emit);
             return;
         }
@@ -145,7 +147,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(new X86Const("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
-                emit.clearRegisters();
+                emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
                 return;
             }
         }
@@ -180,7 +182,13 @@ public class TACFunctionCall extends TACStatement {
             name = Obfuscator.obfuscate(name);
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);
-        emit.clearRegisters();//TODO maybe... eventually... look at what registers were modified by that function
+        if (stack) {
+            X86Function calling = emit.map().get(header.name);
+            emit.clearRegisters(calling.allUsed());
+            emit.clearRegisters(RETURN_REGISTERS);
+        } else {
+            emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
+        }
         printRet(emit);
     }
     private void printRet(X86Emitter emit) {

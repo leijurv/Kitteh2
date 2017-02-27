@@ -7,8 +7,11 @@ package compiler.x86;
 import compiler.type.*;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -19,8 +22,13 @@ public class X86Emitter {
     public static final String STATIC_LABEL_PREFIX = "L";
     private final ArrayList<String> statements = new ArrayList<>();
     private final String prefix;
-    public X86Emitter(String funcLabelPrefix) {
+    private final X86Function func;
+    public X86Emitter(String funcLabelPrefix, X86Function func) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
+        this.func = func;
+    }
+    public X86Emitter() {
+        this("", null);
     }
     public void move(X86Param a, X86Param b) {
         move(a, b, false);
@@ -158,9 +166,12 @@ public class X86Emitter {
                 cll.add(b);
             }
         }
-        //TODO dont use .contains on the x86, actually parse memory
-        //TODO also, modifying %ax should also mess up -5(%rax)
-        if (!a.x86().contains(b.x86())) {//"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
+        if (a instanceof X86Memory && b instanceof X86TypedRegister && ((X86Memory) a).reg == ((X86TypedRegister) b).getRegister()) {
+            if (compiler.Compiler.verbose()) {
+                addComment("no information gleaned from " + moveStmt);
+            }
+        } else {
+            //"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
             //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
             //that's why the condition is a.contains(b) not b.contains(a)
             HashSet<X86Param> n = new HashSet<>();
@@ -226,7 +237,18 @@ public class X86Emitter {
             markRegisterDirty(reg);
         }
     }
-    public void clearMoves() {
+    public void clearRegisters(Collection<X86Register> registers) {
+        for (X86Register reg : registers) {
+            markRegisterDirty(reg);
+        }
+    }
+    public void clearRegisters(X86Register... registers) {
+        clearRegisters(Arrays.asList(registers));
+    }
+    public Map<String, X86Function> map() {
+        return func.map;
+    }
+    private void clearMoves() {
         equals = new HashSet<>();
     }
     public void cast(X86Param a, X86Param b) {

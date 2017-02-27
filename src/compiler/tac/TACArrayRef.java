@@ -35,7 +35,7 @@ public class TACArrayRef extends TACStatement {
     }
     @Override
     public boolean usesDRegister() {//I'm sorry. I'm really really sorry.
-        X86Emitter emit = new X86Emitter("");
+        X86Emitter emit = new X86Emitter();
         printx86(emit);
         String aoeu = emit.toX86();
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {

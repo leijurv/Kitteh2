@@ -71,7 +71,7 @@ public class TACStandard extends TACStatement {
         if (op == MOD || op == DIVIDE) {//even though the x86 string for divide won't contain the d register, it will overwrite the d register (via cqto)
             return true;
         }
-        X86Emitter emit = new X86Emitter("");
+        X86Emitter emit = new X86Emitter();
         printx86(emit);
         String aoeu = emit.toX86();
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
@@ -84,9 +84,9 @@ public class TACStandard extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         if (op.inputsReversible()) {
-            X86Emitter ns = new X86Emitter("");
+            X86Emitter ns = new X86Emitter();
             x86(ns, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
-            X86Emitter s = new X86Emitter("");
+            X86Emitter s = new X86Emitter();
             x86(s, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
             //TODO depending on the current known equalities in emit, that could skew this
             //maybe s and ns should copy equals from emit...

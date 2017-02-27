@@ -24,11 +24,11 @@ public class MultiThreadedLoader {
     public static void importFiles(CompilationState cs) {
         new MultiThreadedLoader(cs).mainImportLoop();
     }
-    public MultiThreadedLoader(CompilationState cs) {
+    private MultiThreadedLoader(CompilationState cs) {
         this.semaphore = cs;
         alrImp.addAll(cs.toLoad());
     }
-    public void mainImportLoop() {
+    private void mainImportLoop() {
         for (int i = 0; i < semaphore.toLoad().size(); i++) {//watch me whip, now watch me iterate over a linked list using indicies which is O(n^2)
             //rolls right off the tongue doesn't it
             importFileInNewThread(semaphore.toLoad().get(i), i == 0);

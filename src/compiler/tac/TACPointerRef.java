@@ -71,8 +71,7 @@ public class TACPointerRef extends TACStatement {
         } else if (params[0].getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) params[0].getType();
             emit.move(params[1], X86Register.C);
-            TypeNumerical t = new TypePointer<>(ts);
-            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), X86Register.BP.getRegister(t), offset, X86Register.C.getRegister(t), ts, emit);
+            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), X86Register.BP, offset, X86Register.C, ts, emit);
             throw new RuntimeException("This actually just doesn't work");
         } else {
             throw new InvalidPathException("", "");

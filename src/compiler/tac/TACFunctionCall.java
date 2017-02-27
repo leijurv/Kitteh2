@@ -117,6 +117,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(params[i], SYSCALL_REGISTERS.get(i));
             }
             emit.addStatement("syscall");
+            emit.clearRegisters();
             printRet(emit);
             return;
         }
@@ -144,6 +145,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(new X86Const("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
+                emit.clearRegisters();
                 return;
             }
         }
@@ -179,7 +181,7 @@ public class TACFunctionCall extends TACStatement {
         }
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);
         emit.clearRegisters();//TODO maybe... eventually... look at what registers were modified by that function
-        emit.clearMoves();//TODO TODO TODO this SHOULDNT be required, functions should preserve the entire stack...
+        // emit.clearMoves();//TODO TODO TODO this SHOULDNT be required, functions should preserve the entire stack...
         // ^ commenting out the line that shouldn't be required ^ causes testVariousStructs.k to fail, not sure why
         printRet(emit);
     }

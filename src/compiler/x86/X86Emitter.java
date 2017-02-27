@@ -8,6 +8,7 @@ import compiler.type.*;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -34,13 +35,21 @@ public class X86Emitter {
         move(a, b, true);
     }
     public void moveStr(String a, X86Param b) {//different name so its not called accidentally
+        if (a.startsWith("%") || a.startsWith("$")) {
+            throw new IllegalStateException(a);
+        }
         move(a, b.x86(), (TypeNumerical) b.getType());
+        if (b instanceof X86TypedRegister) {
+            markRegisterDirty((X86TypedRegister) b);
+        } else {
+            markDirty(b);
+        }
     }
     public void moveStr(X86Param a, String b) {
+        if (b.startsWith("%") || b.startsWith("$")) {
+            throw new IllegalStateException(b);
+        }
         move(a.x86(), b, (TypeNumerical) a.getType());
-    }
-    public X86TypedRegister putInRegister(X86Param source, TypeNumerical type) {
-        return putInRegister(source, type, X86Register.C);
     }
     public X86TypedRegister putInRegister(X86Param source, TypeNumerical type, X86Register desired) {
         if (source instanceof X86TypedRegister) {
@@ -85,7 +94,9 @@ public class X86Emitter {
     }
     HashSet<HashSet<X86Param>> equals = new HashSet<>();
     private void move(String a, String b, TypeNumerical type) {
-        addComment("this is dumb");
+        if (compiler.Compiler.verbose()) {
+            addComment("raw nonoptimized move");
+        }
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         addStatement(moveStmt);
     }
@@ -108,7 +119,7 @@ public class X86Emitter {
             addStatement(moveStmt);
             return;
         }
-        if (a.x86().equals("$0") && b instanceof X86TypedRegister) {
+        if (a.x86().equals("$0") && b instanceof X86TypedRegister) {//TODO a.x86().equals("$0") is a little awkward
             moveStmt = "xor" + type.x86typesuffix() + " " + b.x86() + ", " + b.x86();
         }
         for (HashSet<X86Param> eqq : equals) {
@@ -134,10 +145,12 @@ public class X86Emitter {
             replaced = true;
         }
         if (b instanceof X86TypedRegister) {
-            markRegisterDirty(((X86TypedRegister) b).getRegister());
+            markRegisterDirty((X86TypedRegister) b);//if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
+        } else {
+            markDirty(b);//assume nothing previously equal to b is now equal to b, because it was set to a
         }
         for (HashSet<X86Param> cll : equals) {
-            cll.remove(b);//assume nothing previously equal to b is now equal to b, because it was set to a
+            cll.remove(b);
             if (cll.contains(a)) {//anything previously equal to a, is now equal to b (because b=a)
                 cll.add(b);
             }
@@ -156,6 +169,9 @@ public class X86Emitter {
             addStatement(moveStmt);
         }
     }
+    public void markRegisterDirty(X86TypedRegister reg) {
+        markRegisterDirty(reg.getRegister());
+    }
     public void markRegisterDirty(X86Register reg) {
         if (reg == X86Register.XMM0 || reg == X86Register.XMM1) {
             return;
@@ -169,16 +185,20 @@ public class X86Emitter {
     }
     public void markDirty(X86Param param) {
         if (param instanceof X86TypedRegister) {
-            throw new IllegalStateException("wait what");
+            throw new IllegalStateException("wait what");//TODO why is this an exception, we can just pass on to markRegisterDirty...
         }
         if (param instanceof X86Memory) {
             //woohoo, this is the special case I have been dreaming of
+            //if we movq into 5(%rax), that corrupts EIGHT bytes
+            //this comes up often when moving structs, temp variables, etc
             X86Memory xm = (X86Memory) param;
-            for (int off = xm.offset; off < xm.offset + xm.getType().getSizeBytes(); off++) {
-                //if we movq into 5(%rax), that corrupts EIGHT bytes
-                //this comes up often when moving structs, temp variables, etc
-                X86Memory thisByte = new X86Memory(off, xm.reg, new TypeInt8());
-                markDirty(thisByte.x86());//avoid infinite recursion, do .x86   =)
+            List<X86Param> overlapped = equals.stream().flatMap(HashSet::stream).filter(xm::overlap).collect(Collectors.toList());
+            //addComment(param + " overlaps into " + overlapped);
+            for (X86Param bad : overlapped) {
+                if (compiler.Compiler.verbose() && !bad.x86().equals(param.x86())) {
+                    addComment(bad + " overlaps with " + param);
+                }
+                markDirty(bad.x86());
             }
         }
         markDirty(param.x86());
@@ -197,7 +217,7 @@ public class X86Emitter {
             if (reg.name().contains("XMM")) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
                 continue;
             }
-            if (reg == X86Register.BP || reg == X86Register.SP) {
+            if (reg == X86Register.BP || reg == X86Register.SP) {//don't clear BP and SP. even if there was a function call, BP and SP are restored to how they were
                 continue;
             }
             markRegisterDirty(reg);

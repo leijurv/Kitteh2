@@ -36,4 +36,28 @@ public class X86Memory extends X86Param {
     public Type getType() {
         return referencing;
     }
+    @Override
+    public String toString() {
+        return x86();
+    }
+    public boolean overlap(X86Param oth) {
+        if (!(oth instanceof X86Memory)) {
+            return false;
+        }
+        X86Memory o = (X86Memory) oth;
+        if (o.reg != reg) {
+            return false;
+        }
+        if (o.offset == offset) {
+            return true;
+        }
+        int othBegin = o.offset;
+        int othEnd = o.offset + o.referencing.getSizeBytes();
+        for (int pos = offset; pos < offset + referencing.getSizeBytes(); pos++) {
+            if (pos >= othBegin && pos < othEnd) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

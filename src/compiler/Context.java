@@ -13,7 +13,9 @@ import compiler.type.Type;
 import compiler.type.TypeStruct;
 import compiler.util.MutInt;
 import compiler.util.Pair;
+import compiler.x86.X86Memory;
 import compiler.x86.X86Param;
+import compiler.x86.X86Register;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
@@ -33,37 +35,30 @@ import java.util.stream.Stream;
 public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
     public boolean printFull = true;
 
-    public class VarInfo extends X86Param {
+    public class VarInfo extends X86Memory {
         private final String name;
-        private final Type type;
         private volatile ExpressionConst knownValue;
-        private final int stackLocation;
         private final boolean secret;
         public VarInfo(String name, Type type, int stackLocation) {
             this(name, type, stackLocation, false);
         }
         public VarInfo(String name, Type type, int stackLocation, boolean secret) {
+            super(stackLocation, X86Register.BP, type);
             this.name = name;
-            this.type = type;
-            this.stackLocation = stackLocation;
             this.secret = secret;
         }
         @Override
         public String toString() {
             //return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + ", val: " + knownValue + "}");
             if (printFull) {
-                return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+                return ("{name: " + name + ", type: " + getType() + ", location: " + offset + "}");
             } else {
                 return name;
             }
             //return ("{type: " + type + ", location: " + stackLocation + "}");
         }
-        @Override
-        public Type getType() {
-            return type;
-        }
         public int getStackLocation() {
-            return stackLocation;
+            return offset;
         }
         public String getName() {
             return name;
@@ -73,7 +68,7 @@ public class Context {//TODO split off some of this massive functionality into o
             if (secret) {
                 throw new RuntimeException(Context.super.toString());
             }
-            return (stackLocation) + ("(%rbp)");
+            return super.x86();
         }
         public Context getContext() {
             if (secret) {

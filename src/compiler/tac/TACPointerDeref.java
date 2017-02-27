@@ -70,18 +70,18 @@ public class TACPointerDeref extends TACStatement {
                     }
                     emit.move(alt1, dest);
                 } else {
-                    emit.move(memLoc, X86Register.C.getRegister(d));
+                    emit.move(memLoc, X86Register.C);
                     emit.move(X86Register.C, dest);
                 }
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(offset, loc, ((VarInfo) dest).getStackLocation(), X86Register.BP.getRegister(new TypePointer<>(ts)), ts, emit);
+            moveStruct(offset, loc.getRegister(), ((VarInfo) dest).getStackLocation(), X86Register.BP, ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }
     }
-    public static void moveStruct(int sourceStackLocation, X86TypedRegister sourceRegister, int destLocation, X86TypedRegister destRegister, TypeStruct struct, X86Emitter emit) {
+    public static void moveStruct(int sourceStackLocation, X86Register sourceRegister, int destLocation, X86Register destRegister, TypeStruct struct, X86Emitter emit) {
         int size = struct.getSizeBytes();
         //this is a really bad way to do this
         //still.
@@ -90,8 +90,8 @@ public class TACPointerDeref extends TACStatement {
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
             while (i + tn.getSizeBytes() <= size) {
                 X86TypedRegister reg = X86Register.C.getRegister(tn);
-                X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister.getRegister(), tn);
-                X86Memory ds = new X86Memory(destLocation + i, destRegister.getRegister(), tn);
+                X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister, tn);
+                X86Memory ds = new X86Memory(destLocation + i, destRegister, tn);
                 emit.move(sr, reg);
                 emit.move(reg, ds);
                 i += tn.getSizeBytes();

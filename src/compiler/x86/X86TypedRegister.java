@@ -11,7 +11,7 @@ import compiler.type.TypeNumerical;
  *
  * @author leijurv
  */
-public class X86TypedRegister implements X86Param {
+public class X86TypedRegister extends X86Param {
     private final X86Register register;
     private final TypeNumerical type;
     X86TypedRegister(X86Register register, TypeNumerical type) {

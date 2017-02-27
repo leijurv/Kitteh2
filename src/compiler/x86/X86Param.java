@@ -10,7 +10,14 @@ import compiler.type.Type;
  *
  * @author leijurv
  */
-public interface X86Param {
-    String x86();
-    Type getType();
+public abstract class X86Param {
+    public abstract String x86();
+    public abstract Type getType();
+    @Override
+    public boolean equals(Object o) {
+        return o != null && (this == o || (o instanceof X86Param && x86().equals(((X86Param) o).x86())));
+    }
+    public int hashCode() {
+        return x86().hashCode();
+    }
 }

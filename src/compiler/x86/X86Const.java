@@ -12,7 +12,7 @@ import compiler.type.TypeNumerical;
  *
  * @author leijurv
  */
-public class X86Const implements X86Param {
+public class X86Const extends X86Param {
     private final String value;
     private final TypeNumerical type;
     public X86Const(String value, TypeNumerical type) {

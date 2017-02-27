@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
     public boolean printFull = true;
 
-    public class VarInfo implements X86Param {
+    public class VarInfo extends X86Param {
         private final String name;
         private final Type type;
         private volatile ExpressionConst knownValue;

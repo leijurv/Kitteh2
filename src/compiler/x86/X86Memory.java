@@ -11,7 +11,7 @@ import compiler.type.TypePointer;
  *
  * @author leijurv
  */
-public class X86Memory implements X86Param {
+public class X86Memory extends X86Param {
     public final X86Register reg;
     public final int offset;
     public final Type referencing;

@@ -7,6 +7,7 @@ package compiler.tac;
 import compiler.Context.VarInfo;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
@@ -91,7 +92,8 @@ public class TACConst extends TACStatement {
         }
         if (dest.getType() instanceof TypeStruct) {
             //oh god
-            TACPointerDeref.moveStruct(((VarInfo) source).getStackLocation(), "%rbp", ((VarInfo) dest).getStackLocation(), "%rbp", ((TypeStruct) dest.getType()), emit);
+            TypeNumerical t = new TypePointer<>(dest.getType());
+            TACPointerDeref.moveStruct(((VarInfo) source).getStackLocation(), X86Register.BP.getRegister(t), ((VarInfo) dest).getStackLocation(), X86Register.BP.getRegister(t), ((TypeStruct) dest.getType()), emit);
             return;
         }
         TypeNumerical type = (TypeNumerical) dest.getType();
@@ -111,14 +113,14 @@ public class TACConst extends TACStatement {
                 emit.move(r, dest);
                 return;
             }
-            String alt = emit.alternative(source.x86(), (TypeNumerical) source.getType());
+            X86Param alt = emit.alternative(source, (TypeNumerical) source.getType(), false);
             if (alt != null) {
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("SMART Replacing double move with more efficient one given previous move. Move was previously:");
                     emit.addComment(source.x86() + " -> C register -> " + dest.x86());
                     emit.addComment("Move is now");
                 }
-                emit.moveStr(alt, dest);
+                emit.uncheckedMove(alt, dest);
             } else {
                 X86Param r = X86Register.C.getRegister(type);
                 emit.move(source, r);

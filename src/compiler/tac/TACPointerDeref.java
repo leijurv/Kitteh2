@@ -13,6 +13,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Memory;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
@@ -53,34 +54,34 @@ public class TACPointerDeref extends TACStatement {
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        String loc = emit.putInRegister(source.x86(), (TypeNumerical) source.getType(), X86Register.A);
-        String off = offset == 0 ? "" : offset + "";
+        X86TypedRegister loc = emit.putInRegister(source, (TypeNumerical) source.getType(), X86Register.A);
+        X86Param memLoc = new X86Memory(offset, loc.getRegister(), dest.getType());
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
-                emit.moveStr(off + "(" + loc + ")", dest);
+                emit.move(memLoc, dest);
             } else {
-                String alt1 = emit.alternative(off + "(" + loc + ")", d);
+                X86Param alt1 = emit.alternative(memLoc, d, false);
                 if (alt1 != null) {
                     if (compiler.Compiler.verbose()) {
                         emit.addComment("SMART Replacing deref with more efficient one given previous move.");
-                        emit.addComment(off + "(" + loc + ")" + " is known to be equal to " + alt1);
+                        emit.addComment(memLoc.x86() + " is known to be equal to " + alt1.x86());
                         emit.addComment("Move is now");
                     }
-                    emit.moveStr(alt1, dest);
+                    emit.move(alt1, dest);
                 } else {
-                    emit.moveStr(off + "(" + loc + ")", X86Register.C.getRegister(d));
+                    emit.move(memLoc, X86Register.C.getRegister(d));
                     emit.move(X86Register.C, dest);
                 }
             }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(offset, loc, ((VarInfo) dest).getStackLocation(), "%rbp", ts, emit);
+            moveStruct(offset, loc, ((VarInfo) dest).getStackLocation(), X86Register.BP.getRegister(new TypePointer<>(ts)), ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }
     }
-    public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, String destRegister, TypeStruct struct, X86Emitter emit) {
+    public static void moveStruct(int sourceStackLocation, X86TypedRegister sourceRegister, int destLocation, X86TypedRegister destRegister, TypeStruct struct, X86Emitter emit) {
         int size = struct.getSizeBytes();
         //this is a really bad way to do this
         //still.
@@ -89,8 +90,10 @@ public class TACPointerDeref extends TACStatement {
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
             while (i + tn.getSizeBytes() <= size) {
                 X86TypedRegister reg = X86Register.C.getRegister(tn);
-                emit.moveStr((i + sourceStackLocation) + "(" + sourceRegister + ")", reg);
-                emit.moveStr(reg, (destLocation + i) + "(" + destRegister + ")");
+                X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister.getRegister(), tn);
+                X86Memory ds = new X86Memory(destLocation + i, destRegister.getRegister(), tn);
+                emit.move(sr, reg);
+                emit.move(reg, ds);
                 i += tn.getSizeBytes();
             }
         }

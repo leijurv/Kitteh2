@@ -106,9 +106,10 @@ public class TACStandard extends TACStatement {
     }
     public static void dirt(X86Param result, X86Emitter emit) {
         if (result instanceof VarInfo) {
-            emit.markDirty(result.x86());
+            emit.markDirty(result);
         } else if (result instanceof X86TypedRegister) {
-            emit.markRegisterDirty(((X86TypedRegister) result).getRegister());
+            X86Register reg = ((X86TypedRegister) result).getRegister();
+            emit.markRegisterDirty(reg);
         } else {
             throw new IllegalStateException();
         }
@@ -287,7 +288,7 @@ public class TACStandard extends TACStatement {
         }
         dirt(result, emit);
         if (!ma) {
-            emit.markDirty(aa.x86());
+            dirt(aa, emit);
             emit.move(aa, result);
         }
     }

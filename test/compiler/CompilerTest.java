@@ -221,7 +221,7 @@ public class CompilerTest {
         verifyCompilation(path, true, desiredOut);
     }
     public static void verifyCompilation(Object program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
-        verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
+        //verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
         //first, no optimizations
         //if that fails, then just fail without checking anything else
         try {

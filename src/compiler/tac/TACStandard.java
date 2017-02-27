@@ -105,11 +105,8 @@ public class TACStandard extends TACStatement {
         x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
     }
     public static void dirt(X86Param result, X86Emitter emit) {
-        if (result instanceof VarInfo) {
+        if (result instanceof VarInfo || result instanceof X86TypedRegister) {
             emit.markDirty(result);
-        } else if (result instanceof X86TypedRegister) {
-            X86Register reg = ((X86TypedRegister) result).getRegister();
-            emit.markRegisterDirty(reg);
         } else {
             throw new IllegalStateException();
         }

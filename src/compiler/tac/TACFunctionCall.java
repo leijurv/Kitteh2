@@ -185,7 +185,8 @@ public class TACFunctionCall extends TACStatement {
         if (stack) {
             X86Function calling = emit.map().get(header.name);
             emit.clearRegisters(calling.allUsed());
-            emit.clearRegisters(RETURN_REGISTERS);//TODO maybe clear SP. its possible for a function to mutate its arguments... maybe disallow that? or detect that?
+            emit.clearRegisters(SP);//TODO i chose to make the optimization correct even when called functions modify their own arguments
+            //should I disallow modifying arguments? or should I allow it, even though it can't let (%rsp) stay as it is between calls
         } else {
             emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
         }

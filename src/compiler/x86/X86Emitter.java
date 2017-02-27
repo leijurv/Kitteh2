@@ -171,8 +171,12 @@ public class X86Emitter {
         if (reg == X86Register.XMM0 || reg == X86Register.XMM1) {
             return;
         }
-        if (reg == X86Register.SP || reg == X86Register.BP) {
+        if (reg == X86Register.BP) {
             throw new IllegalStateException();
+        }
+        if (reg == X86Register.SP) {
+            markDirty(reg.getRegister(new TypeInt64()).x86());
+            return;
         }
         for (TypeNumerical t : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
             markDirty(reg.getRegister(t).x86());

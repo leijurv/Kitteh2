@@ -100,6 +100,9 @@ public class X86Emitter {
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         addStatement(moveStmt);
     }
+    public boolean redundant(X86Param a, X86Param b) {
+        return equals.stream().filter(x -> x.contains(a)).anyMatch(x -> x.contains(b));
+    }
     private void move(X86Param a, X86Param b, boolean typesCanBeDifferent) {
         if (!typesCanBeDifferent && !a.getType().equals(b.getType())) {
             throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());

@@ -111,6 +111,12 @@ public class TACConst extends TACStatement {
                 emit.move(r, dest);
                 return;
             }
+            if (emit.redundant(source, dest)) {
+                if (compiler.Compiler.verbose()) {
+                    emit.addComment("not doing move from " + source + " to " + dest);
+                }
+                return;
+            }
             X86Param alt = emit.alternative(source, (TypeNumerical) source.getType(), false);
             if (alt != null) {
                 if (compiler.Compiler.verbose()) {

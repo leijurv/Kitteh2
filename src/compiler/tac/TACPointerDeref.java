@@ -89,11 +89,9 @@ public class TACPointerDeref extends TACStatement {
         int i = 0;
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
             while (i + tn.getSizeBytes() <= size) {
-                X86TypedRegister reg = X86Register.C.getRegister(tn);
                 X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister, tn);
                 X86Memory ds = new X86Memory(destLocation + i, destRegister, tn);
-                emit.move(sr, reg);
-                emit.move(reg, ds);
+                TACConst.move(ds, sr, emit);
                 i += tn.getSizeBytes();
             }
         }

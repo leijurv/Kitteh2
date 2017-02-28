@@ -73,7 +73,7 @@ public class TACStandard extends TACStatement {
         }
         X86Emitter emit = new X86Emitter();
         printx86(emit);
-        String aoeu = emit.toX86();
+        String aoeu = emit.withoutComments();
         for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
             if (aoeu.contains(X86Register.D.getRegister(tn).x86())) {
                 return true;
@@ -84,12 +84,10 @@ public class TACStandard extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         if (op.inputsReversible()) {
-            X86Emitter ns = new X86Emitter();
+            X86Emitter ns = new X86Emitter(emit);//copy known equalities for a fair comparison
             x86(ns, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
-            X86Emitter s = new X86Emitter();
+            X86Emitter s = new X86Emitter(emit);
             x86(s, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
-            //TODO depending on the current known equalities in emit, that could skew this
-            //maybe s and ns should copy equals from emit...
             if (s.withoutComments().length() < ns.withoutComments().length()) {//heuristic of the actual x86 length is pretty good. if it's actully an instruction shorter, the x86 will def be shorter. and if it can replace with cltq, that's also shorter
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("Operands swapped");

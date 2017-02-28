@@ -31,6 +31,13 @@ public class X86Emitter {
     public X86Emitter() {
         this("", null);
     }
+    public X86Emitter(X86Emitter other) {
+        this();
+        equals = new HashSet<>();
+        for (HashSet<X86Param> e : other.equals) {//deep copy
+            equals.add(new HashSet<>(e));
+        }
+    }
     public void move(X86Param a, X86Param b) {
         move(a, b, false);
     }

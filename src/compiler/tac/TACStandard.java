@@ -114,6 +114,19 @@ public class TACStandard extends TACStatement {
         X86Param second = snd;
         //i literally can't be bothered
         TypeNumerical type = (TypeNumerical) result.getType();
+        if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().getSizeBytes() == type.getSizeBytes() && second.getType().getSizeBytes() == type.getSizeBytes()) {
+            //TODO more benchmarks to determine if/when this is a performance boost
+            if (second instanceof X86TypedRegister) {
+                emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
+                dirt(result, emit);
+                return;
+            }
+            if (second instanceof X86Const) {
+                emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
+                dirt(result, emit);
+                return;
+            }
+        }
         if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
             if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
@@ -139,25 +152,12 @@ public class TACStandard extends TACStatement {
         }
         if (op == MINUS && resultName.equals(secondName)) {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
-            if (!firstName.equals("0")) {
+            if (!first.x86().equals("$0")) {
                 //x86(emit, secondName, firstName, resultName, snd, fst, result, Operator.PLUS);
                 emit.addStatement("add" + type.x86typesuffix() + " " + first.x86() + ", " + result.x86());
             }
             dirt(result, emit);
             return;
-        }
-        if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().equals(type) && second.getType().equals(type)) {
-            //TODO more benchmarks to determine if/when this is a performance boost
-            if (second instanceof X86TypedRegister) {
-                emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
-                dirt(result, emit);
-                return;
-            }
-            if (second instanceof X86Const) {
-                emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
-                dirt(result, emit);
-                return;
-            }
         }
         if (op == LESS || op == GREATER || op == EQUAL || op == NOT_EQUAL || op == GREATER_OR_EQUAL || op == LESS_OR_EQUAL) {
             Operator o = TACJumpCmp.createCompare(first, second, op, emit);

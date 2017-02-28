@@ -78,6 +78,9 @@ public class X86Emitter {
         }
     }
     public X86Param alternative(X86Param a, TypeNumerical type, boolean onlyReg) {
+        if (!a.getType().equals(type)) {
+            throw new RuntimeException(a + " " + a.getType() + " " + type);
+        }
         if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
             for (HashSet<X86Param> eqq : equals) {
                 if (eqq.contains(a)) {

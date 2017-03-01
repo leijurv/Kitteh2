@@ -114,15 +114,25 @@ public class TACStandard extends TACStatement {
         X86Param second = snd;
         //i literally can't be bothered
         TypeNumerical type = (TypeNumerical) result.getType();
-        if (op == PLUS && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().getSizeBytes() == type.getSizeBytes() && second.getType().getSizeBytes() == type.getSizeBytes()) {
+        if ((op == PLUS || op == MINUS) && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().getSizeBytes() == type.getSizeBytes() && second.getType().getSizeBytes() == type.getSizeBytes()) {
             //TODO more benchmarks to determine if/when this is a performance boost
-            if (second instanceof X86TypedRegister) {
+            if (op == PLUS && second instanceof X86TypedRegister) {
                 emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
                 dirt(result, emit);
                 return;
             }
             if (second instanceof X86Const) {
-                emit.addStatement("lea" + type.x86typesuffix() + " " + second.x86().substring(1) + "(" + first.x86() + "), " + result.x86());
+                String s;
+                if (op == PLUS) {
+                    s = second.x86().substring(1);
+                } else {
+                    if (second.x86().startsWith("$-")) {
+                        s = second.x86().substring(2);
+                    } else {
+                        s = "-" + second.x86().substring(1);
+                    }
+                }
+                emit.addStatement("lea" + type.x86typesuffix() + " " + s + "(" + first.x86() + "), " + result.x86());
                 dirt(result, emit);
                 return;
             }

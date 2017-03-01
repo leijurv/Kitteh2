@@ -152,13 +152,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         a = a.calculateConstants();
         b = b.calculateConstants();
         if (a instanceof ExpressionConst && b instanceof ExpressionConst) {
-            if (a instanceof ExpressionConstNum && b instanceof ExpressionConstNum) {
-                return op.apply((ExpressionConstNum) a, (ExpressionConstNum) b);
-            }
-            if (a instanceof ExpressionConstBool && b instanceof ExpressionConstBool) {
-                return op.apply((ExpressionConstBool) a, (ExpressionConstBool) b);
-            }
-            throw new IllegalStateException();
+            return op.apply((Expression & ExpressionConst<?>) a, (Expression & ExpressionConst<?>) b);
         }
         return this;
     }

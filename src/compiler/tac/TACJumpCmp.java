@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.tac;
-import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
@@ -56,16 +55,24 @@ public class TACJumpCmp extends TACJump {
         emit.addStatement(jump + " " + emit.lineToLabel(jumpTo));
     }
     public static Operator createCompare(X86Param first, X86Param second, Operator op, X86Emitter emit) {
+        X86Param secondAlt = emit.alternative(second, (TypeNumerical) second.getType(), false);
+        if (secondAlt != null) {
+            second = secondAlt;
+        }
+        X86Param firstAlt = emit.alternative(first, (TypeNumerical) first.getType(), false);
+        if (firstAlt != null) {
+            first = firstAlt;
+        }
         Operator o = op;
-        if (first instanceof X86Const && second instanceof VarInfo) {
+        if (first instanceof X86Const) {
             X86Param tmp = first;
             first = second;
             second = tmp;
-            o = o.invert();
+            o = o.swap();
         }
         TypeNumerical type = (TypeNumerical) first.getType();
         X86Param fst = type instanceof TypeFloat ? X86Register.XMM0.getRegister(type) : X86Register.C.getRegister(type);
-        if (first instanceof X86TypedRegister || second instanceof X86Const) {
+        if (first instanceof X86TypedRegister || second instanceof X86Const || first instanceof X86Const) {
             fst = first;
         } else {
             emit.move(first, fst);

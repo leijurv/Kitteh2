@@ -254,7 +254,7 @@ public enum Operator implements Token<Operator> {
                 throw new IllegalStateException("DO I CALCULATE " + this + " ON " + a + " AND " + b);
         }
     }
-    public Operator invert() {
+    public Operator invert() {// NOT ( a (OP) b )     should be equal to   a (OP.invert) b
         switch (this) {
             case LESS:
                 return GREATER_OR_EQUAL;
@@ -270,6 +270,24 @@ public enum Operator implements Token<Operator> {
                 return LESS;
             default:
                 throw new UnsupportedAddressTypeException();
+        }
+    }
+    public Operator swap() {// a (OP) b   should be equal to   b (OP.swap) a
+        switch (this) {
+            case LESS:
+                return GREATER;
+            case EQUAL:
+                return EQUAL;
+            case GREATER:
+                return LESS;
+            case NOT_EQUAL:
+                return NOT_EQUAL;
+            case LESS_OR_EQUAL:
+                return GREATER_OR_EQUAL;
+            case GREATER_OR_EQUAL:
+                return LESS_OR_EQUAL;
+            default:
+                throw new IllegalStateException();
         }
     }
     @Override

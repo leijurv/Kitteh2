@@ -7,6 +7,7 @@ package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TACStatement;
+import compiler.x86.X86Param;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,14 +24,14 @@ import java.util.List;
 public class KnownConditions extends TACOptimization {
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
-        HashMap<String, Boolean> known = new HashMap<>();//TODO variables with the same name but different scope...? might be weird...? seems unlikely
+        HashMap<X86Param, Boolean> known = new HashMap<>();
         for (int i = 0; i < block.size(); i++) {
-            for (String str : block.get(i).modifiedVariables()) {
+            for (X86Param str : block.get(i).modifiedVariables()) {
                 known.remove(str);
             }
             if (block.get(i) instanceof TACJumpBoolVar) {
                 TACJumpBoolVar tjbr = (TACJumpBoolVar) block.get(i);
-                String variable = tjbr.paramNames[0];
+                X86Param variable = tjbr.params[0];
                 Boolean alreadyKnown = known.get(variable);
                 if (alreadyKnown == null) {
                     boolean knownToBe = tjbr.invert;

@@ -39,6 +39,7 @@ public class Context {//TODO split off some of this massive functionality into o
         private final String name;
         private volatile ExpressionConst knownValue;
         private final boolean secret;
+        private final VarInfo copy;
         public VarInfo(String name, Type type, int stackLocation) {
             this(name, type, stackLocation, false);
         }
@@ -46,6 +47,13 @@ public class Context {//TODO split off some of this massive functionality into o
             super(stackLocation, X86Register.BP, type);
             this.name = name;
             this.secret = secret;
+            this.copy = this;
+        }
+        private VarInfo(VarInfo copy, Type co) {
+            super(copy.offset, X86Register.BP, co);
+            this.name = copy.name;
+            this.secret = false;
+            this.copy = copy;
         }
         @Override
         public String toString() {
@@ -75,6 +83,18 @@ public class Context {//TODO split off some of this massive functionality into o
                 throw new RuntimeException();
             }
             return Context.this;
+        }
+        public VarInfo typed(Type type) {
+            return new VarInfo(copy, type);
+        }
+        @Override
+        public boolean equals(Object o) {
+            //System.out.println("Checking if " + this + " == " + o + " " + (this == o));
+            return o != null && o instanceof VarInfo && (this == o || copy == ((VarInfo) o).copy);
+        }
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(copy);
         }
     }
     public final HashMap<String, String> imports;

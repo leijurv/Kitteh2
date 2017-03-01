@@ -32,48 +32,44 @@ public class RegAllocation {
     private RegAllocation() {
     }
     public static void allocate(List<TACStatement> block, int maxDistance, X86Register register, boolean allowNormal, boolean allowTemp, X86Function in) {
-        HashSet<String> encountered = new HashSet<>();
+        HashSet<VarInfo> encountered = new HashSet<>();
         HashSet<Integer> used = new HashSet<>();
         boolean mode = false;
         https://en.wikipedia.org/wiki/Register_allocation
         for (int i = 0; i < block.size(); i++) {//TODO use more efficient data flow analysis to decide which vars to registerify instead of greedily doing the first viable variable it sees
             if (block.get(i) instanceof TACStandard || block.get(i) instanceof TACCast || block.get(i) instanceof TACPointerDeref || block.get(i) instanceof TACFunctionCall || block.get(i) instanceof TACConst || block.get(i) instanceof TACArrayDeref || block.get(i) instanceof TACConstStr) {
-                List<String> modVars = block.get(i).modifiedVariables();
-                if (modVars.size() != 1) {
+                List<VarInfo> modVars = block.get(i).modifiedVarInfos();
+                if (modVars.size() > 1) {
                     if (block.get(i) instanceof TACFunctionCall) {
                         encountered.addAll(modVars);//all are being set
                         continue; //lets leave multiple returns alone for now
                     }
                     throw new RuntimeException();
                 }
-                String mod = modVars.get(0);
+                if (modVars.isEmpty()) {
+                    continue;
+                }
+                VarInfo mod = modVars.get(0);
                 if (encountered.contains(mod)) {//not our first time seeing this variable, and previous passes failed
                     continue;
                 }
-                if (mod.contains(X86Register.REGISTER_PREFIX)) {//we've already got this one =D
-                    continue;
-                }
-                if (mod.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+                if (mod.getName().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                     continue;
                 }
                 encountered.add(mod);
-                boolean isTemp = UselessTempVars.isTempVariable(mod);
+                boolean isTemp = UselessTempVars.isTempVariable(mod.getName());
                 if (isTemp && !allowTemp) {
                     continue;
                 }
                 if (!isTemp && !allowNormal) {
                     continue;
                 }
-                X86Param vf = block.get(i).modifiedVariableInfos().get(0);
-                if (!(vf instanceof VarInfo)) {//idk
-                    throw new IllegalStateException(vf.getClass() + " " + vf);
-                }
-                if (((VarInfo) vf).getStackLocation() > 0) {// an argument
+                if (mod.getStackLocation() > 0) {// an argument
                     //TODO if we can replace an argument with a register, do so, and make all calling functions go along
                     //will work, because function calls to other kitteh functions don't assume anything about register preservation
                     continue;
                 }
-                Type lmao = vf.getType();
+                Type lmao = mod.getType();
                 if (!(lmao instanceof TypeNumerical)) {//a struct or something idk
                     continue;
                 }
@@ -89,7 +85,7 @@ public class RegAllocation {
                         //this is ok
                         continue;
                     }
-                    throw new RuntimeException(block + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
+                    throw new RuntimeException(block + "" + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
                 }
                 /*if (block.get(i) instanceof TACCast) {
                 System.out.println(mod + "  " + (lastUsage - i) + " last usage " + block.get(lastUsage) + " setting " + block.get(i));
@@ -106,8 +102,8 @@ public class RegAllocation {
                 if (block.get(lastUsage) instanceof TACFunctionCall) {
                     TACFunctionCall tfc = (TACFunctionCall) block.get(lastUsage);
                     if (tfc.calling().equals("syscall") && TACFunctionCall.SYSCALL_REGISTERS.contains(register)) {
-                        int fi = Arrays.asList(tfc.paramNames).indexOf(mod);
-                        int li = Arrays.asList(tfc.paramNames).lastIndexOf(mod);
+                        int fi = Arrays.asList(tfc.params).indexOf(mod);
+                        int li = Arrays.asList(tfc.params).lastIndexOf(mod);
                         if (fi != li || fi == -1 || li == -1) {
                             throw new IllegalStateException(tfc + " " + fi + " " + li + " " + mod);
                         }
@@ -196,7 +192,7 @@ public class RegAllocation {
                 if (block.get(i).modifiedVariables().size() == 1) {
                     throw new IllegalStateException();
                 }
-                encountered.addAll(block.get(i).modifiedVariables());//don't miss any sets not covered in the if
+                encountered.addAll(block.get(i).modifiedVarInfos());//don't miss any sets not covered in the if
             }
             if (i >= block.size() - 1 && !mode && in != null) {
                 i = -1;
@@ -247,7 +243,7 @@ public class RegAllocation {
         }
         return true;
     }
-    private static int lastUsage(List<TACStatement> block, String varName) {
+    private static int lastUsage(List<TACStatement> block, VarInfo varName) {
         for (int i = block.size() - 1; i >= 0; i--) {
             if (block.get(i).requiredVariables().contains(varName) || block.get(i).modifiedVariables().contains(varName)) {
                 return i;

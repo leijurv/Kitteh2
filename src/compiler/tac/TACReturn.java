@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,11 +27,11 @@ public class TACReturn extends TACStatement {
         emit.addStatement("retq");
     }
     @Override
-    public List<String> requiredVariables() {
+    public List<X86Param> requiredVariables() {
         return Arrays.asList();
     }
     @Override
-    public List<String> modifiedVariables() {
+    public List<X86Param> modifiedVariables() {
         return Arrays.asList();
     }
 }

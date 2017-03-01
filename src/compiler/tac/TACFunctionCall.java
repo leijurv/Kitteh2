@@ -57,35 +57,35 @@ public class TACFunctionCall extends TACStatement {
         this.header = header;
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params);
     }
     @Override
-    public List<String> modifiedVariables() {
-        return resultName == null ? Arrays.asList() : Arrays.asList(resultName);
+    public List<X86Param> modifiedVariables() {
+        return resultName == null ? Arrays.asList() : Arrays.asList(result);
     }
     @Override
     public String toString0() {
         return (result.length == 0 ? "" : Arrays.asList(result) + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
-    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
-        for (int i = 0; i < resultName.length; i++) {
-            if (resultName[i].equals(toReplace)) {
-                resultName[i] = replaceWith;
+    public void replace(X86Param toReplace, X86Param infoWith) {
+        for (int i = 0; i < result.length; i++) {
+            if (result[i].equals(toReplace)) {
+                resultName[i] = infoWith.toString();
                 result[i] = infoWith;
             }
         }
         try {
-            super.replace(toReplace, replaceWith, infoWith);
+            super.replace(toReplace, infoWith);
         } catch (RuntimeException ex) {//TODO fix hack
         }
     }
     @Override
-    public void regReplace(String toReplace, X86Register replaceWith) {
-        for (int i = 0; i < resultName.length; i++) {
-            if (resultName[i].equals(toReplace)) {
-                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) result[i].getType(), toReplace);
+    public void regReplace(X86Param toReplace, X86Register replaceWith) {
+        for (int i = 0; i < result.length; i++) {
+            if (result[i].equals(toReplace)) {
+                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) result[i].getType(), toReplace.toString());
                 result[i] = xtr;
                 resultName[i] = xtr.x86();
             }

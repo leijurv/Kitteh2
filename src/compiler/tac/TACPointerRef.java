@@ -38,11 +38,11 @@ public class TACPointerRef extends TACStatement {
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params);
     }
     @Override
-    public List<String> modifiedVariables() {
+    public List<X86Param> modifiedVariables() {
         return Arrays.asList();
     }
     @Override

@@ -8,6 +8,7 @@ import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.util.Obfuscator;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import java.util.Arrays;
 import java.util.List;
@@ -45,11 +46,11 @@ public class TACConstStr extends TACStatement {
         return value;
     }
     @Override
-    public List<String> requiredVariables() {
+    public List<X86Param> requiredVariables() {
         return Arrays.asList();
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[0]);
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[0]);
     }
 }

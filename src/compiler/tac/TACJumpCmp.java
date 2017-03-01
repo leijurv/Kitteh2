@@ -31,8 +31,8 @@ public class TACJumpCmp extends TACJump {
         return "jump to " + jumpTo + " if " + params[0] + " " + op + " " + params[1];
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params);
     }
     @Override
     public void onContextKnown() {

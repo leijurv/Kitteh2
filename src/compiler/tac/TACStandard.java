@@ -33,7 +33,7 @@ import java.util.List;
 public class TACStandard extends TACStatement {
     public final Operator op;
     public TACStandard(String resultName, String firstName, String secondName, Operator op) {
-        super(firstName, secondName, resultName);
+        super(new String[]{firstName, secondName, resultName});
         try {
             Integer.parseInt(firstName);
             Integer.parseInt(secondName);
@@ -43,12 +43,12 @@ public class TACStandard extends TACStatement {
         this.op = op;
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0], paramNames[1]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0], params[1]);
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[2]);
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[2]);
     }
     @Override
     public String toString0() {
@@ -85,9 +85,9 @@ public class TACStandard extends TACStatement {
     public void printx86(X86Emitter emit) {
         if (op.inputsReversible()) {
             X86Emitter ns = new X86Emitter(emit);//copy known equalities for a fair comparison
-            x86(ns, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
+            x86(ns, params[0], params[1], params[2], op);
             X86Emitter s = new X86Emitter(emit);
-            x86(s, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
+            x86(s, params[1], params[0], params[2], op);
             if (s.withoutComments().length() < ns.withoutComments().length()) {//heuristic of the actual x86 length is pretty good. if it's actully an instruction shorter, the x86 will def be shorter. and if it can replace with cltq, that's also shorter
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("Operands swapped");
@@ -96,11 +96,11 @@ public class TACStandard extends TACStatement {
                     System.out.println("TO");
                     System.out.println(s.withoutComments());*/ // a little spammy
                 }
-                x86(emit, paramNames[1], paramNames[0], paramNames[2], params[1], params[0], params[2], op);
+                x86(emit, params[1], params[0], params[2], op);
                 return;
             }
         }
-        x86(emit, paramNames[0], paramNames[1], paramNames[2], params[0], params[1], params[2], op);
+        x86(emit, params[0], params[1], params[2], op);
     }
     public static void dirt(X86Param result, X86Emitter emit) {
         if (result instanceof VarInfo || result instanceof X86TypedRegister) {
@@ -109,12 +109,12 @@ public class TACStandard extends TACStatement {
             throw new IllegalStateException();
         }
     }
-    public static void x86(X86Emitter emit, String firstName, String secondName, String resultName, X86Param fst, X86Param snd, X86Param result, Operator op) {//oh god, this function.
+    public static void x86(X86Emitter emit, X86Param fst, X86Param snd, X86Param result, Operator op) {//oh god, this function.
         X86Param first = fst;
         X86Param second = snd;
         //i literally can't be bothered
         TypeNumerical type = (TypeNumerical) result.getType();
-        if ((op == PLUS || op == MINUS) && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !firstName.equals(resultName) && !secondName.equals(resultName) && first.getType().getSizeBytes() == type.getSizeBytes() && second.getType().getSizeBytes() == type.getSizeBytes()) {
+        if ((op == PLUS || op == MINUS) && type.getSizeBytes() >= 4 && first instanceof X86TypedRegister && result instanceof X86TypedRegister && !first.equals(result) && !second.equals(result) && first.getType().getSizeBytes() == type.getSizeBytes() && second.getType().getSizeBytes() == type.getSizeBytes()) {
             //TODO more benchmarks to determine if/when this is a performance boost
             if (op == PLUS && second instanceof X86TypedRegister) {
                 emit.addStatement("lea" + type.x86typesuffix() + " (" + first.x86() + ", " + second.x86() + ", 1), " + result.x86());
@@ -137,8 +137,8 @@ public class TACStandard extends TACStatement {
                 return;
             }
         }
-        if (secondName.equals("1") && !(result instanceof VarInfo && !firstName.equals(resultName))) {
-            if (!firstName.equals(resultName) && (op == PLUS || op == MINUS)) {
+        if (second.x86().equals("$1") && !(result instanceof VarInfo && !first.equals(result))) {
+            if (!first.equals(result) && (op == PLUS || op == MINUS)) {
                 TACConst.move(result, first, emit);
             }
             if (op == PLUS) {
@@ -152,15 +152,15 @@ public class TACStandard extends TACStatement {
                 return;
             }
         }
-        if (firstName.equals("1") && op == PLUS && !(result instanceof VarInfo && !firstName.equals(resultName))) {
-            if (!secondName.equals(resultName)) {
+        if (first.x86().equals("$1") && op == PLUS && !(result instanceof VarInfo && !first.equals(result))) {
+            if (!second.equals(result)) {
                 TACConst.move(result, second, emit);
             }
             emit.addStatement("inc" + type.x86typesuffix() + " " + result.x86());
             dirt(result, emit);
             return;
         }
-        if (op == MINUS && resultName.equals(secondName)) {
+        if (op == MINUS && result.equals(second)) {
             emit.addStatement("neg" + type.x86typesuffix() + " " + result.x86());
             if (!first.x86().equals("$0")) {
                 //x86(emit, secondName, firstName, resultName, snd, fst, result, Operator.PLUS);
@@ -226,10 +226,10 @@ public class TACStandard extends TACStatement {
             try {
                 TACConst.move(cc, second, emit);
             } catch (Exception e) {
-                throw new UnsupportedOperationException(type + " " + firstName + " " + secondName, e);
+                throw new UnsupportedOperationException(type + " " + first + " " + second, e);
             }
         }
-        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!secondName.equals(resultName) || op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)) {//TODO secondName.equals(resultName) may cause unintended behavior...
+        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!second.equals(result) || op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)) {//TODO secondName.equals(resultName) may cause unintended behavior...
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

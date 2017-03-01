@@ -26,13 +26,16 @@ public class TACConst extends TACStatement {
     public TACConst(String var, String val) {
         super(val, var);
     }
-    @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0]);
+    public TACConst(X86Param var, X86Param val) {
+        super(new X86Param[]{val, var});
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[1]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
+    }
+    @Override
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[1]);
     }
     @Override
     public String toString0() {

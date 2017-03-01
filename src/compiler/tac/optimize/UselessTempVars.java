@@ -60,12 +60,15 @@ public class UselessTempVars extends TACOptimization {
             } else if (!(block.get(ind) instanceof TACConst)) {
                 continue;
             }
-            String valSet = curr.paramNames[1];
-            if (valSet.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            if (!(curr.params[1] instanceof VarInfo)) {
                 continue;
             }
-            String currSourceName = curr.paramNames[0];
-            if (currSourceName.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            VarInfo valSet = (VarInfo) curr.params[1];
+            if (valSet.getName().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+                continue;
+            }
+            X86Param currSourceName = curr.params[0];
+            if (currSourceName instanceof VarInfo && ((VarInfo) currSourceName).getName().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
             if (currSourceName.equals(valSet)) {
@@ -74,8 +77,9 @@ public class UselessTempVars extends TACOptimization {
             }
             X86Param currSource = curr.params[0];
             if (currSource instanceof VarInfo) {
-                VarInfo vi = (VarInfo) currSource;
-                currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
+                currSource = ((VarInfo) currSource).typed(curr.params[1].getType());
+                //VarInfo vi = (VarInfo) currSource;
+                //currSource = vi.getContext().new VarInfo(vi.getName(), curr.params[1].getType(), vi.getStackLocation());
                 //vi.getContext().printFull = true;
                 //System.out.println("Replaced " + valSet + " for " + vi + " with " + currSource + " in " + curr);
                 //continue;
@@ -93,7 +97,7 @@ public class UselessTempVars extends TACOptimization {
                 }
             }
             int st = ind + 1;
-            boolean tempVar = isTempVariable(valSet);
+            boolean tempVar = isTempVariable(valSet.getName());
             if (!tempVar) {
                 if (!AGGRESSIVE) {
                     continue;
@@ -114,7 +118,7 @@ public class UselessTempVars extends TACOptimization {
                 }
                 boolean exemption = next instanceof TACCast && !(currSource instanceof VarInfo);
                 if (!exemption && next.requiredVariables().contains(valSet)) {
-                    next.replace(valSet, currSourceName, currSource);
+                    next.replace(valSet, currSource);
                     block.remove(ind);
                     ind = Math.max(-1, ind - 2);
                     break;

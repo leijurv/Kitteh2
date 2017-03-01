@@ -20,7 +20,7 @@ public class SelfSet extends TACOptimization {
         for (int i = 0; i < block.size(); i++) {
             if (block.get(i) instanceof TACConst) {
                 TACConst tc = (TACConst) block.get(i);
-                if (tc.paramNames[0].equals(tc.paramNames[1])) {
+                if (tc.params[0].equals(tc.params[1])) {
                     block.remove(i);
                 }
             }

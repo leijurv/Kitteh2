@@ -6,6 +6,7 @@
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
+import compiler.x86.X86Param;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +63,7 @@ public abstract class TACOptimization {
         return result;
     }
     protected abstract void run(List<TACStatement> block, int blockBegin);
-    public boolean isUsedAtOrAfter(int pos, String searchingFor) {
+    public boolean isUsedAtOrAfter(int pos, X86Param searchingFor) {
         List<TACStatement> block = statements;
         for (int j = pos; j < block.size(); j++) {
             if (block.get(j) instanceof TACJump) {

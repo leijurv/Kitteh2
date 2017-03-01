@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.Context.VarInfo;
 import compiler.tac.TACCast;
 import compiler.tac.TACConst;
 import compiler.tac.TACStatement;
@@ -30,20 +31,23 @@ public class ConstantCasting extends TACOptimization {
                 if (!(con.params[0] instanceof X86Const)) {
                     continue;
                 }
-                if (!UselessTempVars.isTempVariable(con.paramNames[1])) {
+                if (!(con.params[1] instanceof VarInfo)) {
+                    continue;
+                }
+                if (!UselessTempVars.isTempVariable(((VarInfo) con.params[1]).getName())) {
                     continue;
                 }
                 if (block.get(i + 1) instanceof TACCast) {
                     TACCast cast = (TACCast) block.get(i + 1);
-                    if (cast.paramNames[0].equals(con.paramNames[1])) {//cast source must equal const destination
+                    if (cast.params[0].equals(con.params[1])) {//cast source must equal const destination
                         TypeNumerical castingTo = (TypeNumerical) cast.params[1].getType();//cast destination type
                         if (castingTo instanceof TypeFloat) {
                             continue;//lol its not like you can do: movss $5, %xmm1
                         }
-                        String constantBeingCasted = con.paramNames[0];
-                        X86Const casted = new X86Const(constantBeingCasted, castingTo);
-                        con.replace(con.paramNames[0], constantBeingCasted, casted);//replace source with: the constant, now with the correct casted type
-                        con.replace(con.paramNames[1], cast.paramNames[1], cast.params[1]);//replace dest with: the destination of the original cast
+                        X86Const constantBeingCasted = (X86Const) con.params[0];
+                        X86Const casted = new X86Const(constantBeingCasted.getValue(), castingTo);
+                        con.replace(con.params[0], casted);//replace source with: the constant, now with the correct casted type
+                        con.replace(con.params[1], cast.params[1]);//replace dest with: the destination of the original cast
                         block.remove(i + 1);
                         i--;
                     }

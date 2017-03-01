@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.type.TypeBoolean;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,8 +27,8 @@ public class TACJumpBoolVar extends TACJump {
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
     }
     @Override
     public String toString0() {

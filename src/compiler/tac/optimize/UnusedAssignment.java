@@ -4,12 +4,13 @@
  * and open the template in the editor.
  */
 package compiler.tac.optimize;
+import compiler.Context.VarInfo;
 import compiler.tac.TACFunctionCall;
 import compiler.tac.TACJump;
 import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import compiler.tac.TempVarUsage;
-import compiler.x86.X86Register;
+import compiler.x86.X86Param;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ public class UnusedAssignment extends TACOptimization {
     @Override
     protected void run(List<TACStatement> block, int blockBegin) {
         for (int i = 0; i < block.size(); i++) {
-            List<String> mv = block.get(i).modifiedVariables();
+            List<VarInfo> mv = block.get(i).modifiedVarInfos();
             if (block.get(i).toString(true).contains("Struct") && !block.get(i).toString(false).contains("*Struct")) {
                 continue;
             }
@@ -40,10 +41,7 @@ public class UnusedAssignment extends TACOptimization {
             if (mv.size() != 1) {
                 throw new RuntimeException();
             }
-            if (mv.get(0).startsWith(X86Register.REGISTER_PREFIX)) {
-                continue;
-            }
-            if (mv.get(0).contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            if (mv.get(0).getName().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;
             }
             if (usedAfter(block, mv.get(0), i)) {
@@ -52,7 +50,7 @@ public class UnusedAssignment extends TACOptimization {
             block.remove(i);
         }
     }
-    static boolean usedAfter(List<TACStatement> block, String varName, int lineNumber) {//only return false when its certain that it's unused
+    static boolean usedAfter(List<TACStatement> block, X86Param varName, int lineNumber) {//only return false when its certain that it's unused
         for (int i = lineNumber + 1; i < block.size(); i++) {
             if (block.get(i).requiredVariables().contains(varName)) {//yes it is directly used
                 return true;

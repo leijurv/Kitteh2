@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
@@ -23,8 +24,13 @@ import java.util.stream.Collectors;
 public abstract class TACStatement {
     protected Context context;
     private TempVarUsage tvu;
-    public String[] paramNames;
+    protected String[] paramNames;
     public X86Param[] params;
+    public TACStatement(X86Param[] params) {
+        this.paramNames = new String[params.length];
+        this.params = params;
+        this.context = null;
+    }
     public TACStatement(String... paramNames) {
         this.paramNames = paramNames;
         params = new X86Param[paramNames.length];
@@ -51,26 +57,27 @@ public abstract class TACStatement {
             }
         }
     }
-    public void regReplace(String toReplace, X86Register replaceWith) {
-        for (int i = 0; i < paramNames.length; i++) {
-            if (paramNames[i].equals(toReplace)) {
-                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) params[i].getType(), toReplace);
+    public void regReplace(X86Param toReplace, X86Register replaceWith) {
+        for (int i = 0; i < params.length; i++) {
+            if (params[i].equals(toReplace)) {
+                X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) params[i].getType(), toReplace.toString());
                 params[i] = xtr;
                 paramNames[i] = xtr.x86();
             }
         }
     }
-    public void replace(String toReplace, String replaceWith, X86Param infoWith) {
-        if (infoWith == null || replaceWith == null || toReplace == null) {
-            throw new IllegalStateException(this + " " + toReplace + " " + replaceWith + " " + infoWith);
+    public void replace(X86Param toReplace, X86Param infoWith) {
+        if (infoWith == null || toReplace == null) {
+            throw new IllegalStateException(this + " " + toReplace + " " + infoWith);
         }
-        if (replaceWith.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
-            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + replaceWith + " " + infoWith);
+        if (infoWith.toString().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.toString().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
+            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + infoWith);
         }
         boolean f = false;
-        for (int i = 0; i < paramNames.length; i++) {
-            if (paramNames[i].equals(toReplace)) {
-                paramNames[i] = replaceWith;
+        for (int i = 0; i < params.length; i++) {
+            if (params[i].equals(toReplace)) {
+                params[i] = infoWith;
+                paramNames[i] = infoWith.toString();
                 if (infoWith instanceof X86Const && !infoWith.getType().equals(params[i].getType())) {
                     params[i] = new X86Const(((X86Const) infoWith).getValue(), (TypeNumerical) params[i].getType());
                 } else {
@@ -105,10 +112,10 @@ public abstract class TACStatement {
     public int hashCode() {
         return toString().hashCode();
     }
-    public abstract List<String> requiredVariables();
-    public abstract List<String> modifiedVariables();
-    public final List<X86Param> modifiedVariableInfos() {
-        return modifiedVariables().stream().filter(x -> !x.startsWith(X86Register.REGISTER_PREFIX)).map(this::get).collect(Collectors.toList());
+    public abstract List<X86Param> requiredVariables();
+    public abstract List<X86Param> modifiedVariables();
+    public final List<VarInfo> modifiedVarInfos() {
+        return modifiedVariables().stream().filter(VarInfo.class::isInstance).map(VarInfo.class::cast).collect(Collectors.toList());
     }
     protected X86Param get(String name) {
         for (int i = 0; i < paramNames.length; i++) {

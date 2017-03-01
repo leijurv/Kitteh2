@@ -88,11 +88,11 @@ public class TACArrayRef extends TACStatement {
         emit.moveStr(source, "(" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")");
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params);
     }
     @Override
-    public List<String> modifiedVariables() {
+    public List<X86Param> modifiedVariables() {
         return Arrays.asList();
     }
 }

@@ -38,12 +38,12 @@ public class TACPointerDeref extends TACStatement {
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[1]);
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[1]);
     }
     @Override
     public String toString0() {

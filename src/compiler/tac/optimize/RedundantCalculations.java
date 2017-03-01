@@ -23,8 +23,8 @@ public class RedundantCalculations extends TACOptimization {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) (block.get(i));
                 if (ts.op == Operator.PLUS) {
-                    if (ts.paramNames[0].equals("0")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
+                    if (ts.params[0].x86().equals("$0")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[1]);
                         repl.copyFrom(ts);
                         repl.params[1] = ts.params[2];//ensure type is copied properly
                         repl.params[0] = ts.params[1];
@@ -35,8 +35,8 @@ public class RedundantCalculations extends TACOptimization {
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.paramNames[1].equals("0")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
+                    if (ts.params[1].x86().equals("$0")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[0]);
                         repl.copyFrom(ts);
                         repl.params[1] = ts.params[2];
                         repl.params[0] = ts.params[0];
@@ -49,8 +49,8 @@ public class RedundantCalculations extends TACOptimization {
                     }
                 }
                 if (ts.op == Operator.MULTIPLY) {
-                    if (ts.paramNames[0].equals("1")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
+                    if (ts.params[0].x86().equals("$1")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[1]);
                         repl.copyFrom(ts);
                         repl.params[1] = ts.params[2];
                         repl.params[0] = ts.params[1];
@@ -61,8 +61,8 @@ public class RedundantCalculations extends TACOptimization {
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.paramNames[1].equals("1")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
+                    if (ts.params[1].x86().equals("$1")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[0]);
                         repl.copyFrom(ts);
                         repl.params[1] = ts.params[2];
                         repl.params[0] = ts.params[0];

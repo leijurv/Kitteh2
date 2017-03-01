@@ -7,6 +7,7 @@ package compiler.tac;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
 import compiler.x86.X86TypedRegister;
 import java.util.Arrays;
@@ -70,11 +71,11 @@ public class TACArrayDeref extends TACStatement {
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0], paramNames[1]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0], params[1]);
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[2]);
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[2]);
     }
 }

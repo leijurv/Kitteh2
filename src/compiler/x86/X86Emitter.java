@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.Context.VarInfo;
 import compiler.type.*;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
@@ -34,8 +35,12 @@ public class X86Emitter {
     public X86Emitter(X86Emitter other) {
         this();
         equals = new HashSet<>();
-        for (HashSet<X86Param> e : other.equals) {//deep copy
-            equals.add(new HashSet<>(e));
+        for (HashSetX86Param e : other.equals) {//deep copy
+            HashSetX86Param tmp = new HashSetX86Param();
+            for (X86Param a : e) {
+                tmp.add(a);
+            }
+            equals.add(tmp);
         }
     }
     public void move(X86Param a, X86Param b) {
@@ -89,7 +94,7 @@ public class X86Emitter {
             throw new RuntimeException(a + " " + a.getType() + " " + type);
         }
         if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
-            for (HashSet<X86Param> eqq : equals) {
+            for (HashSetX86Param eqq : equals) {
                 if (eqq.contains(a)) {
                     for (X86Param alternative : eqq) {
                         if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
@@ -107,13 +112,32 @@ public class X86Emitter {
         }
         return null;
     }
-    HashSet<HashSet<X86Param>> equals = new HashSet<>();
+    HashSet<HashSetX86Param> equals = new HashSet<>();
     private void move(String a, String b, TypeNumerical type) {
         if (compiler.Compiler.verbose()) {
             addComment("raw nonoptimized move");
         }
         String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
         addStatement(moveStmt);
+    }
+
+    public static class HashSetX86Param extends HashSet<X86Param> {//forgive me
+        @Override
+        public boolean contains(Object param) {
+            if (param instanceof VarInfo) {
+                VarInfo a = (VarInfo) param;
+                param = new X86Memory(a.offset, a.reg, a.referencing);//varinfos aren't equal when they point to the same place, but x86memorys are
+            }
+            return super.contains(param);
+        }
+        @Override
+        public boolean add(X86Param param) {
+            if (param instanceof VarInfo) {
+                VarInfo a = (VarInfo) param;
+                param = new X86Memory(a.offset, a.reg, a.referencing);
+            }
+            return super.add(param);
+        }
     }
     public boolean redundant(X86Param a, X86Param b) {
         return equals.stream().filter(x -> x.contains(a)).anyMatch(x -> x.contains(b));
@@ -140,7 +164,7 @@ public class X86Emitter {
         if (a.x86().equals("$0") && b instanceof X86TypedRegister) {//TODO a.x86().equals("$0") is a little awkward
             moveStmt = "xor" + type.x86typesuffix() + " " + b.x86() + ", " + b.x86();
         }
-        Optional<HashSet<X86Param>> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
+        Optional<HashSetX86Param> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
@@ -171,7 +195,10 @@ public class X86Emitter {
         } else {
             //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
             //that's why the condition is a.contains(b) not b.contains(a)
-            equals.add(new HashSet<>(Arrays.asList(a, b)));
+            HashSetX86Param tmp = new HashSetX86Param();
+            tmp.add(a);
+            tmp.add(b);
+            equals.add(tmp);
         }
         if (!replaced) {
             addStatement(moveStmt);

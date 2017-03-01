@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,11 +40,11 @@ public class TACJump extends TACStatement {
         jumpTo = n;
     }
     @Override
-    public List<String> requiredVariables() {
+    public List<X86Param> requiredVariables() {
         return Arrays.asList();
     }
     @Override
-    public final List<String> modifiedVariables() {//a jump definitely can't modify anything, so final
+    public final List<X86Param> modifiedVariables() {//a jump definitely can't modify anything, so final
         return Arrays.asList();
     }
 }

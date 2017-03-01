@@ -35,17 +35,17 @@ public class CommonSubexpression extends TACOptimization {
                 for (int j = i + 1; j < block.size(); j++) {
                     if (block.get(j) instanceof TACStandard) {
                         TACStandard o = (TACStandard) block.get(j);
-                        if (o.op == ts.op && o.paramNames[0].equals(ts.paramNames[0]) && o.paramNames[1].equals(ts.paramNames[1])) {
+                        if (o.op == ts.op && o.params[0].equals(ts.params[0]) && o.params[1].equals(ts.params[1])) {
                             //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
-                            TACConst repl = new TACConst(o.paramNames[2], ts.paramNames[2]);
+                            TACConst repl = new TACConst(o.params[2], ts.params[2]);
                             repl.copyFrom(o);
-                            repl.params[0] = ts.params[2];
-                            repl.params[1] = o.params[2];
+                            //repl.params[0] = ts.params[2];
+                            //repl.params[1] = o.params[2];
                             block.set(j, repl);
                             return;
                         }
                     }
-                    for (X86Param vi : block.get(j).modifiedVariableInfos()) {
+                    for (X86Param vi : block.get(j).modifiedVariables()) {
                         if (!(vi instanceof VarInfo)) {
                             continue;
                         }

@@ -5,7 +5,12 @@
  */
 package compiler.x86;
 import compiler.Context.VarInfo;
-import compiler.type.*;
+import compiler.type.TypeFloat;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
+import compiler.type.TypeNumerical;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -242,12 +247,12 @@ public class X86Emitter {
             //this comes up often when moving structs, temp variables, etc
             List<X86Param> overlapped = equals.stream().flatMap(HashSet::stream).filter(((X86Memory) param)::overlap).collect(Collectors.toList());
             //addComment(param + " overlaps into " + overlapped);
-            for (X86Param bad : overlapped) {
+            overlapped.forEach(bad -> {
                 if (compiler.Compiler.verbose() && !bad.x86().equals(param.x86())) {
                     addComment(bad + " overlaps with " + param);
                 }
                 markDirty(bad.x86());
-            }
+            });
         }
         markDirty(param.x86());
     }

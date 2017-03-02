@@ -18,14 +18,11 @@ import java.util.List;
  * @author leijurv
  */
 public class TACArrayDeref extends TACStatement {
-    public TACArrayDeref(String array, String index, String dest) {
+    public TACArrayDeref(X86Param array, X86Param index, X86Param dest) {
         super(array, index, dest);
     }
     @Override
-    protected void onContextKnown() {
-    }
-    @Override
-    public String toString0() {
+    public String toString() {
         return params[2] + " = " + params[0] + "[" + params[1] + "]";
     }
     @Override

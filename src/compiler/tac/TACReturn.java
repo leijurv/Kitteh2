@@ -15,10 +15,7 @@ import java.util.List;
  */
 public class TACReturn extends TACStatement {
     @Override
-    protected void onContextKnown() {
-    }
-    @Override
-    public String toString0() {
+    public String toString() {
         return "return";
     }
     @Override

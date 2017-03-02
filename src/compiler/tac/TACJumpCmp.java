@@ -22,23 +22,20 @@ import java.util.List;
  */
 public class TACJumpCmp extends TACJump {
     private final Operator op;
-    public TACJumpCmp(String first, String second, Operator op, int jumpTo) {
+    public TACJumpCmp(X86Param first, X86Param second, Operator op, int jumpTo) {
         super(jumpTo, first, second);
         this.op = op;
+        if (!params[0].getType().equals(params[1].getType())) {
+            throw new IllegalStateException("apples to oranges " + params[0] + " " + params[1]);
+        }
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return "jump to " + jumpTo + " if " + params[0] + " " + op + " " + params[1];
     }
     @Override
     public List<X86Param> requiredVariables() {
         return Arrays.asList(params);
-    }
-    @Override
-    public void onContextKnown() {
-        if (!params[0].getType().equals(params[1].getType())) {
-            throw new IllegalStateException("apples to oranges " + params[0] + " " + params[1]);
-        }
     }
     @Override
     public void printx86(X86Emitter emit) {

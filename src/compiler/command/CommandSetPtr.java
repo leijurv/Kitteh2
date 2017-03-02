@@ -5,6 +5,7 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionCast;
@@ -30,7 +31,7 @@ public class CommandSetPtr extends Command {
         }
         this.value = value;
     }
-    public static Expression tryOffsetBased (Expression deReferencing)
+    public static Expression tryOffsetBased  (Expression deReferencing)
         []{
         if (deReferencing instanceof ExpressionCast && ((ExpressionCast) deReferencing).input instanceof ExpressionOperator) {
             ExpressionOperator eo = (ExpressionOperator) ((ExpressionCast) deReferencing).input;
@@ -68,9 +69,9 @@ public class CommandSetPtr extends Command {
             offset = 0;
         }
         TempVarUsage tvu = new TempVarUsage(context);
-        String ptr = tvu.getTempVar(pointer.getType());
+        VarInfo ptr = tvu.getTempVar(pointer.getType());
         der.generateTAC(emit, tvu, ptr);
-        String val = tvu.getTempVar(value.getType());
+        VarInfo val = tvu.getTempVar(value.getType());
         value.generateTAC(emit, tvu, val);
         emit.emit(new TACPointerRef(val, ptr, offset));
     }

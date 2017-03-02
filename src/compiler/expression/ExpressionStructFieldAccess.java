@@ -53,24 +53,23 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
         return fieldLoc;
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
         if (input instanceof ExpressionPointerDeref) {
             new ExpressionPointerDeref(getDeref()).generateTAC(emit, tempVars, resultLocation);
         } else {
-            String fieldLabel = generateFieldLabel(emit, tempVars);
+            VarInfo fieldLabel = generateFieldLabel(emit, tempVars);
             emit.emit(new TACConst(resultLocation, fieldLabel));
         }
     }
-    public String generateFieldLabel(IREmitter emit, TempVarUsage tempVars) {
-        String temp = tempVars.getTempVar(input.getType());
-        VarInfo structLocation = tempVars.getInfo(temp);
-        input.generateTAC(emit, tempVars, temp);
+    public VarInfo generateFieldLabel(IREmitter emit, TempVarUsage tempVars) {
+        VarInfo structLocation = tempVars.getTempVar(input.getType());
+        input.generateTAC(emit, tempVars, structLocation);
         int structLocationOnStack = structLocation.getStackLocation();
         int offsetOfThisFieldWithinStruct = struct.getFieldByName(field).getStackLocation();
         int fieldLocationOnStack = structLocationOnStack + offsetOfThisFieldWithinStruct;
         //System.out.println(structLocationOnStack + " " + offsetOfThisFieldWithinStruct + " " + fieldLocationOnStack + " " + struct.getFieldByName(field));
-        String info = struct.toString() + "-" + temp + "." + field;
-        String fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType(), info);
+        String info = struct.toString() + "-" + structLocation.getName() + "." + field;
+        VarInfo fieldLabel = tempVars.registerLabelManually(fieldLocationOnStack, struct.getFieldByName(field).getType(), info);
         return fieldLabel;
     }
     @Override
@@ -117,10 +116,10 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
                 @Override
                 protected void generateTAC0(IREmitter emit) {
                     TempVarUsage cancer = new TempVarUsage(context);
-                    String tam = cancer.getTempVar(insert.getType());
+                    VarInfo tam = cancer.getTempVar(insert.getType());
                     insert.generateTAC(emit, cancer, tam);
                     String info = struct.toString() + "-" + tam + "." + field;
-                    String thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType(), info);
+                    VarInfo thisField = cancer.registerLabelManually(stackLoc, struct.getFieldByName(field).getType(), info);
                     emit.emit(new TACConst(thisField, tam));
                 }
                 @Override

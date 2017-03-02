@@ -38,9 +38,6 @@ public class CommonSubexpression extends TACOptimization {
                         if (o.op == ts.op && o.params[0].equals(ts.params[0]) && o.params[1].equals(ts.params[1])) {
                             //System.out.println("Optimizing " + i + " " + j + " " + ts + " " + o);
                             TACConst repl = new TACConst(o.params[2], ts.params[2]);
-                            repl.copyFrom(o);
-                            //repl.params[0] = ts.params[2];
-                            //repl.params[1] = o.params[2];
                             block.set(j, repl);
                             return;
                         }

@@ -5,6 +5,7 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
@@ -32,11 +33,11 @@ public class CommandSetArray extends Command {
     @Override
     protected void generateTAC0(IREmitter emit) {
         TempVarUsage tempVars = new TempVarUsage(context);
-        String arr = tempVars.getTempVar(array.getType());
+        VarInfo arr = tempVars.getTempVar(array.getType());
         array.generateTAC(emit, tempVars, arr);
-        String ind = tempVars.getTempVar(index.getType());
+        VarInfo ind = tempVars.getTempVar(index.getType());
         index.generateTAC(emit, tempVars, ind);
-        String source = tempVars.getTempVar(value.getType());
+        VarInfo source = tempVars.getTempVar(value.getType());
         value.generateTAC(emit, tempVars, source);
         emit.emit(new TACArrayRef(arr, ind, source));
     }

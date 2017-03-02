@@ -43,7 +43,6 @@ public class KnownConditions extends TACOptimization {
                     //if known to be true, and invert is false (normal), jump will execute
                     if (willJumpExecute) {
                         TACJump repl = new TACJump(tjbr.jumpTo());//replace with unconditional jump to the same destination
-                        repl.copyFrom(tjbr);
                         block.set(i, repl);
                     } else {
                         block.remove(i);//it won't happen, so just remove

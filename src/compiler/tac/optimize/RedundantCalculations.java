@@ -25,10 +25,6 @@ public class RedundantCalculations extends TACOptimization {
                 if (ts.op == Operator.PLUS) {
                     if (ts.params[0].x86().equals("$0")) {
                         TACConst repl = new TACConst(ts.params[2], ts.params[1]);
-                        repl.copyFrom(ts);
-                        repl.params[1] = ts.params[2];//ensure type is copied properly
-                        repl.params[0] = ts.params[1];
-                        //repl.setVars();
                         if (compiler.Compiler.verbose()) {
                             System.out.println(ts + " IS NOW " + repl);
                         }
@@ -37,10 +33,6 @@ public class RedundantCalculations extends TACOptimization {
                     }
                     if (ts.params[1].x86().equals("$0")) {
                         TACConst repl = new TACConst(ts.params[2], ts.params[0]);
-                        repl.copyFrom(ts);
-                        repl.params[1] = ts.params[2];
-                        repl.params[0] = ts.params[0];
-                        //repl.setVars();
                         if (compiler.Compiler.verbose()) {
                             System.out.println(ts + " IS NOW " + repl);
                         }
@@ -51,10 +43,6 @@ public class RedundantCalculations extends TACOptimization {
                 if (ts.op == Operator.MULTIPLY) {
                     if (ts.params[0].x86().equals("$1")) {
                         TACConst repl = new TACConst(ts.params[2], ts.params[1]);
-                        repl.copyFrom(ts);
-                        repl.params[1] = ts.params[2];
-                        repl.params[0] = ts.params[1];
-                        //repl.setVars();
                         if (compiler.Compiler.verbose()) {
                             System.out.println(ts + " IS NOW " + repl);
                         }
@@ -63,10 +51,6 @@ public class RedundantCalculations extends TACOptimization {
                     }
                     if (ts.params[1].x86().equals("$1")) {
                         TACConst repl = new TACConst(ts.params[2], ts.params[0]);
-                        repl.copyFrom(ts);
-                        repl.params[1] = ts.params[2];
-                        repl.params[0] = ts.params[0];
-                        //repl.setVars();
                         if (compiler.Compiler.verbose()) {
                             System.out.println(ts + " IS NOW " + repl);
                         }

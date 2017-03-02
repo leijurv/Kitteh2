@@ -24,12 +24,9 @@ import java.util.List;
  */
 public class TACPointerRef extends TACStatement {
     int offset;
-    public TACPointerRef(String source, String dest, int offset) {
+    public TACPointerRef(X86Param source, X86Param dest, int offset) {
         super(source, dest);
         this.offset = offset;
-    }
-    @Override
-    protected void onContextKnown() {
         if (!(params[1].getType() instanceof TypePointer)) {
             throw new IllegalStateException("what");
         }
@@ -46,7 +43,7 @@ public class TACPointerRef extends TACStatement {
         return Arrays.asList();
     }
     @Override
-    public String toString0() {
+    public String toString() {
         //return "Put the value " + source + " into the location specified by " + dest;
         return "*" + params[1] + (offset == 0 ? "" : "+" + offset) + " = " + params[0];
     }

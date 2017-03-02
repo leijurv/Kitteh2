@@ -5,6 +5,7 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.expression.Expression;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
@@ -45,15 +46,15 @@ public class CommandReturn extends Command {
     @Override
     protected void generateTAC0(IREmitter emit) {
         TempVarUsage lol = new TempVarUsage(context);
-        String[] tempVars = new String[toReturn.length];
+        VarInfo[] tempVars = new VarInfo[toReturn.length];
         for (int i = 0; i < toReturn.length; i++) {
-            String var = lol.getTempVar(toReturn[i].getType());
+            VarInfo var = lol.getTempVar(toReturn[i].getType());
             toReturn[i].generateTAC(emit, lol, var);
             tempVars[i] = var;
         }
         for (int i = 0; i < toReturn.length; i++) {
             X86Register register = TACFunctionCall.RETURN_REGISTERS.get(i);
-            emit.emit(new TACConst("" + register.getRegister((TypeNumerical) toReturn[i].getType()), tempVars[i]));
+            emit.emit(new TACConst(register.getRegister((TypeNumerical) toReturn[i].getType()), tempVars[i]));
         }
         emit.emit(new TACReturn());
     }

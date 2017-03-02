@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.command.Command;
 import compiler.command.CommandSetArray;
@@ -32,7 +33,7 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
     }
     @Override
     public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        String tmp = tempVars.getTempVar(((TypePointer) array.getType()).pointingTo());
+        VarInfo tmp = tempVars.getTempVar(((TypePointer) array.getType()).pointingTo());
         generateTAC(emit, tempVars, tmp);
         emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
     }
@@ -45,10 +46,10 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
         return ((TypePointer) array.getType()).pointingTo();
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        String arr = tempVars.getTempVar(array.getType());
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        VarInfo arr = tempVars.getTempVar(array.getType());
         array.generateTAC(emit, tempVars, arr);
-        String ind = tempVars.getTempVar(index.getType());
+        VarInfo ind = tempVars.getTempVar(index.getType());
         index.generateTAC(emit, tempVars, ind);
         emit.emit(new TACArrayDeref(arr, ind, resultLocation));
     }

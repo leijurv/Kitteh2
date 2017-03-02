@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.command.Command;
 import compiler.command.CommandSetPtr;
 import compiler.tac.IREmitter;
@@ -33,7 +34,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
         return CommandSetPtr.tryOffsetBased(deReferencing);
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
         Expression[] eo = tryOffsetBased();
         Expression der;
         int offset;
@@ -45,7 +46,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
             der = deReferencing;
             offset = 0;
         }
-        String tmp = tempVars.getTempVar(deReferencing.getType());
+        VarInfo tmp = tempVars.getTempVar(deReferencing.getType());
         der.generateTAC(emit, tempVars, tmp);
         emit.emit(new TACPointerDeref(tmp, resultLocation, offset));
     }
@@ -67,7 +68,7 @@ public class ExpressionPointerDeref extends ExpressionConditionalJumpable implem
     }
     @Override
     public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        String tmp = tempVars.getTempVar(new TypeBoolean());
+        VarInfo tmp = tempVars.getTempVar(new TypeBoolean());
         generateTAC(emit, tempVars, tmp);
         emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
     }

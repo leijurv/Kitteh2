@@ -39,7 +39,7 @@ public class Context {//TODO split off some of this massive functionality into o
         private final String name;
         private volatile ExpressionConst knownValue;
         private final boolean secret;
-        private final VarInfo copy;
+        private final VarInfo root;//can. you. hear. me.
         public VarInfo(String name, Type type, int stackLocation) {
             this(name, type, stackLocation, false);
         }
@@ -47,13 +47,13 @@ public class Context {//TODO split off some of this massive functionality into o
             super(stackLocation, X86Register.BP, type);
             this.name = name;
             this.secret = secret;
-            this.copy = this;
+            this.root = this;//absolutely
         }
-        private VarInfo(VarInfo copy, Type co) {
-            super(copy.offset, X86Register.BP, co);
-            this.name = copy.name;
+        private VarInfo(VarInfo shaw, Type co) {
+            super(shaw.offset, X86Register.BP, co);
+            this.name = shaw.name;
             this.secret = false;
-            this.copy = copy;
+            this.root = shaw;
         }
         @Override
         public String toString() {
@@ -85,16 +85,16 @@ public class Context {//TODO split off some of this massive functionality into o
             return Context.this;
         }
         public VarInfo typed(Type type) {
-            return new VarInfo(copy, type);
+            return new VarInfo(root, type);
         }
         @Override
         public boolean equals(Object o) {
             //System.out.println("Checking if " + this + " == " + o + " " + (this == o));
-            return o != null && o instanceof VarInfo && (this == o || copy == ((VarInfo) o).copy);
+            return o != null && o instanceof VarInfo && (this == o || root == ((VarInfo) o).root);
         }
         @Override
         public int hashCode() {
-            return System.identityHashCode(copy);
+            return System.identityHashCode(root);
         }
     }
     public final HashMap<String, String> imports;

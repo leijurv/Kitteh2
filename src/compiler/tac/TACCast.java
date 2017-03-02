@@ -19,21 +19,8 @@ import java.util.List;
  * @author leijurv
  */
 public class TACCast extends TACStatement {
-    public TACCast(String inputName, String dest) {
-        super(inputName, dest);
-    }
-    @Override
-    public List<X86Param> requiredVariables() {
-        return Arrays.asList(params[0]);
-    }
-    @Override
-    public List<X86Param> modifiedVariables() {
-        return Arrays.asList(params[1]);
-    }
-    @Override
-    protected void onContextKnown() {
-        X86Param input = params[0];
-        X86Param dest = params[1];
+    public TACCast(X86Param input, X86Param dest) {
+        super(input, dest);
         TypeNumerical inp = (TypeNumerical) input.getType();
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (inp.equals(out)) {
@@ -46,7 +33,15 @@ public class TACCast extends TACStatement {
         }
     }
     @Override
-    public String toString0() {
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
+    }
+    @Override
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[1]);
+    }
+    @Override
+    public String toString() {
         return params[1] + " = (" + params[1].getType() + ") " + params[0];
     }
     @Override

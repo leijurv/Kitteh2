@@ -19,18 +19,15 @@ import java.util.List;
  */
 public class TACConstStr extends TACStatement {
     private final String value;
-    public TACConstStr(String variable, String value) {
+    public TACConstStr(X86Param variable, String value) {
         super(variable);
         this.value = value;
-    }
-    @Override
-    protected void onContextKnown() {
         if (!(params[0].getType() instanceof TypePointer)) {
             throw new RuntimeException(params[0] + " " + params[0].getType());
         }
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return params[0] + " = CONST STR \"" + value + "\"";
     }
     @Override

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.Context;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
@@ -48,13 +49,14 @@ public class TACFunctionCall extends TACStatement {
         X86Register.D
     //yes you can only have 3 returns, sue me
     }));
-    private final String[] resultName;
     private final FunctionHeader header;
-    private X86Param[] result;
-    public TACFunctionCall(FunctionHeader header, List<String> paramNames, String... result) {
-        super(paramNames.toArray(new String[paramNames.size()]));
-        this.resultName = result;
+    private final X86Param[] result;
+    private final Context context;
+    public TACFunctionCall(Context context, FunctionHeader header, List<X86Param> paramNames, X86Param... result) {
+        super(paramNames.toArray(new X86Param[paramNames.size()]));
+        this.result = result;
         this.header = header;
+        this.context = context;
     }
     @Override
     public List<X86Param> requiredVariables() {
@@ -62,17 +64,16 @@ public class TACFunctionCall extends TACStatement {
     }
     @Override
     public List<X86Param> modifiedVariables() {
-        return resultName == null ? Arrays.asList() : Arrays.asList(result);
+        return result == null ? Arrays.asList() : Arrays.asList(result);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return (result.length == 0 ? "" : Arrays.asList(result) + " = ") + "CALLFUNC " + header.name + "(" + Arrays.asList(params) + ")";
     }
     @Override
     public void replace(X86Param toReplace, X86Param infoWith) {
         for (int i = 0; i < result.length; i++) {
             if (result[i].equals(toReplace)) {
-                resultName[i] = infoWith.toString();
                 result[i] = infoWith;
             }
         }
@@ -82,22 +83,23 @@ public class TACFunctionCall extends TACStatement {
         }
     }
     @Override
+    public String toString(boolean printFull) {
+        for (X86Param res : result) {
+            if (res instanceof Context.VarInfo) {
+                ((Context.VarInfo) res).getContext().printFull = printFull;
+            }
+        }
+        return super.toString(printFull);
+    }
+    @Override
     public void regReplace(X86Param toReplace, X86Register replaceWith) {
         for (int i = 0; i < result.length; i++) {
             if (result[i].equals(toReplace)) {
                 X86TypedRegister xtr = new X86TempRegister(replaceWith, (TypeNumerical) result[i].getType(), toReplace.toString());
                 result[i] = xtr;
-                resultName[i] = xtr.x86();
             }
         }
         super.regReplace(toReplace, replaceWith);
-    }
-    @Override
-    public void onContextKnown() {
-        result = new X86Param[resultName.length];
-        for (int i = 0; i < resultName.length; i++) {
-            result[i] = context.getRequired(resultName[i]);
-        }
     }
     public String calling() {
         return header.name;

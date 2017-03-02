@@ -53,11 +53,13 @@ public class IREmitter {//extends ArrayList XDDD
     public void clearContext() {
         this.currentContext = null;
     }
+    public Context getContext() {
+        return currentContext;
+    }
     public void emit(TACStatement ts) {
         if (currentContext == null) {
             throw new IllegalStateException("The FitnessGram pacer test is a multistage aerobic capacity test");
         }
-        ts.setContext(currentContext);
         result.add(ts);
     }
     public int lineNumberOfNextStatement() {

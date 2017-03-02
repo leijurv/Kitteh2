@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TACJumpBoolVar;
@@ -18,12 +19,14 @@ import compiler.type.Type;
 public class ExpressionVariable extends ExpressionConditionalJumpable {
     final String name;
     private final Type type;
+    final Context context;
     public ExpressionVariable(String name, Context context) {
         this.name = name;
-        this.type = context.get(name) == null ? null : context.get(name).getType();
-        if (type == null) {
+        this.context = context;
+        if (context.get(name) == null) {
             throw new IllegalStateException("variable not found " + name + " " + context);
         }
+        this.type = context.get(name).getType();
     }
     @Override
     public Type calcType() {
@@ -37,8 +40,8 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
         return name;
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        emit.emit(new TACConst(resultLocation, name));
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        emit.emit(new TACConst(resultLocation, context.get(name)));
     }
     @Override
     public int calculateTACLength() {
@@ -51,7 +54,7 @@ public class ExpressionVariable extends ExpressionConditionalJumpable {
     }
     @Override
     public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        emit.emit(new TACJumpBoolVar(name, jumpTo, invert));
+        emit.emit(new TACJumpBoolVar(context.get(name), jumpTo, invert));
     }
     @Override
     public int condLength() {

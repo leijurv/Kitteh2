@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TACCast;
 import compiler.tac.TempVarUsage;
@@ -28,8 +29,8 @@ public class ExpressionCast extends Expression {
         return castTo;
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        String tmp = tempVars.getTempVar(input.getType());
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        VarInfo tmp = tempVars.getTempVar(input.getType());
         input.generateTAC(emit, tempVars, tmp);
         emit.emit(new TACCast(tmp, resultLocation));
     }

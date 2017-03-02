@@ -27,12 +27,9 @@ import java.util.List;
  */
 public class TACPointerDeref extends TACStatement {
     int offset;
-    public TACPointerDeref(String deref, String dest, int offset) {
+    public TACPointerDeref(X86Param deref, X86Param dest, int offset) {
         super(deref, dest);
         this.offset = offset;
-    }
-    @Override
-    protected void onContextKnown() {
         if (!((TypePointer) params[0].getType()).pointingTo().equals(params[1].getType())) {
             throw new RuntimeException();
         }
@@ -46,7 +43,7 @@ public class TACPointerDeref extends TACStatement {
         return Arrays.asList(params[1]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         //return "Dereference " + source + " into " + dest;
         return params[1] + " = *" + params[0] + (offset == 0 ? "" : "+" + offset);
     }

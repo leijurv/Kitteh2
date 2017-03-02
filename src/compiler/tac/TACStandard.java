@@ -32,15 +32,21 @@ import java.util.List;
  */
 public class TACStandard extends TACStatement {
     public final Operator op;
-    public TACStandard(String resultName, String firstName, String secondName, Operator op) {
-        super(new String[]{firstName, secondName, resultName});
-        try {
-            Integer.parseInt(firstName);
-            Integer.parseInt(secondName);
+    public TACStandard(X86Param resultName, X86Param firstName, X86Param secondName, Operator op) {
+        super(firstName, secondName, resultName);
+        if (firstName instanceof X86Const && secondName instanceof X86Const) {
             throw new IllegalChannelGroupException();
-        } catch (NumberFormatException e) {
         }
         this.op = op;
+        if (!params[2].getType().equals(op.onApplication(params[0].getType(), params[1].getType()))) {
+            throw new IllegalThreadStateException();
+        }
+        if (!params[0].getType().equals(params[1].getType())) {
+            if (params[0].getType() instanceof TypePointer && (op == PLUS || op == MINUS)) {
+                return;
+            }
+            throw new IllegalStateException(this + "");
+        }
     }
     @Override
     public List<X86Param> requiredVariables() {
@@ -51,20 +57,8 @@ public class TACStandard extends TACStatement {
         return Arrays.asList(params[2]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return params[2] + " = " + params[0] + " " + op + " " + params[1];
-    }
-    @Override
-    public void onContextKnown() {
-        if (!params[2].getType().equals(op.onApplication(params[0].getType(), params[1].getType()))) {
-            throw new IllegalThreadStateException();
-        }
-        if (!params[0].getType().equals(params[1].getType())) {
-            if (params[0].getType() instanceof TypePointer && (op == PLUS || op == MINUS)) {
-                return;
-            }
-            throw new IllegalStateException(this + "");
-        }
     }
     @Override
     public boolean usesDRegister() {//I'm sorry. I'm really really sorry.

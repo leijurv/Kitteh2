@@ -16,12 +16,9 @@ import java.util.List;
  */
 public class TACJumpBoolVar extends TACJump {
     public final boolean invert;
-    public TACJumpBoolVar(String varName, int jumpTo, boolean invert) {
+    public TACJumpBoolVar(X86Param varName, int jumpTo, boolean invert) {
         super(jumpTo, varName);
         this.invert = invert;
-    }
-    @Override
-    protected void onContextKnown() {
         if (!(params[0].getType() instanceof TypeBoolean)) {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }
@@ -31,7 +28,7 @@ public class TACJumpBoolVar extends TACJump {
         return Arrays.asList(params[0]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return "jump to " + jumpTo + " if " + (invert ? "not " : "") + params[0];
     }
     @Override

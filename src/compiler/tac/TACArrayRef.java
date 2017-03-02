@@ -23,14 +23,11 @@ import java.util.List;
  * @author leijurv
  */
 public class TACArrayRef extends TACStatement {
-    public TACArrayRef(String array, String index, String source) {
+    public TACArrayRef(X86Param array, X86Param index, X86Param source) {
         super(array, index, source);
     }
     @Override
-    protected void onContextKnown() {
-    }
-    @Override
-    public String toString0() {
+    public String toString() {
         return params[0] + "[" + params[1] + "] = " + params[2];
     }
     @Override

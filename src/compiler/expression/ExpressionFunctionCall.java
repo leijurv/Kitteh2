@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
@@ -14,6 +15,7 @@ import compiler.type.Type;
 import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.x86.X86Param;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,16 +74,16 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     public String toString() {
         return calling.name + args;
     }
-    public void multipleReturns(IREmitter emit, TempVarUsage tempVars, String... resultLocation) {
-        List<String> argNames = args.stream().map(exp -> {
-            String tempName = tempVars.getTempVar(exp.getType());
+    public void multipleReturns(IREmitter emit, TempVarUsage tempVars, X86Param... resultLocation) {
+        List<X86Param> argNames = args.stream().map(exp -> {
+            VarInfo tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toList());
-        emit.emit(new TACFunctionCall(calling, argNames, resultLocation));
+        emit.emit(new TACFunctionCall(emit.getContext(), calling, argNames, resultLocation));
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
         if (resultLocation == null) {
             multipleReturns(emit, tempVars);
         } else {
@@ -119,7 +121,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     }
     @Override
     public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
-        String tmp = tempVars.getTempVar(new TypeBoolean());
+        VarInfo tmp = tempVars.getTempVar(new TypeBoolean());
         generateTAC(emit, tempVars, tmp);
         emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
     }

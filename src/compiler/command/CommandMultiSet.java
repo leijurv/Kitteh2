@@ -8,6 +8,7 @@ import compiler.Context;
 import compiler.expression.ExpressionFunctionCall;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
+import compiler.x86.X86Param;
 
 /**
  *
@@ -23,7 +24,11 @@ public class CommandMultiSet extends Command {
     }
     @Override
     protected void generateTAC0(IREmitter emit) {
-        settingTo.multipleReturns(emit, new TempVarUsage(context), varNames);
+        X86Param[] whew = new X86Param[varNames.length];
+        for (int i = 0; i < whew.length; i++) {
+            whew[i] = context.get(varNames[i]);
+        }
+        settingTo.multipleReturns(emit, new TempVarUsage(context), whew);
     }
     @Override
     protected int calculateTACLength() {

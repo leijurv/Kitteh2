@@ -23,11 +23,16 @@ import javax.management.openmbean.InvalidOpenTypeException;
  * @author leijurv
  */
 public class TACConst extends TACStatement {
-    public TACConst(String var, String val) {
-        super(val, var);
-    }
-    public TACConst(X86Param var, X86Param val) {
+    public TACConst(X86Param var, X86Param val) {//TODO this order switch is ACTUALLY ridiculous
         super(new X86Param[]{val, var});
+        if (params[0] != null && params[1] != null && !params[0].getType().equals(params[1].getType())) {
+            if (params[0].getType().getSizeBytes() == params[1].getType().getSizeBytes() && params[1] instanceof X86TypedRegister) {
+                //when returning a bool, it has to use the %al register which is technically a TypeInt8 not a TypeBoolean
+                //so dont throw an error
+                return;
+            }
+            throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
+        }
     }
     @Override
     public List<X86Param> requiredVariables() {
@@ -38,51 +43,8 @@ public class TACConst extends TACStatement {
         return Arrays.asList(params[1]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return params[1] + " = " + params[0];
-    }
-    public static X86TypedRegister sin(TypeNumerical type, String name) {
-        for (X86Register r : X86Register.values()) {
-            if (r.getRegister1(type, true).equals(name)) {//forgive me father, for i have sinned
-                return r.getRegister(type);
-            }
-        }
-        throw new RuntimeException();
-    }
-    @Override
-    public void setVars() {
-        if (paramNames[1].startsWith(X86Register.REGISTER_PREFIX)) {
-            TypeNumerical type = X86Register.typeFromRegister(paramNames[1]);
-            params[1] = sin(type, paramNames[1]);
-            if (!params[1].x86().equals(paramNames[1])) {//verify
-                throw new IllegalStateException(params[1].x86() + " " + paramNames[1]);
-            }
-        } else {
-            params[1] = get(paramNames[1]);
-        }
-        TypeNumerical des = params[1].getType() instanceof TypeStruct ? null : (TypeNumerical) params[1].getType();
-        try {//im tired ok? i know this is mal
-            Double.parseDouble(paramNames[0]);
-            params[0] = new X86Const(paramNames[0], des);
-        } catch (NumberFormatException ex) {
-            if (!paramNames[0].startsWith("\"")) {
-                params[0] = get(paramNames[0]);
-                if (params[0] == null) {
-                    throw new IllegalStateException("I honestly can't think of a way that this could happen. but idk it might");
-                }
-            }
-        }
-    }
-    @Override
-    public void onContextKnown() {
-        if (params[0] != null && params[1] != null && !params[0].getType().equals(params[1].getType())) {
-            if (params[0].getType().getSizeBytes() == params[1].getType().getSizeBytes() && params[1] instanceof X86TypedRegister) {
-                //when returning a bool, it has to use the %al register which is technically a TypeInt8 not a TypeBoolean
-                //so dont throw an error
-                return;
-            }
-            throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
-        }
     }
     @Override
     public void printx86(X86Emitter emit) {

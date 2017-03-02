@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -26,7 +27,7 @@ public abstract class Expression {
     }
     private Type cachedType = null;
     protected abstract Type calcType();//the return type
-    public abstract void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation);//TODO enforce length
+    public abstract void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation);//TODO enforce length
     protected abstract int calculateTACLength();
     private Integer taclen = null;
     public int getTACLength() {

@@ -15,18 +15,12 @@ import java.util.List;
  */
 public class TACJump extends TACStatement {
     protected int jumpTo;
-    public TACJump(int jumpTo, String... paramNames) {
+    public TACJump(int jumpTo, X86Param... paramNames) {
         super(paramNames);
         this.jumpTo = jumpTo;
     }
     @Override
-    protected void onContextKnown() {
-        if (getClass() != TACJump.class) {
-            throw new IllegalStateException("SWIPER NO SWIPING");
-        }//^yes^
-    }
-    @Override
-    public String toString0() {
+    public String toString() {
         return "jmp " + jumpTo;
     }
     @Override

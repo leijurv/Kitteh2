@@ -5,6 +5,7 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
@@ -35,7 +36,7 @@ public class CommandSetVar extends Command {
             emit.emit(new TACJump(ifFalse));
             emit.emit(new TACConst(var, "1"));
         } else {*/
-        val.generateTAC(emit, new TempVarUsage(context), var);//this one, at least, is easy
+        val.generateTAC(emit, new TempVarUsage(context), (VarInfo) context.get(var));//this one, at least, is easy
         //}
     }
     public String varSet() {

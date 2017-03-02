@@ -4,12 +4,14 @@
  * and open the template in the editor.
  */
 package compiler.expression;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
 import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeBoolean;
+import compiler.x86.X86Const;
 
 /**
  *
@@ -44,8 +46,8 @@ public class ExpressionConstBool extends ExpressionConditionalJumpable implement
         return new TypeBoolean();
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        emit.emit(new TACConst(resultLocation, bool ? "1" : "0"));
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        emit.emit(new TACConst(resultLocation, new X86Const(bool ? "1" : "0", new TypeBoolean())));
     }
     @Override
     protected int calculateTACLength() {

@@ -122,6 +122,15 @@ public class X86Emitter {
     }
 
     public static class HashSetX86Param extends HashSet<X86Param> {//forgive me
+        //here's why this is necesary
+        //for register allocation and optimization, a varinfo is only .equals to another varinfo if they are the exact same thing
+        //its not sufficient to have the same name, type, stack location, or any combination thereof
+        //e.g. a function might have two variables named "i" in different places, and its possible to allocate them into different registers
+        //that's why they need to be different
+        //however, here, this optimization is the very last thing, and it doesn't matter what stack locations used to refer to what varibles
+        //this just keeps track of what stack locations and registers hold the same data
+        //we really want varinfos that are in the same place on the stack to be equal
+        //so, we just replace varinfos with equivalent x86memories (which are equal)
         @Override
         public boolean contains(Object param) {
             if (param instanceof VarInfo) {

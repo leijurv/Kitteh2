@@ -147,6 +147,10 @@ public class X86Emitter {
             }
             return super.add(param);
         }
+        //apparently just using a normal hashset does not result in different assembly (except in the comments when verbose)
+        //so this is kinda useless
+        //well, whatever. this is what the correct behavior should be
+        //TODO figure out whether this is worth it. could it ever conceivably optimize away two different variables in the same stack location?
     }
     public boolean redundant(X86Param a, X86Param b) {
         return equals.stream().filter(x -> x.contains(a)).anyMatch(x -> x.contains(b));

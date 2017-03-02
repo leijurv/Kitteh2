@@ -37,7 +37,7 @@ public class Context {//TODO split off some of this massive functionality into o
 
     public class VarInfo extends X86Memory {
         private final String name;
-        private volatile ExpressionConst knownValue;
+        private volatile ExpressionConst<?> knownValue;
         private final boolean secret;
         private final VarInfo root;//can. you. hear. me.
         public VarInfo(String name, Type type, int stackLocation) {
@@ -234,7 +234,7 @@ public class Context {//TODO split off some of this massive functionality into o
     private void defineLocal(String name, VarInfo value) {
         values[values.length - 1].put(name, value);
     }
-    public ExpressionConst knownValue(String name) {
+    public ExpressionConst<?> knownValue(String name) {
         X86Param info = get(name);
         //System.out.println("Known for " + name + ": " + info);
         if (info == null || !(info instanceof VarInfo)) {
@@ -266,7 +266,7 @@ public class Context {//TODO split off some of this massive functionality into o
         stackSize -= type.getSizeBytes();
         defineLocal(name, new VarInfo(name, type, stackSize));//Otherwise define it as local
     }
-    public void setKnownValue(String name, ExpressionConst val) {
+    public void setKnownValue(String name, ExpressionConst<?> val) {
         ((VarInfo) get(name)).knownValue = val;
     }
     public void clearKnownValue(String name) {

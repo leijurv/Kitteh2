@@ -190,6 +190,7 @@ public class TACFunctionCall extends TACStatement {
             emit.clearRegisters(SP);//TODO i chose to make the optimization correct even when called functions modify their own arguments
             //should I disallow modifying arguments? or should I allow it, even though it can't let (%rsp) stay as it is between calls
             //TODO calling a function could modify heap locations relative to unmodified registers possibly
+            //so maybe clear -x(%anyRegister) but not the registers themselves
         } else {
             emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
         }

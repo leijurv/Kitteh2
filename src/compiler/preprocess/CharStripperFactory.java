@@ -41,8 +41,8 @@ class CharStripperFactory {
     }
 
     private class StripChars extends LineBasedTransform {
-        HashSet<Character> begin = stripBegin();
-        HashSet<Character> end = stripEnd();
+        private final HashSet<Character> begin = stripBegin();
+        private final HashSet<Character> end = stripEnd();
         @Override
         public Line transform(Line lineObj) {
             String line = lineObj.raw();

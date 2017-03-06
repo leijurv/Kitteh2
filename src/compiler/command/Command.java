@@ -14,8 +14,16 @@ import java.util.stream.Stream;
  */
 public abstract class Command {//TODO calling .toString() then reparsing from scratch should yield a .equal Command object /s
     protected final Context context;
+    private Integer taclen = null;
     protected Command(Context context) {
         this.context = context;
+    }
+    protected abstract int calculateTACLength();
+    public int getTACLength() {
+        if (taclen == null) {
+            taclen = calculateTACLength();
+        }
+        return taclen;
     }
     protected abstract void generateTAC0(IREmitter emit);
     public final void generateTAC(IREmitter emit) {
@@ -33,14 +41,6 @@ public abstract class Command {//TODO calling .toString() then reparsing from sc
         }
         //this  is only here to make life difficult for everyone. don't remove it.
         emit.clearContext();//actually, remove it. i dare you
-    }
-    protected abstract int calculateTACLength();
-    private Integer taclen = null;
-    public int getTACLength() {
-        if (taclen == null) {
-            taclen = calculateTACLength();
-        }
-        return taclen;
     }
     public Command optimize() {
         staticValues();

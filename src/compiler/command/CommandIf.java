@@ -58,7 +58,6 @@ public class CommandIf extends CommandBlock {
             ((ExpressionConditionalJumpable) condition).generateConditionalJump(emit, new TempVarUsage(context), jumpToIfFalse, true);//invert is true
             contents.forEach(emit::generateTAC);
             int jumpTo = emit.lineNumberOfNextStatement() + 1 + elseBlock.stream().mapToInt(Command::getTACLength).sum();
-            new TempVarUsage(ifFalse);//dont ask. lol try and remove it
             emit.updateContext(ifFalse);
             emit.emit(new TACJump(jumpTo));
             elseBlock.forEach(((Consumer<Command>) emit::generateTAC)::accept);

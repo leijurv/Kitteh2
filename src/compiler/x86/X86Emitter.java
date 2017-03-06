@@ -29,6 +29,7 @@ public class X86Emitter {
     private final ArrayList<String> statements = new ArrayList<>();
     private final String prefix;
     private final X86Function func;
+    HashSet<HashSet<X86Param>> equals = new HashSet<>();
     public X86Emitter(String funcLabelPrefix, X86Function func) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
         this.func = func;
@@ -98,7 +99,7 @@ public class X86Emitter {
                 if (eqq.contains(a)) {
                     for (X86Param alternative : eqq) {
                         if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
-                            if (!(alternative.getType().getSizeBytes() == type.getSizeBytes())) {
+                            if (alternative.getType().getSizeBytes() != type.getSizeBytes()) {
                                 continue;//throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
                             }
                             if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
@@ -112,7 +113,6 @@ public class X86Emitter {
         }
         return null;
     }
-    HashSet<HashSet<X86Param>> equals = new HashSet<>();
     private void move(String a, String b, TypeNumerical type) {
         if (compiler.Compiler.verbose()) {
             addComment("raw nonoptimized move");

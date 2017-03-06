@@ -17,9 +17,9 @@ import compiler.type.Type;
  * @author leijurv
  */
 public class ExpressionVariable extends ExpressionConditionalJumpable {
-    final String name;
+    private final String name;
     private final Type type;
-    final Context context;
+    private final Context context;
     public ExpressionVariable(String name, Context context) {
         this.name = name;
         this.context = context;

@@ -15,6 +15,8 @@ import java.util.List;
  * @author leijurv
  */
 public class OptimizationSettings {
+    public static final OptimizationSettings ALL = new OptimizationSettings(true, true);
+    public static final OptimizationSettings NONE = new OptimizationSettings(false, false);
     private final boolean[] enabled = new boolean[TACOptimizer.opt.size()];
     private final boolean staticValues;
     public OptimizationSettings(boolean tac, boolean staticValues) {
@@ -32,8 +34,6 @@ public class OptimizationSettings {
     public boolean run(Class<? extends TACOptimization> o) {
         return enabled[TACOptimizer.opt.indexOf(o)];
     }
-    public static final OptimizationSettings ALL = new OptimizationSettings(true, true);
-    public static final OptimizationSettings NONE = new OptimizationSettings(false, false);
     public Pair<String, List<TACStatement>> coloncolon(CommandDefineFunction com) {//i love using :: syntax...
         return new Pair<>(com.getHeader().name, com.totac(this));
     }

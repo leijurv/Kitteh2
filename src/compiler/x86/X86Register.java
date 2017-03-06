@@ -107,7 +107,8 @@ these registers’ values for its caller.
             case R14:
             case R15:
                 return REGISTER_PREFIX + toString().toLowerCase(Locale.US) + version.x86r_registersuffix();
+            default:
+                throw new IllegalSelectorException();
         }
-        throw new IllegalSelectorException();
     }
 }

@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class X86Format {
-    private X86Format() {
-    }
     public static final boolean MAC = System.getProperty("os.name").toLowerCase(Locale.US).contains("mac");
     private static final String FLOAT_FORMAT
             = "floatformatstring:\n"
@@ -58,5 +56,7 @@ public class X86Format {
                 //most things that would need to be escaped, like other quotes, need to be escaped anyway to be parsed in kitteh. newlines aren't possible at the moment
                 .distinct()
                 .collect(Collectors.joining());
+    }
+    private X86Format() {
     }
 }

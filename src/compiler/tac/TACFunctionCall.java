@@ -169,9 +169,7 @@ public class TACFunctionCall extends TACStatement {
                         stackLocation += 8;
                         continue;
                     }
-                } else if (header.name.equals("free") && params[i].getType() instanceof TypePointer) {
-                    //this is fine
-                } else {
+                } else if (!header.name.equals("free") || !(params[i].getType() instanceof TypePointer)) {//free of any pointer is ok
                     throw new RuntimeException(this + " was " + params[i].getType() + " expected " + type);
                 }
             }

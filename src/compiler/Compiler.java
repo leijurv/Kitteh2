@@ -28,8 +28,6 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class Compiler {
-    private Compiler() {
-    }
     static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
     static boolean METRICS = false;
     static boolean DETERMINISTIC = false;
@@ -119,5 +117,7 @@ public class Compiler {
             System.out.println("Completely done, returning x86 asm string of length " + asm.length());
         }
         return asm;
+    }
+    private Compiler() {
     }
 }

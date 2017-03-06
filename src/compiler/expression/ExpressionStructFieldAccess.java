@@ -101,7 +101,7 @@ public class ExpressionStructFieldAccess extends ExpressionConditionalJumpable i
             return new CommandSetPtr(context, fieldLoc, rvalue);
         } else if (input instanceof ExpressionVariable) {
             //input.field=rvalue
-            X86Param thisVariable = context.get(((ExpressionVariable) input).name);
+            X86Param thisVariable = context.get(((ExpressionVariable) input).getName());
             class CommandSetStructField extends Command {
                 Expression insert;
                 int stackLoc;

@@ -21,15 +21,24 @@ import java.util.logging.Logger;
  * @author leijurv
  */
 public class Obfuscator {
+    static final private long NANO_TIME;
+    final private static MessageDigest SHA;
+    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    private static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
     private Obfuscator() {
     }
-    static final private long NANO_TIME;
     static {
         NANO_TIME = System.nanoTime();
         //this is only set once the Obfuscator class is first called, which is a nondeterministic amount of time after the compiler is first started
-    }
-    final private static MessageDigest SHA;
-    static {
         MessageDigest tmp;
         try {
             tmp = MessageDigest.getInstance("SHA1");
@@ -53,16 +62,5 @@ public class Obfuscator {
             Logger.getLogger(Obfuscator.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("doesn't support utf-8?????", ex);
         }
-    }
-    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    private static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
     }
 }

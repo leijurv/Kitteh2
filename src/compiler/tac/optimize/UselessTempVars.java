@@ -90,11 +90,11 @@ public class UselessTempVars extends TACOptimization {
                 /*if (currSource instanceof X86Const) {
                     currSource = new X86Const(((X86Const) currSource).getValue(), (TypeNumerical) curr.params[1].getType());
                 }*/
-                if (currSource instanceof X86Const) {
-                    //continue;
-                } else {
+                if (!(currSource instanceof X86Const)) {
                     throw new IllegalStateException(currSource + "");
-                }
+                } //else {
+                //continue;
+                //}
             }
             int st = ind + 1;
             boolean tempVar = isTempVariable(valSet.getName());

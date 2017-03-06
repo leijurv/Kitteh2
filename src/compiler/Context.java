@@ -8,7 +8,6 @@ import compiler.command.CommandDefineFunction;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
-import compiler.tac.TempVarUsage;
 import compiler.type.Type;
 import compiler.type.TypeStruct;
 import compiler.util.MutInt;
@@ -24,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Sorta a symbol table that also deals with scoping and temp variables that
@@ -34,6 +32,15 @@ import java.util.stream.Stream;
  */
 public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
     public boolean printFull = true;
+    public final HashMap<String, String> imports;
+    public final String packageName;
+    private final HashMap<String, X86Param>[] values;
+    private final HashMap<String, TypeStruct> structs;
+    private int stackSize;
+    private Integer additionalSizeTemp = null;
+    private CommandDefineFunction currentFunction = null;
+    public FunctionsContext gc;
+    public final MutInt varIndex;
 
     public class VarInfo extends X86Memory {
         private final String name;
@@ -97,16 +104,6 @@ public class Context {//TODO split off some of this massive functionality into o
             return System.identityHashCode(root);
         }
     }
-    public final HashMap<String, String> imports;
-    public final String packageName;
-    private final HashMap<String, X86Param>[] values;
-    private final HashMap<String, TypeStruct> structs;
-    private int stackSize;
-    private Integer additionalSizeTemp = null;
-    private TempVarUsage currentTempVarUsage = null;
-    private CommandDefineFunction currentFunction = null;
-    public FunctionsContext gc;
-    public final MutInt varIndex;
     public Context(String packageName) {
         this.values = createThatGenericArray(new HashMap<>());
         this.stackSize = 0;
@@ -173,12 +170,6 @@ public class Context {//TODO split off some of this massive functionality into o
     public FunctionHeader getCurrentFunction() {
         return currentFunction.getHeader();
     }
-    public TempVarUsage getTempVarUsage() {
-        if (currentTempVarUsage == null) {
-            throw new IllegalStateException("Unable to add int and boolean on line 7");//lol
-        }
-        return currentTempVarUsage;
-    }
     public boolean isTopLevel() {
         if (values.length == 1) {
             if (getTotalStackSize() != 0) {
@@ -193,14 +184,6 @@ public class Context {//TODO split off some of this massive functionality into o
             throw new SecurityException();
         }
         return false;
-    }
-    public void setTempVarUsage(TempVarUsage curr) {
-        if (curr == null) {
-            Stream s = Stream.of(new String[]{});
-            s.count();
-            s.count();//this causes an exception
-        }
-        this.currentTempVarUsage = curr;
     }
     public int getTotalStackSize() {
         return stackSize + (additionalSizeTemp == null ? 0 : additionalSizeTemp);
@@ -286,12 +269,6 @@ public class Context {//TODO split off some of this massive functionality into o
             X86Param possibleValue = values[i].get(name);
             if (possibleValue != null) {
                 return possibleValue;
-            }
-        }
-        if (currentTempVarUsage != null) {
-            VarInfo pos = currentTempVarUsage.getInfo(name);
-            if (pos != null) {
-                return pos;
             }
         }
         //System.out.println("WARNING: Unable to find requested variable named '" + name + "'. Returning null. Context is " + toString());

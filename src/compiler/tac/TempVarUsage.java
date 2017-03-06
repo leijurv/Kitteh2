@@ -20,12 +20,13 @@ import java.util.HashMap;
  * @author leijurv
  */
 public class TempVarUsage {
+    public static final String TEMP_VARIABLE_PREFIX = "tmp";
+    public static final String TEMP_STRUCT_FIELD_INFIX = "sketchymanual";
     private int sizeSoFar;
     final private Context ctx;
     private final HashMap<String, VarInfo> types = new HashMap<>();//hashmap instead of arraylist to make lookups easier
     public TempVarUsage(Context context) {
         this.ctx = context;
-        context.setTempVarUsage(this);
         this.sizeSoFar = context.getNonTempStackSize();
     }
     public VarInfo getInfo(String tempVar) {
@@ -48,6 +49,4 @@ public class TempVarUsage {
         types.put(name, vi);
         return vi;
     }
-    public static final String TEMP_VARIABLE_PREFIX = "tmp";
-    public static final String TEMP_STRUCT_FIELD_INFIX = "sketchymanual";
 }

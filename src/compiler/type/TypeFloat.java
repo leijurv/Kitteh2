@@ -23,7 +23,7 @@ public class TypeFloat extends TypeNumerical {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     @Override

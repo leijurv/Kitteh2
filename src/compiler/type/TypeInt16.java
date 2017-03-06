@@ -27,7 +27,7 @@ public class TypeInt16 extends TypeNumerical {
         return 'x';
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {
         return "w";
     }
     @Override

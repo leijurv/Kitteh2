@@ -32,7 +32,7 @@ public class TypeInt32 extends TypeNumerical {
         return 'x';
     }
     @Override
-    public String x86r_registersuffix() {//D
+    public String x86Rregistersuffix() {//D
         return "d";
     }
     //lexd

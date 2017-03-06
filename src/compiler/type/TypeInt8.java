@@ -27,7 +27,7 @@ public class TypeInt8 extends TypeNumerical {
         return 1;
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {
         return "b";
     }
     @Override

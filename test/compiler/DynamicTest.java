@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -36,7 +37,9 @@ public class DynamicTest {
             System.out.println();
             System.out.println("Testing package " + filename);
             CompilerTest.verifyPackageCompilation(filename);
+            return;
         }
+        assertEquals(filename.getName(), true, filename.getName().endsWith(".t"));
     }
     @Parameters
     public static Collection filenames() {

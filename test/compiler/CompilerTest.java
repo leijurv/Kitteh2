@@ -31,6 +31,7 @@ public class CompilerTest {
     }
     @Test
     public void testSimpleCompile() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         verifyCompilation("func main(){\nprint(5)\nprint(6)\n}", true, "5\n6\n");
         verifyCompilation("func main(){\nprint(5)\n}", true, "5\n");
         verifyCompilation("func main(){\na:=420\nprint(a)\n}", true, "420\n");
@@ -39,6 +40,7 @@ public class CompilerTest {
     }
     @Test
     public void testSimpleNonCompile() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         shouldntCompile("func main(){\nprint(5)\nprint6)\n}");
         shouldntCompile("");
         shouldntCompile("func main({}");
@@ -46,6 +48,7 @@ public class CompilerTest {
     }
     @Test
     public void testLinkedList() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         String[] structDefinitionVariants = {"struct linked{\n"//ensure that the position of fields in the struct doesn't affect execution
             + "	long this\n"
             + "	linked* next\n"
@@ -172,6 +175,7 @@ public class CompilerTest {
     }
     @Test
     public void testOverwriting() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         String header = "func main(){\nprint(test(1,2,3,4))\n}\nfunc test(int a,int b,int c,int j)int{\n";
         String footer = "	return a + (b + c * j + a) + j * (c * j)\n"
                 + "}";

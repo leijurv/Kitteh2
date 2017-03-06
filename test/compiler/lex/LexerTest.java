@@ -27,6 +27,7 @@ public class LexerTest {
         testLexing("420", NUM.create("420"));
         testLexing("a420", VARIABLE.create("a420"));
         testLexing("for 4", Keyword.FOR, NUM.create("4"));
+        assertEquals(Arrays.asList(SETEQUAL.create(true), SETEQUAL.create(false)), Lexer.lex(":=="));
     }
     private static void testLexing(String input, Token... expected) {
         ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(expected));

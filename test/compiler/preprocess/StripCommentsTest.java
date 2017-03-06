@@ -5,11 +5,7 @@
  */
 package compiler.preprocess;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -17,26 +13,13 @@ import org.junit.Test;
  * @author leijurv
  */
 public class StripCommentsTest {
-    public StripCommentsTest() {
-    }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
-    }
     /**
      * Test of transform method, of class StripComments.
      */
     @Test
     public void testTransform() {
         System.out.println("transform");
+        assertEquals("c", new StripComments(null).transform("c").get(0).raw());
         test("cat", "cat");
         test("cat\n", "cat\n");
         test("cat\nwew", "cat\nwew");

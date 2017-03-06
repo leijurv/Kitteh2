@@ -8,10 +8,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -27,18 +23,6 @@ public class DynamicTest {
     public DynamicTest(File s) {
         filename = s;
     }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
-    }
     @Test
     public void testCompilation() throws Exception {
         if (filename.getName().endsWith(".k")) {
@@ -48,13 +32,10 @@ public class DynamicTest {
             CompilerTest.verifyFileCompilationTrue(s.substring(0, s.length() - 2));
             return;
         }
-        if (filename.isDirectory()) {
-            if (new File(filename, "output").exists()) {
-                System.out.println();
-                System.out.println("Testing package " + filename);
-                CompilerTest.verifyPackageCompilation(filename);
-            }
-            return;
+        if (filename.isDirectory() && new File(filename, "output").exists()) {
+            System.out.println();
+            System.out.println("Testing package " + filename);
+            CompilerTest.verifyPackageCompilation(filename);
         }
     }
     @Parameters

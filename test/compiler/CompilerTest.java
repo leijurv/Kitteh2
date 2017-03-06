@@ -15,14 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -30,22 +26,8 @@ import org.junit.Test;
  * @author leijurv
  */
 public class CompilerTest {
-    public CompilerTest() {
-    }
     public static String read(String testname) throws IOException {
         return new String(Files.readAllBytes(Paths.get("test/tests/" + testname)));
-    }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
     }
     @Test
     public void testSimpleCompile() throws Exception {

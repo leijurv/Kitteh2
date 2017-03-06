@@ -34,19 +34,19 @@ import java.util.List;
  */
 public class TACFunctionCall extends TACStatement {
     public static final List<X86Register> SYSCALL_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
-        X86Register.A,
-        X86Register.DI,
-        X86Register.SI,
-        X86Register.D,
-        X86Register.R10,
-        X86Register.R8,
-        X86Register.R9
+        A,
+        DI,
+        SI,
+        D,
+        R10,
+        R8,
+        R9
     }));
     public static final List<X86Register> RETURN_REGISTERS = Collections.unmodifiableList(Arrays.asList(new X86Register[]{
-        X86Register.A,
+        A,
         //NOT %rbx because apparently that's like not allowed and stuff (system v abi)
-        X86Register.C,
-        X86Register.D
+        C,
+        D
     //yes you can only have 3 returns, sue me
     }));
     private final FunctionHeader header;
@@ -121,12 +121,12 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(params[i], SYSCALL_REGISTERS.get(i));
             }
             emit.addStatement("syscall");
-            emit.clearRegisters(X86Register.C, X86Register.R11);
+            emit.clearRegisters(C, R11);
             printRet(emit);
             return;
         }
         if (header.name.equals("malloc")) {
-            X86Param t = X86Register.DI.getRegister(new TypeInt64());
+            X86Param t = DI.getRegister(new TypeInt64());
             if (params[0] instanceof X86Const) {
                 emit.move(new X86Const(((X86Const) params[0]).getValue(), new TypeInt64()), t);
             } else {
@@ -135,7 +135,7 @@ public class TACFunctionCall extends TACStatement {
             stack = false;
         }
         if (header.name.equals("free")) {
-            emit.move(params[0], X86Register.DI);
+            emit.move(params[0], DI);
             stack = false;
         }
         if (header.name.endsWith("__print")) {
@@ -146,7 +146,7 @@ public class TACFunctionCall extends TACStatement {
             TypeNumerical type = (TypeNumerical) params[0].getType();
             if (type instanceof TypeFloat) {
                 emit.addStatement("leaq floatformatstring(%rip), %rdi");//lol rip
-                emit.move(new X86Const("1", new TypeInt8()), X86Register.A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
+                emit.move(new X86Const("1", new TypeInt8()), A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
                 emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
@@ -163,8 +163,8 @@ public class TACFunctionCall extends TACStatement {
                         if (params[i] instanceof X86Const) {
                             emit.move(new X86Const(((X86Const) params[i]).getValue(), new TypeInt64()), dest);
                         } else {
-                            emit.cast(params[i], X86Register.A.getRegister(new TypeInt64()));
-                            emit.move(X86Register.A, dest);
+                            emit.cast(params[i], A.getRegister(new TypeInt64()));
+                            emit.move(A, dest);
                         }
                         stackLocation += 8;
                         continue;

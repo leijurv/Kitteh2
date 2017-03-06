@@ -264,7 +264,7 @@ public class TACStandard extends TACStatement {
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
                 emit.markRegisterDirty(X86Register.A);
                 emit.markRegisterDirty(X86Register.D);
-                emit.move(op == Operator.DIVIDE ? X86Register.A : X86Register.D, result);
+                emit.move(op == DIVIDE ? X86Register.A : X86Register.D, result);
                 return;
             case MULTIPLY:
                 if (!(type instanceof TypeFloat)) {

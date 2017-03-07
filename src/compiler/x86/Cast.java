@@ -11,8 +11,8 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class Cast extends X86Statement {
-    X86Param source;
-    X86Param dest;
+    private final X86Param source;
+    private final X86Param dest;
     public Cast(X86Param source, X86Param dest) {
         this.source = source;
         this.dest = dest;
@@ -20,13 +20,13 @@ public class Cast extends X86Statement {
     @Override
     public String toString() {
         String cast = "movs" + ((TypeNumerical) source.getType()).x86typesuffix() + "" + ((TypeNumerical) dest.getType()).x86typesuffix() + " " + source.x86() + ", " + dest.x86();
-        if (cast.equals("movsbw %al, %ax")) {
+        if ("movsbw %al, %ax".equals(cast)) {
             cast = "cbtw";
         }
-        if (cast.equals("movswl %ax, %eax")) {
+        if ("movswl %ax, %eax".equals(cast)) {
             cast = "cwtl";
         }
-        if (cast.equals("movslq %eax, %rax")) {//lol
+        if ("movslq %eax, %rax".equals(cast)) {//lol
             cast = "cltq";//lol
         }
         return cast;

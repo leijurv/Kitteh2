@@ -10,7 +10,7 @@ package compiler.x86;
  * @author leijurv
  */
 public class Comment extends X86Statement {
-    String data;
+    private final String data;
     public Comment(String data) {
         this.data = "#" + data;
     }

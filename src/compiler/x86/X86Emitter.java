@@ -100,11 +100,11 @@ public class X86Emitter {
             }
             if (stmt instanceof Move) {
                 Move m = (Move) stmt;
-                if (m.dest.equals(source) && al.contains(m.source)) {
+                if (m.getDest().equals(source) && al.contains(m.getSource())) {
                     if (compiler.Compiler.verbose()) {
-                        addComment("Using register " + m.source.x86() + " instead of " + source.x86() + " because of previous move");
+                        addComment("Using register " + m.getSource().x86() + " instead of " + source.x86() + " because of previous move");
                     }
-                    return (X86TypedRegister) m.source;
+                    return (X86TypedRegister) m.getSource();
                 }
             }
         }
@@ -418,7 +418,7 @@ public class X86Emitter {
         for (int i = 0; i < statements.size(); i++) {
             if (statements.get(i) instanceof Move) {
                 Move m = (Move) statements.get(i);
-                if (m.dest instanceof X86TypedRegister && ((X86TypedRegister) m.dest).getRegister() == X86Register.D && doTheThing(i)) {
+                if (m.getDest() instanceof X86TypedRegister && ((X86TypedRegister) m.getDest()).getRegister() == X86Register.D && doTheThing(i)) {
                     statements.remove(i);
                     if (compiler.Compiler.verbose()) {
                         statements.add(i, new Comment("REMOVED BECAUSE REDUNDANT " + statements.get(i)));

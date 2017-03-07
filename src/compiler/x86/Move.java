@@ -11,8 +11,8 @@ import compiler.type.TypeNumerical;
  * @author leijurv
  */
 public class Move extends X86Statement {
-    X86Param source;
-    X86Param dest;
+    private final X86Param source;
+    private final X86Param dest;
     public Move(X86Param source, X86Param dest) {
         this.source = source;
         this.dest = dest;
@@ -27,5 +27,11 @@ public class Move extends X86Statement {
             return "xor" + a + " " + dest.x86() + ", " + dest.x86();
         }
         return "mov" + a + " " + source.x86() + ", " + dest.x86();
+    }
+    public X86Param getSource() {
+        return source;
+    }
+    public X86Param getDest() {
+        return dest;
     }
 }

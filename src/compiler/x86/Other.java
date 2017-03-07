@@ -10,7 +10,7 @@ package compiler.x86;
  * @author leijurv
  */
 public class Other extends X86Statement {
-    String data;
+    private final String data;
     public Other(String data) {
         this.data = data;
     }

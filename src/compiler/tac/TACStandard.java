@@ -209,6 +209,13 @@ public class TACStandard extends TACStatement {
         if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister || second instanceof VarInfo) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
             if (second.getType().getSizeBytes() == cc.getType().getSizeBytes()) {
                 c = second.x86();
+                X86Param al = emit.alternative(second, (TypeNumerical) second.getType(), false);
+                if (al != null && !al.x86().equals(result.x86())) {
+                    c = al.x86();
+                    if (compiler.Compiler.verbose()) {
+                        emit.addComment("Replaced " + second.x86() + " with " + al.x86());
+                    }
+                }
                 shaft = c;
             } else {
                 if (second instanceof X86Const) {

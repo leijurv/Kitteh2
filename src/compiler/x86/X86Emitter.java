@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class X86Emitter {
     public static final String STATIC_LABEL_PREFIX = "L";
-    private final ArrayList<String> statements = new ArrayList<>();
+    private final ArrayList<X86Statement> statements = new ArrayList<>();
     private final String prefix;
     private final X86Function func;
     HashSet<HashSet<X86Param>> equals = new HashSet<>();
@@ -60,18 +61,58 @@ public class X86Emitter {
         if (a.startsWith("%") || a.startsWith("$")) {
             throw new IllegalStateException(a);
         }
-        move(a, b.x86(), (TypeNumerical) b.getType());
-        markDirty(b);
+        move(new X86Param() {
+            @Override
+            public String x86() {
+                return a;
+            }
+            @Override
+            public Type getType() {
+                return b.getType();
+            }
+        }, b);
     }
     public void moveStr(X86Param a, String b) {
         if (b.startsWith("%") || b.startsWith("$")) {
             throw new IllegalStateException(b);
         }
-        move(a.x86(), b, (TypeNumerical) a.getType());
+        move(a, new X86Param() {
+            @Override
+            public String x86() {
+                return b;
+            }
+            @Override
+            public Type getType() {
+                return a.getType();
+            }
+        });
+    }
+    public X86TypedRegister regUp(X86TypedRegister source) {
+        List<X86Param> al = rawAlt(source, (TypeNumerical) source.getType(), true);
+        if (al.isEmpty()) {
+            return (X86TypedRegister) source;
+        }
+        //System.out.println(source + " could be " + al);
+        for (int i = statements.size() - 1; i >= 0; i--) {
+            X86Statement stmt = statements.get(i);
+            if (stmt instanceof Comment) {
+                continue;
+            }
+            if (stmt instanceof Move) {
+                Move m = (Move) stmt;
+                if (m.dest.equals(source) && al.contains(m.source)) {
+                    if (compiler.Compiler.verbose()) {
+                        addComment("Using register " + m.source.x86() + " instead of " + source.x86() + " because of previous move");
+                    }
+                    return (X86TypedRegister) m.source;
+                }
+            }
+        }
+        return (X86TypedRegister) source;
     }
     public X86TypedRegister putInRegister(X86Param source, TypeNumerical type, X86Register desired) {
         if (source instanceof X86TypedRegister) {
-            return (X86TypedRegister) source;
+            return regUp((X86TypedRegister) source);
         }
         X86TypedRegister loc = desired.getRegister(type);
         if (source instanceof X86Const) {
@@ -95,30 +136,42 @@ public class X86Emitter {
             throw new RuntimeException(a + " " + a.getType() + " " + type);
         }
         if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
-            for (HashSet<X86Param> eqq : equals) {
-                if (eqq.contains(a)) {
-                    for (X86Param alternative : eqq) {
-                        if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
-                            if (alternative.getType().getSizeBytes() != type.getSizeBytes()) {
-                                continue;//throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
-                            }
-                            if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
-                                addComment("whoa type is different " + type + " " + eqq);
-                            }
-                            return alternative;
-                        }
+            List<X86Param> al = rawAlt(a, type, onlyReg);
+            if (!al.isEmpty()) {
+                for (X86Param p : al) {
+                    if (p instanceof X86TypedRegister) {
+                        return regUp((X86TypedRegister) p);
                     }
                 }
+                return al.get(0);
+            }
+        }
+        if (a instanceof X86TypedRegister) {
+            X86TypedRegister c = regUp((X86TypedRegister) a);
+            if (!c.x86().equals(a.x86())) {
+                return c;
             }
         }
         return null;
     }
-    private void move(String a, String b, TypeNumerical type) {
-        if (compiler.Compiler.verbose()) {
-            addComment("raw nonoptimized move");
+    private List<X86Param> rawAlt(X86Param a, TypeNumerical type, boolean onlyReg) {
+        List<X86Param> al = new ArrayList<>();
+        for (HashSet<X86Param> eqq : equals) {
+            if (eqq.contains(a)) {
+                for (X86Param alternative : eqq) {
+                    if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
+                        if (alternative.getType().getSizeBytes() != type.getSizeBytes()) {
+                            continue;//throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
+                        }
+                        /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
+                            addComment("whoa type is different " + type + " " + eqq);
+                        }*/
+                        al.add(alternative);
+                    }
+                }
+            }
         }
-        String moveStmt = "mov" + type.x86typesuffix() + " " + a + ", " + b;
-        addStatement(moveStmt);
+        return al;
     }
     public boolean redundant(X86Param a, X86Param b) {
         return equals.stream().filter(x -> x.contains(a)).anyMatch(x -> x.contains(b));
@@ -137,20 +190,17 @@ public class X86Emitter {
             }
             return;
         }
-        String moveStmt = "mov" + type.x86typesuffix() + " " + a.x86() + ", " + b.x86();
+        X86Statement moveStmt = new Move(a, b);
         if (type instanceof TypeFloat) {
-            addStatement(moveStmt);
+            add(moveStmt);
             return;
-        }
-        if (a.x86().equals("$0") && b instanceof X86TypedRegister) {//TODO a.x86().equals("$0") is a little awkward
-            moveStmt = "xor" + type.x86typesuffix() + " " + b.x86() + ", " + b.x86();
         }
         Optional<HashSet<X86Param>> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
                 addComment("lmao" + eq.get());
-                addComment(moveStmt);
+                addComment(moveStmt.toString());
             }
             return;//can return because this doesn't affect anything
         }
@@ -159,10 +209,10 @@ public class X86Emitter {
         if (alt != null) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");
-                addComment(moveStmt);
+                addComment(moveStmt.toString());
                 addComment("Move is now");
             }
-            addStatement("mov" + type.x86typesuffix() + " " + alt.x86() + ", " + b.x86());
+            add(new Move(alt, b));
             replaced = true;
         }
         //if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
@@ -179,7 +229,7 @@ public class X86Emitter {
             equals.add(new HashSet<>(Arrays.asList(a, b)));
         }
         if (!replaced) {
-            addStatement(moveStmt);
+            add(moveStmt);
         }
     }
     public void markRegisterDirty(X86Register reg) {
@@ -237,39 +287,32 @@ public class X86Emitter {
         return func.map;
     }
     public void cast(X86Param a, X86Param b) {
-        String cast = "movs" + ((TypeNumerical) a.getType()).x86typesuffix() + "" + ((TypeNumerical) b.getType()).x86typesuffix() + " " + a.x86() + ", " + b.x86();
-        if (cast.equals("movsbw %al, %ax")) {
-            cast = "cbtw";
-        }
-        if (cast.equals("movswl %ax, %eax")) {
-            cast = "cwtl";
-        }
-        if (cast.equals("movslq %eax, %rax")) {//lol
-            cast = "cltq";//lol
-        }
-        statements.add("    " + cast);
+        statements.add(new Cast(a, b));
         markDirty(b);
+    }
+    public void add(X86Statement stmt) {
+        statements.add(stmt);
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {
             throw new IllegalStateException();
         }
-        statements.add("    " + ssnek);
+        statements.add(new Other(ssnek));
         if (ssnek.startsWith("movs") && !ssnek.startsWith("movss")) {
             throw new IllegalStateException();
         }
     }
     public void addLabel(String lbl) {
         equals = new HashSet<>();//jump destination, anything could be anything
-        statements.add(lbl + ":");
+        statements.add(new Label(lbl));
     }
     public void addAlignedComment(String cmt) {
-        statements.add("#" + cmt);
+        statements.add(new Comment(cmt));
         //for debugging the equality
         //statements.add("#" + equals);
     }
     public void addComment(String cmt) {
-        statements.add("#    " + cmt);
+        statements.add(new Comment("    " + cmt));
     }
     public String lineToLabel(int line) {
         String rsp = prefix + line;
@@ -278,10 +321,115 @@ public class X86Emitter {
         }
         return rsp;
     }
+    /*public void backwardsPass(int st) {
+        ArrayList<Integer> stackLocationsUsed = new ArrayList<>();
+        ArrayList<X86Register> registersUsed = new ArrayList<>();
+        registersUsed.add(X86Register.A);
+        registersUsed.add(X86Register.C);
+        for (int i = st - 1; i >= 0; i--) {
+            X86Statement s = statements.get(i);
+            if (s instanceof Move) {
+                Move m = (Move) s;
+                if (m.dest instanceof X86Memory) {
+                    X86Memory d = (X86Memory) m.dest;
+                    if (d.reg == X86Register.BP) {
+                        if (!stackLocationsUsed.contains(d.offset)) {
+                            System.out.println("Maybe not needed " + m);
+                        }
+                    }
+                }
+                if (m.dest instanceof X86TypedRegister) {
+                    if (!registersUsed.contains(((X86TypedRegister) m.dest).getRegister())) {
+                        System.out.println("Maybe not needed " + m);
+                        continue;
+                    }
+                }
+                if (m.source instanceof X86Memory) {
+                    X86Memory d = (X86Memory) m.source;
+                    if (d.reg == X86Register.BP) {
+                        stackLocationsUsed.add(d.offset);
+                    }
+                }
+                if (m.source instanceof X86TypedRegister) {
+                    registersUsed.add(((X86TypedRegister) m.source).getRegister());
+                }
+                for (X86Register r : new X86Register[]{A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15}) {//forgive me father, for i have sinned
+                    for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+                        if (s.toString().contains(r.getRegister1(type, true))) {
+                            registersUsed.add(r);
+                        }
+                    }
+                }
+                continue;
+            }
+            String t = s.toString();
+            if (t.startsWith("j")) {
+                return;
+            }
+            if (t.startsWith("popq")) {
+                continue;
+            }
+            if (t.startsWith("callq") && (t.contains("malloc") || t.contains("free"))) {
+                registersUsed.add(DI);
+            }
+            if (t.equals("syscall")) {
+                registersUsed.addAll(TACFunctionCall.SYSCALL_REGISTERS);
+            }
+            //System.out.println(t);
+            if (t.contains("%rbp")) {
+                //System.out.println(t);
+                String a = t.split("%rbp")[0];
+                String b = a.split(" ")[a.split(" ").length - 1];
+                int c = Integer.parseInt(b.substring(0, b.length() - 1));
+                stackLocationsUsed.add(c);
+            }
+            for (X86Register r : new X86Register[]{A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15}) {//forgive me father, for i have sinned
+                for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+                    if (t.contains(r.getRegister1(type, true))) {
+                        registersUsed.add(r);
+                    }
+                }
+            }
+        }
+    }*/
+    public boolean doTheThing(int pos) {
+        for (int j = pos + 1; j < statements.size(); j++) {
+            if (statements.get(j) instanceof Label) {
+                /*System.out.println("Removing " + statements.get(pos));
+                System.out.println("After " + statements.get(pos - 1));
+                System.out.println("Before " + statements.get(pos + 1));*/
+                return true;
+            }
+            if (statements.get(j) instanceof Comment) {
+                continue;
+            }
+            if (statements.get(j).toString().contains("syscall")) {
+                return false;
+            }
+            for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+                if (statements.get(j).toString().contains(X86Register.D.getRegister1(type, true))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     public String toX86() {
-        return statements.stream().collect(Collectors.joining("\n"));
+        for (int i = 0; i < statements.size(); i++) {
+            if (statements.get(i) instanceof Move) {
+                Move m = (Move) statements.get(i);
+                if (m.dest instanceof X86TypedRegister && ((X86TypedRegister) m.dest).getRegister() == X86Register.D && doTheThing(i)) {
+                    statements.remove(i);
+                    if (compiler.Compiler.verbose()) {
+                        statements.add(i, new Comment("REMOVED BECAUSE REDUNDANT " + statements.get(i)));
+                    }
+                    i = -1;
+                }
+            }
+        }
+        return statements.stream().map(X86Statement::x86).collect(Collectors.joining("\n"));
     }
     public String withoutComments() {
-        return statements.stream().filter(x -> !x.startsWith("#")).collect(Collectors.joining("\n"));
+        return statements.stream().filter(x -> !(x instanceof Comment)).map(X86Statement::x86).collect(Collectors.joining("\n"));
     }
 }

@@ -126,6 +126,9 @@ public class RegAllocation {
                             if (!mode) {
                                 continue;
                             }
+                            if (register == X86Register.D) {
+                                throw new IllegalStateException();
+                            }
                             /* System.out.println(mod);
                             System.out.println(block);
                             System.out.println(i);
@@ -168,6 +171,17 @@ public class RegAllocation {
                                 throw new IllegalStateException();
                             }
                             continue https;
+                        }
+                    }
+                    if (register == X86Register.D) {
+                        for (int j = 0; j < block.size(); j++) {
+                            if (block.get(j) instanceof TACJump) {
+                                TACJump tj = (TACJump) block.get(j);
+                                int dest = tj.jumpTo();
+                                if (dest > i && dest <= lastUsage) {//jumps into the middle of a D allocation are not okay
+                                    continue https;
+                                }
+                            }
                         }
                     }
                     if (in != null) {

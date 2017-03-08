@@ -46,7 +46,7 @@ public class TypeStruct extends Type {
     @SuppressWarnings("unchecked")
     public void parseContents() {//TODO for separation of concerns, maybe this shouldn't be in the compiler.type package...lol
         if (parsed) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         new BlockFinder().apply(rawBlock);
         while (!rawBlock.isEmpty()) {
@@ -73,7 +73,7 @@ public class TypeStruct extends Type {
             rawBlock.remove(0);
             List<Token> tokens = thisLine.getTokens();
             if (tokens.get(tokens.size() - 1).tokenType() != TokenType.VARIABLE) {
-                throw new RuntimeException(tokens + "");
+                throw new IllegalStateException(tokens + "");
             }
             String fieldName = (String) tokens.get(tokens.size() - 1).data();
             Type fieldType = ParseUtil.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
@@ -106,11 +106,11 @@ public class TypeStruct extends Type {
     }
     public StructField getFieldByName(String name) {
         if (!parsed) {
-            throw new RuntimeException("Out of order struct reference");
+            throw new IllegalStateException("Out of order struct reference");
         }
         StructField resp = fields.get(name);
         if (resp == null) {
-            throw new RuntimeException(toString() + " doesn't have a field named '" + name + "'");
+            throw new IllegalStateException(toString() + " doesn't have a field named '" + name + "'");
         }
         return resp;
     }

@@ -20,7 +20,7 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     public ExpressionInvert(ExpressionConditionalJumpable inp) {
         this.inp = inp;
         if (!(inp.getType() instanceof TypeBoolean)) {
-            throw new RuntimeException("Can only invert a boolean");
+            throw new IllegalStateException("Can only invert a boolean");
         }
     }
     @Override

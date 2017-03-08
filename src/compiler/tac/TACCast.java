@@ -53,7 +53,7 @@ public class TACCast extends TACStatement {
         TypeNumerical out = (TypeNumerical) dest.getType();
         if (out instanceof TypeFloat) {
             if (!(inp instanceof TypeInt32)) {
-                throw new RuntimeException("noplease");
+                throw new IllegalStateException("noplease");
             }
             X86Param aoeu = X86Register.XMM0.getRegister(new TypeFloat());
             emit.addStatement("cvtsi2ssl " + input.x86() + ", " + aoeu.x86());//kill me

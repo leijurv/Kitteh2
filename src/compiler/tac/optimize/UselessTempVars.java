@@ -114,7 +114,7 @@ public class UselessTempVars extends TACOptimization {
                 //leaving it here but commented out if it comes up in the future
                 //}
                 if (next instanceof TACJumpBoolVar && next.requiredVariables().contains(valSet) && tempVar) {
-                    throw new RuntimeException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
+                    throw new IllegalStateException("This won't happen as of the current TAC generation of boolean statements " + next + " " + curr);//but if i change things in the future this could happen and isn't a serious error
                 }
                 boolean exemption = next instanceof TACCast && !(currSource instanceof VarInfo);
                 if (!exemption && next.requiredVariables().contains(valSet)) {
@@ -127,7 +127,7 @@ public class UselessTempVars extends TACOptimization {
                     //this temp variable is used in a context that does not allow for optimized insertion
                     //since temp variables are only used once, we can't insert it into an expression after its usage
                     if (!exemption) {
-                        throw new RuntimeException(next + " " + curr);
+                        throw new IllegalStateException(next + " " + curr);
                     }
                     break;
                 }
@@ -142,14 +142,14 @@ public class UselessTempVars extends TACOptimization {
                     //tmp0=2
                     //so somehow tmp0 was set but then unused
                     //again, this might be caused by a different optimization leaving dangling temp variables
-                    throw new RuntimeException("Another optimization did something weird");
+                    throw new IllegalStateException("Another optimization did something weird");
                 }
                 if (next.modifiedVariables().contains(currSourceName)) {
                     if (tempVar) {
                         //tmp0=b
                         // ... (tmp0 not used)
                         //b modified
-                        throw new RuntimeException("this apparently doesn't happen but i can think of scenarios where it might");
+                        throw new IllegalStateException("this apparently doesn't happen but i can think of scenarios where it might");
                     }
                     //no longer would be a valid replacement
                     break;

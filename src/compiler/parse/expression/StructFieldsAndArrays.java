@@ -92,7 +92,7 @@ class StructFieldsAndArrays extends TokenBased {
         }
         if (o.get(i) == PERIOD) {
             if (!is(o.get(i + 1), VARIABLE)) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             String fieldName = (String) ((Token) o.remove(i + 1)).data();
             o.remove(i);
@@ -104,6 +104,6 @@ class StructFieldsAndArrays extends TokenBased {
             o.add(i - 1, new ExpressionStructFieldAccess(prev, fieldName));
             return true;
         }
-        throw new RuntimeException();
+        throw new IllegalStateException();
     }
 }

@@ -82,11 +82,11 @@ public abstract class TACOptimization {
     }
     public boolean accessibleFromExterior(int pos) {
         if (statements.get(pos).getClass() != TACJump.class) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         TACJump tj = (TACJump) (statements.get(pos));
         if (tj.jumpTo() <= pos) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         int rangeEnd = tj.jumpTo();
         //anything jumps to (pos+1,rangeEnd-1)

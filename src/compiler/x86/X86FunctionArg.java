@@ -14,7 +14,7 @@ public class X86FunctionArg extends X86Memory {
     public X86FunctionArg(int location, Type type) {
         super(location, X86Register.SP, type);
         if (location < 0) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
     }
 }

@@ -87,7 +87,7 @@ public class Compiler {
             return compile(f.toPath(), settings);
         } catch (IOException ex) {
             Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
     }
     private static String generateASM(List<Pair<String, List<TACStatement>>> functions) {

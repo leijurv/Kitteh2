@@ -30,7 +30,7 @@ public class FunctionsContext {
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
-                throw new RuntimeException("   error: Two functions with same name: " + name);
+                throw new IllegalStateException("   error: Two functions with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         });
@@ -38,7 +38,7 @@ public class FunctionsContext {
             FunctionHeader header = cdf.getLocalHeader();
             String name = header.name;
             if (functionMap.containsKey(name)) {
-                throw new RuntimeException("   error: Two struct methods with same name: " + name);
+                throw new IllegalStateException("   error: Two struct methods with same name: " + name);
             }
             functionMap.put(name, cdf.getHeader());//put the pkg::funcName header under funcName in the map
         });
@@ -47,13 +47,13 @@ public class FunctionsContext {
                 FunctionHeader header = cdf.getHeader();
                 String name = header.name;
                 if (functionMap.containsKey(name)) {
-                    throw new RuntimeException("   error: Two functions with same name from aliased import " + name);
+                    throw new IllegalStateException("   error: Two functions with same name from aliased import " + name);
                 }
                 functionMap.put(name, header);
                 if (defineLocally.contains(file.getA()) && !thisPath.equals(file.getA())) {
                     String name1 = cdf.getLocalHeader().name;
                     if (functionMap.containsKey(name1)) {
-                        throw new RuntimeException("   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());
+                        throw new IllegalStateException("   error: Two functions with same name from local import " + name + " " + defineLocally + " " + thisPath + " " + file.getA());
                     }
                     functionMap.put(name1, header);
                 }
@@ -68,7 +68,7 @@ public class FunctionsContext {
                 return;
             }
         }
-        throw new RuntimeException("You need a main function in " + path);
+        throw new IllegalStateException("You need a main function in " + path);
     }
     public Stream<Runnable> parseRekursivelie() {
         return functionDefinitions.stream().map(cdf -> () -> cdf.parse(this));
@@ -98,7 +98,7 @@ public class FunctionsContext {
         }
         FunctionHeader tr = functionMap.get(actual);
         if (tr == null) {
-            throw new RuntimeException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap.keySet());
+            throw new IllegalStateException(path + ": you tryna call a nonexistent function " + actual + " " + functionMap.keySet());
         }
         return tr;
     }

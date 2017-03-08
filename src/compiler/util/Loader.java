@@ -34,7 +34,7 @@ public class Loader {
             } catch (IOException | RuntimeException e2) {
                 e.printStackTrace();
                 e2.printStackTrace();
-                throw new RuntimeException("Couldn't load " + name);
+                throw new IllegalStateException("Couldn't load " + name);
             }
         }
         List<Line> lines = Preprocessor.preprocess(new String(program, "UTF-8"), name);
@@ -61,12 +61,12 @@ public class Loader {
                 }
             }
             if (Kitterature.resourceExists(toImport + "") && toImport.exists()) {
-                throw new RuntimeException("Ambigious whether to import from standard library or from locally for " + toImport);
+                throw new IllegalStateException("Ambigious whether to import from standard library or from locally for " + toImport);
             }
             Path impPath = new File(Kitterature.trimPath(toImport.toString())).toPath();
             //System.out.println("Replacing path " + toImport.toPath() + " with " + impPath);
             if (!toImport.getCanonicalPath().equals(impPath.toFile().getCanonicalPath())) {
-                throw new RuntimeException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
+                throw new IllegalStateException(toImport.toPath() + " " + impPath + " " + toImport.getCanonicalPath() + " " + impPath.toFile().getCanonicalPath());
             }
             context.imports.put(impPath + "", imp.getValue());
         }

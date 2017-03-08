@@ -34,7 +34,7 @@ class BlockBeginParser {
         //ok this is going to be fun
         //func main(int i) int {
         if (params.get(0).tokenType() != VARIABLE) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         String functionName = (String) params.get(0).data();
         //System.out.println("FunctionName: " + functionName);

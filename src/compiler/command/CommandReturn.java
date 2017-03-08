@@ -33,7 +33,7 @@ public class CommandReturn extends Command {
             }
         } else {
             if (toReturn.length != context.getCurrentFunction().getReturnTypes().length) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
         }
         for (int i = 0; i < toReturn.length; i++) {

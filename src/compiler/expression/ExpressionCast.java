@@ -46,7 +46,7 @@ public class ExpressionCast extends Expression {
         }
         if (input instanceof ExpressionConst && !(castTo instanceof TypeFloat) && !(input.getType() instanceof TypeFloat)) {
             if (!(input instanceof ExpressionConstNum)) {
-                throw new RuntimeException("Casting a const bool??");
+                throw new IllegalStateException("Casting a const bool??");
             }
             return new ExpressionConstNum(((ExpressionConstNum) input).getVal(), (TypeNumerical) castTo);
         }

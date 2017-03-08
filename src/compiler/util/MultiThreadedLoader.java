@@ -41,7 +41,7 @@ public class MultiThreadedLoader {
                         throw (RuntimeException) thrown;
                         //if it's a runtimeexception, we can just throw it (but only if we cast it first)
                     } else {
-                        throw new RuntimeException(thrown);//its a checked exception that we can't just throw, we have to wrap it in an unchecked exception
+                        throw new IllegalStateException(thrown);//its a checked exception that we can't just throw, we have to wrap it in an unchecked exception
                     }
                 }
                 if (inProgress.isEmpty()) {
@@ -58,7 +58,7 @@ public class MultiThreadedLoader {
                     }
                 }
             } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
+                throw new IllegalStateException(ex);
             }
         }
     }

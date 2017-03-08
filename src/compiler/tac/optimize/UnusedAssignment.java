@@ -39,7 +39,7 @@ public class UnusedAssignment extends TACOptimization {
                 continue;
             }
             if (mv.size() != 1) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             if (mv.get(0).getName().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
                 continue;

@@ -77,7 +77,7 @@ public class TACArrayRef extends TACStatement {
             throw new IllegalStateException("not okay " + arr + " " + ind + " " + source + " for " + this);
         }
         if (!source.getType().equals(pointingTo)) {
-            throw new RuntimeException(source.getType() + " " + pointingTo);
+            throw new IllegalStateException(source.getType() + " " + pointingTo);
         }
         String destStr = "(" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")";
         X86Param destination = new X86Param() {

@@ -72,12 +72,12 @@ class RecursiveParentheses extends TokenBased {
         }
         if (i != 0 && o.get(i - 1) == Keyword.SIZEOF) {
             if (inParen.size() != 1) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             Type type = ParseUtil.typeFromObjs(inParen.get(0), context);
             if (type == null) {
                 type = ExpressionParser.parseImpl(new ArrayList<>(inParen.get(0)), Optional.empty(), context).getType();//not doing sizeof(int), we're doing sizeof(variableWithTypeInt)
-                //throw new RuntimeException();
+                //throw new IllegalStateException();
             }
             for (int j = 0; j < numToRemoveAti; j++) {
                 o.remove(i);
@@ -117,10 +117,10 @@ class RecursiveParentheses extends TokenBased {
                 accessing = (Expression) o.get(i - 3);
                 removePreviousTwo = true;
                 if (accessing.getType() instanceof TypeStruct) {
-                    throw new RuntimeException("Can only call struct methods on a pointer to a struct, not the struct itself");
+                    throw new IllegalStateException("Can only call struct methods on a pointer to a struct, not the struct itself");
                 }
                 if (!(accessing.getType() instanceof TypePointer)) {
-                    throw new RuntimeException("Struct methods must be called on a pointer to the struct");
+                    throw new IllegalStateException("Struct methods must be called on a pointer to the struct");
                 }
                 TypeStruct ts = (TypeStruct) (((TypePointer) accessing.getType()).pointingTo());
                 funcName = TypeStruct.format(ts.getName(), funcName);
@@ -133,7 +133,7 @@ class RecursiveParentheses extends TokenBased {
                 args.add(0, new ArrayList<>(Arrays.asList(accessing)));
             }
             if (args.size() != desiredTypes.size() && !funcName.equals("syscall")) {
-                throw new RuntimeException("mismatched arg count " + args + " " + desiredTypes);
+                throw new IllegalStateException("mismatched arg count " + args + " " + desiredTypes);
             }
             List<Expression> arguments = IntStream.range(0, args.size())
                     .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), funcNameCopy.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))

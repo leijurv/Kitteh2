@@ -44,7 +44,7 @@ public class Obfuscator {
             tmp = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Obfuscator.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
         SHA = tmp;
     }
@@ -61,7 +61,7 @@ public class Obfuscator {
             return bytesToHex(SHA.digest(s.getBytes("UTF-8")));
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Obfuscator.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException("doesn't support utf-8?????", ex);
+            throw new IllegalStateException("doesn't support utf-8?????", ex);
         }
     }
 }

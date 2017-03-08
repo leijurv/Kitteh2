@@ -30,13 +30,13 @@ public class BetterJoiner {
                     try {
                         builder.append(header.get());
                     } catch (InterruptedException | ExecutionException ex) {
-                        throw new RuntimeException(ex);
+                        throw new IllegalStateException(ex);
                     }
                 } else {
                     try {
                         builder.append(joiner.get());
                     } catch (InterruptedException | ExecutionException ex) {
-                        throw new RuntimeException(ex);
+                        throw new IllegalStateException(ex);
                     }
                 }
                 builder.append(str);
@@ -45,7 +45,7 @@ public class BetterJoiner {
         try {
             builder.append(footer.get());
         } catch (InterruptedException | ExecutionException ex) {
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
         return builder.toString();
     }

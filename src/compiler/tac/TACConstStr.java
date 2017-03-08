@@ -23,7 +23,7 @@ public class TACConstStr extends TACStatement {
         super(variable);
         this.value = value;
         if (!(params[0].getType() instanceof TypePointer)) {
-            throw new RuntimeException(params[0] + " " + params[0].getType());
+            throw new IllegalStateException(params[0] + " " + params[0].getType());
         }
     }
     @Override

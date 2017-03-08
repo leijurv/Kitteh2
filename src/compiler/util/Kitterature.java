@@ -44,7 +44,7 @@ public class Kitterature {
         try {
             return getResourceAsStream(name) != null;
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            throw new IllegalStateException(ex);
         }
     }
     public static List<Path> listStandardLibraryFiles() throws IOException {
@@ -57,7 +57,7 @@ public class Kitterature {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                         if (!file.toString().endsWith(".k") || !file.toString().contains("lang")) {
-                            throw new RuntimeException("Unexpected extension for file " + file);
+                            throw new IllegalStateException("Unexpected extension for file " + file);
                         }
                         String lol = file.toString().split("lang/")[1];
                         if (!lol.contains("/")) {

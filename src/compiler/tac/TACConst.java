@@ -31,7 +31,7 @@ public class TACConst extends TACStatement {
                 //so dont throw an error
                 return;
             }
-            throw new RuntimeException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
+            throw new IllegalStateException("lol " + params[0] + " " + params[1] + " " + params[0].getType() + " " + params[1].getType());
         }
     }
     @Override

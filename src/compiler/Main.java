@@ -115,7 +115,7 @@ public class Main {
             return;
         }
         if (!new File("/usr/bin/gcc").exists()) {
-            throw new RuntimeException("/usr/bin/gcc required to create executable");
+            throw new IllegalStateException("/usr/bin/gcc required to create executable");
         }
         Process gcc = new ProcessBuilder("/usr/bin/gcc", "-o", outFile, asmFile.getAbsolutePath()).redirectError(Redirect.INHERIT).redirectOutput(Redirect.INHERIT).start();
         System.out.println("GCC return value: " + gcc.waitFor());//any other gcc output (stdout or stderr) will be outputted normally because of the redirects ^

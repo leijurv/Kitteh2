@@ -166,21 +166,21 @@ class LineParser {
             for (int i = 0; i < splitted.size(); i++) {
                 List<Token> item = splitted.get(i);
                 if (item.size() != 1) {
-                    throw new RuntimeException(item + "");
+                    throw new IllegalStateException(item + "");
                 }
                 if (item.get(0).tokenType() != VARIABLE) {
-                    throw new RuntimeException(item + "");
+                    throw new IllegalStateException(item + "");
                 }
                 variableNames[i] = (String) item.get(0).data();
             }
             Expression ex = ExpressionParser.parse(after, Optional.empty(), context);
             if (!(ex instanceof ExpressionFunctionCall)) {
-                throw new RuntimeException("Multiple sets only for multi return function calls " + tokens);
+                throw new IllegalStateException("Multiple sets only for multi return function calls " + tokens);
             }
             ExpressionFunctionCall efc = (ExpressionFunctionCall) ex;
             Type[] types = efc.header().getReturnTypes();
             if (types.length != variableNames.length) {
-                throw new RuntimeException("Setting " + variableNames.length + " variables to a function that returns " + types.length);
+                throw new IllegalStateException("Setting " + variableNames.length + " variables to a function that returns " + types.length);
             }
             boolean settingNew = false;
             for (int i = 0; i < types.length; i++) {

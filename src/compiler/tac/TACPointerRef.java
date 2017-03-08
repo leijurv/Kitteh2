@@ -69,7 +69,7 @@ public class TACPointerRef extends TACStatement {
             TypeStruct ts = (TypeStruct) params[0].getType();
             emit.move(params[1], X86Register.C);
             TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), X86Register.BP, offset, X86Register.C, ts, emit);
-            throw new RuntimeException("This actually just doesn't work");
+            throw new IllegalStateException("This actually just doesn't work");
         } else {
             throw new InvalidPathException("", "");
         }

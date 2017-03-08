@@ -180,27 +180,27 @@ public enum Operator implements Token<Operator> {
         V bVal = b.getVal();
         if (this == OR || this == AND) {
             if (!(aVal instanceof Boolean)) {
-                throw new RuntimeException("Expected " + a + " to be expression const bool");
+                throw new IllegalStateException("Expected " + a + " to be expression const bool");
             }
             if (!(bVal instanceof Boolean)) {
-                throw new RuntimeException("Expected " + b + " to be expression const bool");
+                throw new IllegalStateException("Expected " + b + " to be expression const bool");
             }
             Boolean aval = (Boolean) aVal;
             Boolean bval = (Boolean) bVal;
             return new ExpressionConstBool(this == AND ? aval && bval : aval || bval);
         }
         if (!(a instanceof ExpressionConstNum)) {
-            throw new RuntimeException("Expected " + a + " to be expression const num");
+            throw new IllegalStateException("Expected " + a + " to be expression const num");
         }
         if (!(b instanceof ExpressionConstNum)) {
-            throw new RuntimeException("Expected " + b + " to be expression const num");
+            throw new IllegalStateException("Expected " + b + " to be expression const num");
         }
         Number aval = (Number) aVal;
         Number bval = (Number) bVal;
         if ((int) aval.longValue() != aval.intValue() || (int) bval.longValue() != bval.intValue() || (long) aval.intValue() != aval.longValue() || (long) bval.intValue() != bval.longValue()) {
             //if the long version, when casted to int, is different than the int version
             //some form of overflow is happening?
-            throw new RuntimeException(aVal + " " + bVal);
+            throw new IllegalStateException(aVal + " " + bVal);
         }
         if (resulting instanceof TypeBoolean) {
             return new ExpressionConstBool(calculateBoolean(aval.intValue(), bval.intValue()));

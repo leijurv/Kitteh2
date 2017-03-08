@@ -31,7 +31,7 @@ public class TACPointerDeref extends TACStatement {
         super(deref, dest);
         this.offset = offset;
         if (!((TypePointer) params[0].getType()).pointingTo().equals(params[1].getType())) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
     }
     @Override

@@ -78,9 +78,9 @@ class Parser {
                         BlockBeginParser.parseStruct(params, context, rawBlock);
                         return Optional.empty();
                     case ELSE:
-                        throw new RuntimeException("improper placement of else");
+                        throw new IllegalStateException("improper placement of else");
                     default:
-                        throw new RuntimeException();
+                        throw new IllegalStateException();
                 }
             } else {
                 if (l.getTokens().get(0).equals(Keyword.IMPORT)) {//TODO this is actually terrible

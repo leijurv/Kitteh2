@@ -83,7 +83,7 @@ public class X86Emitter {
         }
         X86TypedRegister loc = desired.getRegister((TypeNumerical) source.getType());
         if (source instanceof X86Const) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         X86Param alt = alternative(source, true);
         if (alt != null) {

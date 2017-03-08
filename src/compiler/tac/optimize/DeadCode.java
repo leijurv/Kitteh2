@@ -30,7 +30,7 @@ public class DeadCode extends TACOptimization {
                     continue;
                 }
                 if (tj.jumpTo() == i) {
-                    throw new RuntimeException("infinite loop");
+                    throw new IllegalStateException("infinite loop");
                 }
                 boolean dead = !accessibleFromExterior(i);
                 if (dead) {
@@ -49,7 +49,7 @@ public class DeadCode extends TACOptimization {
         int localRangeBegin = rangeBegin - blockBegin;
         int localRangeEnd = rangeEnd - blockBegin;
         if (localRangeEnd <= localRangeBegin) {
-            throw new RuntimeException(rangeBegin + " " + rangeEnd + " " + localRangeBegin + " " + localRangeEnd);
+            throw new IllegalStateException(rangeBegin + " " + rangeEnd + " " + localRangeBegin + " " + localRangeEnd);
         }
         if (localRangeEnd <= 0) {
             return;

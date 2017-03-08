@@ -50,7 +50,7 @@ public class TACOptimizer {
                     try {
                         input = optim.newInstance().go(input);
                     } catch (InstantiationException | IllegalAccessException e) {
-                        throw new RuntimeException("idk man", e);
+                        throw new IllegalStateException("idk man", e);
                     }
                     if (metrics) {
                         didAnything[opt.indexOf(optim)] |= !before.equals(input + "");

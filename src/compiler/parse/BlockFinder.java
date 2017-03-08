@@ -60,7 +60,7 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
                     ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));
                     if (start) {//TODO fix this steaming pile of
                         if (((String) line.source().get(0)).charAt(0) != '}') {
-                            throw new RuntimeException(line + "");
+                            throw new IllegalStateException(line + "");
                         }
                         line.source().set(0, ((String) line.source().get(0)).substring(1));
                     }

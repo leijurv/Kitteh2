@@ -82,7 +82,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     }
     public void parseHeader() {
         if (header != null) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         Type[] retType;
         if (returnType.isEmpty()) {
@@ -106,7 +106,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                 throw new IllegalStateException(typeDefinition + " not a valid type");
             }
             if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             String argNemo = (String) tokenList.get(tokenList.size() - 1).data();
             return new Pair<>(argNemo, type);
@@ -139,7 +139,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (returnsVoid) {
                 contents.add(new CommandReturn(context));
             } else {
-                throw new RuntimeException("Empty function with non-void return type " + name);
+                throw new IllegalStateException("Empty function with non-void return type " + name);
             }
         }
         boolean endWithReturn = contents.get(contents.size() - 1) instanceof CommandReturn;
@@ -147,7 +147,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (returnsVoid) {
                 contents.add(new CommandReturn(context));
             } else {
-                throw new RuntimeException("You need a return as the last command");
+                throw new IllegalStateException("You need a return as the last command");
             }
         }
         if (Compiler.verbose()) {
@@ -220,7 +220,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
             if (o == null || getClass() == o.getClass()) {
                 throw new UnsupportedOperationException();
             }
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         @Override
         public int hashCode() {
@@ -234,7 +234,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
     public void checkFrees() {
         if (name.endsWith("_free") || name.equals("free")) {
             if (methodOf == null) {
-                throw new RuntimeException("Can't define a function called free outside of a struct");
+                throw new IllegalStateException("Can't define a function called free outside of a struct");
             } else {
                 Expression freeThis = new ExpressionFunctionCall(context, null, "free", Arrays.asList(new ExpressionVariable("this", context)));
                 contents.add(new CommandExp(freeThis, context));
@@ -251,7 +251,7 @@ public class CommandDefineFunction extends Command {//dont extend commandblock b
                                     if (firstArg instanceof ExpressionVariable) {
                                         String arg = ((ExpressionVariable) firstArg).getName();
                                         if (arg.equals("this")) {
-                                            throw new RuntimeException("Warning: don't call free(this) in a destructor. The compiler adds the real free(this) for you, and doing it manually will lead to infinite recursion.");
+                                            throw new IllegalStateException("Warning: don't call free(this) in a destructor. The compiler adds the real free(this) for you, and doing it manually will lead to infinite recursion.");
                                         }
                                     }
                                 }

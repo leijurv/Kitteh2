@@ -45,7 +45,7 @@ public class CompilationState {
         for (Path path : autoImportedStd) {
             toLoad.add(path);
             if (path.toFile().exists()) {
-                throw new RuntimeException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
+                throw new IllegalStateException("Standard library " + path + " is ambiguous: " + path.toFile().getCanonicalPath() + " also exists");
             }
         }
     }

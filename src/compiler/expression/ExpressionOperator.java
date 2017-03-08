@@ -30,7 +30,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         this.b = b;
         this.op = op;
         if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean && !a.getType().equals(b.getType())) {
-            throw new RuntimeException("Type mismatch " + a.getType() + " " + b.getType() + " from expressions " + a + " " + b);
+            throw new IllegalStateException("Type mismatch " + a.getType() + " " + b.getType() + " from expressions " + a + " " + b);
         }
     }
     @Override

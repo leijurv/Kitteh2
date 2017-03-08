@@ -170,7 +170,7 @@ public class TACFunctionCall extends TACStatement {
                         continue;
                     }
                 } else if (!header.name.equals("free") || !(params[i].getType() instanceof TypePointer)) {//free of any pointer is ok
-                    throw new RuntimeException(this + " was " + params[i].getType() + " expected " + type);
+                    throw new IllegalStateException(this + " was " + params[i].getType() + " expected " + type);
                 }
             }
             TACConst.move(dest, params[i], emit);

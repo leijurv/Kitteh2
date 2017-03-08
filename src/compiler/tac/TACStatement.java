@@ -38,7 +38,7 @@ public abstract class TACStatement {
             throw new IllegalStateException(this + " " + toReplace + " " + infoWith);
         }
         if (infoWith.toString().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX) || toReplace.toString().contains(TempVarUsage.TEMP_STRUCT_FIELD_INFIX)) {
-            throw new RuntimeException("REPLACING " + this + " " + toReplace + " " + infoWith);
+            throw new IllegalStateException("REPLACING " + this + " " + toReplace + " " + infoWith);
         }
         boolean f = false;
         for (int i = 0; i < params.length; i++) {

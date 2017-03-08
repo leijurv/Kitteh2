@@ -59,7 +59,7 @@ public class CommandSetArray extends Command {
         staticValues();
         if (index instanceof ExpressionConst) {
             if (!(index instanceof ExpressionConstNum)) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             int val = ((ExpressionConstNum) index).getVal().intValue();
             CommandSetPtr res;

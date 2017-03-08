@@ -81,13 +81,13 @@ public class Context {//TODO split off some of this massive functionality into o
         @Override
         public String x86() {
             if (secret) {
-                throw new RuntimeException(Context.super.toString());
+                throw new IllegalStateException(Context.super.toString());
             }
             return super.x86();
         }
         public Context getContext() {
             if (secret) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             return Context.this;
         }
@@ -125,7 +125,7 @@ public class Context {//TODO split off some of this massive functionality into o
         //forgive me
         Map<String, TypeStruct> mapt = other.entrySet().stream().map(entry -> new Pair<>((alias == null ? "" : alias + "::") + entry.getKey(), entry.getValue())).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
         if (mapt.keySet().stream().anyMatch(structs::containsKey)) {
-            throw new RuntimeException("Overwriting struct from " + mapt.keySet() + " into " + structs.keySet());
+            throw new IllegalStateException("Overwriting struct from " + mapt.keySet() + " into " + structs.keySet());
         }
         structs.putAll(mapt);
         //System.out.println(packageName + " " + structs);
@@ -133,16 +133,16 @@ public class Context {//TODO split off some of this massive functionality into o
     public String reverseAlias(String alias) {
         Optional<String> reversed = imports.entrySet().stream().filter(entry -> alias.equals(entry.getValue())).map(Map.Entry::getKey).findAny();
         if (!reversed.isPresent()) {
-            throw new RuntimeException(imports + " " + alias);
+            throw new IllegalStateException(imports + " " + alias);
         }
         return reversed.get();
     }
     public void addImport(String fileName, String alias) {
         if (packageName == null) {
-            throw new RuntimeException("This no longer can happen");
+            throw new IllegalStateException("This no longer can happen");
         }
         if (packageName.equals(fileName) || packageName.equals(alias)) {
-            throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
+            throw new IllegalStateException("no " + fileName + " " + alias + " " + packageName);
         }
         if (imports.values().contains(alias) && alias != null) {
             throw new IllegalStateException("Already imported under alias " + alias);

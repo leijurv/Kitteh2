@@ -44,7 +44,7 @@ public class RegAllocation {
                         encountered.addAll(modVars);//all are being set
                         continue; //lets leave multiple returns alone for now
                     }
-                    throw new RuntimeException();
+                    throw new IllegalStateException();
                 }
                 if (modVars.isEmpty()) {
                     continue;
@@ -85,7 +85,7 @@ public class RegAllocation {
                         //this is ok
                         continue;
                     }
-                    throw new RuntimeException(block + "" + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
+                    throw new IllegalStateException(block + "" + mod);//last usage of a TEMP VARIABLE is BEFORE it was set first?????
                 }
                 /*if (block.get(i) instanceof TACCast) {
                 System.out.println(mod + "  " + (lastUsage - i) + " last usage " + block.get(lastUsage) + " setting " + block.get(i));

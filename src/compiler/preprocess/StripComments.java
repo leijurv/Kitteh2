@@ -23,7 +23,7 @@ class StripComments {
         try {
             return actualTransform(line);
         } catch (Exception e) {
-            throw new RuntimeException("Exception while stripping comments from line " + lineNumber, e);
+            throw new IllegalStateException("Exception while stripping comments from line " + lineNumber, e);
         }
     }
     private List<Line> actualTransform(String line) {

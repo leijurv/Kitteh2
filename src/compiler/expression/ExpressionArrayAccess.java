@@ -70,7 +70,7 @@ public class ExpressionArrayAccess extends ExpressionConditionalJumpable impleme
         index = index.calculateConstants();
         if (index instanceof ExpressionConst) {
             if (!(index instanceof ExpressionConstNum)) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             Expression ptr = new ExpressionOperator(array, Operator.PLUS, new ExpressionOperator(index, Operator.MULTIPLY, new ExpressionConstNum(getType().getSizeBytes(), new TypeInt32())));
             Expression res = new ExpressionPointerDeref(ptr).calculateConstants();

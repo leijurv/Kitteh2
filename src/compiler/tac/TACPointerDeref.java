@@ -54,7 +54,6 @@ public class TACPointerDeref extends TACStatement {
         X86TypedRegister loc = emit.putInRegister(source, X86Register.A);
         X86Param memLoc = new X86Memory(offset, loc.getRegister(), dest.getType());
         if (dest.getType() instanceof TypeNumerical) {
-            TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
                 emit.move(memLoc, dest);
             } else {

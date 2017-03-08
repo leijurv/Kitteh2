@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
@@ -129,8 +130,22 @@ public class X86Emitter {
             if (eqq.contains(a)) {
                 for (X86Param alternative : eqq) {
                     if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
-                        if (alternative.getType().getSizeBytes() != type.getSizeBytes()) {
-                            continue;//throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
+                        Type alt = alternative.getType();
+                        if (alt.getSizeBytes() != type.getSizeBytes()) {
+                            if (alternative instanceof X86Const) {
+                                al.add(new X86Const(((X86Const) alternative).getValue(), type));//just fix the type
+                                continue;
+                            }
+                            if (alt.getSizeBytes() > type.getSizeBytes()) {
+                                //we're looking for equal to an int, but a long has the same value
+                                //if we take the lower part of the alternative, that should be equal to what we're looking for
+                                al.add(((X86TypedRegister) alternative).getRegister().getRegister(type));
+                                continue;
+                            }
+                            //the alternative must be smaller
+                            //it doesn't have enough information
+                            continue;
+                            //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
                         }
                         /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
                             addComment("whoa type is different " + type + " " + eqq);

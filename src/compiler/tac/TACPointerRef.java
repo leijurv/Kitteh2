@@ -23,7 +23,7 @@ import java.util.List;
  * @author leijurv
  */
 public class TACPointerRef extends TACStatement {
-    int offset;
+    private final int offset;
     public TACPointerRef(X86Param source, X86Param dest, int offset) {
         super(source, dest);
         this.offset = offset;

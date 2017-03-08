@@ -27,7 +27,7 @@ public class X86Emitter {
     private final ArrayList<X86Statement> statements = new ArrayList<>();
     private final String prefix;
     private final X86Function func;
-    HashSet<HashSet<X86Param>> equals = new HashSet<>();
+    private HashSet<HashSet<X86Param>> equals = new HashSet<>();
     public X86Emitter(String funcLabelPrefix, X86Function func) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
         this.func = func;
@@ -38,9 +38,7 @@ public class X86Emitter {
     public X86Emitter(X86Emitter other) {
         this();
         equals = new HashSet<>();
-        for (HashSet<X86Param> e : other.equals) {//deep copy
-            equals.add(new HashSet<>(e));
-        }
+        other.equals.stream().map(HashSet::new).forEach(equals::add);
     }
     public void move(X86Param a, X86Param b) {
         move(a, b, false);
@@ -261,7 +259,7 @@ public class X86Emitter {
         clearRegisters(Arrays.asList(registers));
     }
     public Map<String, X86Function> map() {
-        return func.map;
+        return func.getMap();
     }
     public void cast(X86Param a, X86Param b) {
         statements.add(new Cast(a, b));

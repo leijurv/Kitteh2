@@ -50,7 +50,7 @@ public class UnusedAssignment extends TACOptimization {
             block.remove(i);
         }
     }
-    static boolean usedAfter(List<TACStatement> block, X86Param varName, int lineNumber) {//only return false when its certain that it's unused
+    private static boolean usedAfter(List<TACStatement> block, X86Param varName, int lineNumber) {//only return false when its certain that it's unused
         for (int i = lineNumber + 1; i < block.size(); i++) {
             if (block.get(i).requiredVariables().contains(varName)) {//yes it is directly used
                 return true;

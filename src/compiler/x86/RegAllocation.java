@@ -185,7 +185,7 @@ public class RegAllocation {
                         }
                     }
                     if (in != null) {
-                        in.used.add(register);
+                        in.addUsed(register);
                     }
                     if (mode && compiler.Compiler.verbose()) {
                         System.out.println("Allocating because of cross-call permit " + mod);
@@ -236,14 +236,14 @@ public class RegAllocation {
                 return true;
             }
             if (in != null) {
-                X86Function call = in.map.get(calling);
+                X86Function call = in.getMap().get(calling);
                 if (call == null || call.equals(in)) {
                     return false;
                 }
                 if (call.allDescendants().anyMatch(in::equals)) {
                     return false;
                 }
-                if (!call.allocated) {
+                if (!call.allocated()) {
                     throw new IllegalStateException(in + " calls " + call);//if we depend on something that couldn't lead back to me yet is unallocated, that's bad
                 }
                 if (!call.allUsed().contains(register) && mode) {

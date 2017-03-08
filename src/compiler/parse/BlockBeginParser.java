@@ -30,7 +30,7 @@ import javax.management.openmbean.KeyAlreadyExistsException;
 class BlockBeginParser {
     private BlockBeginParser() {
     }
-    static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    public static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //ok this is going to be fun
         //func main(int i) int {
         if (params.get(0).tokenType() != VARIABLE) {
@@ -49,7 +49,7 @@ class BlockBeginParser {
         Context subContext = context.subContext();
         return new CommandDefineFunction(subContext, params, functionName, rawBlock);
     }
-    static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    public static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);
         int numSemis = (int) params.stream().filter(SEMICOLON).count(); //I really like streams lol
         switch (numSemis) {
@@ -87,10 +87,10 @@ class BlockBeginParser {
         }
         //i can't put a break or a return here because it's unreachable atm
     }
-    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    public static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         return parseIf(params, context, rawBlock, null);
     }
-    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
+    static public Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
         //System.out.println("Parsed " + params + " to " + condition);
         Context ifTrue = context.subContext();
@@ -99,7 +99,7 @@ class BlockBeginParser {
         ArrayList<Command> elsa = elseBlock == null ? null : Processor.parseRecursive(elseBlock, ifFalse);
         return new CommandIf(condition, blockCommands, ifTrue, elsa, ifFalse);
     }
-    static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    static public void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {
             throw new KeyAlreadyExistsException();
         }

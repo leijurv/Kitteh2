@@ -14,10 +14,12 @@ import static compiler.x86.X86Register.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
@@ -37,15 +39,24 @@ public class X86Function {
     private static final String FUNC_FOOTER = "\n	.cfi_endproc\n";
     private final String name;
     private final List<TACStatement> stmts;
-    final HashMap<String, X86Function> map;
-    HashSet<X86Register> used = null;
-    boolean allocated;
-    HashSet<X86Register> allUsed = null;
+    private final HashMap<String, X86Function> map;
+    private HashSet<X86Register> used = null;
+    private boolean allocated;
+    private HashSet<X86Register> allUsed = null;
     private List<String> descendants = null;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;
         this.stmts = stmts;
         this.map = map;
+    }
+    public Map<String, X86Function> getMap() {
+        return Collections.unmodifiableMap(map);
+    }
+    public boolean allocated() {
+        return allocated;
+    }
+    public void addUsed(X86Register r) {
+        used.add(r);
     }
     private static void coalesce(List<TACStatement> stmts, HashSet<X86Register> wew) {
         wew.addAll(stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).filter(tfc -> tfc.calling().equals("syscall")).flatMap(tfc -> TACFunctionCall.SYSCALL_REGISTERS.subList(0, tfc.numArgs()).stream()).collect(Collectors.toCollection(HashSet::new)));

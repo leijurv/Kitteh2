@@ -45,7 +45,7 @@ import java.util.Optional;
 class LineParser {
     private LineParser() {
     }
-    static Command parseLine(List<Token> tokens, Context context) {
+    public static Command parseLine(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }

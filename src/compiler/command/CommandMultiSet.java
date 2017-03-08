@@ -15,8 +15,8 @@ import compiler.x86.X86Param;
  * @author leijurv
  */
 public class CommandMultiSet extends Command {
-    String[] varNames;
-    ExpressionFunctionCall settingTo;
+    private final String[] varNames;
+    private ExpressionFunctionCall settingTo;
     public CommandMultiSet(Context context, ExpressionFunctionCall settingTo, String... varNames) {
         super(context);
         this.varNames = varNames;

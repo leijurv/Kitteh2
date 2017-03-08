@@ -71,10 +71,10 @@ class TokenMapping {
     private static void put(Token t, Map<String, Token> map) {
         map.put(t.toString(), t);
     }
-    static boolean mapsToToken(String s) {
+    public static boolean mapsToToken(String s) {
         return MAPPINGS.containsKey(s);
     }
-    static Token getStaticToken(String ch) {
+    public static Token getStaticToken(String ch) {
         Token t = MAPPINGS.get(ch);
         if (t == null) {
             throw new WebServiceException();//lol

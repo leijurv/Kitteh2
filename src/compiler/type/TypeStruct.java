@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * @author leijurv
  */
 public class TypeStruct extends Type {
-    final String name;
+    private final String name;
     private final HashMap<String, StructField> fields;
     private final ArrayList<Object> rawBlock;
     private final Context context;

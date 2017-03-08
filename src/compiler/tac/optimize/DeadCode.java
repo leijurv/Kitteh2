@@ -16,8 +16,8 @@ import java.util.List;
  * @author leijurv
  */
 public class DeadCode extends TACOptimization {
-    int rangeBegin = -1;
-    int rangeEnd = -1;
+    private int rangeBegin = -1;
+    private int rangeEnd = -1;
     @Override
     public void reset(List<TACStatement> statements) {
         super.reset(statements);

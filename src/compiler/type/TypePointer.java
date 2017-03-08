@@ -11,7 +11,7 @@ package compiler.type;
  * @param <E>
  */
 public class TypePointer<E extends Type> extends TypeInt64 {
-    E pointingTo;
+    private final E pointingTo;
     public <T extends E> TypePointer(T pointingTo) {
         this.pointingTo = pointingTo;
     }

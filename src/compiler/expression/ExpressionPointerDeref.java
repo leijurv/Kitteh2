@@ -21,7 +21,7 @@ import compiler.type.TypePointer;
  * @author leijurv
  */
 public class ExpressionPointerDeref extends ExpressionConditionalJumpable implements Settable {
-    final Expression deReferencing;
+    public final Expression deReferencing;
     public ExpressionPointerDeref(Expression deref) {
         this.deReferencing = deref;
     }

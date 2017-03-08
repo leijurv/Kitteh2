@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.x86;
-import compiler.type.Type;
 import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
@@ -57,36 +56,6 @@ public class X86Emitter {
     public void uncheckedMove(X86Param a, X86Param b) {
         move(a, b, true);
     }
-    public void moveStr(String a, X86Param b) {//different name so its not called accidentally
-        if (a.startsWith("%") || a.startsWith("$")) {
-            throw new IllegalStateException(a);
-        }
-        move(new X86Param() {
-            @Override
-            public String x86() {
-                return a;
-            }
-            @Override
-            public Type getType() {
-                return b.getType();
-            }
-        }, b);
-    }
-    public void moveStr(X86Param a, String b) {
-        if (b.startsWith("%") || b.startsWith("$")) {
-            throw new IllegalStateException(b);
-        }
-        move(a, new X86Param() {
-            @Override
-            public String x86() {
-                return b;
-            }
-            @Override
-            public Type getType() {
-                return a.getType();
-            }
-        });
-    }
     public X86TypedRegister regUp(X86TypedRegister source) {
         List<X86Param> al = rawAlt(source, (TypeNumerical) source.getType(), true);
         if (al.isEmpty()) {
@@ -100,7 +69,7 @@ public class X86Emitter {
             }
             if (stmt instanceof Move) {
                 Move m = (Move) stmt;
-                if (m.getDest().equals(source) && al.contains(m.getSource())) {
+                if (m.getDest().equals(source) && al.contains(m.getSource())) {//this works because all it's doing is using a janky heuristic to choose an element of al, all of which are perfectly valid
                     if (compiler.Compiler.verbose()) {
                         addComment("Using register " + m.getSource().x86() + " instead of " + source.x86() + " because of previous move");
                     }
@@ -269,14 +238,6 @@ public class X86Emitter {
     private void markDirty(String version) {
         equals.forEach(cll -> cll.removeIf(x -> x.x86().contains(version)));
     }
-    public void clearRegisters() {
-        for (X86Register reg : X86Register.values()) {
-            if (reg.name().contains("XMM") || reg == X86Register.BP || reg == X86Register.SP) {//oh my god why did I even add floating point support it just causes so many headaches and special cases UGH
-                continue;//don't clear BP and SP. even if there was a function call, BP and SP are restored to how they were
-            }
-            markRegisterDirty(reg);
-        }
-    }
     public void clearRegisters(Collection<X86Register> registers) {
         registers.forEach(this::markRegisterDirty);
     }
@@ -419,9 +380,10 @@ public class X86Emitter {
             if (statements.get(i) instanceof Move) {
                 Move m = (Move) statements.get(i);
                 if (m.getDest() instanceof X86TypedRegister && ((X86TypedRegister) m.getDest()).getRegister() == X86Register.D && doTheThing(i)) {
-                    statements.remove(i);
                     if (compiler.Compiler.verbose()) {
-                        statements.add(i, new Comment("REMOVED BECAUSE REDUNDANT " + statements.get(i)));
+                        statements.set(i, new Comment("REMOVED BECAUSE REDUNDANT " + statements.get(i)));
+                    } else {
+                        statements.remove(i);
                     }
                     i = -1;
                 }

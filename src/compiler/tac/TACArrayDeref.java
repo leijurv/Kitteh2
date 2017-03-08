@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.type.Type;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Emitter;
@@ -62,7 +63,18 @@ public class TACArrayDeref extends TACStatement {
         if (!dest.getType().equals(pointingTo)) {
             throw new RuntimeException(dest.getType() + " " + pointingTo);
         }
-        emit.moveStr("(" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")", dest);
+        String sourceStr = "(" + arr.x86() + ", " + ind.x86() + ", " + pointingTo.getSizeBytes() + ")";
+        X86Param source = new X86Param() {
+            @Override
+            public String x86() {
+                return sourceStr;
+            }
+            @Override
+            public Type getType() {
+                return dest.getType();
+            }
+        };
+        emit.move(source, dest);
         if (dest != params[2]) {
             emit.move(dest, params[2]);
         }

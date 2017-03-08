@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 public class BetterJoiner {
     private BetterJoiner() {
     }
-    public static <T extends String> String futuristicJoin(Stream<? extends T> stream, Future<T> header, Future<? extends T> joiner, Future<T> footer) {
+    public static <T extends String> String futuristicJoin(Stream<? extends T> s, Future<T> header, Future<? extends T> joiner, Future<T> footer) {
         StringBuilder builder = new StringBuilder();
-        stream = stream.parallel();
+        Stream<? extends T> stream = s.parallel();
         Consumer<Consumer<String>> consum = compiler.Compiler.deterministic() ? stream::forEachOrdered : stream::forEach;
         consum.accept(str -> {
             synchronized (builder) {

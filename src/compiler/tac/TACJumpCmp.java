@@ -51,7 +51,9 @@ public class TACJumpCmp extends TACJump {
         }
         emit.addStatement(jump + " " + emit.lineToLabel(jumpTo));
     }
-    public static Operator createCompare(X86Param first, X86Param second, Operator op, X86Emitter emit) {
+    public static Operator createCompare(X86Param first0, X86Param second0, Operator op, X86Emitter emit) {
+        X86Param first = first0;
+        X86Param second = second0;
         X86Param secondAlt = emit.alternative(second, false);
         if (secondAlt != null) {
             second = secondAlt;

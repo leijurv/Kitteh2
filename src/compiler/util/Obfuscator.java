@@ -53,11 +53,12 @@ public class Obfuscator {
             return str;
         }
         SHA.reset();
+        String s = str;
         if (!compiler.Compiler.deterministic()) {
-            str += NANO_TIME;
+            s += NANO_TIME;
         }
         try {
-            return bytesToHex(SHA.digest(str.getBytes("UTF-8")));
+            return bytesToHex(SHA.digest(s.getBytes("UTF-8")));
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Obfuscator.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("doesn't support utf-8?????", ex);

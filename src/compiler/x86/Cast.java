@@ -14,6 +14,9 @@ public class Cast extends X86Statement {
     private final X86Param source;
     private final X86Param dest;
     public Cast(X86Param source, X86Param dest) {
+        if (source.getType().getSizeBytes() >= dest.getType().getSizeBytes()) {
+            throw new IllegalStateException(source + " " + dest + " " + source.getType() + " " + dest.getType());
+        }
         this.source = source;
         this.dest = dest;
     }

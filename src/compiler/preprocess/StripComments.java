@@ -102,6 +102,8 @@ class StripComments {
                             commentEndsWithNewLine = true;
                         }
                         break;
+                    default:
+                        break;
                 }
             }
             if (inComment && commentEndsWithNewLine && ch == '\n') {

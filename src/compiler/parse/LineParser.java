@@ -94,6 +94,8 @@ class LineParser {
                         }
                         return new CommandReturn(context, expressions);
                     }
+                default:
+                    break;
             }
         }
         if (tokens.stream().anyMatch(SEMICOLON)) {//omg this is so cool. I can either do tokens.contains(SEMICOLON) or tokens.stream().anyMatch(SEMICOLON). 3 guesses which I like more =)

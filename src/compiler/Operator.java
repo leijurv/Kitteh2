@@ -167,9 +167,9 @@ public enum Operator implements Token<Operator> {
                     throw new IllegalStateException("can't do " + this + " on " + a + " and " + b);
                 }
                 return a;
-            //don't add a default and maybe throw an exception
+            default:
+                throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
         }
-        throw new IllegalStateException("This could only happen if someone added a new operator but didn't implement calculating the type it returns. Operator in question: " + this);
     }
     strictfp public <A extends E, E extends Expression & ExpressionConst<? extends V>, V, B extends E> Expression apply(A a, B b) {//used in optimization
         if (!a.getType().equals(b.getType())) {

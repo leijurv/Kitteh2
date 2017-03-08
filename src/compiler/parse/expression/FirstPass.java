@@ -116,6 +116,8 @@ class FirstPass implements ExpressionParseStep {
                 case INCREMENT:
                 case DECREMENT:
                     throw new IllegalStateException("No " + ob + " in an expressios, only as a line on its own");
+                default:
+                    break;
             }
         }
         return false;

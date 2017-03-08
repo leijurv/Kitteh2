@@ -46,7 +46,11 @@ public abstract class Command {//TODO calling .toString() then reparsing from sc
         staticValues();
         return this;
     }
-    protected abstract void staticValues();
+    protected void staticValues() {
+        if (getAllVarsModified().count() != 0) {
+            throw new IllegalStateException("must override");
+        }
+    }
     public Stream<String> getAllVarsModified() {
         return Stream.empty();
     }

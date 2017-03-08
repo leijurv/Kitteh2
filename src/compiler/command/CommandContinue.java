@@ -24,7 +24,4 @@ public class CommandContinue extends Command {
     protected int calculateTACLength() {
         return 1;
     }
-    @Override
-    public void staticValues() {
-    }
 }

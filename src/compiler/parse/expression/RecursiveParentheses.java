@@ -36,6 +36,42 @@ class RecursiveParentheses extends TokenBased {
     @Override
     protected boolean apply(int i, ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         ArrayList<ArrayList<Object>> inParen = new ArrayList<>();
+        int numToRemoveAti = fill(i, o, inParen);
+        if (i != 0 && o.get(i - 1) == Keyword.SIZEOF) {
+            if (inParen.size() != 1) {
+                throw new IllegalStateException();
+            }
+            Type type = ParseUtil.typeFromObjs(inParen.get(0), context);
+            if (type == null) {
+                type = ExpressionParser.parseImpl(new ArrayList<>(inParen.get(0)), Optional.empty(), context).getType();//not doing sizeof(int), we're doing sizeof(variableWithTypeInt)
+                //throw new IllegalStateException();
+            }
+            for (int j = 0; j < numToRemoveAti; j++) {
+                o.remove(i);
+            }
+            o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
+            return true;
+        }
+        if (inParen.size() == 1 && ParseUtil.typeFromObjs(inParen.get(0), context) != null) {
+            //this is a cast, skip the rest and don't modify these parentheses
+            return false;
+        } else {
+            //not a cast
+            for (int j = 0; j < numToRemoveAti; j++) {
+                o.remove(i);
+            }
+        }
+        if (func(i, o, context, inParen)) {
+            return true;
+        }
+        //System.out.println("Doing replace " + o + " " + inParen);
+        if (inParen.size() != 1) {
+            throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
+        }
+        o.add(i, ExpressionParser.parseImpl(inParen.get(0), desiredType, context));
+        return true;
+    }
+    private int fill(int i, ArrayList<Object> o, ArrayList<ArrayList<Object>> inParen) {
         ArrayList<Object> temp = new ArrayList<>();
         int numParens = 1;
         ArrayList<Object> copy = new ArrayList<>(o);
@@ -70,31 +106,9 @@ class RecursiveParentheses extends TokenBased {
         if (numParens != 0) {
             throw new IllegalStateException("mismatched ( and )");
         }
-        if (i != 0 && o.get(i - 1) == Keyword.SIZEOF) {
-            if (inParen.size() != 1) {
-                throw new IllegalStateException();
-            }
-            Type type = ParseUtil.typeFromObjs(inParen.get(0), context);
-            if (type == null) {
-                type = ExpressionParser.parseImpl(new ArrayList<>(inParen.get(0)), Optional.empty(), context).getType();//not doing sizeof(int), we're doing sizeof(variableWithTypeInt)
-                //throw new IllegalStateException();
-            }
-            for (int j = 0; j < numToRemoveAti; j++) {
-                o.remove(i);
-            }
-            o.set(i - 1, new ExpressionConstNum(type.getSizeBytes(), new TypeInt32()));
-            return true;
-        }
-        if (inParen.size() == 1 && ParseUtil.typeFromObjs(inParen.get(0), context) != null) {
-            //this is a cast, skip the rest and don't modify these parentheses
-            return false;
-        } else {
-            //not a cast
-            for (int j = 0; j < numToRemoveAti; j++) {
-                o.remove(i);
-            }
-        }
-        //System.out.println("Doing replace " + o + " " + inParen);
+        return numToRemoveAti;
+    }
+    private boolean func(int i, ArrayList<Object> o, Context context, ArrayList<ArrayList<Object>> inParen) {
         if (i != 0 && (is(o.get(i - 1), VARIABLE) || is(o.get(i - 1), KEYWORD))) {
             String funcName;
             if (is(o.get(i - 1), VARIABLE)) {
@@ -161,10 +175,6 @@ class RecursiveParentheses extends TokenBased {
             }
             return true;
         }
-        if (inParen.size() != 1) {
-            throw new IllegalStateException("This has commas or is empty, but isn't a function call " + inParen);
-        }
-        o.add(i, ExpressionParser.parseImpl(inParen.get(0), desiredType, context));
-        return true;
+        return false;
     }
 }

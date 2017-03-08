@@ -198,20 +198,20 @@ public class Context {//TODO split off some of this massive functionality into o
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, X86Param>[] values, int stackSize, FunctionsContext gc, HashMap<String, TypeStruct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
+    private Context(HashMap<String, X86Param>[] values, Context from) {
         this.values = values;
-        this.stackSize = stackSize;
-        this.structs = structs;
-        this.gc = gc;
-        this.currentFunction = currentFunction;
-        this.varIndex = sub;
-        this.imports = imports;
-        this.packageName = packageName;
+        this.stackSize = from.stackSize;
+        this.structs = from.structs;
+        this.gc = from.gc;
+        this.currentFunction = from.currentFunction;
+        this.varIndex = from.varIndex == null ? new MutInt() : from.varIndex;
+        this.imports = from.imports;
+        this.packageName = from.packageName;
     }
     public Context subContext() {
         HashMap<String, X86Param>[] temp = Arrays.copyOf(values, values.length + 1);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
+        Context subContext = new Context(temp, this);
         return subContext;
     }
     private void defineLocal(String name, VarInfo value) {

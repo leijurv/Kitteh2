@@ -119,35 +119,29 @@ public class X86Emitter {
     private List<X86Param> rawAlt(X86Param a, boolean onlyReg) {
         TypeNumerical type = (TypeNumerical) a.getType();
         List<X86Param> al = new ArrayList<>();
-        for (HashSet<X86Param> eqq : equals) {
-            if (eqq.contains(a)) {
-                for (X86Param alternative : eqq) {
-                    if (alternative instanceof X86TypedRegister || (!onlyReg && alternative instanceof X86Const)) {
-                        Type alt = alternative.getType();
-                        if (alt.getSizeBytes() != type.getSizeBytes()) {
-                            if (alternative instanceof X86Const) {
-                                al.add(new X86Const(((X86Const) alternative).getValue(), type));//just fix the type
-                                continue;
-                            }
-                            if (alt.getSizeBytes() > type.getSizeBytes()) {
-                                //we're looking for equal to an int, but a long has the same value
-                                //if we take the lower part of the alternative, that should be equal to what we're looking for
-                                al.add(((X86TypedRegister) alternative).getRegister().getRegister(type));
-                                continue;
-                            }
-                            //the alternative must be smaller
-                            //it doesn't have enough information
-                            continue;
-                            //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
-                        }
-                        /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
+        equals.stream().filter(eqq -> eqq.contains(a)).flatMap(HashSet::stream).filter(alt -> alt instanceof X86TypedRegister || (!onlyReg && alt instanceof X86Const)).forEach(alternative -> {
+            Type alt = alternative.getType();
+            if (alt.getSizeBytes() != type.getSizeBytes()) {
+                if (alternative instanceof X86Const) {
+                    al.add(new X86Const(((X86Const) alternative).getValue(), type));//just fix the type
+                    return;
+                }
+                if (alt.getSizeBytes() > type.getSizeBytes()) {
+                    //we're looking for equal to an int, but a long has the same value
+                    //if we take the lower part of the alternative, that should be equal to what we're looking for
+                    al.add(((X86TypedRegister) alternative).getRegister().getRegister(type));
+                    return;
+                }
+                //the alternative must be smaller
+                //it doesn't have enough information
+                return;
+                //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
+            }
+            /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
                             addComment("whoa type is different " + type + " " + eqq);
                         }*/
-                        al.add(alternative);
-                    }
-                }
-            }
-        }
+            al.add(alternative);
+        });
         return al;
     }
     public boolean redundant(X86Param a, X86Param b) {

@@ -121,7 +121,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(params[i], SYSCALL_REGISTERS.get(i));
             }
             emit.addStatement("syscall");
-            emit.clearRegisters(C, R11);
+            emit.dfa.clearRegisters(C, R11);
             printRet(emit);
             return;
         }
@@ -149,7 +149,7 @@ public class TACFunctionCall extends TACStatement {
                 emit.move(new X86Const("1", new TypeInt8()), A);//to be honest I don't know what this does, but when I run printf in C, the resulting ASM has this line beforehand. *shrug*. also if you remove it there's sometimes a segfault, which is FUN
                 emit.addStatement("cvtss2sd " + params[0].x86() + ", %xmm0");
                 emit.addStatement(X86Format.MAC ? "callq _printf" : "callq printf");//I understand this one at least XD
-                emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
+                emit.dfa.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
                 return;
             }
         }
@@ -184,13 +184,13 @@ public class TACFunctionCall extends TACStatement {
         emit.addStatement("callq " + (X86Format.MAC ? "_" : "") + name);
         if (stack) {
             X86Function calling = emit.map().get(header.name);
-            emit.clearRegisters(calling.allUsed());
-            emit.clearRegisters(SP);//TODO i chose to make the optimization correct even when called functions modify their own arguments
+            emit.dfa.clearRegisters(calling.allUsed());
+            emit.dfa.clearRegisters(SP);//TODO i chose to make the optimization correct even when called functions modify their own arguments
             //should I disallow modifying arguments? or should I allow it, even though it can't let (%rsp) stay as it is between calls
             //TODO calling a function could modify heap locations relative to unmodified registers possibly
             //so maybe clear -x(%anyRegister) but not the registers themselves
         } else {
-            emit.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
+            emit.dfa.clearRegisters(A, C, D, SI, DI, R8, R9, R10, R11);
         }
         printRet(emit);
     }

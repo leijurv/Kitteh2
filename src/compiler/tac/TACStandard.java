@@ -96,9 +96,9 @@ public class TACStandard extends TACStatement {
         }
         x86(emit, params[0], params[1], params[2], op);
     }
-    public static void dirt(X86Param result, X86Emitter emit) {
+    public static void dirt(X86Param result, X86Emitter emit) {//TODO this wrapper is basically useless
         if (result instanceof VarInfo || result instanceof X86TypedRegister) {
-            emit.markDirty(result);
+            emit.dfa.markDirty(result);
         } else {
             throw new IllegalStateException();
         }
@@ -209,7 +209,7 @@ public class TACStandard extends TACStatement {
         if ((second instanceof X86Const || second instanceof X86TypedRegister || second instanceof VarInfo) && !(op == MOD || op == DIVIDE || ((second instanceof X86TypedRegister || second instanceof VarInfo) && (op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)))) {
             if (second.getType().getSizeBytes() == cc.getType().getSizeBytes()) {
                 c = second.x86();
-                X86Param al = emit.alternative(second, false);
+                X86Param al = emit.dfa.alternative(second, false);
                 if (al != null && !al.x86().equals(result.x86())) {
                     c = al.x86();
                     if (compiler.Compiler.verbose()) {
@@ -256,11 +256,11 @@ public class TACStandard extends TACStatement {
                 switch (type.getSizeBytes()) {
                     case 8:
                         emit.addStatement("cqto");
-                        emit.markRegisterDirty(X86Register.D);
+                        emit.dfa.markRegisterDirty(X86Register.D);
                         break;
                     case 4:
                         emit.addStatement("cltd");
-                        emit.markRegisterDirty(X86Register.D);
+                        emit.dfa.markRegisterDirty(X86Register.D);
                         break;
                     default:
                         X86Param d = X86Register.D.getRegister(type);
@@ -269,8 +269,8 @@ public class TACStandard extends TACStatement {
                         break;
                 }
                 emit.addStatement("idiv" + type.x86typesuffix() + " " + X86Register.C.getRegister(type).x86());
-                emit.markRegisterDirty(X86Register.A);
-                emit.markRegisterDirty(X86Register.D);
+                emit.dfa.markRegisterDirty(X86Register.A);
+                emit.dfa.markRegisterDirty(X86Register.D);
                 emit.move(op == DIVIDE ? X86Register.A : X86Register.D, result);
                 return;
             case MULTIPLY:

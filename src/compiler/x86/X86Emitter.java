@@ -4,14 +4,10 @@
  * and open the template in the editor.
  */
 package compiler.x86;
-import compiler.type.Type;
 import compiler.type.TypeFloat;
-import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,18 +23,19 @@ public class X86Emitter {
     private final ArrayList<X86Statement> statements = new ArrayList<>();
     private final String prefix;
     private final X86Function func;
-    private HashSet<HashSet<X86Param>> equals = new HashSet<>();
+    public final DataFlowAnalysis dfa;
     public X86Emitter(String funcLabelPrefix, X86Function func) {
         prefix = STATIC_LABEL_PREFIX + "_" + funcLabelPrefix + "_";
         this.func = func;
+        this.dfa = new DataFlowAnalysis(this);
     }
     public X86Emitter() {
         this("", null);
     }
     public X86Emitter(X86Emitter other) {
-        this();
-        equals = new HashSet<>();
-        other.equals.stream().map(HashSet::new).forEach(equals::add);
+        this.dfa = new DataFlowAnalysis(other.dfa, this);
+        this.func = null;
+        this.prefix = "";
     }
     public void move(X86Param a, X86Param b) {
         move(a, b, false);
@@ -53,7 +50,7 @@ public class X86Emitter {
         move(a, b, true);
     }
     public X86TypedRegister regUp(X86TypedRegister source) {
-        List<X86Param> al = rawAlt(source, true);
+        List<X86Param> al = dfa.rawAlt(source, true);
         if (al.isEmpty()) {
             return (X86TypedRegister) source;
         }
@@ -83,7 +80,7 @@ public class X86Emitter {
         if (source instanceof X86Const) {
             throw new IllegalStateException();
         }
-        X86Param alt = alternative(source, true);
+        X86Param alt = dfa.alternative(source, true);
         if (alt != null) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART Replacing load with more efficient one given previous move.");
@@ -95,57 +92,6 @@ public class X86Emitter {
             move(source, loc);
             return loc;
         }
-    }
-    public X86Param alternative(X86Param a, boolean onlyReg) {
-        if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
-            List<X86Param> al = rawAlt(a, onlyReg);
-            if (!al.isEmpty()) {
-                for (X86Param p : al) {
-                    if (p instanceof X86TypedRegister) {
-                        return regUp((X86TypedRegister) p);
-                    }
-                }
-                return al.get(0);
-            }
-        }
-        if (a instanceof X86TypedRegister) {
-            X86TypedRegister c = regUp((X86TypedRegister) a);
-            if (!c.x86().equals(a.x86())) {
-                return c;
-            }
-        }
-        return null;
-    }
-    private List<X86Param> rawAlt(X86Param a, boolean onlyReg) {
-        TypeNumerical type = (TypeNumerical) a.getType();
-        List<X86Param> al = new ArrayList<>();
-        equals.stream().filter(eqq -> eqq.contains(a)).flatMap(HashSet::stream).filter(alt -> alt instanceof X86TypedRegister || (!onlyReg && alt instanceof X86Const)).forEach(alternative -> {
-            Type alt = alternative.getType();
-            if (alt.getSizeBytes() != type.getSizeBytes()) {
-                if (alternative instanceof X86Const) {
-                    al.add(new X86Const(((X86Const) alternative).getValue(), type));//just fix the type
-                    return;
-                }
-                if (alt.getSizeBytes() > type.getSizeBytes()) {
-                    //we're looking for equal to an int, but a long has the same value
-                    //if we take the lower part of the alternative, that should be equal to what we're looking for
-                    al.add(((X86TypedRegister) alternative).getRegister().getRegister(type));
-                    return;
-                }
-                //the alternative must be smaller
-                //it doesn't have enough information
-                return;
-                //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
-            }
-            /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
-                            addComment("whoa type is different " + type + " " + eqq);
-                        }*/
-            al.add(alternative);
-        });
-        return al;
-    }
-    public boolean redundant(X86Param a, X86Param b) {
-        return equals.stream().filter(x -> x.contains(a)).anyMatch(x -> x.contains(b));
     }
     private void move(X86Param a, X86Param b, boolean typesCanBeDifferent) {
         if (!typesCanBeDifferent && !a.getType().equals(b.getType())) {
@@ -166,7 +112,7 @@ public class X86Emitter {
             statements.add(moveStmt);
             return;
         }
-        Optional<HashSet<X86Param>> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
+        Optional<HashSet<X86Param>> eq = dfa.redundancy(a, b);
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
@@ -176,7 +122,7 @@ public class X86Emitter {
             return;//can return because this doesn't affect anything
         }
         boolean replaced = false;
-        X86Param alt = alternative(a, false);
+        X86Param alt = dfa.alternative(a, false);
         if (alt != null) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");
@@ -186,85 +132,24 @@ public class X86Emitter {
             statements.add(new Move(alt, b));
             replaced = true;
         }
-        knownEqual(a, b);
+        dfa.knownEqual(a, b);
         if (!replaced) {
             statements.add(moveStmt);
         }
-    }
-    private void knownEqual(X86Param a, X86Param b) {
-        if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {
-            throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
-        }
-        //if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
-        markDirty(b);//assume nothing previously equal to b is now equal to b, because it was set to a
-        equals.stream().filter(cl -> cl.contains(a)).forEach(cl -> cl.add(b));//anything previously equal to a, is now equal to b (because b=a)
-        if (a instanceof X86Memory && b instanceof X86TypedRegister && ((X86Memory) a).reg == ((X86TypedRegister) b).getRegister()) {
-            //"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
-            if (compiler.Compiler.verbose()) {
-                addComment("no information gleaned from " + a + " -> " + b);
-            }
-        } else {
-            //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
-            //that's why the condition is a.contains(b) not b.contains(a)
-            equals.add(new HashSet<>(Arrays.asList(a, b)));
-        }
-    }
-    public void markRegisterDirty(X86Register reg) {
-        if (reg == X86Register.XMM0 || reg == X86Register.XMM1) {
-            return;
-        }
-        if (reg == X86Register.BP) {
-            throw new IllegalStateException();
-        }
-        if (reg == X86Register.SP) {
-            markDirty(reg.getRegister(new TypeInt64()).x86());
-            return;
-        }
-        for (TypeNumerical t : TypeNumerical.INTEGER_TYPES) {
-            markDirty(reg.getRegister(t).x86());
-        }
-    }
-    public void markDirty(X86Param param) {
-        if (param instanceof X86TypedRegister) {
-            markRegisterDirty(((X86TypedRegister) param).getRegister());
-        }
-        if (param instanceof X86Memory) {
-            //woohoo, this is the special case I have been dreaming of
-            //if we movq into 5(%rax), that corrupts EIGHT bytes
-            //this comes up often when moving structs, temp variables, etc
-            List<X86Param> overlapped = equals.stream().flatMap(HashSet::stream).filter(((X86Memory) param)::overlap).collect(Collectors.toList());
-            //addComment(param + " overlaps into " + overlapped);
-            overlapped.forEach(bad -> {
-                if (compiler.Compiler.verbose() && !bad.x86().equals(param.x86())) {
-                    addComment(bad + " overlaps with " + param);
-                }
-                markDirty(bad.x86());
-            });
-        }
-        markDirty(param.x86());
-    }
-    private void markDirty(String version) {
-        equals.forEach(cll -> cll.removeIf(x -> x.x86().contains(version)));
-    }
-    public void clearRegisters(Collection<X86Register> registers) {
-        registers.forEach(this::markRegisterDirty);
-    }
-    public void clearRegisters(X86Register... registers) {
-        clearRegisters(Arrays.asList(registers));
     }
     public Map<String, X86Function> map() {
         return func.getMap();
     }
     public void cast(X86Param a, X86Param b) {
         statements.add(new Cast(a, b));
-        markDirty(b);
+        dfa.markDirty(b);
         if (a.getType() instanceof TypeFloat || b.getType() instanceof TypeFloat) {
             return;
         }
         //the lower part of b is now equal to a
         if (b instanceof X86TypedRegister) {
             X86TypedRegister lowerB = ((X86TypedRegister) b).getRegister().getRegister((TypeNumerical) a.getType());
-            knownEqual(a, lowerB);
+            dfa.knownEqual(a, lowerB);
         } else {
             throw new IllegalStateException(a + " " + b);//apparently this doesn't happen
         }
@@ -279,7 +164,8 @@ public class X86Emitter {
         }
     }
     public void addLabel(String lbl) {
-        equals = new HashSet<>();//jump destination, anything could be anything
+        dfa.clear();//jump destination, anything could be anything
+        //TODO merge known equalities from jump sources and previous line
         statements.add(new Label(lbl));
     }
     public void addAlignedComment(String cmt) {

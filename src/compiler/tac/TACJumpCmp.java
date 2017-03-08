@@ -54,11 +54,11 @@ public class TACJumpCmp extends TACJump {
     public static Operator createCompare(X86Param first0, X86Param second0, Operator op, X86Emitter emit) {
         X86Param first = first0;
         X86Param second = second0;
-        X86Param secondAlt = emit.alternative(second, false);
+        X86Param secondAlt = emit.dfa.alternative(second, false);
         if (secondAlt != null) {
             second = secondAlt;
         }
-        X86Param firstAlt = emit.alternative(first, false);
+        X86Param firstAlt = emit.dfa.alternative(first, false);
         if (firstAlt != null) {
             first = firstAlt;
         }

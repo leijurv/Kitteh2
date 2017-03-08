@@ -57,7 +57,7 @@ public class TACPointerDeref extends TACStatement {
             if (dest instanceof X86TypedRegister) {
                 emit.move(memLoc, dest);
             } else {
-                X86Param alt1 = emit.alternative(memLoc, false);
+                X86Param alt1 = emit.dfa.alternative(memLoc, false);
                 if (alt1 != null) {
                     if (compiler.Compiler.verbose()) {
                         emit.addComment("SMART Replacing deref with more efficient one given previous move.");

@@ -76,13 +76,13 @@ public class TACConst extends TACStatement {
                 emit.move(r, dest);
                 return;
             }
-            if (emit.redundant(source, dest)) {
+            if (emit.dfa.redundancy(source, dest).isPresent()) {
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("not doing move from " + source + " to " + dest);
                 }
                 return;
             }
-            X86Param alt = emit.alternative(source, false);
+            X86Param alt = emit.dfa.alternative(source, false);
             if (alt != null) {
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("SMART Replacing double move with more efficient one given previous move. Move was previously:");

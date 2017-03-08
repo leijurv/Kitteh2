@@ -50,7 +50,7 @@ public class TACPointerRef extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         if (params[0].getType() instanceof TypeNumerical) {
-            X86Param source = emit.alternative(params[0], false);
+            X86Param source = emit.dfa.alternative(params[0], false);
             if (source == null) {
                 if (params[0] instanceof X86Const) {
                     source = params[0];

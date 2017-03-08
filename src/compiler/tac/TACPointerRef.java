@@ -50,19 +50,19 @@ public class TACPointerRef extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         if (params[0].getType() instanceof TypeNumerical) {
-            X86Param source = emit.alternative(params[0], (TypeNumerical) params[0].getType(), false);
+            X86Param source = emit.alternative(params[0], false);
             if (source == null) {
                 if (params[0] instanceof X86Const) {
                     source = params[0];
                 } else {
-                    source = emit.putInRegister(params[0], (TypeNumerical) params[0].getType(), X86Register.C);
+                    source = emit.putInRegister(params[0], X86Register.C);
                 }
             }
             X86Register ohno = X86Register.A;
             if (source instanceof X86TypedRegister && ((X86TypedRegister) source).getRegister() == X86Register.A) {
                 ohno = X86Register.C;
             }
-            X86TypedRegister othersource = emit.putInRegister(params[1], (TypeNumerical) params[1].getType(), ohno);
+            X86TypedRegister othersource = emit.putInRegister(params[1], ohno);
             X86Memory dest = new X86Memory(offset, othersource.getRegister(), params[0].getType());
             emit.uncheckedMove(source, dest);
         } else if (params[0].getType() instanceof TypeStruct) {

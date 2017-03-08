@@ -51,14 +51,14 @@ public class TACPointerDeref extends TACStatement {
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        X86TypedRegister loc = emit.putInRegister(source, (TypeNumerical) source.getType(), X86Register.A);
+        X86TypedRegister loc = emit.putInRegister(source, X86Register.A);
         X86Param memLoc = new X86Memory(offset, loc.getRegister(), dest.getType());
         if (dest.getType() instanceof TypeNumerical) {
             TypeNumerical d = (TypeNumerical) dest.getType();
             if (dest instanceof X86TypedRegister) {
                 emit.move(memLoc, dest);
             } else {
-                X86Param alt1 = emit.alternative(memLoc, d, false);
+                X86Param alt1 = emit.alternative(memLoc, false);
                 if (alt1 != null) {
                     if (compiler.Compiler.verbose()) {
                         emit.addComment("SMART Replacing deref with more efficient one given previous move.");

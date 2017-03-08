@@ -82,7 +82,7 @@ public class TACConst extends TACStatement {
                 }
                 return;
             }
-            X86Param alt = emit.alternative(source, (TypeNumerical) source.getType(), false);
+            X86Param alt = emit.alternative(source, false);
             if (alt != null) {
                 if (compiler.Compiler.verbose()) {
                     emit.addComment("SMART Replacing double move with more efficient one given previous move. Move was previously:");

@@ -58,7 +58,7 @@ public class X86Emitter {
         move(a, b, true);
     }
     public X86TypedRegister regUp(X86TypedRegister source) {
-        List<X86Param> al = rawAlt(source, (TypeNumerical) source.getType(), true);
+        List<X86Param> al = rawAlt(source, true);
         if (al.isEmpty()) {
             return (X86TypedRegister) source;
         }
@@ -80,15 +80,15 @@ public class X86Emitter {
         }
         return (X86TypedRegister) source;
     }
-    public X86TypedRegister putInRegister(X86Param source, TypeNumerical type, X86Register desired) {
+    public X86TypedRegister putInRegister(X86Param source, X86Register desired) {
         if (source instanceof X86TypedRegister) {
             return regUp((X86TypedRegister) source);
         }
-        X86TypedRegister loc = desired.getRegister(type);
+        X86TypedRegister loc = desired.getRegister((TypeNumerical) source.getType());
         if (source instanceof X86Const) {
             throw new RuntimeException();
         }
-        X86Param alt = alternative(source, type, true);
+        X86Param alt = alternative(source, true);
         if (alt != null) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART Replacing load with more efficient one given previous move.");
@@ -101,12 +101,9 @@ public class X86Emitter {
             return loc;
         }
     }
-    public X86Param alternative(X86Param a, TypeNumerical type, boolean onlyReg) {
-        if (!a.getType().equals(type)) {
-            throw new RuntimeException(a + " " + a.getType() + " " + type);
-        }
+    public X86Param alternative(X86Param a, boolean onlyReg) {
         if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
-            List<X86Param> al = rawAlt(a, type, onlyReg);
+            List<X86Param> al = rawAlt(a, onlyReg);
             if (!al.isEmpty()) {
                 for (X86Param p : al) {
                     if (p instanceof X86TypedRegister) {
@@ -124,7 +121,8 @@ public class X86Emitter {
         }
         return null;
     }
-    private List<X86Param> rawAlt(X86Param a, TypeNumerical type, boolean onlyReg) {
+    private List<X86Param> rawAlt(X86Param a, boolean onlyReg) {
+        TypeNumerical type = (TypeNumerical) a.getType();
         List<X86Param> al = new ArrayList<>();
         for (HashSet<X86Param> eqq : equals) {
             if (eqq.contains(a)) {
@@ -189,7 +187,7 @@ public class X86Emitter {
             return;//can return because this doesn't affect anything
         }
         boolean replaced = false;
-        X86Param alt = alternative(a, type, false);
+        X86Param alt = alternative(a, false);
         if (alt != null) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART Replacing move with more efficient one given previous move. Move was previously:");

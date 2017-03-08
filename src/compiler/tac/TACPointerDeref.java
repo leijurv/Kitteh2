@@ -83,7 +83,7 @@ public class TACPointerDeref extends TACStatement {
         //still.
         //even though its a little smarter now
         int i = 0;
-        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {
+        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {//ordered from largest to smallest for efficient moving
             while (i + tn.getSizeBytes() <= size) {
                 X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister, tn);
                 X86Memory ds = new X86Memory(destLocation + i, destRegister, tn);

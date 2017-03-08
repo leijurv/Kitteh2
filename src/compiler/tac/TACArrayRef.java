@@ -5,10 +5,6 @@
  */
 package compiler.tac;
 import compiler.type.Type;
-import compiler.type.TypeInt16;
-import compiler.type.TypeInt32;
-import compiler.type.TypeInt64;
-import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.x86.X86Const;
@@ -36,7 +32,7 @@ public class TACArrayRef extends TACStatement {
         X86Emitter emit = new X86Emitter();
         printx86(emit);
         String aoeu = emit.withoutComments();
-        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+        for (TypeNumerical tn : TypeNumerical.INTEGER_TYPES) {
             if (aoeu.contains(X86Register.D.getRegister(tn).x86())) {
                 return true;
             }

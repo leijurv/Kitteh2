@@ -68,7 +68,7 @@ public class TACStandard extends TACStatement {
         X86Emitter emit = new X86Emitter();
         printx86(emit);
         String aoeu = emit.withoutComments();
-        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+        for (TypeNumerical tn : TypeNumerical.INTEGER_TYPES) {
             if (aoeu.contains(X86Register.D.getRegister(tn).x86())) {
                 return true;
             }

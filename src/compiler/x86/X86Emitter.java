@@ -6,10 +6,7 @@
 package compiler.x86;
 import compiler.type.Type;
 import compiler.type.TypeFloat;
-import compiler.type.TypeInt16;
-import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
-import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.util.Obfuscator;
 import java.util.ArrayList;
@@ -231,7 +228,7 @@ public class X86Emitter {
             markDirty(reg.getRegister(new TypeInt64()).x86());
             return;
         }
-        for (TypeNumerical t : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+        for (TypeNumerical t : TypeNumerical.INTEGER_TYPES) {
             markDirty(reg.getRegister(t).x86());
         }
     }
@@ -341,7 +338,7 @@ public class X86Emitter {
                     registersUsed.add(((X86TypedRegister) m.source).getRegister());
                 }
                 for (X86Register r : new X86Register[]{A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15}) {//forgive me father, for i have sinned
-                    for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+                    for (TypeNumerical type : TypeNumerical.INTEGER_TYPES) {
                         if (s.toString().contains(r.getRegister1(type, true))) {
                             registersUsed.add(r);
                         }
@@ -371,7 +368,7 @@ public class X86Emitter {
                 stackLocationsUsed.add(c);
             }
             for (X86Register r : new X86Register[]{A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15}) {//forgive me father, for i have sinned
-                for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+                for (TypeNumerical type : TypeNumerical.INTEGER_TYPES) {
                     if (t.contains(r.getRegister1(type, true))) {
                         registersUsed.add(r);
                     }
@@ -393,7 +390,7 @@ public class X86Emitter {
             if (statements.get(j).toString().contains("syscall")) {
                 return false;
             }
-            for (TypeNumerical type : new TypeNumerical[]{new TypeInt8(), new TypeInt16(), new TypeInt32(), new TypeInt64()}) {
+            for (TypeNumerical type : TypeNumerical.INTEGER_TYPES) {
                 if (statements.get(j).toString().contains(X86Register.D.getRegister1(type, true))) {
                     return false;
                 }

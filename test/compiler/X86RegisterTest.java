@@ -4,10 +4,6 @@
  * and open the template in the editor.
  */
 package compiler;
-import compiler.type.TypeInt16;
-import compiler.type.TypeInt32;
-import compiler.type.TypeInt64;
-import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.x86.X86Register;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +16,7 @@ import org.junit.Test;
 public class X86RegisterTest {
     @Test
     public void testGetRegisters() {
-        assertEquals(4, TYPES.length);
+        assertEquals(4, TypeNumerical.INTEGER_TYPES.length);
         testRegister(X86Register.A, "%rax", "%eax", "%ax", "%al");
         testRegister(X86Register.B, "%rbx", "%ebx", "%bx", "%bl");
         testRegister(X86Register.C, "%rcx", "%ecx", "%cx", "%cl");
@@ -36,11 +32,10 @@ public class X86RegisterTest {
         testRegister(X86Register.R14, "%r14", "%r14d", "%r14w", "%r14b");
         testRegister(X86Register.R15, "%r15", "%r15d", "%r15w", "%r15b");
     }
-    private static final TypeNumerical[] TYPES = {new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()};
     public void testRegister(X86Register reg, String... requiredValues) {
-        assertEquals(TYPES.length, requiredValues.length);
-        for (int i = 0; i < TYPES.length; i++) {
-            assertEquals(requiredValues[i], reg.getRegister1(TYPES[i], true));
+        assertEquals(TypeNumerical.INTEGER_TYPES.length, requiredValues.length);
+        for (int i = 0; i < TypeNumerical.INTEGER_TYPES.length; i++) {
+            assertEquals(requiredValues[i], reg.getRegister1(TypeNumerical.INTEGER_TYPES[i], true));
         }
     }
 }

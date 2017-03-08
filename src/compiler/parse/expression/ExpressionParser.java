@@ -17,22 +17,6 @@ import java.util.Optional;
  * @author leijurv
  */
 public class ExpressionParser {
-    private ExpressionParser() {
-    }
-    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
-        https://en.wikipedia.org/wiki/Parsing_expression_grammar
-        while (true) {
-            for (ExpressionParseStep step : STEPS) {
-                if (step.apply(o, desiredType, context)) {
-                    continue https;
-                }
-            }
-            if (o.size() == 1) {
-                return (Expression) o.get(0);
-            }
-            throw new IllegalStateException("Unable to parse " + o);
-        }
-    }
     //inline array definitions a={5,6,7}     TODO: DECIDE TO USE { LIKE C/JAVA OR [ LIKE PYTHON/JAVASCRIPT
     private static final ExpressionParseStep[] STEPS = {
         new FirstPass(),
@@ -54,6 +38,22 @@ public class ExpressionParser {
         //finally, the operators, in order of operations
         new Operations()
     };
+    private ExpressionParser() {
+    }
+    static Expression parseImpl(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
+        https://en.wikipedia.org/wiki/Parsing_expression_grammar
+        while (true) {
+            for (ExpressionParseStep step : STEPS) {
+                if (step.apply(o, desiredType, context)) {
+                    continue https;
+                }
+            }
+            if (o.size() == 1) {
+                return (Expression) o.get(0);
+            }
+            throw new IllegalStateException("Unable to parse " + o);
+        }
+    }
     private static Expression purse(ArrayList<Object> o, Optional<Type> desiredType, Context context) {
         Expression r = parseImpl(o, desiredType, context);
         if (desiredType.isPresent()) {

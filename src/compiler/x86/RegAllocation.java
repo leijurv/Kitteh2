@@ -237,7 +237,7 @@ public class RegAllocation {
             }
             if (in != null) {
                 X86Function call = in.map.get(calling);
-                if (call == null || call == in) {
+                if (call == null || call.equals(in)) {
                     return false;
                 }
                 if (call.allDescendants().anyMatch(in::equals)) {

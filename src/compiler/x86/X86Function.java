@@ -41,6 +41,7 @@ public class X86Function {
     HashSet<X86Register> used = null;
     boolean allocated;
     HashSet<X86Register> allUsed = null;
+    private List<String> descendants = null;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;
         this.stmts = stmts;
@@ -128,7 +129,6 @@ public class X86Function {
     public List<TACStatement> getStatements() {
         return new ArrayList<>(stmts);
     }
-    private List<String> descendants = null;
     public Stream<X86Function> allDescendants() {
         return allDescendants0().map(map::get).filter(Objects::nonNull);
     }

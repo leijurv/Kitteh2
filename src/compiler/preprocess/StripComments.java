@@ -14,10 +14,10 @@ import java.util.List;
  */
 class StripComments {
     private final Path loadingFrom;
+    private int lineNumber;
     StripComments(Path loadingFrom) {
         this.loadingFrom = loadingFrom;
     }
-    int lineNumber;
     public List<Line> transform(String line) {
         lineNumber = 1;
         try {

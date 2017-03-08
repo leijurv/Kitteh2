@@ -17,8 +17,6 @@ import java.util.List;
  * @author leijurv
  */
 public class TACOptimizer {
-    private TACOptimizer() {
-    }
     public static final List<Class<? extends TACOptimization>> opt = Collections.unmodifiableList(Arrays.asList(
             UselessTempVars.class,
             RedundantCalculations.class,
@@ -36,6 +34,8 @@ public class TACOptimizer {
     ));
     transient final static private int[] usefulnessCount = new int[opt.size()];
     static volatile private int count = 0;
+    private TACOptimizer() {
+    }
     public static List<TACStatement> optimize(IREmitter emitted, OptimizationSettings settings) {
         List<TACStatement> input = emitted.getResult();
         List<TACStatement> prev;

@@ -4,14 +4,13 @@
  * and open the template in the editor.
  */
 package compiler.x86;
-import compiler.type.Type;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,31 +31,27 @@ public class DataFlowAnalysis {
     }
     public List<X86Param> rawAlt(X86Param a, boolean onlyReg) {
         TypeNumerical type = (TypeNumerical) a.getType();
-        List<X86Param> al = new ArrayList<>();
-        equals.stream().filter(eqq -> eqq.contains(a)).flatMap(HashSet::stream).filter(alt -> alt instanceof X86TypedRegister || (!onlyReg && alt instanceof X86Const)).forEach(alternative -> {
-            Type alt = alternative.getType();
-            if (alt.getSizeBytes() != type.getSizeBytes()) {
-                if (alternative instanceof X86Const) {
-                    al.add(new X86Const(((X86Const) alternative).getValue(), type));//just fix the type
-                    return;
-                }
-                if (alt.getSizeBytes() > type.getSizeBytes()) {
-                    //we're looking for equal to an int, but a long has the same value
-                    //if we take the lower part of the alternative, that should be equal to what we're looking for
-                    al.add(((X86TypedRegister) alternative).getRegister().getRegister(type));
-                    return;
-                }
-                //the alternative must be smaller
-                //it doesn't have enough information
-                return;
-                //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
+        return equals.stream().filter(eqq -> eqq.contains(a)).flatMap(HashSet::stream).filter(alt -> alt instanceof X86TypedRegister || (!onlyReg && alt instanceof X86Const)).map(alternative -> {
+            int alt = alternative.getType().getSizeBytes();
+            if (alt == type.getSizeBytes()) {
+                return alternative;
             }
+            if (alternative instanceof X86Const) {
+                return new X86Const(((X86Const) alternative).getValue(), type);//just fix the type
+            }
+            if (alt > type.getSizeBytes()) {
+                //we're looking for equal to an int, but a long has the same value
+                //if we take the lower part of the alternative, that should be equal to what we're looking for
+                return ((X86TypedRegister) alternative).getRegister().getRegister(type);
+            }
+            //the alternative must be smaller
+            //it doesn't have enough information
+            return null;
+            //throw new IllegalStateException(eqq + "" + alternative.getType() + " " + type);
             /*if (!type.equals(alternative.getType()) && compiler.Compiler.verbose()) {
                             addComment("whoa type is different " + type + " " + eqq);
                         }*/
-            al.add(alternative);
-        });
-        return al;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
     public Optional<HashSet<X86Param>> redundancy(X86Param a, X86Param b) {
         return equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();

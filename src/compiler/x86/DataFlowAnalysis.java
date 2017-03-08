@@ -117,7 +117,8 @@ public class DataFlowAnalysis {
         }
         if (param instanceof X86TypedRegister) {
             markRegisterDirty(((X86TypedRegister) param).getRegister());
-        } else if (param instanceof X86Memory) {
+        }
+        if (param instanceof X86Memory) {
             //woohoo, this is the special case I have been dreaming of
             //if we movq into 5(%rax), that corrupts EIGHT bytes
             //this comes up often when moving structs, temp variables, etc
@@ -129,10 +130,8 @@ public class DataFlowAnalysis {
                 }
                 markDirty(bad.x86());
             });
-            markDirty(param.x86());
-        } else {
-            markDirty(param.x86());
         }
+        markDirty(param.x86());
     }
     private void markDirty(String version) {
         equals.forEach(cll -> cll.removeIf(x -> x.x86().contains(version)));

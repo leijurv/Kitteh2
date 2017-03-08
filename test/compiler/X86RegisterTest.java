@@ -35,7 +35,7 @@ public class X86RegisterTest {
     public void testRegister(X86Register reg, String... requiredValues) {
         assertEquals(TypeNumerical.INTEGER_TYPES.length, requiredValues.length);
         for (int i = 0; i < TypeNumerical.INTEGER_TYPES.length; i++) {
-            assertEquals(requiredValues[i], reg.getRegister1(TypeNumerical.INTEGER_TYPES[i], true));
+            assertEquals(requiredValues[3 - i], reg.getRegister1(TypeNumerical.INTEGER_TYPES[i], true));
         }
     }
 }

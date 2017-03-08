@@ -28,27 +28,30 @@ public class ConditionalDoubleJump extends TACOptimization {
     }
     public void go0(List<TACStatement> stmts) {
         for (int i = 0; i < stmts.size(); i++) {
-            if (stmts.get(i) instanceof TACJumpBoolVar) {
-                TACJumpBoolVar tjbr = (TACJumpBoolVar) stmts.get(i);
-                X86Param knownValue = tjbr.params[0];
-                for (int j = i + 1; j < stmts.size(); j++) {
-                    if (!(stmts.get(j) instanceof TACJump)) {
-                        break;
-                    }
-                    if (j != tjbr.jumpTo()) {
-                        continue;
-                    }
-                    if (stmts.get(j) instanceof TACJumpBoolVar) {
-                        TACJumpBoolVar second = (TACJumpBoolVar) stmts.get(j);
-                        if (second.params[0].equals(knownValue)) {
-                            boolean known = tjbr.invert ^ second.invert;
-                            if (known) {
-                                tjbr.setJumpTo(j + 1);
-                            } else {
-                                tjbr.setJumpTo(second.jumpTo());
-                            }
-                        }
-                    }
+            if (!(stmts.get(i) instanceof TACJumpBoolVar)) {
+                continue;
+            }
+            TACJumpBoolVar tjbr = (TACJumpBoolVar) stmts.get(i);
+            X86Param knownValue = tjbr.params[0];
+            for (int j = i + 1; j < stmts.size(); j++) {
+                if (!(stmts.get(j) instanceof TACJump)) {
+                    break;
+                }
+                if (j != tjbr.jumpTo()) {
+                    continue;
+                }
+                if (!(stmts.get(j) instanceof TACJumpBoolVar)) {
+                    continue;
+                }
+                TACJumpBoolVar second = (TACJumpBoolVar) stmts.get(j);
+                if (!(second.params[0].equals(knownValue))) {
+                    continue;
+                }
+                boolean known = tjbr.invert ^ second.invert;
+                if (known) {
+                    tjbr.setJumpTo(j + 1);
+                } else {
+                    tjbr.setJumpTo(second.jumpTo());
                 }
             }
         }

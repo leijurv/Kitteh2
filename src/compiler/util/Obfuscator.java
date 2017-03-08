@@ -49,7 +49,7 @@ public class Obfuscator {
         SHA = tmp;
     }
     static synchronized public String obfuscate(String str) {
-        if (str.equals("main") || str.equals("free") || str.equals("malloc")) {//lol
+        if ("main".equals(str) || "malloc".equals(str) || "free".equals(str)) {//lol
             return str;
         }
         SHA.reset();

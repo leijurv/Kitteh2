@@ -96,7 +96,7 @@ class FirstPass implements ExpressionParseStep {
                     if (context.getStruct(name) != null) {
                         continue;
                     }
-                    if (name.equals("MACOSX")) {
+                    if ("MACOSX".equals(name)) {
                         o.set(i, new ExpressionConstBool(X86Format.MAC));
                         break;
                     }

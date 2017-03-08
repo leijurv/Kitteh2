@@ -132,14 +132,14 @@ class RecursiveParentheses extends TokenBased {
             if (accessing != null) {
                 args.add(0, new ArrayList<>(Arrays.asList(accessing)));
             }
-            if (args.size() != desiredTypes.size() && !funcName.equals("syscall")) {
+            if (args.size() != desiredTypes.size() && !"syscall".equals(funcName)) {
                 throw new IllegalStateException("mismatched arg count " + args + " " + desiredTypes);
             }
             List<Expression> arguments = IntStream.range(0, args.size())
-                    .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), funcNameCopy.equals("print") ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
+                    .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), "print".equals(funcNameCopy) ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
                     .collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, arguments));
-            if (funcName.equals("free") && pkg == null) {//calling free without a ::
+            if ("free".equals(funcName) && pkg == null) {//calling free without a ::
                 Expression arg = arguments.get(0);
                 Type freeing = arg.getType();
                 if (freeing instanceof TypePointer) {//freeing a pointer

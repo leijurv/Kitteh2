@@ -29,7 +29,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     public ExpressionFunctionCall(Context context, String pkgName, String funcName, List<Expression> args) {
         this.args = args;
         String fn = funcName;
-        if (pkgName == null && funcName.equals("print") && args.size() == 1 && args.get(0).getType() instanceof TypePointer) {
+        if (pkgName == null && "print".equals(funcName) && args.size() == 1 && args.get(0).getType() instanceof TypePointer) {
             //print out the value at the pointer addr not the numerical pointer address
             fn = "writeNullTerm";
         }
@@ -47,7 +47,7 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     }
     private void verifyTypes() {
         List<Type> expected = calling.inputs();
-        if (expected.size() != args.size() && !calling.name.equals("syscall")) {
+        if (expected.size() != args.size() && !"syscall".equals(calling.name)) {
             throw new IllegalStateException("Expected " + expected.size() + " args, actually got " + args.size());
         }
         List<Type> got = args.stream().<Type>map(Expression::getType).collect(Collectors.toList());
@@ -56,11 +56,11 @@ public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
                 //good enough
                 return;
             }
-            if (calling.name.equals("free") && got.get(0) instanceof TypePointer) {
+            if ("free".equals(calling.name) && got.get(0) instanceof TypePointer) {
                 //good enough
                 return;
             }
-            if (calling.name.equals("syscall")) {
+            if ("syscall".equals(calling.name)) {
                 //good enough
                 return;
             }

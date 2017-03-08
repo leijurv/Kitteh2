@@ -113,7 +113,7 @@ public class TACFunctionCall extends TACStatement {
     @Override
     public void printx86(X86Emitter emit) {
         boolean stack = true;
-        if (header.name.equals("syscall")) {//TODO maybe a TACSyscall separate from TACFunctionCall
+        if ("syscall".equals(header.name)) {//TODO maybe a TACSyscall separate from TACFunctionCall
             for (int i = 0; i < params.length; i++) {
                 if (i >= SYSCALL_REGISTERS.size()) {
                     throw new IllegalStateException("Syscall only takes " + SYSCALL_REGISTERS.size() + " arguments, in registers " + SYSCALL_REGISTERS);
@@ -125,7 +125,7 @@ public class TACFunctionCall extends TACStatement {
             printRet(emit);
             return;
         }
-        if (header.name.equals("malloc")) {
+        if ("malloc".equals(header.name)) {
             X86Param t = DI.getRegister(new TypeInt64());
             if (params[0] instanceof X86Const) {
                 emit.move(new X86Const(((X86Const) params[0]).getValue(), new TypeInt64()), t);
@@ -134,7 +134,7 @@ public class TACFunctionCall extends TACStatement {
             }
             stack = false;
         }
-        if (header.name.equals("free")) {
+        if ("free".equals(header.name)) {
             emit.move(params[0], DI);
             stack = false;
         }
@@ -169,7 +169,7 @@ public class TACFunctionCall extends TACStatement {
                         stackLocation += 8;
                         continue;
                     }
-                } else if (!header.name.equals("free") || !(params[i].getType() instanceof TypePointer)) {//free of any pointer is ok
+                } else if (!"free".equals(header.name) || !(params[i].getType() instanceof TypePointer)) {//free of any pointer is ok
                     throw new IllegalStateException(this + " was " + params[i].getType() + " expected " + type);
                 }
             }

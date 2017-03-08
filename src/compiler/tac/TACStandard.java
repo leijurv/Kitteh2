@@ -279,12 +279,12 @@ public class TACStandard extends TACStatement {
                     break;
                 }
             case PLUS:
-                if (c.equals("$1")) {//you can never multiply the $1 literal by a float (0x00 00 00 01 isn't a valid packed float anyway), so this is okay
+                if ("$1".equals(c)) {//you can never multiply the $1 literal by a float (0x00 00 00 01 isn't a valid packed float anyway), so this is okay
                     emit.addStatement("inc" + type.x86typesuffix() + " " + a);//even if it does somehow happen, "incss" isn't valid x86 so it won't fail silently *shrug*
                     break;
                 }
             case MINUS:
-                if (c.equals("$1")) {//same scenario
+                if ("$1".equals(c)) {//same scenario
                     emit.addStatement("dec" + type.x86typesuffix() + " " + a);
                     break;
                 }

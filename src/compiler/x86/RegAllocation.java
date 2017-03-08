@@ -223,7 +223,7 @@ public class RegAllocation {
         if (block.get(j) instanceof TACFunctionCall) {
             TACFunctionCall tfc = (TACFunctionCall) block.get(j);
             String calling = tfc.calling();
-            if (calling.equals("syscall")) {
+            if ("syscall".equals(calling)) {
                 if (register == X86Register.R11 || register == X86Register.C) {//syscall clobbers RCX and R11 of all registers for some ungodly reason
                     return false;
                 }

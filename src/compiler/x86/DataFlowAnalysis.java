@@ -62,24 +62,26 @@ public class DataFlowAnalysis {
         return equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
     }
     public X86Param alternative(X86Param a, boolean onlyReg) {
-        if (!(a instanceof X86TypedRegister) && !(a instanceof X86Const)) {
-            List<X86Param> al = rawAlt(a, onlyReg);
-            if (!al.isEmpty()) {
-                for (X86Param p : al) {
-                    if (p instanceof X86TypedRegister) {
-                        return emit.regUp((X86TypedRegister) p);
-                    }
-                }
-                return al.get(0);
-            }
+        if (a instanceof X86Const) {
+            return null;
         }
         if (a instanceof X86TypedRegister) {
             X86TypedRegister c = emit.regUp((X86TypedRegister) a);
             if (!c.x86().equals(a.x86())) {
                 return c;
             }
+            return null;
         }
-        return null;
+        List<X86Param> al = rawAlt(a, onlyReg);
+        if (al.isEmpty()) {
+            return null;
+        }
+        for (X86Param p : al) {
+            if (p instanceof X86TypedRegister) {
+                return emit.regUp((X86TypedRegister) p);
+            }
+        }
+        return al.get(0);
     }
     public void knownEqual(X86Param a, X86Param b) {
         if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {

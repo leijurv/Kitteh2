@@ -161,7 +161,7 @@ public class X86Emitter {
         }
         X86Statement moveStmt = new Move(a, b);
         if (type instanceof TypeFloat) {
-            add(moveStmt);
+            statements.add(moveStmt);
             return;
         }
         Optional<HashSet<X86Param>> eq = equals.stream().filter(x -> x.contains(a)).filter(x -> x.contains(b)).findAny();
@@ -181,12 +181,12 @@ public class X86Emitter {
                 addComment(moveStmt.toString());
                 addComment("Move is now");
             }
-            add(new Move(alt, b));
+            statements.add(new Move(alt, b));
             replaced = true;
         }
         knownEqual(a, b);
         if (!replaced) {
-            add(moveStmt);
+            statements.add(moveStmt);
         }
     }
     private void knownEqual(X86Param a, X86Param b) {
@@ -266,9 +266,6 @@ public class X86Emitter {
         } else {
             throw new IllegalStateException(a + " " + b);//apparently this doesn't happen
         }
-    }
-    public void add(X86Statement stmt) {
-        statements.add(stmt);
     }
     public void addStatement(String ssnek) {
         if (ssnek.contains("#") || ssnek.contains(":")) {

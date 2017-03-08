@@ -184,21 +184,27 @@ public class X86Emitter {
             add(new Move(alt, b));
             replaced = true;
         }
+        knownEqual(a, b);
+        if (!replaced) {
+            add(moveStmt);
+        }
+    }
+    private void knownEqual(X86Param a, X86Param b) {
+        if (a.getType().getSizeBytes() != b.getType().getSizeBytes()) {
+            throw new IllegalStateException(a + " " + b + " " + a.getType() + " " + b.getType());
+        }
         //if b is a register, its not enough to just remove b. If b is %eax, we also need to clear things like 5(%rax)
         markDirty(b);//assume nothing previously equal to b is now equal to b, because it was set to a
         equals.stream().filter(cl -> cl.contains(a)).forEach(cl -> cl.add(b));//anything previously equal to a, is now equal to b (because b=a)
         if (a instanceof X86Memory && b instanceof X86TypedRegister && ((X86Memory) a).reg == ((X86TypedRegister) b).getRegister()) {
             //"movq (%rax), %rax" doesn't tell us anything. it DOESN'T mean that (%rax) and %rax are equal after this statement
             if (compiler.Compiler.verbose()) {
-                addComment("no information gleaned from " + moveStmt);
+                addComment("no information gleaned from " + a + " -> " + b);
             }
         } else {
             //Note that "movq %rax, (%rax)" IS valid, and does mean that %rax is equal to (%rax)
             //that's why the condition is a.contains(b) not b.contains(a)
             equals.add(new HashSet<>(Arrays.asList(a, b)));
-        }
-        if (!replaced) {
-            add(moveStmt);
         }
     }
     public void markRegisterDirty(X86Register reg) {
@@ -250,6 +256,16 @@ public class X86Emitter {
     public void cast(X86Param a, X86Param b) {
         statements.add(new Cast(a, b));
         markDirty(b);
+        if (a.getType() instanceof TypeFloat || b.getType() instanceof TypeFloat) {
+            return;
+        }
+        //the lower part of b is now equal to a
+        if (b instanceof X86TypedRegister) {
+            X86TypedRegister lowerB = ((X86TypedRegister) b).getRegister().getRegister((TypeNumerical) a.getType());
+            knownEqual(a, lowerB);
+        } else {
+            throw new IllegalStateException(a + " " + b);//apparently this doesn't happen
+        }
     }
     public void add(X86Statement stmt) {
         statements.add(stmt);

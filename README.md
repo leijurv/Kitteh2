@@ -33,6 +33,8 @@ java -jar dist/Kitteh2.jar -i test/tests/mandelbrot.k -o executable -e
 ```
 
 # Options
+`-v` enable verbose mode. compiler will print a lot more information and outputted assembly will include helpful comments
+
 `-i inputFile.k` set the input location
 
 `-o output` set the output location
@@ -40,8 +42,6 @@ java -jar dist/Kitteh2.jar -i test/tests/mandelbrot.k -o executable -e
 `-I` read input program from standard in
 
 `-O` write output to standard out. not recommended except for debugging
-
-`-v` enable verbose mode. compiler will print a lot more information and outputted assembly will include helpful comments
 
 `-d` enable deterministic builds. when this option is enabled, the compiler will produce consistent output when ran repeatedly on the same input
 

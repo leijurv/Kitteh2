@@ -71,7 +71,7 @@ class RecursiveParentheses extends TokenBased {
         o.add(i, ExpressionParser.parseImpl(inParen.get(0), desiredType, context));
         return true;
     }
-    private int fill(int i, ArrayList<Object> o, ArrayList<ArrayList<Object>> inParen) {
+    private static int fill(int i, ArrayList<Object> o, ArrayList<ArrayList<Object>> inParen) {
         ArrayList<Object> temp = new ArrayList<>();
         int numParens = 1;
         ArrayList<Object> copy = new ArrayList<>(o);
@@ -108,7 +108,7 @@ class RecursiveParentheses extends TokenBased {
         }
         return numToRemoveAti;
     }
-    private boolean func(int i, ArrayList<Object> o, Context context, ArrayList<ArrayList<Object>> inParen) {
+    static private boolean func(int i, ArrayList<Object> o, Context context, ArrayList<ArrayList<Object>> inParen) {
         if (i != 0 && (is(o.get(i - 1), VARIABLE) || is(o.get(i - 1), KEYWORD))) {
             String funcName;
             if (is(o.get(i - 1), VARIABLE)) {

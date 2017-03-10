@@ -65,7 +65,7 @@ public class OptimizeRegA {
                         if (!(dest instanceof X86TypedRegister)) {
                             break;
                         }
-                        X86Register repl = ((X86TypedRegister) dest).getRegister();
+                        // X86Register repl = ((X86TypedRegister) dest).getRegister();
                         for (int k = j + 1; k < statements.size(); k++) {
                             if (statements.get(k) instanceof Label) {
                                 break;

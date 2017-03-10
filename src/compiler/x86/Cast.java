@@ -34,4 +34,10 @@ public class Cast extends X86Statement {
         }
         return cast;
     }
+    public X86Param getDest() {
+        return dest;
+    }
+    public X86Param getSource() {
+        return source;
+    }
 }

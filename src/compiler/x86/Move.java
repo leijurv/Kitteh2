@@ -19,8 +19,8 @@ public class Move extends X86Statement {
     }
     @Override
     public String toString() {
-        String a = ((TypeNumerical) source.getType()).x86typesuffix();
-        if (!a.equals(((TypeNumerical) dest.getType()).x86typesuffix())) {
+        String a = ((TypeNumerical) dest.getType()).x86typesuffix();
+        if (!a.equals(((TypeNumerical) source.getType()).x86typesuffix()) && !(source instanceof X86Const)) {
             throw new IllegalStateException(source.x86() + " " + dest.x86());
         }
         if (source.x86().equals("$0") && dest instanceof X86TypedRegister) {

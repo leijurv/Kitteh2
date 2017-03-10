@@ -183,43 +183,12 @@ public class X86Emitter {
         }
         return rsp;
     }
-    public boolean doTheThing(int pos) {
-        for (int j = pos + 1; j < statements.size(); j++) {
-            if (statements.get(j) instanceof Label) {
-                /*System.out.println("Removing " + statements.get(pos));
-                System.out.println("After " + statements.get(pos - 1));
-                System.out.println("Before " + statements.get(pos + 1));*/
-                return true;
-            }
-            if (statements.get(j) instanceof Comment) {
-                continue;
-            }
-            if (statements.get(j).toString().contains("syscall")) {
-                return false;
-            }
-            for (TypeNumerical type : TypeNumerical.INTEGER_TYPES) {
-                if (statements.get(j).toString().contains(X86Register.D.getRegister1(type, true))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
     public String toX86() {
-        for (int i = 0; i < statements.size(); i++) {
-            if (statements.get(i) instanceof Move) {
-                Move m = (Move) statements.get(i);
-                if (m.getDest() instanceof X86TypedRegister && ((X86TypedRegister) m.getDest()).getRegister() == X86Register.D && doTheThing(i)) {
-                    if (compiler.Compiler.verbose()) {
-                        statements.set(i, new Comment("REMOVED BECAUSE REDUNDANT " + statements.get(i)));
-                    } else {
-                        statements.remove(i);
-                    }
-                    i = -1;
-                }
-            }
-        }
-        return statements.stream().map(X86Statement::x86).collect(Collectors.joining("\n"));
+        OptimizeRegD.optimize(statements);
+        OptimizeRegA.optimize(statements);
+        OptimizeRegA.optimize(statements);//two passes is enough to replace all normal patterns
+        OptimizeRegA.optimize(statements);//add in a third just in case =)
+        return statements.stream().filter(x -> !(x instanceof Comment) || compiler.Compiler.verbose()).map(X86Statement::x86).collect(Collectors.joining("\n"));
     }
     public String withoutComments() {
         return statements.stream().filter(x -> !(x instanceof Comment)).map(X86Statement::x86).collect(Collectors.joining("\n"));

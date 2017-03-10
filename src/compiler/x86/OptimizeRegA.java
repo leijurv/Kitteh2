@@ -14,6 +14,34 @@ import java.util.List;
  */
 public class OptimizeRegA {
     public static void optimize(List<X86Statement> statements) {
+        for (int i = 0; i < statements.size(); i++) {
+            if (!(statements.get(i) instanceof Move)) {
+                continue;
+            }
+            Move m = (Move) statements.get(i);
+            if (!(m.getDest() instanceof X86TypedRegister) || ((X86TypedRegister) m.getDest()).getRegister() != X86Register.A) {
+                continue;
+            }
+            for (int j = i + 1; j < statements.size(); j++) {
+                if (statements.get(j) instanceof Label) {
+                    break;
+                }
+                if (statements.get(j) instanceof Comment) {
+                    continue;
+                }
+                if (statements.get(j).toString().contains("cltq")) {
+                    X86Statement repl;
+                    if (m.getSource() instanceof X86Const) {
+                        repl = new Move(m.getSource(), ((Cast) statements.get(j)).getDest());
+                    } else {
+                        repl = new Cast(m.getSource(), ((Cast) statements.get(j)).getDest());
+                    }
+                    statements.set(i, repl);
+                    statements.set(j, new Comment("Removed " + statements.get(j) + " because of above replacement"));
+                }
+                break;
+            }
+        }
         HashSet<Integer> toA = new HashSet<>();
         HashSet<Integer> fromA = new HashSet<>();
         HashSet<Integer> involvingA = new HashSet<>();

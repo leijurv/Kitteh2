@@ -209,7 +209,7 @@ public class X86Function {
             }
             stmts.get(i).printx86(emitter);
             if (compiler.Compiler.verbose()) {
-                emitter.addStatement(""); //nice blank line makes it more readable =)
+                emitter.addComment(""); //nice blank line makes it more readable =)
             }
         }
         StringBuilder resp = new StringBuilder();

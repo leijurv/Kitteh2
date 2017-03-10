@@ -116,7 +116,7 @@ public class X86Emitter {
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
-                addComment("lmao" + eq.get());
+                addComment("equivalence " + eq.get());
                 addComment(moveStmt.toString());
             }
             return;//can return because this doesn't affect anything

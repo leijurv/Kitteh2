@@ -5,6 +5,7 @@
  */
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
+import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import java.util.List;
 
@@ -28,6 +29,9 @@ public class DoubleJump extends TACOptimization {
                     throw new IllegalStateException();
                 }
                 TACStatement dest = stmts.get(first.jumpTo());
+                if (dest instanceof TACReturn && first.getClass() == TACJump.class) {//if the jump is unconditional and the destination is a return
+                    stmts.set(i, dest);//we can just return. jumping to a return is redundant
+                }
                 if (dest instanceof TACJump) {
                     TACJump second = (TACJump) dest;
                     boolean unconditionalSecond = dest.getClass() == TACJump.class;

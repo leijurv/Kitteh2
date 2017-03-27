@@ -1,4 +1,4 @@
-import util/linked list
+import util/list/linked list
 main(){
     test1()
     test2()

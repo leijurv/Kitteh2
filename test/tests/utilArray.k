@@ -1,4 +1,4 @@
-import util/array list
+import util/list/array list
 main(){
     test1()
     test2()

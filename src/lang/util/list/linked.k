@@ -24,22 +24,26 @@ struct list{
 		this.head=n
 		this.hasFirst=true
 	}
+	pop()void*{
+		tmp:=this.head.value
+		this.head=this.head.next
+		return tmp
+	}
 	append(void* toAdd){
 		n:=(node*)malloc(sizeof(node))
 		n.value=toAdd
 		n.hasNext=false
-		if !this.hasFirst{
-			this.hasFirst=true
-			this.head=n
-		}else{
+		if this.hasFirst{
 			tmp:=this.head
 			for tmp.hasNext{
 				tmp=tmp.next
 			}
 			tmp.hasNext=true
 			tmp.next=n
+		}else{
+			this.hasFirst=true
+			this.head=n
 		}
-
 	}
 	printAsLongs(){
 		print("Printing linked list")

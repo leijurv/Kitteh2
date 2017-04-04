@@ -21,7 +21,7 @@ struct list{
 		this.capacity=cap
 		this.contents=tmp
 	}
-	push(void* toAdd){
+	prepend(void* toAdd){
 		this.ensureCap(this.length+1)
 		c:=this.contents
 		for i:=this.length-1; i>=0; i--{

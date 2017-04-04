@@ -16,7 +16,7 @@ struct list{
 			free(this.head)
 		}
 	}
-	push(void* toAdd){
+	prepend(void* toAdd){
 		n:=(node*)malloc(sizeof(node))
 		n.value=toAdd
 		n.next=this.head

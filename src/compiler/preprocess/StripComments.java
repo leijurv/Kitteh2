@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,17 +13,29 @@ import java.util.List;
  * @author leijurv
  */
 class StripComments {
-    int lineNumber;
+    private final Path loadingFrom;
+    private int lineNumber;
+    StripComments(Path loadingFrom) {
+        this.loadingFrom = loadingFrom;
+    }
     public List<Line> transform(String line) {
         lineNumber = 1;
         try {
             return actualTransform(line);
         } catch (Exception e) {
-            throw new RuntimeException("Exception while stripping comments from line " + lineNumber, e);
+            throw new IllegalStateException("Exception while stripping comments from line " + lineNumber, e);
         }
     }
     private List<Line> actualTransform(String line) {
-        boolean inString = false;
+        //TODO multi line comments that begin and end in the middle of a line have weird exception line numbers
+        //learn by doing:
+        boolean inString /*
+                multi
+                line
+                 */ = false;
+        //if there's a parse error in the "= false" section, it'll list the exception's line number as the line number where the comment was began
+        //while actually the parse error originated in a different source line later on
+        //I think this is going to stay like this for a while, I'm not keeping track of individual characters within lines and their journey through the compiler
         char strType = 0;
         char prevChar = 0;
         StringBuilder transformed = new StringBuilder();
@@ -35,7 +47,7 @@ class StripComments {
             char ch = line.charAt(i);
             if (ch == '\n') {
                 if (!inComment || commentEndsWithNewLine) {
-                    result.add(new Line(transformed.toString(), lineNumber));
+                    result.add(new Line(transformed.toString(), loadingFrom, lineNumber));
                     transformed = new StringBuilder();
                 }
                 lineNumber++;//doesn't matter if we are in a comment, a string, or whatever, a newline in the raw input means a newline.
@@ -90,6 +102,8 @@ class StripComments {
                             commentEndsWithNewLine = true;
                         }
                         break;
+                    default:
+                        break;
                 }
             }
             if (inComment && commentEndsWithNewLine && ch == '\n') {
@@ -107,7 +121,7 @@ class StripComments {
             throw new IllegalStateException("String not ended - began on line " + lineNumberOfBegin);
         }
         //if (line.charAt(line.length() - 1) != '\n') {
-        result.add(new Line(transformed.toString(), lineNumber));
+        result.add(new Line(transformed.toString(), loadingFrom, lineNumber));
         //}
         return result;
     }

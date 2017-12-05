@@ -5,112 +5,119 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
-import compiler.command.FunctionsContext;
-import compiler.parse.Line;
-import compiler.parse.Processor;
-import compiler.preprocess.Preprocessor;
 import compiler.tac.TACStatement;
 import compiler.tac.optimize.OptimizationSettings;
+import compiler.util.CompilationState;
+import compiler.util.MultiThreadedLoader;
 import compiler.util.Pair;
+import compiler.x86.RegAllocation;
 import compiler.x86.X86Format;
+import compiler.x86.X86Function;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.xml.crypto.NoSuchMechanismException;
+import java.util.stream.IntStream;
 
 /**
  *
  * @author leijurv
  */
 public class Compiler {
-    private static Pair<List<CommandDefineFunction>, Context> load(File dir, String name, OptimizationSettings settings) throws IOException {
-        byte[] program = Files.readAllBytes(new File(dir, name + ".k").toPath());
-        List<Line> lines = Preprocessor.preprocess(new String(program));
-        Context context = new Context(name);
-        List<CommandDefineFunction> cmds = Processor.initialParse(lines, context);
-        return new Pair<>(cmds, context);
+    static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
+    static boolean METRICS = false;
+    static boolean DETERMINISTIC = false;
+    static boolean OBFUSCATE = false;
+    public static boolean deterministic() {
+        return DETERMINISTIC;
     }
-    public static String compile(File dir, String mainName, OptimizationSettings settings) throws IOException {
-        List<String> toLoad = new ArrayList<>();
-        HashSet<String> alreadyLoaded = new HashSet<>();
-        toLoad.add(mainName);
-        List<Pair<String, List<CommandDefineFunction>>> loaded = new ArrayList<>();
-        while (!toLoad.isEmpty()) {
-            String path = toLoad.remove(0);
-            alreadyLoaded.add(path);
-            System.out.println("Loading " + new File(dir, path + ".k"));
-            Pair<List<CommandDefineFunction>, Context> funcs = load(dir, path, settings);
-            Context context = funcs.getValue();
-            System.out.println("Imports: " + context.imports);
-            for (Entry<String, String> imp : context.imports.entrySet()) {
-                String toImport = imp.getValue();
-                if (!new File(dir, toImport + ".k").exists()) {
-                    throw new IllegalStateException("Can't import " + toImport + " because " + new File(dir, toImport + ".k") + " doesn't exist");
-                }
-                if (!alreadyLoaded.contains(toImport) && !toLoad.contains(toImport)) {
-                    toLoad.add(toImport);
-                }
-            }
-            loaded.add(new Pair<>(path, funcs.getKey()));
-        }
-        System.out.println(loaded);
-        List<FunctionsContext> contexts = loaded.stream().map(pair -> new FunctionsContext(pair.getValue(), loaded)).collect(Collectors.toList());
-        if (!contexts.get(0).hasMain()) {
-            throw new NoSuchMechanismException("You need a main function");
-        }
-        contexts.get(0).setEntryPoint();
-        contexts.parallelStream().forEach(FunctionsContext::parseRekursivelie);
-        List<CommandDefineFunction> flattenedList = loaded.stream().map(Pair::getValue).flatMap(List::stream).collect(Collectors.toList());
-        return generateASM(flattenedList, settings);
+    public static boolean verbose() {
+        return VERBOSE;
     }
-    public static String compile(String program, OptimizationSettings settings) {
-        long a = System.currentTimeMillis();
-        List<Line> lines = Preprocessor.preprocess(program);
-        System.out.println("> DONE PREPROCESSING: " + lines);
+    public static boolean metrics() {
+        return METRICS;
+    }
+    public static boolean obfuscate() {
+        return OBFUSCATE;
+    }
+    public static String compile(Path main, OptimizationSettings settings) throws IOException {
+        long a = System.currentTimeMillis();//benchmark timestamps
+        CompilationState cs = new CompilationState(main);
+        MultiThreadedLoader.importFiles(cs);
         long b = System.currentTimeMillis();
-        List<CommandDefineFunction> commands = Processor.initialParse(lines, new Context(null));
-        System.out.println("> DONE PROCESSING: " + commands);
+        cs.insertStructs();
         long c = System.currentTimeMillis();
-        FunctionsContext fc = new FunctionsContext(commands, Arrays.asList(new Pair<>(null, commands)));
-        fc.parseRekursivelie();
-        if (!fc.hasMain()) {
-            throw new NoSuchMechanismException("You need a main function");
-        }
-        fc.setEntryPoint();
-        System.out.println("> DONE PARSING: " + commands);
+        List<CommandDefineFunction> allFunctions = cs.allFunctions();
+        allFunctions.parallelStream().forEach(CommandDefineFunction::parseHeader);
         long d = System.currentTimeMillis();
-        return generateASM(commands, settings);
-    }
-    private static String generateASM(List<CommandDefineFunction> commands, OptimizationSettings settings) {
-        if (settings.staticValues()) {
-            commands.parallelStream().forEach(CommandDefineFunction::staticValues);
-        }
-        System.out.println("> DONE STATIC VALUES: " + commands);
+        cs.generateFunctionsContexts();
         long e = System.currentTimeMillis();
-        List<Pair<String, List<TACStatement>>> wew = commands.parallelStream()
-                .map(com -> new Pair<>(com.getHeader().name, com.totac(settings)))
-                .collect(Collectors.toList());
-        long f = System.currentTimeMillis();
-        Context.printFull = false;
-        for (Pair<String, List<TACStatement>> pair : wew) {
-            System.out.println("TAC FOR " + pair.getKey());
-            for (int i = 0; i < pair.getValue().size(); i++) {
-                System.out.println(i + ":     " + pair.getValue().get(i));
-            }
+        if (VERBOSE) {
+            System.out.println("load: " + (b - a) + "ms, structs: " + (c - b) + "ms, parseheaders: " + (d - c) + "ms, funcContext: " + (e - d) + "ms");
+            System.out.println();
+            System.out.println("---- END IMPORTS, BEGIN PARSING ----");
             System.out.println();
         }
+        cs.parseAllFunctions();
+        if (settings.staticValues()) {
+            allFunctions.parallelStream().forEach(CommandDefineFunction::optimize);
+        }
+        if (VERBOSE) {
+            System.out.println("> DONE STATIC VALUES");
+        }
+        long f = System.currentTimeMillis();
+        List<Pair<String, List<TACStatement>>> finalFuncList = allFunctions.parallelStream().map(settings::coloncolon).collect(Collectors.toList());
         long g = System.currentTimeMillis();
-        String asm = X86Format.assembleFinalFile(wew);
+        if (VERBOSE) {
+            System.out.println("TAC generation took " + (g - f) + "ms overall");
+        }
+        return generateASM(finalFuncList);
+    }
+    public static String compile(String program, OptimizationSettings settings) {
+        try {
+            File f = File.createTempFile("temp", ".k");
+            f.deleteOnExit();
+            try (FileOutputStream lol = new FileOutputStream(f)) {
+                lol.write(program.getBytes("UTF-8"));
+            }
+            return compile(f.toPath(), settings);
+        } catch (IOException ex) {
+            Logger.getLogger(Compiler.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+    private static String generateASM(List<Pair<String, List<TACStatement>>> functions) {
+        long e = System.currentTimeMillis();
+        List<X86Function> reachables = X86Function.gen(functions);
+        long f = System.currentTimeMillis();
+        String tacdebug = null;
+        if (VERBOSE) {
+            tacdebug = reachables.parallelStream().map(
+                    func -> IntStream.range(0, func.getStatements().size()).mapToObj(
+                            i -> i + ":     " + func.getStatements().get(i).toString(false)
+                    ).collect(Collectors.joining("\n", "TAC FOR " + func.getName() + "\n", "\n"))
+            ).collect(Collectors.joining("\n"));
+        }
+        long g = System.currentTimeMillis();
+        RegAllocation.allocate(reachables);
+        if (VERBOSE) {
+            System.out.println(tacdebug);
+        }
         long h = System.currentTimeMillis();
-        //String loll = ("overall " + (h - a) + " preprocessor " + (b - a) + " processor " + (c - b) + " parse " + (d - c) + " static " + (e - d) + " tacgen " + (f - e) + " debugtac " + (g - f) + " x86gen " + (h - g));
-        //System.out.println(loll);
-        //System.err.println(loll);
+        String asm = X86Format.assembleFinalFile(reachables);
+        long i = System.currentTimeMillis();
+        String loll = ("funcgen " + (f - e) + " debugtac " + (g - f) + " allocation " + (h - g) + " x86gen " + (i - h));
+        if (VERBOSE) {
+            System.out.println(loll);
+            System.err.println(loll);
+            System.out.println("Completely done, returning x86 asm string of length " + asm.length());
+        }
         return asm;
+    }
+    private Compiler() {
     }
 }

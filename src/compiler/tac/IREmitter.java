@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.Context;
+import compiler.command.Command;
 import java.util.ArrayList;
 
 /**
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 public class IREmitter {//extends ArrayList XDDD
     private final ArrayList<TACStatement> result;
     private Context currentContext;
-    Integer breakTo;
-    Integer continueTo;
+    private Integer breakTo;
+    private Integer continueTo;
     public IREmitter() {
         this.result = new ArrayList<>();
         this.currentContext = null;
@@ -30,7 +31,7 @@ public class IREmitter {//extends ArrayList XDDD
     public boolean canContinue() {
         return continueTo != null;
     }
-    public int breakTo() {
+    public int breakTo() {//Don't change this to return an Integer. I want the nullpointerexception if canBreak / canContinue aren't checked first.
         return breakTo;
     }
     public int continueTo() {
@@ -52,11 +53,13 @@ public class IREmitter {//extends ArrayList XDDD
     public void clearContext() {
         this.currentContext = null;
     }
+    public Context getContext() {
+        return currentContext;
+    }
     public void emit(TACStatement ts) {
         if (currentContext == null) {
             throw new IllegalStateException("The FitnessGram pacer test is a multistage aerobic capacity test");
         }
-        ts.setContext(currentContext);
         result.add(ts);
     }
     public int lineNumberOfNextStatement() {
@@ -70,11 +73,11 @@ public class IREmitter {//extends ArrayList XDDD
             throw new IllegalStateException("YOU CAN NEVER ESCAPE THE FITNESSGRAM");
         }
         if (!(result.get(result.size() - 1) instanceof TACReturn)) {
-            TACReturn ret = new TACReturn();
-            ret.setContext(result.get(0).context);
-            result.add(ret);
-            return getResult();
+            throw new IllegalStateException("return should have been added in command define function");
         }
         return result;
+    }
+    public void generateTAC(Command command) {
+        command.generateTAC(this);
     }
 }

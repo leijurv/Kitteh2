@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.preprocess.Line;
 import compiler.preprocess.LineBasedTransform;
 import compiler.token.TokenType;
 
@@ -41,8 +42,7 @@ class StringFinder extends LineBasedTransform {
                                 throw new IllegalStateException("lol what");
                             }
                             if (strContents.length() != 1) {
-                                System.out.println(line);
-                                throw new IllegalStateException("lol your single quotes can only hold single things: " + strContents);
+                                throw new IllegalStateException("lol your single quotes can only hold single things: " + line + " " + strContents);
                             }
                             //strContents = ((String) strContents).charAt(0);//if single quotes, use a Character not a String
                         }

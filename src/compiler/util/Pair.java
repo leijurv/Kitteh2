@@ -5,6 +5,7 @@
  */
 package compiler.util;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  *
@@ -12,26 +13,36 @@ import java.util.Objects;
  * @param <A>
  * @param <B>
  */
-public class Pair<A, B> {
+public final class Pair<A, B> {
     private final A a;
     private final B b;
-    public A getKey() {
+    public A getA() {
         return a;
     }
-    public B getValue() {
+    public B getB() {
         return b;
     }
     public Pair(A a, B b) {
         this.a = a;
         this.b = b;
     }
+    public static <A, B, C> Function<? super C, ? extends Pair<? extends A, ? extends B>> gen(Function<? super C, ? extends A> agen, Function<? super C, ? extends B> bgen) {
+        return c -> new Pair<>(agen.apply(c), bgen.apply(c));
+    }
     @Override
     public String toString() {
-        return a + "=" + b;
+        return a + "," + b;
     }
     @Override
     public boolean equals(Object o) {
-        return this == o || (o != null && o.getClass() == getClass() && hashCode() == o.hashCode());
+        if (o == null || o.getClass() != Pair.class) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        Pair oo = (Pair) o;
+        return Objects.equals(a, oo.a) && Objects.equals(a, oo.b);
     }
     @Override
     public int hashCode() {

@@ -24,7 +24,4 @@ public class CommandBreak extends Command {
     protected int calculateTACLength() {
         return 1;
     }
-    @Override
-    public void staticValues() {
-    }
 }

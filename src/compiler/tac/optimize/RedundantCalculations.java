@@ -11,6 +11,8 @@ import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * Remove some simple calculations that are redundant. Specifically, adding to
+ * zero or multiplying by one.
  *
  * @author leijurv
  */
@@ -21,41 +23,42 @@ public class RedundantCalculations extends TACOptimization {
             if (block.get(i) instanceof TACStandard) {
                 TACStandard ts = (TACStandard) (block.get(i));
                 if (ts.op == Operator.PLUS) {
-                    if (ts.paramNames[0].equals("0")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
-                        repl.setVars();
+                    if (ts.params[0].x86().equals("$0")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[1]);
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.paramNames[1].equals("0")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
-                        repl.setVars();
+                    if (ts.params[1].x86().equals("$0")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[0]);
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
                 }
                 if (ts.op == Operator.MULTIPLY) {
-                    if (ts.paramNames[0].equals("1")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[1]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
-                        repl.setVars();
+                    if (ts.params[0].x86().equals("$1")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[1]);
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
                         continue;
                     }
-                    if (ts.paramNames[1].equals("1")) {
-                        TACConst repl = new TACConst(ts.paramNames[2], ts.paramNames[0]);
-                        repl.context = ts.context;
-                        repl.tvu = ts.tvu;
-                        repl.setVars();
+                    if (ts.params[1].x86().equals("$1")) {
+                        TACConst repl = new TACConst(ts.params[2], ts.params[0]);
+                        if (compiler.Compiler.verbose()) {
+                            System.out.println(ts + " IS NOW " + repl);
+                        }
                         block.set(i, repl);
-                        continue;
+                        continue;//unnecesary continue, I know, its here for Symmetry
                     }
                 }
+                //TODO shifting x by 0, or shifting 0 by x
             }
         }
     }

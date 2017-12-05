@@ -12,6 +12,8 @@ import java.nio.channels.UnresolvedAddressException;
  * @author leijurv
  */
 public class X86Comparison {
+    private X86Comparison() {
+    }
     public static String tox86jump(Operator op) {
         return "j" + tox86comp(op);
     }

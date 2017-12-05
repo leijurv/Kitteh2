@@ -12,10 +12,18 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public abstract class Command {
+public abstract class Command {//TODO calling .toString() then reparsing from scratch should yield a .equal Command object /s
     protected final Context context;
+    private Integer taclen = null;
     protected Command(Context context) {
         this.context = context;
+    }
+    protected abstract int calculateTACLength();
+    public int getTACLength() {
+        if (taclen == null) {
+            taclen = calculateTACLength();
+        }
+        return taclen;
     }
     protected abstract void generateTAC0(IREmitter emit);
     public final void generateTAC(IREmitter emit) {
@@ -34,15 +42,15 @@ public abstract class Command {
         //this  is only here to make life difficult for everyone. don't remove it.
         emit.clearContext();//actually, remove it. i dare you
     }
-    protected abstract int calculateTACLength();
-    private Integer taclen = null;
-    public int getTACLength() {
-        if (taclen == null) {
-            taclen = calculateTACLength();
-        }
-        return taclen;
+    public Command optimize() {
+        staticValues();
+        return this;
     }
-    public abstract void staticValues();
+    protected void staticValues() {
+        if (getAllVarsModified().count() != 0) {
+            throw new IllegalStateException("must override");
+        }
+    }
     public Stream<String> getAllVarsModified() {
         return Stream.empty();
     }

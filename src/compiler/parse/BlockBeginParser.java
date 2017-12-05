@@ -5,26 +5,22 @@
  */
 package compiler.parse;
 import compiler.Context;
-import compiler.Struct;
 import compiler.command.Command;
 import compiler.command.CommandDefineFunction;
 import compiler.command.CommandFor;
 import compiler.command.CommandIf;
 import compiler.expression.Expression;
+import compiler.expression.ExpressionConditionalJumpable;
 import compiler.parse.expression.ExpressionParser;
 import compiler.token.Token;
 import static compiler.token.TokenType.*;
-import compiler.type.Type;
 import compiler.type.TypeBoolean;
-import compiler.type.TypeVoid;
-import compiler.util.Pair;
+import compiler.type.TypeStruct;
 import java.lang.annotation.AnnotationTypeMismatchException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import javax.management.openmbean.InvalidKeyException;
 import javax.management.openmbean.KeyAlreadyExistsException;
 
 /**
@@ -32,65 +28,42 @@ import javax.management.openmbean.KeyAlreadyExistsException;
  * @author leijurv
  */
 class BlockBeginParser {
-    static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    private BlockBeginParser() {
+    }
+    public static Command parseFunctionDefinition(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //ok this is going to be fun
         //func main(int i) int {
         if (params.get(0).tokenType() != VARIABLE) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         String functionName = (String) params.get(0).data();
         //System.out.println("FunctionName: " + functionName);
         if (params.get(1) != STARTPAREN) {
-            throw new AnnotationTypeMismatchException(null, "");
+            throw new AnnotationTypeMismatchException(null, "" + params);
         }
-        int endParen = params.indexOf(ENDPAREN);
-        if (endParen == -1) {
-            throw new InvalidKeyException();
-        }
-        List<Token> returnType = params.subList(endParen + 1, params.size());
         //System.out.println("Return type: " + returnType);
-        Type retType;
-        if (Util.typeFromTokens(returnType, context) != null) {
-            retType = Util.typeFromTokens(returnType, context);
-        } else if (returnType.isEmpty()) {
-            retType = new TypeVoid();
-        } else {
-            throw new IllegalStateException(returnType + "not a valid type" + (returnType.contains(COMMA) ? ". no multiple returns yet. sorry!" : ""));
-        }
-        List<Pair<String, Type>> args = Util.splitList(params.subList(2, endParen), COMMA).stream().map(tokenList -> {
-            List<Token> typeDefinition = tokenList.subList(0, tokenList.size() - 1);
-            Type type = Util.typeFromTokens(typeDefinition, context);
-            if (type == null) {
-                throw new IllegalStateException(typeDefinition + " not a valid type");
-            }
-            if (tokenList.get(tokenList.size() - 1).tokenType() != VARIABLE) {
-                throw new RuntimeException();
-            }
-            String name = (String) tokenList.get(tokenList.size() - 1).data();
-            return new Pair<>(name, type);
-        }).collect(Collectors.toList());
         if (!context.isTopLevel()) {
             //make sure this is top level
             throw new InvalidParameterException();
         }
         Context subContext = context.subContext();
-        return new CommandDefineFunction(subContext, retType, args, functionName, rawBlock);
+        return new CommandDefineFunction(subContext, params, functionName, rawBlock);
     }
-    static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    public static Command parseFor(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         //System.out.println("Parsing for loop with params " + params);
         int numSemis = (int) params.stream().filter(SEMICOLON).count(); //I really like streams lol
         switch (numSemis) {
             case 0: {
                 // for{   OR  for i<5{
                 Context sub = context.subContext();
-                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub);
+                ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub);
                 if (params.isEmpty()) {
                     //for{
                     System.out.println("I'm a strong independant for loop that doesn't need no conditions");
                     return new CommandFor(blockCommands, sub);
                 } else {
                     //for i<5
-                    Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
+                    ExpressionConditionalJumpable condition = (ExpressionConditionalJumpable) ExpressionParser.parse(params, Optional.of(new TypeBoolean()), sub);
                     return new CommandFor(condition, blockCommands, sub);
                 }
             }
@@ -104,8 +77,8 @@ class BlockBeginParser {
                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
                 Context sub = context.subContext();
                 Command initialization = LineParser.parseLine(first, sub);
-                Expression condition = ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
-                ArrayList<Command> blockCommands = Processor.parse(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
+                ExpressionConditionalJumpable condition = (ExpressionConditionalJumpable) ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
+                ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
                 Command afterthought = LineParser.parseLine(third, sub);
                 return new CommandFor(initialization, condition, afterthought, blockCommands, sub);
             }
@@ -114,19 +87,19 @@ class BlockBeginParser {
         }
         //i can't put a break or a return here because it's unreachable atm
     }
-    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    public static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         return parseIf(params, context, rawBlock, null);
     }
-    static Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
+    static public Command parseIf(List<Token> params, Context context, ArrayList<Object> rawBlock, ArrayList<Object> elseBlock) {
         Expression condition = ExpressionParser.parse(params, Optional.of(new TypeBoolean()), context);
         //System.out.println("Parsed " + params + " to " + condition);
         Context ifTrue = context.subContext();
         Context ifFalse = elseBlock == null ? null : context.subContext();
-        ArrayList<Command> blockCommands = Processor.parse(rawBlock, ifTrue);
-        ArrayList<Command> els = elseBlock == null ? null : Processor.parse(elseBlock, ifFalse);
-        return new CommandIf(condition, blockCommands, ifTrue, els, ifFalse);
+        ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, ifTrue);
+        ArrayList<Command> elsa = elseBlock == null ? null : Processor.parseRecursive(elseBlock, ifFalse);
+        return new CommandIf(condition, blockCommands, ifTrue, elsa, ifFalse);
     }
-    static void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
+    static public void parseStruct(List<Token> params, Context context, ArrayList<Object> rawBlock) {
         if (params.size() != 1) {
             throw new KeyAlreadyExistsException();
         }
@@ -134,27 +107,7 @@ class BlockBeginParser {
             throw new NumberFormatException();
         }
         String structName = (String) params.get(0).data();
-        ArrayList<String> fieldNames = new ArrayList<>(rawBlock.size());
-        ArrayList<Type> fieldTypes = new ArrayList<>(rawBlock.size());
-        for (int j = 0; j < rawBlock.size(); j++) {
-            Line thisLine = (Line) rawBlock.get(j);
-            thisLine.lex();
-            List<Token> tokens = thisLine.getTokens();
-            //System.out.println(tokens);
-            if (tokens.get(tokens.size() - 1).tokenType() != VARIABLE) {
-                throw new RuntimeException();
-            }
-            fieldNames.add((String) tokens.get(tokens.size() - 1).data());
-            Type tft = Util.typeFromTokens(tokens.subList(0, tokens.size() - 1), context, structName);
-            if (tft == null) {
-                throw new IllegalStateException("Unable to determine type of " + tokens.subList(0, tokens.size() - 1));
-            }
-            fieldTypes.add(tft);
-        }
-        //System.out.println(fieldNames);
-        //System.out.println(fieldTypes);
-        //System.out.println("Parsing struct " + params + " " + rawBlock);
-        Struct struct = new Struct(structName, fieldTypes, fieldNames, context);
+        TypeStruct struct = new TypeStruct(structName, rawBlock, context);
         context.defineStruct(struct);
     }
 }

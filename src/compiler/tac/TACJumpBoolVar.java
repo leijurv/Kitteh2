@@ -6,6 +6,7 @@
 package compiler.tac;
 import compiler.type.TypeBoolean;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,23 +15,20 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJumpBoolVar extends TACJump {
-    boolean invert;
-    public TACJumpBoolVar(String varName, int jumpTo, boolean invert) {
+    public final boolean invert;
+    public TACJumpBoolVar(X86Param varName, int jumpTo, boolean invert) {
         super(jumpTo, varName);
         this.invert = invert;
-    }
-    @Override
-    protected void onContextKnown() {
         if (!(params[0].getType() instanceof TypeBoolean)) {
             throw new IllegalStateException("There is laterally no way this could happen. But I guess it did. lolripyou");
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0]);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         return "jump to " + jumpTo + " if " + (invert ? "not " : "") + params[0];
     }
     @Override

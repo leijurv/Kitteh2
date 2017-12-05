@@ -8,6 +8,8 @@ package compiler.expression;
 /**
  *
  * @author leijurv
+ * @param <T>
  */
-public interface ExpressionConst {
+public interface ExpressionConst<T> {
+    T getVal();
 }

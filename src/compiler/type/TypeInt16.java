@@ -11,8 +11,8 @@ package compiler.type;
  */
 public class TypeInt16 extends TypeNumerical {
     @Override
-    public char x86typesuffix() {
-        return 'w';
+    public String x86typesuffix() {
+        return "w";
     }
     @Override
     public int getSizeBytes() {
@@ -27,7 +27,7 @@ public class TypeInt16 extends TypeNumerical {
         return 'x';
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {
         return "w";
     }
     @Override

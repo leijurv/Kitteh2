@@ -12,6 +12,8 @@ package compiler.type;
 public abstract class Type {
     public abstract int getSizeBytes();
     @Override
+    public abstract String toString();
+    @Override
     public boolean equals(Object o) {
         return o != null && getClass() == o.getClass();
     }

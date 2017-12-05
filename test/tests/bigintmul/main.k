@@ -1,0 +1,23 @@
+import math/bigint
+main(){
+	wew:=fromLong(5021)
+	w:=fromLong(47)
+	wew.multiply(w).output()
+	w.multiply(wew).output()
+	wew.output()
+	w.output()
+	d:=wew.divide(w)
+	m:=wew.mod(w)
+	print(502124)
+	d.output()
+	m.output()
+	d.multiply(w).output()
+	w.multiply(d).output()
+	m.add(multiply(w,d)).output()
+	multiply(w,d).add(m).output()
+	m.add(multiply(d,w)).output()
+	multiply(d,w).add(m).output()
+	weww:=0-2352
+	fromLong((long)weww).multiply(fromLong(234987)).output()
+	fromLong(17).modInverse(fromLong(3120)).output()
+}

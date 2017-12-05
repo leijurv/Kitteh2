@@ -5,18 +5,24 @@
  */
 package compiler;
 import compiler.command.CommandDefineFunction;
+import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.command.FunctionsContext;
 import compiler.expression.ExpressionConst;
-import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeStruct;
 import compiler.util.MutInt;
+import compiler.util.Pair;
+import compiler.x86.X86Memory;
 import compiler.x86.X86Param;
+import compiler.x86.X86Register;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.nio.channels.OverlappingFileLockException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Sorta a symbol table that also deals with scoping and temp variables that
@@ -24,124 +30,145 @@ import java.util.stream.Stream;
  *
  * @author leijurv
  */
-public class Context {
-    public static boolean printFull = true;
+public class Context {//TODO split off some of this massive functionality into other classes, this one is getting a little godlike =)
+    public boolean printFull = true;
+    public final HashMap<String, String> imports;
+    public final String packageName;
+    private final HashMap<String, X86Param>[] values;
+    private final HashMap<String, TypeStruct> structs;
+    private int stackSize;
+    private Integer additionalSizeTemp = null;
+    private CommandDefineFunction currentFunction = null;
+    public FunctionsContext gc;
+    public final MutInt varIndex;
 
-    public class VarInfo implements X86Param {
+    public class VarInfo extends X86Memory {
         private final String name;
-        private final Type type;
-        private ExpressionConst knownValue;
-        private final int stackLocation;
+        private volatile ExpressionConst<?> knownValue;
         private final boolean secret;
+        private final VarInfo root;//can. you. hear. me.
         public VarInfo(String name, Type type, int stackLocation) {
             this(name, type, stackLocation, false);
         }
         public VarInfo(String name, Type type, int stackLocation, boolean secret) {
+            super(stackLocation, X86Register.BP, type);
             this.name = name;
-            this.type = type;
-            this.stackLocation = stackLocation;
             this.secret = secret;
+            this.root = this;//absolutely
+        }
+        private VarInfo(VarInfo shaw, Type co) {
+            super(shaw.offset, X86Register.BP, co);
+            this.name = shaw.name;
+            this.secret = false;
+            this.root = shaw;
         }
         @Override
         public String toString() {
             //return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + ", val: " + knownValue + "}");
             if (printFull) {
-                return ("{name: " + name + ", type: " + type + ", location: " + stackLocation + "}");
+                return ("{name: " + name + ", type: " + getType() + ", location: " + offset + "}");
             } else {
                 return name;
             }
             //return ("{type: " + type + ", location: " + stackLocation + "}");
         }
-        @Override
-        public Type getType() {
-            return type;
-        }
         public int getStackLocation() {
-            return stackLocation;
+            return offset;
         }
-        @Override
         public String getName() {
             return name;
         }
         @Override
         public String x86() {
             if (secret) {
-                throw new RuntimeException();
+                throw new IllegalStateException(Context.super.toString());
             }
-            return (stackLocation) + ("(%rbp)");
+            return super.x86();
         }
         public Context getContext() {
             if (secret) {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
             return Context.this;
         }
+        public VarInfo typed(Type type) {
+            return new VarInfo(root, type);
+        }
+        @Override
+        public boolean equals(Object o) {
+            //System.out.println("Checking if " + this + " == " + o + " " + (this == o));
+            return o != null && o instanceof VarInfo && (this == o || root == ((VarInfo) o).root);
+        }
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(root);
+        }
     }
-    public final HashMap<String, String> imports;
-    public final String packageName;
-    private final HashMap<String, VarInfo>[] values;
-    private final HashMap<String, Struct> structs;
-    private int stackSize;
-    private Integer additionalSizeTemp = null;
-    private TempVarUsage currentTempVarUsage = null;
-    private CommandDefineFunction currentFunction = null;
-    public FunctionsContext gc;
-    public final MutInt varIndex;
-    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[]{" so I can't fix this warning
     public Context(String packageName) {
-        this.values = new HashMap[]{new HashMap<>()};
+        this.values = createThatGenericArray(new HashMap<>());
         this.stackSize = 0;
         this.structs = new HashMap<>();
         this.varIndex = null;
         this.imports = new HashMap<>();
         this.packageName = packageName;
-        imports.put(packageName, packageName);
+        String wewlad = packageName.substring(packageName.lastIndexOf('/') + 1).split("\\.k")[0];
+        imports.put(wewlad, wewlad);
+    }
+    @SafeVarargs
+    public static <T> T[] createThatGenericArray(T... inp) {
+        return inp;
+    }
+    public HashMap<String, TypeStruct> structsCopy() {
+        return new HashMap<>(structs);
+    }
+    public void insertStructsUnderPackage(String alias, Map<String, TypeStruct> other) {
+        //forgive me
+        Map<String, TypeStruct> mapt = other.entrySet().stream().map(entry -> new Pair<>((alias == null ? "" : alias + "::") + entry.getKey(), entry.getValue())).collect(Collectors.groupingBy(Pair::getA, Collectors.mapping(Pair::getB, Collectors.reducing(null, (a, b) -> b))));
+        if (mapt.keySet().stream().anyMatch(structs::containsKey)) {
+            throw new IllegalStateException("Overwriting struct from " + mapt.keySet() + " into " + structs.keySet());
+        }
+        structs.putAll(mapt);
+        //System.out.println(packageName + " " + structs);
     }
     public String reverseAlias(String alias) {
-        String wew = imports.get(alias);
-        if (wew == null) {
-            throw new RuntimeException(imports + " " + alias);
+        Optional<String> reversed = imports.entrySet().stream().filter(entry -> alias.equals(entry.getValue())).map(Map.Entry::getKey).findAny();
+        if (!reversed.isPresent()) {
+            throw new IllegalStateException(imports + " " + alias);
         }
-        return wew;
+        return reversed.get();
     }
     public void addImport(String fileName, String alias) {
         if (packageName == null) {
-            throw new RuntimeException("Package mode is false, only compiling a single file. No imports allowed. Try using -p");
+            throw new IllegalStateException("This no longer can happen");
         }
-        if (packageName.equals(fileName) || alias.equals(packageName)) {
-            throw new RuntimeException("no " + fileName + " " + alias + " " + packageName);
+        if (packageName.equals(fileName) || packageName.equals(alias)) {
+            throw new IllegalStateException("no " + fileName + " " + alias + " " + packageName);
         }
-        if (imports.containsKey(alias)) {
+        if (imports.values().contains(alias) && alias != null) {
             throw new IllegalStateException("Already imported under alias " + alias);
         }
-        if (imports.values().contains(fileName)) {
+        if (imports.containsKey(fileName)) {
             throw new IllegalStateException("Already imported " + fileName);
         }
-        imports.put(alias, fileName);
+        imports.put(fileName, alias);
     }
-    public void defineStruct(Struct struct) {
-        if (structs.containsKey(struct.name)) {
+    public void defineStruct(TypeStruct struct) {
+        if (structs.containsKey(struct.getName())) {
             throw new InvalidDnDOperationException();
         }
         if (!isTopLevel()) {
             throw new OverlappingFileLockException();
         }
-        structs.put(struct.name, struct);
+        structs.put(struct.getName(), struct);
     }
-    public Struct getStruct(String name) {
+    public TypeStruct getStruct(String name) {
         return structs.get(name);
     }
     public void setCurrFunc(CommandDefineFunction cdf) {
         this.currentFunction = cdf;
     }
-    public Type getCurrentFunctionReturnType() {
-        return currentFunction.getHeader().getReturnType();
-    }
-    public TempVarUsage getTempVarUsage() {
-        if (currentTempVarUsage == null) {
-            throw new IllegalStateException("Unable to add int and boolean on line 7");//lol
-        }
-        return currentTempVarUsage;
+    public FunctionHeader getCurrentFunction() {
+        return currentFunction.getHeader();
     }
     public boolean isTopLevel() {
         if (values.length == 1) {
@@ -158,14 +185,6 @@ public class Context {
         }
         return false;
     }
-    public void setTempVarUsage(TempVarUsage curr) {
-        if (curr == null) {
-            Stream s = Stream.of(new String[]{});
-            s.count();
-            s.count();//this causes an exception
-        }
-        this.currentTempVarUsage = curr;
-    }
     public int getTotalStackSize() {
         return stackSize + (additionalSizeTemp == null ? 0 : additionalSizeTemp);
     }
@@ -179,37 +198,35 @@ public class Context {
             additionalSizeTemp = Math.min(additionalSizeTemp, tempSize);
         }
     }
-    private Context(HashMap<String, VarInfo>[] values, int stackSize, FunctionsContext gc, HashMap<String, Struct> structs, CommandDefineFunction currentFunction, MutInt sub, String packageName, HashMap<String, String> imports) {
+    private Context(HashMap<String, X86Param>[] values, Context from) {
         this.values = values;
-        this.stackSize = stackSize;
-        this.structs = structs;
-        this.gc = gc;
-        this.currentFunction = currentFunction;
-        this.varIndex = sub;
-        this.imports = imports;
-        this.packageName = packageName;
+        this.stackSize = from.stackSize;
+        this.structs = from.structs;
+        this.gc = from.gc;
+        this.currentFunction = from.currentFunction;
+        this.varIndex = from.varIndex == null ? new MutInt() : from.varIndex;
+        this.imports = from.imports;
+        this.packageName = from.packageName;
     }
-    @SuppressWarnings("unchecked")//you can't actually do "new HashMap<>[" so I can't fix this warning
     public Context subContext() {
-        HashMap<String, VarInfo>[] temp = new HashMap[values.length + 1];
-        System.arraycopy(values, 0, temp, 0, values.length);
+        HashMap<String, X86Param>[] temp = Arrays.copyOf(values, values.length + 1);
         temp[values.length] = new HashMap<>();
-        Context subContext = new Context(temp, stackSize, gc, structs, currentFunction, varIndex == null ? new MutInt() : varIndex, packageName, imports);
+        Context subContext = new Context(temp, this);
         return subContext;
     }
     private void defineLocal(String name, VarInfo value) {
         values[values.length - 1].put(name, value);
     }
-    public ExpressionConst knownValue(String name) {
-        VarInfo info = get(name);
+    public ExpressionConst<?> knownValue(String name) {
+        X86Param info = get(name);
         //System.out.println("Known for " + name + ": " + info);
-        if (info == null) {
+        if (info == null || !(info instanceof VarInfo)) {
             return null;
         }
-        return info.knownValue;
+        return ((VarInfo) info).knownValue;
     }
     public boolean varDefined(String name) {
-        for (HashMap<String, VarInfo> value : values) {
+        for (HashMap<String, X86Param> value : values) {
             if (value.containsKey(name)) {
                 return true;
             }
@@ -232,32 +249,26 @@ public class Context {
         stackSize -= type.getSizeBytes();
         defineLocal(name, new VarInfo(name, type, stackSize));//Otherwise define it as local
     }
-    public void setKnownValue(String name, ExpressionConst val) {
-        get(name).knownValue = val;
+    public void setKnownValue(String name, ExpressionConst<?> val) {
+        ((VarInfo) get(name)).knownValue = val;
     }
     public void clearKnownValue(String name) {
         if (get(name) != null) {
             setKnownValue(name, null);
         }
     }
-    public VarInfo getRequired(String name) {
-        VarInfo info = get(name);
+    public X86Param getRequired(String name) {
+        X86Param info = get(name);
         if (info == null) {
             throw new IllegalStateException("WEWLAD\nEWLADW\nWLADWE\nLADWEW\nADWEWL\nDWEWLA\n" + name);
         }
         return info;
     }
-    public VarInfo get(String name) {
+    public X86Param get(String name) {
         for (int i = values.length - 1; i >= 0; i--) {
-            VarInfo possibleValue = values[i].get(name);
+            X86Param possibleValue = values[i].get(name);
             if (possibleValue != null) {
                 return possibleValue;
-            }
-        }
-        if (currentTempVarUsage != null) {
-            VarInfo pos = currentTempVarUsage.getInfo(name);
-            if (pos != null) {
-                return pos;
             }
         }
         //System.out.println("WARNING: Unable to find requested variable named '" + name + "'. Returning null. Context is " + toString());
@@ -265,6 +276,6 @@ public class Context {
     }
     @Override
     public String toString() {
-        return Arrays.asList(values).toString() + " " + structs;
+        return Arrays.asList(values) + " " + structs;
     }
 }

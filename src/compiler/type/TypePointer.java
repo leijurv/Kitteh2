@@ -11,7 +11,7 @@ package compiler.type;
  * @param <E>
  */
 public class TypePointer<E extends Type> extends TypeInt64 {
-    E pointingTo;
+    private final E pointingTo;
     public <T extends E> TypePointer(T pointingTo) {
         this.pointingTo = pointingTo;
     }
@@ -20,7 +20,7 @@ public class TypePointer<E extends Type> extends TypeInt64 {
     }
     @Override
     public boolean equals(Object o) {
-        return this == o || (o instanceof TypePointer && o.hashCode() == hashCode());
+        return o != null && (this == o || (o instanceof TypePointer && pointingTo.equals(((TypePointer) o).pointingTo)));
     }
     @Override
     public int hashCode() {

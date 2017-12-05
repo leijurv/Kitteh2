@@ -7,6 +7,20 @@
 -verbose
 
 
+#-renamesourcefileattribute SourceFile
+#-keepattributes SourceFile,LineNumberTabl
+#-keepclasses class **
+
+-allowaccessmodification
+-mergeinterfacesaggressively
+-overloadaggressively
+-flattenpackagehierarchy
+-repackageclasses
+-dontusemixedcaseclassnames
+
+-keeppackagenames lang
+-keepdirectories  lang
+
 # Keep - Applications. Keep all application classes, along with their 'main'
 # methods.
 -keepclasseswithmembers public class * {
@@ -18,6 +32,10 @@
 -keepclassmembers enum  * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
+}
+
+-keepclassmembers class compiler.command.CommandDefineFunction {
+    public static final <fields>;    
 }
 
 # Also keep - Database drivers. Keep all implementations of java.sql.Driver.

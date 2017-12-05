@@ -12,7 +12,7 @@ newLinked() linked*{
 	res.hasFirst=false
 	return res
 }
-add(linked* list, long toAdd){
+addLinked(linked* list, long toAdd){
 	n:=(node*)malloc(sizeof(node))
 	n.value=toAdd
 	if !list.hasFirst{
@@ -50,7 +50,7 @@ removeLowest(linked* list) long{
 sort(long* ptr,int size) {
 	l:=newLinked()
 	for i:=0; i<size; i++{
-		add(l,ptr[i])
+		addLinked(l,ptr[i])
 	}
 	for i:=0; i<size; i++{
 		ptr[i]=removeLowest(l)

@@ -4,13 +4,14 @@
  * and open the template in the editor.
  */
 package compiler.parse;
+import compiler.preprocess.Line;
 import java.util.ArrayList;
 
 /**
  *
  * @author leijurv
  */
-class BlockFinder implements Transform<ArrayList<Object>> {
+public class BlockFinder implements Transform<ArrayList<Object>> {
     private static void assertLineSane(Line line, boolean shouldEndWithBracket, boolean startBracket) {
         ArrayList<Object> strs = line.source();
         //only the last string can contain { or }, so check all but the last
@@ -22,13 +23,13 @@ class BlockFinder implements Transform<ArrayList<Object>> {
             }
             String str = (String) strs.get(j);
             if (str.contains("{") || str.contains("}")) {
-                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+                throw line.new LineException();
             }
         }
         if (shouldEndWithBracket) {
             String str = (String) strs.get(strs.size() - 1);
             if (!str.endsWith(startBracket ? "{" : "}")) {
-                throw new IllegalStateException("lol what are you trying to do here: " + str + " line " + line.num());
+                throw line.new LineException();
             }
         }
     }
@@ -57,9 +58,9 @@ class BlockFinder implements Transform<ArrayList<Object>> {
                 if (numBrkts == 0) {
                     ArrayList<Object> before = new ArrayList<>(lines.subList(0, firstBracket + 1));
                     ArrayList<Object> during = new ArrayList<>(lines.subList(firstBracket + 1, i));
-                    if (start) {
+                    if (start) {//TODO fix this steaming pile of
                         if (((String) line.source().get(0)).charAt(0) != '}') {
-                            throw new RuntimeException(line + "");
+                            throw new IllegalStateException(line + "");
                         }
                         line.source().set(0, ((String) line.source().get(0)).substring(1));
                     }

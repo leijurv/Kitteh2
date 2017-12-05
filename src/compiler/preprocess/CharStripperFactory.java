@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -42,14 +41,11 @@ class CharStripperFactory {
     }
 
     private class StripChars extends LineBasedTransform {
-        HashSet<Character> begin = stripBegin();
-        HashSet<Character> end = stripEnd();
+        private final HashSet<Character> begin = stripBegin();
+        private final HashSet<Character> end = stripEnd();
         @Override
         public Line transform(Line lineObj) {
             String line = lineObj.raw();
-            if (line.equals("")) {
-                return lineObj;
-            }
             int stripBegin = 0;
             while (stripBegin < line.length() && begin.contains(line.charAt(stripBegin))) {
                 stripBegin++;
@@ -59,9 +55,9 @@ class CharStripperFactory {
                 stripEnd--;
             }
             if (stripBegin > stripEnd) {
-                return new Line("", lineObj.num());
+                return lineObj.withModifiedRaw("");
             }
-            return new Line(line.substring(stripBegin, stripEnd + 1), lineObj.num());
+            return lineObj.withModifiedRaw(line.substring(stripBegin, stripEnd + 1));
         }
     }
 }

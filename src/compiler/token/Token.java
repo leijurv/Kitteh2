@@ -2,7 +2,9 @@ package compiler.token;
 
 public interface Token<T> {
     TokenType tokenType();
-    T data();
+    default T data() {
+        throw new UnsupportedOperationException();
+    }
     @Override
     String toString();
     @Override

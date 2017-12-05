@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.Operator;
 import compiler.tac.IREmitter;
 import compiler.tac.TACConst;
@@ -13,6 +14,8 @@ import compiler.tac.TACJumpCmp;
 import compiler.tac.TACStandard;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
+import compiler.x86.X86Const;
 
 /**
  *
@@ -26,6 +29,9 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         this.a = a;
         this.b = b;
         this.op = op;
+        if (op.onApplication(a.getType(), b.getType()) instanceof TypeBoolean && !a.getType().equals(b.getType())) {
+            throw new IllegalStateException("Type mismatch " + a.getType() + " " + b.getType() + " from expressions " + a + " " + b);
+        }
     }
     @Override
     public Type calcType() {
@@ -49,19 +55,19 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         return "(" + a + ")" + op + "(" + b + ")";
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
         if (op == Operator.AND || op == Operator.OR) {
             int ifTrue = emit.lineNumberOfNextStatement() + condLength() + 2;
             int ifFalse = ifTrue + 1;
             generateConditionalJump(emit, tempVars, ifTrue, false);
-            emit.emit(new TACConst(resultLocation, "0"));
+            emit.emit(new TACConst(resultLocation, new X86Const("0", new TypeBoolean())));
             emit.emit(new TACJump(ifFalse));
-            emit.emit(new TACConst(resultLocation, "1"));
+            emit.emit(new TACConst(resultLocation, new X86Const("1", new TypeBoolean())));
             return;
         }
-        String aName = tempVars.getTempVar(a.getType());
+        VarInfo aName = tempVars.getTempVar(a.getType());
         a.generateTAC(emit, tempVars, aName);
-        String bName = tempVars.getTempVar(b.getType());
+        VarInfo bName = tempVars.getTempVar(b.getType());
         b.generateTAC(emit, tempVars, bName);
         emit.emit(new TACStandard(resultLocation, aName, bName, op));
     }
@@ -129,9 +135,9 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
                 ((ExpressionConditionalJumpable) b).generateConditionalJump(emit, tempVars, jumpTo, false);//if b is true, same thing
             }
         } else {
-            String aName = tempVars.getTempVar(a.getType());
+            VarInfo aName = tempVars.getTempVar(a.getType());
             a.generateTAC(emit, tempVars, aName);
-            String bName = tempVars.getTempVar(b.getType());
+            VarInfo bName = tempVars.getTempVar(b.getType());
             b.generateTAC(emit, tempVars, bName);
             Operator operator = invert ? op.invert() : op;
             emit.emit(new TACJumpCmp(aName, bName, operator, jumpTo));
@@ -139,7 +145,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        a = a.insertKnownValues(context);//TODO multithread this with a and b /s
+        a = a.insertKnownValues(context);
         b = b.insertKnownValues(context);
         return this;
     }
@@ -148,7 +154,7 @@ public class ExpressionOperator extends ExpressionConditionalJumpable {
         a = a.calculateConstants();
         b = b.calculateConstants();
         if (a instanceof ExpressionConst && b instanceof ExpressionConst) {
-            return (Expression) op.apply((ExpressionConst) a, (ExpressionConst) b);
+            return op.apply((Expression & ExpressionConst<?>) a, (Expression & ExpressionConst<?>) b);
         }
         return this;
     }

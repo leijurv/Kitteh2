@@ -5,10 +5,14 @@
  */
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
+import compiler.tac.TACReturn;
 import compiler.tac.TACStatement;
 import java.util.List;
 
 /**
+ * Eliminates jumps to unconditional jumps. If jump A's destination is jump B,
+ * and jump B is unconditional, you can set A's destination to be equal to B's
+ * destination.
  *
  * @author leijurv
  */
@@ -22,9 +26,12 @@ public class DoubleJump extends TACOptimization {
                     for (int j = 0; j < stmts.size(); j++) {
                         System.out.println(j + ":  " + stmts.get(j));
                     }
-                    throw new RuntimeException();
+                    throw new IllegalStateException();
                 }
                 TACStatement dest = stmts.get(first.jumpTo());
+                if (dest instanceof TACReturn && first.getClass() == TACJump.class) {//if the jump is unconditional and the destination is a return
+                    stmts.set(i, dest);//we can just return. jumping to a return is redundant
+                }
                 if (dest instanceof TACJump) {
                     TACJump second = (TACJump) dest;
                     boolean unconditionalSecond = dest.getClass() == TACJump.class;

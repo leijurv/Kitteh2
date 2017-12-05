@@ -5,10 +5,12 @@
  */
 package compiler.command;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.expression.Expression;
 import compiler.expression.ExpressionConst;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
+import compiler.type.TypeFloat;
 import java.util.stream.Stream;
 
 /**
@@ -34,8 +36,14 @@ public class CommandSetVar extends Command {
             emit.emit(new TACJump(ifFalse));
             emit.emit(new TACConst(var, "1"));
         } else {*/
-        val.generateTAC(emit, new TempVarUsage(context), var);//this one, at least, is easy
+        val.generateTAC(emit, new TempVarUsage(context), (VarInfo) context.get(var));//this one, at least, is easy
         //}
+    }
+    public String varSet() {
+        return var;
+    }
+    public Expression setTo() {
+        return val;
     }
     @Override
     protected int calculateTACLength() {
@@ -48,8 +56,8 @@ public class CommandSetVar extends Command {
     public void staticValues() {
         val = val.insertKnownValues(context);
         val = val.calculateConstants();
-        if (val instanceof ExpressionConst) {
-            System.out.println(var + " is known to be " + val);
+        if (val instanceof ExpressionConst && !(val.getType() instanceof TypeFloat)) {
+            //System.out.println(var + " is known to be " + val);
             context.setKnownValue(var, (ExpressionConst) val);
         } else {
             context.clearKnownValue(var);//we are setting it to something dynamic, so it's changed now

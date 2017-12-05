@@ -4,13 +4,8 @@
  * and open the template in the editor.
  */
 package compiler.preprocess;
-import compiler.parse.Line;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -18,26 +13,13 @@ import org.junit.Test;
  * @author leijurv
  */
 public class StripCommentsTest {
-    public StripCommentsTest() {
-    }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
-    }
     /**
      * Test of transform method, of class StripComments.
      */
     @Test
     public void testTransform() {
         System.out.println("transform");
+        assertEquals("c", new StripComments(null).transform("c").get(0).raw());
         test("cat", "cat");
         test("cat\n", "cat\n");
         test("cat\nwew", "cat\nwew");
@@ -57,7 +39,7 @@ public class StripCommentsTest {
     }
     public void test(String a, String b) {
         String[] split = b.split("\n", -1);
-        StripComments st = new StripComments();
+        StripComments st = new StripComments(null);
         List<Line> result = st.transform(a);
         assertEquals(result.toString(), split.length, result.size());
         for (int i = 0; i < split.length; i++) {

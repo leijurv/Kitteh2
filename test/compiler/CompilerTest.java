@@ -12,17 +12,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -30,25 +26,12 @@ import org.junit.Test;
  * @author leijurv
  */
 public class CompilerTest {
-    public CompilerTest() {
-    }
     public static String read(String testname) throws IOException {
         return new String(Files.readAllBytes(Paths.get("test/tests/" + testname)));
     }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
-    }
     @Test
     public void testSimpleCompile() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         verifyCompilation("func main(){\nprint(5)\nprint(6)\n}", true, "5\n6\n");
         verifyCompilation("func main(){\nprint(5)\n}", true, "5\n");
         verifyCompilation("func main(){\na:=420\nprint(a)\n}", true, "420\n");
@@ -57,14 +40,15 @@ public class CompilerTest {
     }
     @Test
     public void testSimpleNonCompile() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         shouldntCompile("func main(){\nprint(5)\nprint6)\n}");
         shouldntCompile("");
         shouldntCompile("func main({}");
         shouldntCompile("func main(){}");
-        shouldntCompile("func main(){\n}");
     }
     @Test
     public void testLinkedList() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         String[] structDefinitionVariants = {"struct linked{\n"//ensure that the position of fields in the struct doesn't affect execution
             + "	long this\n"
             + "	linked* next\n"
@@ -93,7 +77,7 @@ public class CompilerTest {
         String cont = "func main(){\n"
                 + "	ll:=newLinked(1)\n"
                 + "	for long i=1; i<(long)30; i=i+1{\n"
-                + "		ll=add(factorial(i),ll)\n"
+                + "		ll=addLink(factorial(i),ll)\n"
                 + "	}\n"
                 + "	pll(ll)\n"
                 + "}\n"
@@ -103,7 +87,7 @@ public class CompilerTest {
                 + "	root[0].hasNext=false\n"
                 + "	return root\n"
                 + "}\n"
-                + "func add(long i, linked* ptr) linked*{\n"
+                + "func addLink(long i, linked* ptr) linked*{\n"
                 + "	newRoot:=newLinked(i)\n"
                 + "	newRoot[0].hasNext=true\n"
                 + "	newRoot[0].next=ptr\n"
@@ -191,6 +175,7 @@ public class CompilerTest {
     }
     @Test
     public void testOverwriting() throws Exception {
+        assertEquals(true, new File("/usr/bin/gcc").exists());
         String header = "func main(){\nprint(test(1,2,3,4))\n}\nfunc test(int a,int b,int c,int j)int{\n";
         String footer = "	return a + (b + c * j + a) + j * (c * j)\n"
                 + "}";
@@ -218,17 +203,18 @@ public class CompilerTest {
         File desiredOutput = new File(dir, "output");
         assertTrue("Package " + dir + " needs an " + desiredOutput, desiredOutput.exists());
         String desiredOut = new String(Files.readAllBytes(desiredOutput.toPath()));
-        String asm = Compiler.compile(dir, "main", OptimizationSettings.ALL);
-        verifyASM(asm, true, desiredOut);
+        Path path = new File(dir, "main.k").toPath();
+        verifyCompilation(path, true, desiredOut);
     }
-    public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+    public static void verifyCompilation(Object program, boolean shouldCompile, String desiredExecutionOutput) throws IOException, InterruptedException {
+        verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
+        //first, no optimizations
+        //if that fails, then just fail without checking anything else
         try {
-            //first check with all optimizations
+            //then check with all optimizations
             //if it works with correct output with all optimizations, then we are gud
             verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.ALL, false);
         } catch (Exception e) {
-            verifyCompilation(program, shouldCompile, desiredExecutionOutput, OptimizationSettings.NONE, true);
-            //don't try/catch the no-optimization, because if that fails then that's the error we want to throw
             if (!shouldCompile) {
                 return;
                 //if it shouldn't compile, and the test was successful (i e it actually didn't compile)
@@ -240,7 +226,7 @@ public class CompilerTest {
             throw new IllegalStateException("Detective failed" + e);//shouldn't get to here
         }
     }
-    public static Object detective(String program, String desiredExecutionOutput, Exception withAll) {//setting the return type to non-void ensures that it cannot exit without throwing SOME exception
+    public static Object detective(Object program, String desiredExecutionOutput, Exception withAll) {//setting the return type to non-void ensures that it cannot exit without throwing SOME exception
         //no exception with false,NONE
         //exception with true,ALL
         try {
@@ -282,13 +268,17 @@ public class CompilerTest {
         withAll.printStackTrace();
         throw new IllegalStateException("Exception caused when all are enabled, but not when any are enabled individually, alone or with uselesstempvars" + withAll);
     }
-    public static void verifyCompilation(String program, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+    public static void verifyCompilation(Object prog, boolean shouldCompile, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+        if (prog instanceof Path) {
+            verifyCompilation((Path) prog, desiredExecutionOutput, settings, useAssert);
+            return;
+        }
         if (!shouldCompile) {
             assertNull(desiredExecutionOutput);
         }
         String compiled;
         try {
-            compiled = Compiler.compile(program, settings);
+            compiled = Compiler.compile((String) prog, settings);
             assertEquals(true, shouldCompile);
         } catch (Exception e) {
             if (shouldCompile) {
@@ -299,28 +289,36 @@ public class CompilerTest {
         assertNotNull(compiled);
         verifyASM(compiled, useAssert, desiredExecutionOutput);
     }
+    public static void verifyCompilation(Path main, String desiredExecutionOutput, OptimizationSettings settings, boolean useAssert) throws IOException, InterruptedException {
+        assertNotNull(desiredExecutionOutput);
+        String compiled = Compiler.compile(main, settings);
+        assertNotNull(compiled);
+        verifyASM(compiled, useAssert, desiredExecutionOutput);
+    }
     public static void verifyASM(String compiled, boolean useAssert, String desiredExecutionOutput) throws IOException, InterruptedException {
         if (!new File("/usr/bin/gcc").exists()) {
             assertNull("GCC must exist", "GCC must exist");
         }
         File asm = File.createTempFile("kittehtest" + System.nanoTime() + "_" + compiled.hashCode(), ".s");
         File executable = new File(asm.getAbsolutePath().replace(".s", ".o"));
+        asm.deleteOnExit();
+        executable.deleteOnExit();
         assertEquals(false, executable.exists());
         assertEquals(true, asm.exists());
-        System.out.println("Writing to file " + asm);
+        //System.out.println("Writing to file " + asm);
         try (FileOutputStream out = new FileOutputStream(asm)) {
             out.write(compiled.getBytes());
         }
         assertEquals(true, asm.exists());
         String[] compilationCommand = {"/usr/bin/gcc", "-o", executable.getAbsolutePath(), asm.getAbsolutePath()};
-        System.out.println(Arrays.asList(compilationCommand));
+        //System.out.println(Arrays.asList(compilationCommand));
         Process gcc = new ProcessBuilder(compilationCommand).start();
         if (!gcc.waitFor(10, TimeUnit.SECONDS)) {
             gcc.destroyForcibly();
             assertEquals("GCC timed out????", false, true);
         }
-        System.out.println("GCC return value: " + gcc.waitFor());
         if (gcc.waitFor() != 0) {
+            System.out.println("GCC return value: " + gcc.waitFor());
             int j;
             StringBuilder result = new StringBuilder();
             while ((j = gcc.getErrorStream().read()) >= 0) {
@@ -335,7 +333,7 @@ public class CompilerTest {
         assertEquals(0, gcc.waitFor());
         assertEquals(true, executable.exists());
         Process ex = new ProcessBuilder(executable.getAbsolutePath()).redirectError(Redirect.INHERIT).start();
-        if (!ex.waitFor(2, TimeUnit.SECONDS)) {
+        if (!ex.waitFor(100, TimeUnit.SECONDS)) {
             ex.destroyForcibly();
             assertEquals("Subprocess timed out", false, true);
         }
@@ -344,7 +342,9 @@ public class CompilerTest {
         while ((j = ex.getInputStream().read()) >= 0) {
             result.append((char) j);
         }
-        System.out.println("Execution output \"" + result + "\"");
+        if (!desiredExecutionOutput.equals(result.toString())) {
+            System.out.println("Execution output \"" + result + "\"");
+        }
         if (useAssert) {
             assertEquals(desiredExecutionOutput, result.toString());
         } else if (!desiredExecutionOutput.equals(result.toString())) {

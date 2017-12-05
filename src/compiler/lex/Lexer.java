@@ -36,14 +36,17 @@ public class Lexer extends AbstractLexer {
                 continue;
             }
             if (numerical(ch)) {
-                //TODO negative numbers
-                //it's nontrivial because a - and then a number can mean something else (like i-5) or really negative (like i= -5)
-                //negative numbers are in the parser not the lexer I think... =/
                 String lexeme = readNumerical();
                 emit(NUM.create(lexeme));
                 continue;
             }
             pop();//pop "ch" because at this point we know we're going to use it
+            if (has2() && TokenMapping.mapsToToken(ch + peek2())) {//TODO this is bad
+                emit(TokenMapping.getStaticToken(ch + peek2()));
+                pop();
+                pop();
+                continue;
+            }
             if (has() && TokenMapping.mapsToToken(ch + "" + peek())) {
                 //if this character and the next character (if present) forms a token, pop the second character and emit the compound token
                 emit(TokenMapping.getStaticToken(ch + "" + pop()));
@@ -57,7 +60,7 @@ public class Lexer extends AbstractLexer {
             if (ch == ' ') {//spaces don't do anything i think
                 continue;//TODO allow any of the blank stripped chars (like tab) in the middle of a line, not just space
             }
-            if (ch == '{') {//lol idk man
+            if (ch == '{' || ch == '}') {//lol idk man
                 continue;
             }
             throw new FileSystemAlreadyExistsException("Unexpected " + ch);

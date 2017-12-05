@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -15,6 +16,8 @@ import java.nio.charset.IllegalCharsetNameException;
  * @author leijurv
  */
 public abstract class Expression {
+    private Integer taclen = null;
+    private Type cachedType = null;
     public final Type getType() {
         if (cachedType == null) {
             cachedType = calcType();
@@ -24,11 +27,9 @@ public abstract class Expression {
         }
         return cachedType;
     }
-    private Type cachedType = null;
     protected abstract Type calcType();//the return type
-    public abstract void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation);//TODO enforce length
+    public abstract void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation);//TODO enforce length
     protected abstract int calculateTACLength();
-    private Integer taclen = null;
     public int getTACLength() {
         if (taclen == null) {
             taclen = calculateTACLength();

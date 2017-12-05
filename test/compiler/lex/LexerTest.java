@@ -9,11 +9,7 @@ import compiler.token.Token;
 import static compiler.token.TokenType.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -21,20 +17,6 @@ import org.junit.Test;
  * @author leijurv
  */
 public class LexerTest {
-    public LexerTest() {
-    }
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    @Before
-    public void setUp() {
-    }
-    @After
-    public void tearDown() {
-    }
     /**
      * Test of lex method, of class Lexer.
      */
@@ -45,8 +27,9 @@ public class LexerTest {
         testLexing("420", NUM.create("420"));
         testLexing("a420", VARIABLE.create("a420"));
         testLexing("for 4", Keyword.FOR, NUM.create("4"));
+        assertEquals(Arrays.asList(SETEQUAL.create(true), SETEQUAL.create(false)), Lexer.lex(":=="));
     }
-    public void testLexing(String input, Token... expected) {
+    private static void testLexing(String input, Token... expected) {
         ArrayList<Token> expResult = new ArrayList<>(Arrays.asList(expected));
         ArrayList<Token> result = Lexer.lex(input);
         assertEquals(expResult, result);

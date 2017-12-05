@@ -4,10 +4,17 @@
  * and open the template in the editor.
  */
 package compiler.tac;
+import compiler.Context;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
+import compiler.type.TypeStruct;
+import compiler.x86.X86Const;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Memory;
+import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
+import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,11 +23,10 @@ import java.util.List;
  * @author leijurv
  */
 public class TACPointerRef extends TACStatement {
-    public TACPointerRef(String source, String dest) {
+    private final int offset;
+    public TACPointerRef(X86Param source, X86Param dest, int offset) {
         super(source, dest);
-    }
-    @Override
-    protected void onContextKnown() {
+        this.offset = offset;
         if (!(params[1].getType() instanceof TypePointer)) {
             throw new IllegalStateException("what");
         }
@@ -29,23 +35,43 @@ public class TACPointerRef extends TACStatement {
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames);
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params);
     }
     @Override
-    public List<String> modifiedVariables() {
+    public List<X86Param> modifiedVariables() {
         return Arrays.asList();
     }
     @Override
-    public String toString0() {
+    public String toString() {
         //return "Put the value " + source + " into the location specified by " + dest;
-        return "*" + params[1] + " = " + params[0];
+        return "*" + params[1] + (offset == 0 ? "" : "+" + offset) + " = " + params[0];
     }
     @Override
     public void printx86(X86Emitter emit) {
-        TypeNumerical d = (TypeNumerical) ((TypePointer) params[1].getType()).pointingTo();
-        emit.addStatement("mov" + d.x86typesuffix() + " " + params[0].x86() + ", " + X86Register.C.getRegister(d));
-        emit.addStatement("movq " + params[1].x86() + ", %rax");
-        emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", (%rax)");
+        if (params[0].getType() instanceof TypeNumerical) {
+            X86Param source = emit.dfa.alternative(params[0], false);
+            if (source == null) {
+                if (params[0] instanceof X86Const) {
+                    source = params[0];
+                } else {
+                    source = emit.putInRegister(params[0], X86Register.C);
+                }
+            }
+            X86Register ohno = X86Register.A;
+            if (source instanceof X86TypedRegister && ((X86TypedRegister) source).getRegister() == X86Register.A) {
+                ohno = X86Register.C;
+            }
+            X86TypedRegister othersource = emit.putInRegister(params[1], ohno);
+            X86Memory dest = new X86Memory(offset, othersource.getRegister(), params[0].getType());
+            emit.uncheckedMove(source, dest);
+        } else if (params[0].getType() instanceof TypeStruct) {
+            TypeStruct ts = (TypeStruct) params[0].getType();
+            emit.move(params[1], X86Register.C);
+            TACPointerDeref.moveStruct(((Context.VarInfo) params[0]).getStackLocation(), X86Register.BP, offset, X86Register.C, ts, emit);
+            throw new IllegalStateException("This actually just doesn't work");
+        } else {
+            throw new InvalidPathException("", "");
+        }
     }
 }

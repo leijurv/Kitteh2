@@ -11,20 +11,19 @@ import compiler.type.TypeNumerical;
  *
  * @author leijurv
  */
-public class X86TypedRegister implements X86Param {
+public class X86TypedRegister extends X86Param {
     private final X86Register register;
     private final TypeNumerical type;
-    public X86TypedRegister(X86Register register, TypeNumerical type) {
+    X86TypedRegister(X86Register register, TypeNumerical type) {
         this.register = register;
         this.type = type;
+    }
+    public X86Register getRegister() {
+        return register;
     }
     @Override
     public String x86() {
         return register.getRegister1(type);
-    }
-    @Override
-    public String getName() {
-        return x86();
     }
     @Override
     public Type getType() {

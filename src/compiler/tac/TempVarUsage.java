@@ -20,32 +20,33 @@ import java.util.HashMap;
  * @author leijurv
  */
 public class TempVarUsage {
+    public static final String TEMP_VARIABLE_PREFIX = "tmp";
+    public static final String TEMP_STRUCT_FIELD_INFIX = "sketchymanual";
     private int sizeSoFar;
     final private Context ctx;
     private final HashMap<String, VarInfo> types = new HashMap<>();//hashmap instead of arraylist to make lookups easier
     public TempVarUsage(Context context) {
         this.ctx = context;
-        context.setTempVarUsage(this);
         this.sizeSoFar = context.getNonTempStackSize();
     }
     public VarInfo getInfo(String tempVar) {
         return types.get(tempVar);
     }
-    public String getTempVar(Type type) {
+    public VarInfo getTempVar(Type type) {
         String name = TEMP_VARIABLE_PREFIX + ctx.varIndex.val++;
         // if (ind > 16) {
         //    throw new IllegalStateException("I hope you're Dora because I'm going to need a Map to get out of this one");
         //}
         sizeSoFar -= type.getSizeBytes();
-        types.put(name, ctx.new VarInfo(name, type, sizeSoFar));
+        VarInfo vi = ctx.new VarInfo(name, type, sizeSoFar);
+        types.put(name, vi);
         ctx.updateMinAdditionalSizeTemp(sizeSoFar);//make sure the context knows how much temp var bytes we gobblin up
-        return name;//yes
+        return vi;//yes
     }
-    public String registerLabelManually(int stackLocation, Type type, String info) {//used for structs
+    public VarInfo registerLabelManually(int stackLocation, Type type, String info) {//used for structs
         String name = TEMP_VARIABLE_PREFIX + "_" + info + "_" + TEMP_STRUCT_FIELD_INFIX + ctx.varIndex.val++;
-        types.put(name, ctx.new VarInfo(name, type, stackLocation));
-        return name;
+        VarInfo vi = ctx.new VarInfo(name, type, stackLocation);
+        types.put(name, vi);
+        return vi;
     }
-    public static final String TEMP_VARIABLE_PREFIX = "tmp";
-    public static final String TEMP_STRUCT_FIELD_INFIX = "sketchymanual";
 }

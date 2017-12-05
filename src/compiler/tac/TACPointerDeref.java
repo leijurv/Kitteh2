@@ -5,13 +5,18 @@
  */
 package compiler.tac;
 import compiler.Context.VarInfo;
-import compiler.Struct;
+import compiler.type.TypeInt16;
+import compiler.type.TypeInt32;
+import compiler.type.TypeInt64;
+import compiler.type.TypeInt8;
 import compiler.type.TypeNumerical;
 import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Memory;
 import compiler.x86.X86Param;
 import compiler.x86.X86Register;
+import compiler.x86.X86TypedRegister;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.List;
@@ -21,54 +26,70 @@ import java.util.List;
  * @author leijurv
  */
 public class TACPointerDeref extends TACStatement {
-    public TACPointerDeref(String deref, String dest) {
+    private final int offset;
+    public TACPointerDeref(X86Param deref, X86Param dest, int offset) {
         super(deref, dest);
-    }
-    @Override
-    protected void onContextKnown() {
+        this.offset = offset;
         if (!((TypePointer) params[0].getType()).pointingTo().equals(params[1].getType())) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
     }
     @Override
-    public List<String> requiredVariables() {
-        return Arrays.asList(paramNames[0]);//actually i'd say that only sourceName is required
+    public List<X86Param> requiredVariables() {
+        return Arrays.asList(params[0]);
     }
     @Override
-    public List<String> modifiedVariables() {
-        return Arrays.asList(paramNames[1]);
+    public List<X86Param> modifiedVariables() {
+        return Arrays.asList(params[1]);
     }
     @Override
-    public String toString0() {
+    public String toString() {
         //return "Dereference " + source + " into " + dest;
-        return params[1] + " = *" + params[0];
+        return params[1] + " = *" + params[0] + (offset == 0 ? "" : "+" + offset);
     }
     @Override
     public void printx86(X86Emitter emit) {
         X86Param source = params[0];
         X86Param dest = params[1];
-        emit.addStatement("movq " + source.x86() + ", %rax");
+        X86TypedRegister loc = emit.putInRegister(source, X86Register.A);
+        X86Param memLoc = new X86Memory(offset, loc.getRegister(), dest.getType());
         if (dest.getType() instanceof TypeNumerical) {
-            TypeNumerical d = (TypeNumerical) dest.getType();
-            emit.addStatement("mov" + d.x86typesuffix() + " (%rax), " + X86Register.C.getRegister(d));
-            emit.addStatement("mov" + d.x86typesuffix() + " " + X86Register.C.getRegister(d) + ", " + dest.x86());
+            if (dest instanceof X86TypedRegister) {
+                emit.move(memLoc, dest);
+            } else {
+                X86Param alt1 = emit.dfa.alternative(memLoc, false);
+                if (alt1 != null) {
+                    if (compiler.Compiler.verbose()) {
+                        emit.addComment("SMART Replacing deref with more efficient one given previous move.");
+                        emit.addComment(memLoc.x86() + " is known to be equal to " + alt1.x86());
+                        emit.addComment("Move is now");
+                    }
+                    emit.move(alt1, dest);
+                } else {
+                    emit.move(memLoc, X86Register.C);
+                    emit.move(X86Register.C, dest);
+                }
+            }
         } else if (dest.getType() instanceof TypeStruct) {
             TypeStruct ts = (TypeStruct) dest.getType();
-            moveStruct(0, "%rax", ((VarInfo) dest).getStackLocation(), ts.struct, emit);
+            moveStruct(offset, loc.getRegister(), ((VarInfo) dest).getStackLocation(), X86Register.BP, ts, emit);
         } else {
             throw new InvalidPathException("", "");
         }
     }
-    public static void moveStruct(int sourceStackLocation, String sourceRegister, int destLocation, Struct struct, X86Emitter emit) {
-        int size = new TypeStruct(struct).getSizeBytes();
+    public static void moveStruct(int sourceStackLocation, X86Register sourceRegister, int destLocation, X86Register destRegister, TypeStruct struct, X86Emitter emit) {
+        int size = struct.getSizeBytes();
         //this is a really bad way to do this
-        for (int i = 0; i + 8 <= size; i += 8) {
-            emit.addStatement("movq " + (i + sourceStackLocation) + "(" + sourceRegister + "), %rcx");
-            emit.addStatement("movq %rcx, " + (destLocation + i) + "(%rbp)");
-        }
-        for (int i = size - size % 8; i + 1 <= size; i++) {
-            emit.addStatement("movb " + (i + sourceStackLocation) + "(" + sourceRegister + "), %cl");
-            emit.addStatement("movb %cl, " + (destLocation + i) + "(%rbp)");
+        //still.
+        //even though its a little smarter now
+        int i = 0;
+        for (TypeNumerical tn : new TypeNumerical[]{new TypeInt64(), new TypeInt32(), new TypeInt16(), new TypeInt8()}) {//ordered from largest to smallest for efficient moving
+            while (i + tn.getSizeBytes() <= size) {
+                X86Memory sr = new X86Memory(i + sourceStackLocation, sourceRegister, tn);
+                X86Memory ds = new X86Memory(destLocation + i, destRegister, tn);
+                TACConst.move(ds, sr, emit);
+                i += tn.getSizeBytes();
+            }
         }
     }
 }

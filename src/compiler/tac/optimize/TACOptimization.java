@@ -6,9 +6,11 @@
 package compiler.tac.optimize;
 import compiler.tac.TACJump;
 import compiler.tac.TACStatement;
+import compiler.x86.X86Param;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -17,15 +19,15 @@ import java.util.stream.Collectors;
  */
 public abstract class TACOptimization {
     private ArrayList<TACStatement> statements;
-    private static List<Integer> jumpDestinations(ArrayList<TACStatement> statements) {
-        return statements.stream().filter(TACJump.class::isInstance).map(TACJump.class::cast).map(TACJump::jumpTo).distinct().sorted().collect(Collectors.toList());
+    public static <T extends Collection<Integer>> T jumpDestinations(List<TACStatement> statements, Supplier<T> sup) {
+        return statements.stream().filter(TACJump.class::isInstance).map(TACJump.class::cast).map(TACJump::jumpTo).distinct().sorted().collect(Collectors.toCollection(sup));
     }
     public void reset(List<TACStatement> newStmts) {
         statements = new ArrayList<>(newStmts);
     }
     public List<TACStatement> go(List<TACStatement> stmts) {
         reset(stmts);
-        List<Integer> origJumpDests = jumpDestinations(statements);
+        List<Integer> origJumpDests = jumpDestinations(statements, ArrayList::new);
         ArrayList<Integer> newJumpDests = new ArrayList<>();
         ArrayList<List<TACStatement>> blocks = new ArrayList<>();
         for (int i = -1; i < origJumpDests.size(); i++) {
@@ -61,7 +63,7 @@ public abstract class TACOptimization {
         return result;
     }
     protected abstract void run(List<TACStatement> block, int blockBegin);
-    public boolean isUsedAtOrAfter(int pos, String searchingFor) {
+    public boolean isUsedAtOrAfter(int pos, X86Param searchingFor) {
         List<TACStatement> block = statements;
         for (int j = pos; j < block.size(); j++) {
             if (block.get(j) instanceof TACJump) {
@@ -80,11 +82,11 @@ public abstract class TACOptimization {
     }
     public boolean accessibleFromExterior(int pos) {
         if (statements.get(pos).getClass() != TACJump.class) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         TACJump tj = (TACJump) (statements.get(pos));
         if (tj.jumpTo() <= pos) {
-            throw new RuntimeException();
+            throw new IllegalStateException();
         }
         int rangeEnd = tj.jumpTo();
         //anything jumps to (pos+1,rangeEnd-1)

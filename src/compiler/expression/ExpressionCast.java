@@ -5,10 +5,13 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TACCast;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeFloat;
+import compiler.type.TypeNumerical;
 
 /**
  *
@@ -16,7 +19,7 @@ import compiler.type.Type;
  */
 public class ExpressionCast extends Expression {
     private final Type castTo;
-    private Expression input;
+    public Expression input;
     public ExpressionCast(Expression input, Type castTo) {
         this.input = input;
         this.castTo = castTo;
@@ -26,8 +29,8 @@ public class ExpressionCast extends Expression {
         return castTo;
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        String tmp = tempVars.getTempVar(input.getType());
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        VarInfo tmp = tempVars.getTempVar(input.getType());
         input.generateTAC(emit, tempVars, tmp);
         emit.emit(new TACCast(tmp, resultLocation));
     }
@@ -40,6 +43,12 @@ public class ExpressionCast extends Expression {
         input = input.calculateConstants();
         if (input.getType().equals(castTo)) {
             return input;
+        }
+        if (input instanceof ExpressionConst && !(castTo instanceof TypeFloat) && !(input.getType() instanceof TypeFloat)) {
+            if (!(input instanceof ExpressionConstNum)) {
+                throw new IllegalStateException("Casting a const bool??");
+            }
+            return new ExpressionConstNum(((ExpressionConstNum) input).getVal(), (TypeNumerical) castTo);
         }
         return this;
     }

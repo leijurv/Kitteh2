@@ -18,20 +18,23 @@ public class TypeInt32 extends TypeNumerical {
     public String toString() {
         return "int";
     }
+    //L E X D
     @Override
-    public char x86typesuffix() {
-        return 'l';
+    public String x86typesuffix() {//L
+        return "l";
     }
     @Override
-    public String x86registerprefix() {
+    public String x86registerprefix() {//E
         return "e";
     }
     @Override
-    public char x86registersuffix() {
+    public char x86registersuffix() {//X
         return 'x';
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {//D
         return "d";
     }
+    //lexd
+    //compiler.preprocess.Line.lexd
 }

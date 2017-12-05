@@ -5,41 +5,66 @@
  */
 package compiler.expression;
 import compiler.Context;
-import compiler.Keyword;
+import compiler.Context.VarInfo;
 import compiler.command.CommandDefineFunction.FunctionHeader;
 import compiler.tac.IREmitter;
 import compiler.tac.TACFunctionCall;
+import compiler.tac.TACJumpBoolVar;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
+import compiler.type.TypeBoolean;
 import compiler.type.TypeNumerical;
+import compiler.type.TypePointer;
+import compiler.x86.X86Param;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  *
  * @author leijurv
  */
-public class ExpressionFunctionCall extends Expression {
+public class ExpressionFunctionCall extends ExpressionConditionalJumpable {
     private final List<Expression> args;
     private final FunctionHeader calling;
     public ExpressionFunctionCall(Context context, String pkgName, String funcName, List<Expression> args) {
         this.args = args;
-        this.calling = context.gc.getHeader(pkgName, funcName);
+        String fn = funcName;
+        if (pkgName == null && "print".equals(funcName) && args.size() == 1 && args.get(0).getType() instanceof TypePointer) {
+            //print out the value at the pointer addr not the numerical pointer address
+            fn = "writeNullTerm";
+        }
+        this.calling = context.gc.getHeader(pkgName, fn);
         verifyTypes();
+    }
+    public String callingName() {
+        return calling.name;
+    }
+    public List<Expression> calling() {
+        return args;
+    }
+    public FunctionHeader header() {
+        return calling;
     }
     private void verifyTypes() {
         List<Type> expected = calling.inputs();
-        if (expected.size() != args.size()) {
-            throw new SecurityException("Expected " + expected.size() + " args, actually got " + args.size());
+        if (expected.size() != args.size() && !"syscall".equals(calling.name)) {
+            throw new IllegalStateException("Expected " + expected.size() + " args, actually got " + args.size());
         }
-        List<Type> got = args.stream().map(Expression::getType).collect(Collectors.toList());
+        List<Type> got = args.stream().<Type>map(Expression::getType).collect(Collectors.toList());
         if (!got.equals(expected)) {
-            if (calling.name.equals(Keyword.PRINT.toString()) && got.get(0) instanceof TypeNumerical) {
+            if (calling.name.endsWith("__print") && got.get(0) instanceof TypeNumerical) {
                 //good enough
                 return;
             }
-            throw new ArithmeticException("Expected types " + expected + ", got types " + got);
+            if ("free".equals(calling.name) && got.get(0) instanceof TypePointer) {
+                //good enough
+                return;
+            }
+            if ("syscall".equals(calling.name)) {
+                //good enough
+                return;
+            }
+            throw new IllegalStateException(calling.name + " expected types " + expected + ", got types " + got);
         }
     }
     @Override
@@ -50,36 +75,59 @@ public class ExpressionFunctionCall extends Expression {
     public String toString() {
         return calling.name + args;
     }
-    @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
-        List<String> argNames = args.stream().map((exp) -> {
-            String tempName = tempVars.getTempVar(exp.getType());
+    public void multipleReturns(IREmitter emit, TempVarUsage tempVars, X86Param... resultLocation) {
+        List<X86Param> argNames = args.stream().map(exp -> {
+            VarInfo tempName = tempVars.getTempVar(exp.getType());
             exp.generateTAC(emit, tempVars, tempName);
             return tempName;
         }).collect(Collectors.toList());
-        emit.emit(new TACFunctionCall(resultLocation, calling, argNames));
+        emit.emit(new TACFunctionCall(emit.getContext(), calling, argNames, resultLocation));
+    }
+    @Override
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
+        if (resultLocation == null) {
+            multipleReturns(emit, tempVars);
+        } else {
+            multipleReturns(emit, tempVars, resultLocation);
+        }
     }
     @Override
     public int calculateTACLength() {
-        int sum = args.parallelStream().mapToInt(Expression::getTACLength).sum();//parallel because calculating tac length can be slow, and it can be multithreaded /s
+        int sum = args.stream().mapToInt(Expression::getTACLength).sum();
         return sum + 1;
     }
     @Override
     public Expression insertKnownValues(Context context) {
-        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+        /*IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
             args.set(i, args.get(i).insertKnownValues(context));//.parallel() == sanik
-        });
+        });*/
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).insertKnownValues(context));
+        }
         return this;
     }
     @Override
     public Expression calculateConstants() {
-        IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
+        /*IntStream.range(0, args.size()).parallel().forEach(i -> {//gotta go fast
             args.set(i, args.get(i).calculateConstants());//.parallel() == sanik
-        });
+        });*/
+        for (int i = 0; i < args.size(); i++) {
+            args.set(i, args.get(i).calculateConstants());
+        }
         return this;
     }
     @Override
     public boolean canBeCommand() {
         return true;
+    }
+    @Override
+    public void generateConditionalJump(IREmitter emit, TempVarUsage tempVars, int jumpTo, boolean invert) {
+        VarInfo tmp = tempVars.getTempVar(new TypeBoolean());
+        generateTAC(emit, tempVars, tmp);
+        emit.emit(new TACJumpBoolVar(tmp, jumpTo, invert));
+    }
+    @Override
+    public int condLength() {
+        return 1 + getTACLength();
     }
 }

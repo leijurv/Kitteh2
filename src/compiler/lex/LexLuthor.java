@@ -4,10 +4,13 @@
  * and open the template in the editor.
  */
 package compiler.lex;
-import compiler.parse.Line;
 import compiler.parse.Transform;
+import compiler.preprocess.Line;
+import compiler.util.ParseUtil;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -22,11 +25,22 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
          ((Line) o).lex();
          }
          }*/
-        Optional<RuntimeException> e = lines.parallelStream().filter(Line.class::isInstance).map(Line.class::cast).map(line -> {
+        //print out the composition of lines
+        //SELECT class,count(*) FROM lines GROUP BY class
+        //System.out.println("Lexing " + lines.stream().collect(Collectors.groupingBy(obj -> obj.getClass())).entrySet().stream().map(entry -> new Pair<>(entry.getKey(), entry.getValue().size())).collect(Collectors.toList()) + " lines");
+        List<Line> toLex = ParseUtil.filteredFlatten(Line.class, Line::unlexd, lines).collect(Collectors.toList());
+        if (toLex.isEmpty()) {
+            return;
+        }
+        //this is faster than just piping parse.filteredFlatten into .parallel
+        //because the super nested flatmaps, filters, streams, and maps are therefore run in series and not in parallel (which would be kinda useless as they are very very computationally light)
+        //and also because we can skip hitting the parallel framework entirely if toLex is empty (so as to prevent nested parallels)
+        //this helps a ton because now that it flattens, everything gets lexed first pass, and every subsequent pass has toLex as empty
+        Optional<Line.LineException> e = toLex.parallelStream().map(line -> {
             try {
                 line.lex();
             } catch (Exception ex) {
-                return new RuntimeException("Exception while lexing line " + line.num(), ex);
+                return line.new LineException(ex, "lexing");
             }
             return null;
         }).filter(ex -> ex != null).findFirst();//get the first non-null exception

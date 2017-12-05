@@ -17,12 +17,12 @@ import java.util.Optional;
  * @author leijurv
  */
 class PointerDeref extends TokenBased {
-    public PointerDeref() {
-        super(Operator.MULTIPLY);
+    PointerDeref() {
+        <Operator>super(Operator.MULTIPLY);
     }
     @Override
     protected boolean apply(int i, ArrayList<Object> o, Optional<Type> desiredType, Context context) {
-        if (i != 0 && o.get(i - 1) instanceof Expression) {
+        if (i != 0 && o.get(i - 1) instanceof Expression) {//if prev is an expression, that means it could be something simple like x:=y*3 not even a pointer deref at all
             return false;
         }
         Expression point = (Expression) o.remove(i + 1);

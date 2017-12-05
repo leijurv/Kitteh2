@@ -11,8 +11,8 @@ package compiler.type;
  */
 public class TypeInt64 extends TypeNumerical {
     @Override
-    public char x86typesuffix() {
-        return 'q';
+    public String x86typesuffix() {
+        return "q";
     }
     @Override
     public String x86registerprefix() {
@@ -27,7 +27,7 @@ public class TypeInt64 extends TypeNumerical {
         return 'x';
     }
     @Override
-    public String x86r_registersuffix() {
+    public String x86Rregistersuffix() {
         return "";
     }
     @Override

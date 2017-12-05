@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package compiler.parse;
+package compiler.preprocess;
 import compiler.lex.Lexer;
 import compiler.token.Token;
 import java.nio.channels.NonReadableChannelException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +22,19 @@ public class Line {
     private List<Token> tokens;
     private final String raw;
     private final int origLineNumber;
-    public Line(String raw, int origLineNumber) {
+    private final Path loadedFrom;
+    private Line(Line other, String newRaw) {
+        this(newRaw, other.loadedFrom, other.origLineNumber);
+    }
+    Line(String raw, Path loadedFrom, int origLineNumber) {
         this.raw = raw;
+        this.loadedFrom = loadedFrom;
         this.origLineNumber = origLineNumber;
         source = new ArrayList<>();
         source.add(raw);
+    }
+    Line withModifiedRaw(String newRaw) {
+        return new Line(this, newRaw);
     }
     /*public Line(ArrayList<Object> source) {
         this.source = source;
@@ -46,11 +55,32 @@ public class Line {
     public String raw() {
         return raw;
     }
-    public int num() {
-        return origLineNumber;
+
+    public class LineException extends RuntimeException {
+        public <T extends Throwable> LineException(T toWrap, String doing) {
+            super(toWrap.getClass() + " while " + doing + lineMessage(), toWrap);
+            if (doing == null) {
+                throw new IllegalArgumentException();
+            }
+        }
+        public LineException() {
+            super("Exception on " + Line.this.lineMessage());
+        }
+        public LineException(Throwable toWrap) {
+            super(toWrap.getClass() + " on" + Line.this.lineMessage(), toWrap);
+        }
+    }
+    private String lineMessage() {
+        return " line " + origLineNumber + " of " + loadedFrom;
     }
     public ArrayList<Object> source() {
         return source;
+    }
+    public boolean lexd() {
+        return tokens != null;
+    }
+    public boolean unlexd() {
+        return !lexd();
     }
     public void lex() {
         if (tokens != null) {
@@ -59,7 +89,7 @@ public class Line {
         tokens = source.stream().flatMap(o -> o instanceof Token ? Stream.of((Token) o) : Lexer.lex((String) o).stream()).collect(Collectors.toList());
     }
     public List<Token> getTokens() {
-        if (tokens == null) {
+        if (tokens == null) {//haha this is a funny exception message i just noticed
             throw new IllegalStateException("Play more arcade games because you don't have enough tokens");
         }
         return tokens;

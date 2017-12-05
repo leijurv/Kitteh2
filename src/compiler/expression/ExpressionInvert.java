@@ -5,6 +5,7 @@
  */
 package compiler.expression;
 import compiler.Context;
+import compiler.Context.VarInfo;
 import compiler.tac.IREmitter;
 import compiler.tac.TempVarUsage;
 import compiler.type.Type;
@@ -19,7 +20,7 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
     public ExpressionInvert(ExpressionConditionalJumpable inp) {
         this.inp = inp;
         if (!(inp.getType() instanceof TypeBoolean)) {
-            throw new RuntimeException("Can only invert a boolean");
+            throw new IllegalStateException("Can only invert a boolean");
         }
     }
     @Override
@@ -27,7 +28,7 @@ public class ExpressionInvert extends ExpressionConditionalJumpable {
         return new TypeBoolean();
     }
     @Override
-    public void generateTAC(IREmitter emit, TempVarUsage tempVars, String resultLocation) {
+    public void generateTAC(IREmitter emit, TempVarUsage tempVars, VarInfo resultLocation) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     @Override

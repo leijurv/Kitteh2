@@ -14,7 +14,7 @@ import compiler.tac.TempVarUsage;
  *
  * @author leijurv
  */
-public class CommandExp extends Command {
+public class CommandExp extends Command {//TODO: merge with CommandSetMulti. both CommandExp and CommandSetMulti do the exact same thing: set variable(s) to the result of a function call
     private Expression ex;
     public CommandExp(Expression ex, Context context) {
         super(context);
@@ -36,5 +36,8 @@ public class CommandExp extends Command {
     public void staticValues() {
         ex = ex.insertKnownValues(context);
         ex = ex.calculateConstants();
+    }
+    public Expression getEx() {
+        return ex;
     }
 }

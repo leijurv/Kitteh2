@@ -5,6 +5,7 @@
  */
 package compiler.tac;
 import compiler.x86.X86Emitter;
+import compiler.x86.X86Param;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,22 +14,13 @@ import java.util.List;
  * @author leijurv
  */
 public class TACJump extends TACStatement {
-    int jumpTo;
-    public TACJump(int jumpTo) {
-        this.jumpTo = jumpTo;
-    }
-    public TACJump(int jumpTo, String... paramNames) {
+    protected int jumpTo;
+    public TACJump(int jumpTo, X86Param... paramNames) {
         super(paramNames);
         this.jumpTo = jumpTo;
     }
     @Override
-    protected void onContextKnown() {
-        if (getClass() != TACJump.class) {
-            throw new IllegalStateException("Subclasses must override onContextKnown");
-        }
-    }
-    @Override
-    public String toString0() {
+    public String toString() {
         return "jmp " + jumpTo;
     }
     @Override
@@ -42,11 +34,11 @@ public class TACJump extends TACStatement {
         jumpTo = n;
     }
     @Override
-    public List<String> requiredVariables() {
+    public List<X86Param> requiredVariables() {
         return Arrays.asList();
     }
     @Override
-    public final List<String> modifiedVariables() {//a jump definitely can't modify anything, so final
+    public final List<X86Param> modifiedVariables() {//a jump definitely can't modify anything, so final
         return Arrays.asList();
     }
 }

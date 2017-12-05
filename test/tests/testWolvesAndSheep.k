@@ -1,84 +1,79 @@
 main(){
-	wolves:=newBoard(5)
-	attacked:=newBoard(5)
-	seed:=(int*)malloc(sizeof(int))
+	size:=5
+	wolves:=newBoard(size)
+	attacked:=newBoard(size)
+	seed:=(long*)malloc(sizeof(long))
 	*seed=1
 	for true{
-		for x:=0; x<5; x++{
-			for y:=0; y<5; y++{
-				wolves[x][y]=0
-				attacked[x][y]=0
+		for x:=0; x<size; x++{
+			for y:=0; y<size; y++{
+				wolves[x][y]=false
+				attacked[x][y]=false
 			}
 		}
-		for i:=0; i<5; i++{
-			x:=0
-			y:=0
-			for true{
-				x=r(seed,5)
-				y=r(seed,5)
-				if wolves[x][y]==0{
-					break
-				}
+		for i:=0; i<size; i++{
+			x:=r(seed,size)
+			y:=r(seed,size)
+			for wolves[x][y]{
+				x=r(seed,size)
+				y=r(seed,size)
 			}
-			wolves[x][y]=1
+			wolves[x][y]=true
 			for dirX:=0-1; dirX<=1; dirX++{
 				for dirY:=0-1; dirY<=1; dirY++{
 					if dirX==0 && dirY==0{
 						continue
 					}
-					fillDirection(attacked,x,y,dirX,dirY)
+					copyX:=x
+					copyY:=y
+					for copyX>=0 && copyY>=0 && copyX<size && copyY<size{
+						attacked[copyX][copyY]=true
+						copyX=copyX+dirX
+						copyY=copyY+dirY
+					}
 				}
 			}
 		}
 		open:=0
-		for x:=0; x<5; x++{
-			for y:=0; y<5; y++{
-				if attacked[x][y]==0{
+		for x:=0; x<size; x++{
+			for y:=0; y<size; y++{
+				if !attacked[x][y]{
 					open++
 				}
 			}
 		}
 		if open>=3{
-			for x:=0; x<5; x++{
-				for y:=0; y<5; y++{
-					if wolves[x][y]==1{
-						pr('W')
+			for x:=0; x<size; x++{
+				for y:=0; y<size; y++{
+					if wolves[x][y]{
+						writeByte('W')
 						continue
 					}
-					if attacked[x][y]==1{
-						pr('+')
+					if attacked[x][y]{
+						writeByte('+')
 						continue
 					}
-					pr('S')
+					writeByte('S')
 				}
-				pr(10)
+				writeByte(10)
 			}
 			print(*seed)
 			break
 		}
 	}
 }
-fillDirection(int** board,int x,int y,int dirX,int dirY){
-	for x>=0 && y>=0 && x<5 && y<5{
-		board[x][y]=1
-		x=x+dirX
-		y=y+dirY
-	}
-}
-func pr(byte b){
-	tmp:=(byte*)malloc(2)
-	tmp[0]=b
-	tmp[1]=0
-	print(tmp)
-}
-func r(int* seed,int max)int{
+func r(long* seed,int max)int{
 	*seed=(*seed*5023+257)%2147483647
-	return *seed%max
+	res:= *seed%(long)max
+	if res<(long)0{
+		return 0-(int)res
+	}
+	return (int)res
 }
-newBoard(int size) int**{
-	board:=(int**)malloc(size*sizeof(int*))
+newBoard(int size) bool**{
+	board:=(bool**)malloc(size*sizeof(bool*))
 	for i:=0; i<size; i++{
-		board[i]=(int*)malloc(size*sizeof(int))
+		board[i]=(bool*)malloc(size*sizeof(bool))
 	}
 	return board
 }

@@ -5,13 +5,14 @@
  */
 package compiler.x86;
 import compiler.type.Type;
+import compiler.type.TypeFloat;
 import compiler.type.TypeNumerical;
 
 /**
  *
  * @author leijurv
  */
-public class X86Const implements X86Param {
+public class X86Const extends X86Param {
     private final String value;
     private final TypeNumerical type;
     public X86Const(String value, TypeNumerical type) {
@@ -20,13 +21,15 @@ public class X86Const implements X86Param {
         }
         this.value = value;
         this.type = type;
+        if (type instanceof TypeFloat) {
+            throw new IllegalStateException();
+        }
     }
     @Override
     public String x86() {
         return "$" + value;
     }
-    @Override
-    public String getName() {
+    public String getValue() {
         return value;
     }
     @Override

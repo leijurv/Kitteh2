@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package compiler.x86;
+import compiler.type.TypeFloat;
 import compiler.type.TypeInt16;
 import compiler.type.TypeInt32;
 import compiler.type.TypeInt64;
@@ -13,15 +14,17 @@ import java.nio.channels.IllegalBlockingModeException;
 import java.nio.channels.IllegalSelectorException;
 import java.nio.file.ClosedWatchServiceException;
 import java.util.FormatterClosedException;
+import java.util.Locale;
 
 /**
  *
  * @author leijurv
  */
 public enum X86Register {
-    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15;
+    A, B, C, D, SI, DI, R8, R9, R10, R11, R12, R13, R14, R15, BP, SP, XMM0, XMM1;
+    public static final String REGISTER_PREFIX = "%";
     public static TypeNumerical typeFromRegister(String reg) {
-        if (reg.startsWith(X86Register.REGISTER_PREFIX)) {
+        if (reg.startsWith(REGISTER_PREFIX)) {
             return typeFromRegister(reg.substring(1));
         }
         switch (reg.length()) {
@@ -62,25 +65,39 @@ required to preserve their values. In other words, a called function must preser
 these registers’ values for its caller.
         from the system V abi
          */
-        if (!allowSpills) {
+        //Actually, let's USE THESE REGISTERS ANYWAY =D
+        //because live life on the edge
+        /*if (!allowSpills) {
             switch (this) {
                 case B:
                 case R12:
                 case R13:
                 case R14:
                 case R15:
-                    throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
+                    //throw new NegativeArraySizeException("Can't use " + this + " because kitteh2 doesn't support callee spills");
             }
+        }*/
+        if ((this == XMM0 || this == XMM1) && !(version instanceof TypeFloat)) {
+            throw new IllegalStateException();
+        }
+        if ((this == BP || this == SP) && version.getSizeBytes() != 8) {
+            throw new IllegalStateException();
         }
         switch (this) {
+            case XMM0:
+            case XMM1:
+                return REGISTER_PREFIX + toString().toLowerCase(Locale.US);
+            case BP:
+            case SP:
+                return REGISTER_PREFIX + 'r' + toString().toLowerCase(Locale.US);
             case A:
             case B:
             case C:
             case D:
-                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + version.x86registersuffix();//e.g. %eax
+                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase(Locale.US) + version.x86registersuffix();//e.g. %eax
             case SI:
             case DI:
-                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase() + (version.x86registersuffix() == 'l' ? "l" : "");
+                return REGISTER_PREFIX + version.x86registerprefix() + toString().toLowerCase(Locale.US) + (version.x86registersuffix() == 'l' ? "l" : "");
             case R8:
             case R9:
             case R10:
@@ -89,9 +106,9 @@ these registers’ values for its caller.
             case R13:
             case R14:
             case R15:
-                return REGISTER_PREFIX + toString().toLowerCase() + version.x86r_registersuffix();
+                return REGISTER_PREFIX + toString().toLowerCase(Locale.US) + version.x86Rregistersuffix();
+            default:
+                throw new IllegalSelectorException();
         }
-        throw new IllegalSelectorException();
     }
-    public static final String REGISTER_PREFIX = "%";
 }

@@ -28,10 +28,10 @@ import java.util.stream.IntStream;
  * @author leijurv
  */
 public class Compiler {
-    static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
-    static boolean METRICS = false;
-    static boolean DETERMINISTIC = false;
-    static boolean OBFUSCATE = false;
+    private static boolean VERBOSE = false;//TODO these four should be in some form of CLI args object passed around, a la OptimizationSettings
+    private static boolean METRICS = false;
+    private static boolean DETERMINISTIC = false;
+    private static boolean OBFUSCATE = false;
     public static boolean deterministic() {
         return DETERMINISTIC;
     }
@@ -43,6 +43,12 @@ public class Compiler {
     }
     public static boolean obfuscate() {
         return OBFUSCATE;
+    }
+    public static void setSettings(boolean deterministic, boolean verbose, boolean metrics, boolean obfuscate) {
+        DETERMINISTIC = deterministic;
+        VERBOSE = verbose;
+        METRICS = metrics;
+        OBFUSCATE = obfuscate;
     }
     public static String compile(Path main, OptimizationSettings settings) throws IOException {
         long a = System.currentTimeMillis();//benchmark timestamps

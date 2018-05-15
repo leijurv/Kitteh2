@@ -1,3 +1,4 @@
+This branch contains extra optimizations, specifically those in `OptimizeRegA.java`. These optimizations are fairly janky / sketchy, are written with low code quality, are probably very brittle, and don't provite a performance boost big enough to be measurable, since they're very low level peephole X86_64 optims (however, looking at the changes to the resulting assembly, they obviously provide a nonzero improvement). It's better, but not better enough to be measurable, and since the code providing the optimization is so bad, I've removed it from master and placed it in this branch.
 # Kitteh2
 Second revision of my Kitteh language. Now comes with a compiler to x86.
 

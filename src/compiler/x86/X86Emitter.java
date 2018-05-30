@@ -116,7 +116,11 @@ public class X86Emitter {
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
-                addComment("equivalence " + eq.get());
+                if (compiler.Compiler.deterministic()) {
+                    addComment("equivalence " + eq.get().stream().map(X86Param::toString).sorted().collect(Collectors.joining(", ", "[", "]")));
+                } else {
+                    addComment("equivalence " + eq.get());
+                }
                 addComment(moveStmt.toString());
             }
             return;//can return because this doesn't affect anything

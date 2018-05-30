@@ -3,7 +3,7 @@
 
 -libraryjars '/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/rt.jar'
 
--optimizationpasses 1000
+-optimizationpasses 16
 -verbose
 
 

@@ -100,7 +100,7 @@ class Parser {
                 if (context.isTopLevel()) {//nothing top level that isn't a block
                     throw new IllegalStateException("No globals except for function definitions and structs");
                 }
-                return Optional.ofNullable(LineParser.parseLine(l.getTokens(), context));//TODO have LineParser.parseLine return an Optional<Command> proper instead of a Command that can be null
+                return LineParser.parseLine(l.getTokens(), context);
             }
         } catch (RuntimeException e) {
             throw e instanceof LineException ? e : l.new <RuntimeException>LineException(e, "parsing");

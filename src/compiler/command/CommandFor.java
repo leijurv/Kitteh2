@@ -13,6 +13,7 @@ import compiler.tac.TACJump;
 import compiler.tac.TempVarUsage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,7 +125,7 @@ public class CommandFor extends CommandBlock {
     public Stream<String> getAllVarsModified() {
         Stream<String> mod = super.getAllVarsModified();
         if (afterthought != null) {
-            return Stream.of(mod, afterthought.getAllVarsModified()).flatMap(x -> x);
+            return Stream.of(mod, afterthought.getAllVarsModified()).flatMap(Function.identity());
         }
         return mod;
     }

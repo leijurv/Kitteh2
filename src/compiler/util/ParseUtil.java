@@ -14,6 +14,7 @@ import compiler.type.TypePointer;
 import compiler.type.TypeStruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -110,7 +111,7 @@ public class ParseUtil {
      * searchingFor
      */
     public static <T> Stream<T> filteredFlatten(Class<T> searchingFor, Predicate<? super T> filter, ArrayList<?> inp) {
-        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<?>) x)).flatMap(x -> x)).flatMap(x -> x);
+        return Stream.of(inp.stream().filter(searchingFor::isInstance).map(searchingFor::cast).filter(filter), inp.stream().filter(ArrayList.class::isInstance).map(x -> filteredFlatten(searchingFor, filter, (ArrayList<?>) x)).flatMap(Function.identity())).flatMap(Function.identity());
     }
     public static <SearchingFor, SearchingIn> Stream<SearchingFor> flatten(ArrayList<SearchingIn> inp, Class<SearchingFor> searchingFor) {
         return filteredFlatten(searchingFor, x -> true, inp);

@@ -9,6 +9,7 @@ import compiler.preprocess.Line;
 import compiler.util.ParseUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class LexLuthor implements Transform<ArrayList<Object>> {
                 return line.new LineException(ex, "lexing");
             }
             return null;
-        }).filter(ex -> ex != null).findFirst();//get the first non-null exception
+        }).filter(Objects::nonNull).findFirst();//get the first non-null exception
         if (e.isPresent()) {
             throw e.get();//and throw it
         }

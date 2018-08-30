@@ -42,8 +42,8 @@ public class BlockFinder implements Transform<ArrayList<Object>> {
                 continue;
             }
             Line line = ((Line) lines.get(i));
-            boolean start = line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("{"));
-            boolean end = line.source().stream().filter(String.class::isInstance).anyMatch(str -> ((String) str).contains("}"));
+            boolean start = line.source().stream().filter(String.class::isInstance).map(String.class::cast).anyMatch(str -> str.contains("{"));
+            boolean end = line.source().stream().filter(String.class::isInstance).map(String.class::cast).anyMatch(str -> str.contains("}"));
             if (start && !end) {
                 assertLineSane(line, true, true);
                 numBrkts++;

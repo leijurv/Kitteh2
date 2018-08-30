@@ -98,7 +98,7 @@ class LineParser {
         }
         return null;
     }
-    public static Command noEqLoc(List<Token> tokens, Context context) {
+    public static Optional<Command> noEqLoc(List<Token> tokens, Context context) {
         Type type = ParseUtil.typeFromTokens(tokens.subList(0, tokens.size() - 1), context);
         //System.out.println("Type: " + type + " " + tokens.subList(0, tokens.size() - 1) + " " + context);
         if (type != null) {
@@ -111,7 +111,7 @@ class LineParser {
             }
             context.setType(ts, type);
             //ok we doing something like long i=5
-            return null;
+            return Optional.empty();
         }
         if (tokens.get(tokens.size() - 1) == INCREMENT || tokens.get(tokens.size() - 1) == DECREMENT) {
             if (tokens.size() != 2 || !Token.is(tokens.get(0), VARIABLE)) {
@@ -131,7 +131,7 @@ class LineParser {
             if (typ instanceof TypeStruct) {
                 throw new IllegalStateException("NO!");
             }
-            return new CommandSetVar(varName, new ExpressionOperator(new ExpressionVariable(varName, context), tokens.get(tokens.size() - 1).tokenType() == INCREMENT ? Operator.PLUS : Operator.MINUS, new ExpressionConstNum(1, (TypeNumerical) context.get(varName).getType())), context);
+            return Optional.of(new CommandSetVar(varName, new ExpressionOperator(new ExpressionVariable(varName, context), tokens.get(tokens.size() - 1).tokenType() == INCREMENT ? Operator.PLUS : Operator.MINUS, new ExpressionConstNum(1, (TypeNumerical) context.get(varName).getType())), context));
         }
         //this isn't setting a variable, so it's an expression I think
         Expression ex = ExpressionParser.parse(tokens, Optional.empty(), context);
@@ -142,7 +142,7 @@ class LineParser {
         if (!ex.canBeCommand()) {
             throw new IllformedLocaleException(ex + "");
         }
-        return new CommandExp(ex, context);
+        return Optional.of(new CommandExp(ex, context));
     }
     public static Command withComma(List<Token> tokens, Context context, int eqLoc) {
         List<Token> after = tokens.subList(eqLoc + 1, tokens.size());
@@ -233,13 +233,13 @@ class LineParser {
         //System.out.println(tokens + " " + result + " " + exp + " " + right);
         return result;
     }
-    public static Command parseLine(List<Token> tokens, Context context) {
+    public static Optional<Command> parseLine(List<Token> tokens, Context context) {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("what");
         }
         Command k = keywordSection(tokens, context);
         if (k != null) {//if keywordSection returns null, that just means there wasn't a keyword, it doesn't mean that it parsed and really means no command result
-            return k;
+            return Optional.of(k);
         }
         if (tokens.stream().anyMatch(SEMICOLON)) {//omg this is so cool. I can either do tokens.contains(SEMICOLON) or tokens.stream().anyMatch(SEMICOLON). 3 guesses which I like more =)
             throw new IllegalStateException("I don't like semicolons");
@@ -261,14 +261,14 @@ class LineParser {
             return noEqLoc(tokens, context);
         }
         if (tokens.subList(0, eqLoc).contains(COMMA)) {
-            return withComma(tokens, context, eqLoc);
+            return Optional.of(withComma(tokens, context, eqLoc));
         }
         if (eqLoc == 1) {
-            return eqSecond(tokens, context, eqLoc);
+            return Optional.of(eqSecond(tokens, context, eqLoc));
         }
         if ((Boolean) tokens.get(eqLoc).data()) {
             throw new ClosedDirectoryStreamException();
         }
-        return parseSettable(tokens, context, eqLoc);
+        return Optional.of(parseSettable(tokens, context, eqLoc));
     }
 }

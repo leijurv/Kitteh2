@@ -44,6 +44,7 @@ public class X86Function {
     private boolean allocated;
     private HashSet<X86Register> allUsed = null;
     private List<String> descendants = null;
+    private HashSet<String> directCalls = null;
     public X86Function(String name, List<TACStatement> stmts, HashMap<String, X86Function> map) {
         this.name = name;
         this.stmts = stmts;
@@ -93,8 +94,11 @@ public class X86Function {
         allUsed = result;
         return new HashSet<>(allUsed);
     }
-    public HashSet<String> directCalls() {//TODO cache
-        return stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
+    public HashSet<String> directCalls() {
+        if (directCalls == null) {
+            directCalls = stmts.stream().filter(TACFunctionCall.class::isInstance).map(TACFunctionCall.class::cast).map(TACFunctionCall::calling).collect(Collectors.toCollection(HashSet::new));
+        }
+        return directCalls;
     }
     public boolean canAllocate() {
         if (allocated) {

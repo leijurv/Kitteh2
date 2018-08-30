@@ -34,10 +34,10 @@ class CharStripperFactory {
      * @return
      */
     private HashSet<Character> stripBegin() {
-        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripBegin()).mapToObj(chars::get).collect(Collectors.toCollection(HashSet::new));
+        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripBegin()).boxed().map(chars::get).collect(Collectors.toCollection(HashSet::new));
     }
     private HashSet<Character> stripEnd() {
-        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripEnd()).mapToObj(chars::get).collect(Collectors.toCollection(HashSet::new));
+        return IntStream.range(0, chars.size()).filter(i -> locations.get(i).stripEnd()).boxed().map(chars::get).collect(Collectors.toCollection(HashSet::new));
     }
 
     private class StripChars extends LineBasedTransform {

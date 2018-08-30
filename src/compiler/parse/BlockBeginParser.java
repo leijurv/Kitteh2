@@ -76,10 +76,10 @@ class BlockBeginParser {
                 ArrayList<Token> second = new ArrayList<>(params.subList(firstSemi + 1, secondSemi));
                 ArrayList<Token> third = new ArrayList<>(params.subList(secondSemi + 1, params.size()));
                 Context sub = context.subContext();
-                Command initialization = LineParser.parseLine(first, sub);
+                Command initialization = LineParser.parseLine(first, sub).orElseThrow(() -> new IllegalStateException("Missing for loop initialization"));
                 ExpressionConditionalJumpable condition = (ExpressionConditionalJumpable) ExpressionParser.parse(second, Optional.of(new TypeBoolean()), sub);
                 ArrayList<Command> blockCommands = Processor.parseRecursive(rawBlock, sub); //this has to be run AFTER we parse the initialization. because the contents might use i, and i hasn't been set before we parse the initializer
-                Command afterthought = LineParser.parseLine(third, sub);
+                Command afterthought = LineParser.parseLine(third, sub).orElseThrow(() -> new IllegalStateException("Missing for loop afterthought"));
                 return new CommandFor(initialization, condition, afterthought, blockCommands, sub);
             }
             default:

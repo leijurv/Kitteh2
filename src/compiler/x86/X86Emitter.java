@@ -116,7 +116,11 @@ public class X86Emitter {
         if (eq.isPresent()) {
             if (compiler.Compiler.verbose()) {
                 addComment("SMART redundant because of previous statement");
-                addComment("equivalence " + eq.get());
+                if (compiler.Compiler.deterministic()) {
+                    addComment("equivalence " + eq.get().stream().map(X86Param::toString).sorted().collect(Collectors.joining(", ", "[", "]")));
+                } else {
+                    addComment("equivalence " + eq.get());
+                }
                 addComment(moveStmt.toString());
             }
             return;//can return because this doesn't affect anything
@@ -185,9 +189,10 @@ public class X86Emitter {
     }
     public String toX86() {
         OptimizeRegD.optimize(statements);
-        OptimizeRegA.optimize(statements);
-        OptimizeRegA.optimize(statements);//two passes is enough to replace all normal patterns
-        OptimizeRegA.optimize(statements);//add in a third just in case =)
+        //note: OptimizeRegA has been removed from master because of how sketchy it is, and how it didn't provide a measurable performance boost. For more info, see the optimizerega branch where it's still present.
+        //OptimizeRegA.optimize(statements);
+        //OptimizeRegA.optimize(statements);//two passes is enough to replace all normal patterns
+        //OptimizeRegA.optimize(statements);//add in a third just in case =)
         return statements.stream().filter(x -> !(x instanceof Comment) || compiler.Compiler.verbose()).map(X86Statement::x86).collect(Collectors.joining("\n"));
     }
     public String withoutComments() {

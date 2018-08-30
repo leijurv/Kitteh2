@@ -230,7 +230,7 @@ public class TACStandard extends TACStatement {
                 throw new UnsupportedOperationException(type + " " + first + " " + second, e);
             }
         }
-        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!second.equals(result) || op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)) {//TODO secondName.equals(resultName) may cause unintended behavior...
+        if (result instanceof X86TypedRegister && op != MOD && op != DIVIDE && (!second.equals(result) || op == USHIFT_L || op == USHIFT_R || op == SHIFT_L || op == SHIFT_R)) {
             aa = (X86TypedRegister) result;
             a = result.x86();
             ma = true;

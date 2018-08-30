@@ -40,6 +40,10 @@ public class Main {
         String inFile = DEFAULT_IN_FILE;
         String outFile = DEFAULT_OUT_FILE;
         boolean executable = false;
+        boolean verbose = false;
+        boolean metrics = false;
+        boolean deterministic = false;
+        boolean obfuscate = false;
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 default:
@@ -69,17 +73,17 @@ public class Main {
                 case "-verbose":
                 case "--verbose":
                     if (ALLOW_CLI) {
-                        Compiler.VERBOSE = true;
+                        verbose = true;
                     }
                     break;
                 case "-m":
                     if (ALLOW_CLI) {
-                        Compiler.METRICS = true;
+                        metrics = true;
                     }
                     continue;
                 case "-d":
                     if (ALLOW_CLI) {
-                        Compiler.DETERMINISTIC = true;
+                        deterministic = true;
                     }
                     break;
                 case "-e"://LOTS of options
@@ -93,11 +97,12 @@ public class Main {
                 case "-obf":
                 case "--obf":
                     if (ALLOW_CLI) {
-                        Compiler.OBFUSCATE = true;
+                        obfuscate = true;
                     }
                     break;
             }
         }
+        Compiler.setSettings(deterministic, verbose, metrics, obfuscate);
         Path inPath = new File(inFile).toPath();
         System.out.println("Input file: " + inFile);
         System.out.println("Output file: " + outFile);

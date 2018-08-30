@@ -30,7 +30,7 @@ public enum TokenType implements Token<Void>, Predicate<Token> {
     private final Function<Object, String> toStr;
     private final Class cla;
     TokenType(String str) {
-        this(arg -> arg == null, null, x -> str);
+        this(null, null, x -> str);
     }
     <T> TokenType(Class<T> cla, Function<T, String> toStr) {
         this(arg -> arg != null && cla.isInstance(arg), cla, toStr);

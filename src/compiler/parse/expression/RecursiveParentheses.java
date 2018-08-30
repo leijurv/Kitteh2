@@ -150,7 +150,7 @@ class RecursiveParentheses extends TokenBased {
                 throw new IllegalStateException("mismatched arg count " + args + " " + desiredTypes);
             }
             List<Expression> arguments = IntStream.range(0, args.size())
-                    .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), "print".equals(funcNameCopy) ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))
+                    .mapToObj(p -> ExpressionParser.parseImpl(args.get(p), "print".equals(funcNameCopy) ? Optional.empty() : Optional.of(desiredTypes.get(p)), context))//don't box because this is an arraylist lookup which is already int not Integer
                     .collect(Collectors.toList());
             o.set(i - 1, new ExpressionFunctionCall(context, pkg, funcName, arguments));
             if ("free".equals(funcName) && pkg == null) {//calling free without a ::

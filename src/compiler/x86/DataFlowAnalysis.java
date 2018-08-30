@@ -6,6 +6,7 @@
 package compiler.x86;
 import compiler.type.TypeInt64;
 import compiler.type.TypeNumerical;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,14 +20,13 @@ import java.util.stream.Collectors;
  * @author leijurv
  */
 public class DataFlowAnalysis {
-    private HashSet<HashSet<X86Param>> equals = new HashSet<>();
+    private final ArrayList<HashSet<X86Param>> equals = new ArrayList<>();//outer layer cannot be a hashset, because the inner hashsets are mutable. it's never a good idea to mutate what's in a hashset. thankfully x86params are pretty much immutable.
     private final X86Emitter emit;
     public DataFlowAnalysis(X86Emitter emit) {
         this.emit = emit;
     }
     public DataFlowAnalysis(DataFlowAnalysis other, X86Emitter emit) {
         this(emit);
-        equals = new HashSet<>();
         other.equals.stream().map(HashSet::new).forEach(equals::add);
     }
     public List<X86Param> rawAlt(X86Param a, boolean onlyReg) {
@@ -143,6 +143,6 @@ public class DataFlowAnalysis {
         clearRegisters(Arrays.asList(registers));
     }
     public void clear() {
-        equals = new HashSet<>();
+        equals.clear();
     }
 }

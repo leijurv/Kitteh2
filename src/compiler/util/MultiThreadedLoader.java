@@ -34,7 +34,6 @@ public class MultiThreadedLoader {
             importFileInNewThread(semaphore.toLoad().get(i), i == 0);
         }
         while (true) {
-            boolean done = false;
             synchronized (this) {
                 if (thrown != null) {
                     if (thrown instanceof RuntimeException) {
@@ -45,17 +44,12 @@ public class MultiThreadedLoader {
                     }
                 }
                 if (inProgress.isEmpty()) {
-                    done = true;
+                    break;
                 }
-            }
-            if (done) {
-                break;
             }
             try {
                 synchronized (semaphore) {
-                    if (!done) {
-                        semaphore.wait(5);
-                    }
+                    semaphore.wait(5);
                 }
             } catch (InterruptedException ex) {
                 throw new IllegalStateException(ex);

@@ -19,7 +19,7 @@ class CharStripperFactory {
     private final ArrayList<StripLocation> locations = new ArrayList<>();
     public CharStripperFactory addChar(char c, StripLocation loc) {
         if (chars.contains(c)) {
-            throw new TypeConstraintException("");//lol
+            throw new IllegalStateException();
         }
         chars.add(c);
         locations.add(loc);

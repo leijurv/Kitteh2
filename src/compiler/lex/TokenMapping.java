@@ -10,7 +10,6 @@ import compiler.token.TokenType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.ws.WebServiceException;
 
 /**
  *
@@ -77,7 +76,7 @@ class TokenMapping {
     public static Token getStaticToken(String ch) {
         Token t = MAPPINGS.get(ch);
         if (t == null) {
-            throw new WebServiceException();//lol
+            throw new IllegalStateException();
         }
         return t;
     }

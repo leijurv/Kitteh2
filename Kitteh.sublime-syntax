@@ -1,0 +1,32 @@
+%YAML 1.2
+---
+name: Kitteh
+file_extensions:
+  - kitteh
+  - k
+scope: source.k
+contexts:
+
+# Main
+
+  main:
+    - include: kittehmain
+  
+# Html
+
+  kittehmain:
+    - match: '(for)'
+      captures:
+        1: keyword.control.c
+    - match: '(if)'
+      captures:
+        1: keyword.control.c
+    - match: '(struct)[ *]'
+      captures:
+        1: keyword.control.c
+    - match: '(byte|int)[ *]'
+      captures:
+        1: keyword.control.c
+    - match: '([a-zA-Z][a-zA-Z0-9]+?)\('
+      captures:
+        1: keyword.control.c

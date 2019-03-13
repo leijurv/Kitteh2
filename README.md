@@ -26,7 +26,7 @@ gcc -o executable output.s
 The first and second steps can optionally be combined:
 
 ```
-java -jar dist/Kitteh2.jar -i test/tests/mandelbrot.k -o executable -e
+dist/k2c -i test/tests/mandelbrot.k -o executable -e
 ./executable
 ```
 
